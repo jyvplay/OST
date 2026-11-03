@@ -1,0 +1,142 @@
+[
+  {
+    "kind": "rejected query",
+    "status": 422,
+    "reason": "GitHub required explicit is:issue or is:pull-request; corrected queries below",
+    "acceptedAsSearchResult": false
+  },
+  {
+    "kind": "actual GitHub issue search, not normative proof",
+    "name": "menu-focus",
+    "query": "is:issue repo:w3c/aria-practices menu focus return",
+    "url": "https://github.com/search?type=issues&q=is%3Aissue%20repo%3Aw3c/aria-practices%20menu%20focus%20return",
+    "retrievedAt": "2026-11-02T00:56:39.139372+00:00",
+    "totalCount": 26,
+    "items": [
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/1632",
+        "title": "Example Disclosure for Navigation Menus: keyboard support table is inaccurate",
+        "number": 1632,
+        "state": "open"
+      },
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/1409",
+        "title": "Menuitem opening a dialog - should menu stay visible?",
+        "number": 1409,
+        "state": "open"
+      },
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/2735",
+        "title": "Regression tests fail on macOS due to Windows-based assumptions",
+        "number": 2735,
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "kind": "actual GitHub issue search, not normative proof",
+    "name": "dialog-shortcuts",
+    "query": "is:issue repo:w3c/aria-practices dialog keyboard escape",
+    "url": "https://github.com/search?type=issues&q=is%3Aissue%20repo%3Aw3c/aria-practices%20dialog%20keyboard%20escape",
+    "retrievedAt": "2026-11-02T00:56:39.617437+00:00",
+    "totalCount": 17,
+    "items": [
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/3427",
+        "title": "Date Picker Combobox Example: Cancel Button doesn't undo keyboard selected (spacebar) date",
+        "number": 3427,
+        "state": "open"
+      },
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/1772",
+        "title": "Modal dialog: consider allowing Tab/Shift+Tab to escape to browser chrome",
+        "number": 1772,
+        "state": "open"
+      },
+      {
+        "html_url": "https://github.com/w3c/aria-practices/issues/3116",
+        "title": "Predictability: Escape key to dismiss tooltips",
+        "number": 3116,
+        "state": "open"
+      }
+    ]
+  },
+  {
+    "kind": "actual GitHub issue search, not normative proof",
+    "name": "rgb-bounds",
+    "query": "is:issue repo:python-pillow/Pillow getbbox RGB",
+    "url": "https://github.com/search?type=issues&q=is%3Aissue%20repo%3Apython-pillow/Pillow%20getbbox%20RGB",
+    "retrievedAt": "2026-11-02T00:56:40.106917+00:00",
+    "totalCount": 35,
+    "items": [
+      {
+        "html_url": "https://github.com/python-pillow/Pillow/issues/10317",
+        "title": "Text containing \"\\r\" or other paragraph separators raises \"raqm_layout() failed.\" in 13.0.0",
+        "number": 10317,
+        "state": "open"
+      },
+      {
+        "html_url": "https://github.com/python-pillow/Pillow/issues/7162",
+        "title": "Why getbbox() returns None?",
+        "number": 7162,
+        "state": "closed"
+      },
+      {
+        "html_url": "https://github.com/python-pillow/Pillow/issues/5914",
+        "title": "Bounding box calculation discrepancy between 7.0.0 and 8.4.0 for RGBA",
+        "number": 5914,
+        "state": "closed"
+      }
+    ]
+  },
+  {
+    "kind": "primary installed-version source reference, not copied production implementation",
+    "name": "pillow-Image.py",
+    "repo": "python-pillow/Pillow",
+    "installedVersion": "13.0.0",
+    "commit": "293218ad059d994baf1777d882911bed6a49704a",
+    "blobSha": "40720c5d438750a21b9752c94e67259b23ddb437",
+    "sha256": "04050c2d4dd67931ce8c3cfdbc49ac4a6944d379d037c8f1d5eeeb67fba29a10",
+    "bytes": 153846,
+    "retrievedAt": "2026-11-02T00:56:40.854084+00:00",
+    "url": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/src/PIL/Image.py",
+    "licenseMetadata": null
+  },
+  {
+    "kind": "primary installed-version source reference, not copied production implementation",
+    "name": "pillow-LICENSE",
+    "repo": "python-pillow/Pillow",
+    "installedVersion": "13.0.0",
+    "commit": "293218ad059d994baf1777d882911bed6a49704a",
+    "blobSha": "c011511a4ab6bd2bc901608e6b4c0fad95fc410f",
+    "sha256": "15181e7363dca9aed78b79bebebc7fde7f1814b8bd311ea3b87ae8ccadfc185b",
+    "bytes": 1457,
+    "retrievedAt": "2026-11-02T00:56:41.313343+00:00",
+    "url": "https://github.com/python-pillow/Pillow/blob/293218ad059d994baf1777d882911bed6a49704a/LICENSE",
+    "licenseMetadata": {
+      "key": "other",
+      "name": "Other",
+      "spdx_id": "NOASSERTION",
+      "url": null,
+      "node_id": "MDc6TGljZW5zZTA="
+    }
+  },
+  {
+    "kind": "reviewed issue body, not normative proof",
+    "url": "https://github.com/w3c/aria-practices/issues/1409",
+    "title": "Menuitem opening a dialog - should menu stay visible?",
+    "state": "open",
+    "bodySha256": "91357bd0d1e72dbe35adb841a7450e5b0cd793e9d551f517eee45c483c5e0269",
+    "bodyBytes": 562,
+    "retrievedAt": "2026-11-02T00:58:23.283387+00:00"
+  },
+  {
+    "kind": "reviewed issue body, not normative proof",
+    "url": "https://github.com/python-pillow/Pillow/issues/5914",
+    "title": "Bounding box calculation discrepancy between 7.0.0 and 8.4.0 for RGBA",
+    "state": "closed",
+    "bodySha256": "ad9fb575d402540be620c9f38eb6736cf32c78e94e23b70755af57af7c6d0499",
+    "bodyBytes": 1993,
+    "retrievedAt": "2026-11-02T00:58:23.778670+00:00"
+  }
+]

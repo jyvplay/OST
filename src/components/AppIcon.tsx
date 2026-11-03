@@ -26,9 +26,11 @@ const S = { fill: "none", strokeLinecap: "round", strokeLinejoin: "round" } as c
 export const GLYPHS: Record<GlyphName, Glyph> = {
   folder: (p) => <><path d="M10 17a3.5 3.5 0 0 1 3.5-3.5h7.2l3.3 3.6h10.5A3.5 3.5 0 0 1 38 20.6v12.9a3.5 3.5 0 0 1-3.5 3.5h-21A3.5 3.5 0 0 1 10 33.5Z" fill={p.fg} /><path d="M13 22.5h22" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
   pencil: (p) => <><path d="M14.5 33.5l1.8-6.6L30 13.2a2.6 2.6 0 0 1 3.7 0l1.1 1.1a2.6 2.6 0 0 1 0 3.7L21.1 31.7z" fill={p.fg} /><path d="M27.5 15.8l4.7 4.7" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M13 38h22" {...S} stroke={p.fg} strokeWidth="3.4" /></>,
-  search: (p) => <><circle cx="21.5" cy="21.5" r="8.2" {...S} stroke={p.fg} strokeWidth="4" /><path d="M27.6 27.6L35 35" {...S} stroke={p.fg} strokeWidth="5" /><circle cx="18.6" cy="18.6" r="2" fill={p.fg} opacity=".55" /></>,
+  // TT134: original indexed-document mark, drawn here (no third-party artwork).
+  search: (p) => <><path d="M11 14h13M11 20h7M11 26h5" {...S} stroke={p.fg} strokeWidth="3" /><circle cx="27" cy="25" r="8" {...S} stroke={p.fg} strokeWidth="3.8" /><path d="m33 31 5 5" {...S} stroke={p.fg} strokeWidth="4.6" /></>,
   terminal: (p) => <><path d="M13.5 17.5l7 6.5-7 6.5" {...S} stroke={p.fg} strokeWidth="4" /><path d="M24.5 31h10" {...S} stroke={inkIsDark(p.fg) ? "#0a7d57" : "#7cf5c4"} strokeWidth="4" /></>,
-  note: (p) => <><path d="M13 12.5h22a1.5 1.5 0 0 1 1.5 1.5v14.6L28.1 37H13a1.5 1.5 0 0 1-1.5-1.5V14a1.5 1.5 0 0 1 1.5-1.5z" fill={p.fg} /><path d="M27.8 36.6v-6.4a1.8 1.8 0 0 1 1.8-1.8h6.4" {...S} stroke={p.detail} strokeWidth="2.6" /><path d="M16.5 19h14M16.5 24.5h9" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
+  // TT134: original ring-bound notebook + bookmark; the palette/accessible label contract is unchanged.
+  note: (p) => <><rect x="14" y="11" width="22" height="26" rx="3" fill={p.fg} /><path d="M11 17h6M11 24h6M11 31h6" {...S} stroke={p.fg} strokeWidth="3" /><path d="M28 11v10l3-2 3 2V11Z" fill={p.detail} /><path d="M21 26h9M21 31h6" {...S} stroke={p.detail} strokeWidth="2.4" /></>,
   globe: (p) => <><circle cx="24" cy="24" r="12" {...S} stroke={p.fg} strokeWidth="3.4" /><ellipse cx="24" cy="24" rx="5.2" ry="12" {...S} stroke={p.fg} strokeWidth="2.8" /><path d="M12.8 20h22.4M12.8 28h22.4" {...S} stroke={p.fg} strokeWidth="2.8" /></>,
   play: (p) => <path d="M19 14.6v18.8a1.6 1.6 0 0 0 2.5 1.3l13.6-9.4a1.6 1.6 0 0 0 0-2.6l-13.6-9.4A1.6 1.6 0 0 0 19 14.6z" fill={p.fg} />,
   record: (p) => <><path d="M12 18v-3.5a2.5 2.5 0 0 1 2.5-2.5H18M30 12h3.5a2.5 2.5 0 0 1 2.5 2.5V18M36 30v3.5a2.5 2.5 0 0 1-2.5 2.5H30M18 36h-3.5a2.5 2.5 0 0 1-2.5-2.5V30" {...S} stroke={p.fg} strokeWidth="3.4" /><circle cx="24" cy="24" r="6" fill={p.fg} /></>,

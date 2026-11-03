@@ -1,0 +1,44 @@
+Actual browser: 143.0.7499.0
+  ✓ NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects
+  ✓ NT-08: New and window Close cannot silently destroy dirty Notes; cancel both native UI actions
+  ✗ NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it
+    Expected values to be strictly equal:
++ actual - expected
+
++ '{"v":1,"base":{"id":4,"revision":1,"title":"tt133-mvwjjrnr Recovery","body":"saved original","tags":"","pinned":false,"createdAt":"2026-10-31T15:13:44.122Z","updatedAt":"2026-10-31T15:13:44.122Z"},"value":{"title":"tt133-mvwjjrnr Recovery","body":"recovered\\n🧭 \\"literal\\"\\n","tags":"","pinned":false},"savedAt":1793459625935}'
+- null
+
+  ✓ NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner
+  ✓ NT-09 patch attack: temporarily blank titles are recoverable editing states, and Discard draft does not write the note
+  ✓ NT-11: local full-text filtering composes with stored-tag filtering, preserves selection, and has a real empty state
+  ✓ NT-12: preview renders a safe Markdown subset without executing raw HTML, loading remote images, or enabling javascript links
+  ✓ NT-13: native file input imports fatal UTF-8 Markdown into a persisted indexed note; invalid UTF-8 cannot add a note
+  ✓ NT-14: real wiki navigation and reverse backlinks open the correct notes; absent and ambiguous destinations cannot choose an arbitrary record
+  ✓ NT-15: outline is clickable, fence-aware and shares exact preview line IDs, including indented headings far below the fold
+  ✗ NT-16: native textarea selection creates an exact independent note, leaves its source unchanged, and an empty selection cannot extract
+    locator.getAttribute: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator('[data-win-id="w1"]').locator('details').filter({ has: getByRole('button', { name: 'Download .md', exact: true }) })
+
+  ✓ NT-17: interactive checklist checks and unchecks the right source marker; saving/reopening preserves other lines exactly
+  ✗ NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file
+    locator.getAttribute: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator('[data-win-id="w1"]').locator('details').filter({ has: getByRole('button', { name: 'Download .md', exact: true }) })
+
+  ✓ SR-13: the actual source control changes the native request and excludes other kinds, including an empty wrong source
+  ✓ SR-14: title and reference orders rearrange only the returned result set deterministically
+  ✓ SR-15: literal matching keeps internal whitespace and SQL wildcard characters literal, without ranked/fuzzy matches
+  ✓ SR-16: file suffix control is case-insensitive and literal, and a non-file source disables/clears it
+  ✓ SR-17: native confirmation cancels without a rebuild, then a real confirmed rebuild preserves source bytes
+  ✓ SR-18: path diagnosis shows an indexed real file, a nonexistent file, and invalid path refusal without hiding a previous diagnosis
+  ✓ SR-19: Enter records complete history, Cancel keeps it, Clear deletes it and reload cannot resurrect it
+  ✓ SR-19 patch attack: clearing history while a genuine PostgreSQL table lock holds a search cannot be undone by the late response
+  ✓ SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state
+  ✓ SV-03: native JSON download → delete → file import restores complete profiles; cancelled and invalid imports leave the list untouched
+  ✓ Regex repair: native Worker times out hostile backtracking while the UI continues painting, then a corrected filter recovers
+  ✓ Regex patch attack: three genuine metadata pages accumulate 65 matches; all pass the worker's 50-text messages under one total budget
+  ✓ No uncaught browser errors across Notes/Find native interaction cases
+
+23 passed, 3 failed
+FAILED: NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it | NT-16: native textarea selection creates an exact independent note, leaves its source unchanged, and an empty selection cannot extract | NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file

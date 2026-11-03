@@ -1,0 +1,2 @@
+scripts/e2e-tt122.mts(69,100): error TS2339: Property 'loop' does not exist on type 'Element'.
+scripts/tt133-core.mts(25,43): error TS2353: Object literal may only specify known properties, and 'revision' does not exist in type 'NoteFields'.

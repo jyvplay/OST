@@ -1,0 +1,8 @@
+{
+  "oldPackage": "2.0",
+  "newPackage": "1.28.0",
+  "oldEngine": "1.28.5",
+  "newEngine": "1.29.0",
+  "allEightInputHashesDimensionsRgbHashesAndInkBoundsEqual": true,
+  "coloredBoundaryCasesPerRun": 18
+}

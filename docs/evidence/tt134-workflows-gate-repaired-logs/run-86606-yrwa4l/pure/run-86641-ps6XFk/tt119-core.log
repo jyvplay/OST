@@ -1,0 +1,13 @@
+  ✓ ED-03 find/replace: literal, counted, nth-only, empty refused
+  ✓ BK-07 engine: folder rollup, unknown not zero
+  ✓ NT-03 daily note: local title, both conventions, no guessing
+  ✓ PL-04 task filter: query+status, order preserved
+  ✓ CK-04 zone list: Intl-validated, UTC pinned, capped
+  ✓ TM-03 wc: UTF-8 bytes, POSIX lines
+  ✓ BK-07 bundle explorer: flat entries become a sized folder tree
+  ✓ SR-09 recents: dedup-to-front, mode validated, capped
+  ✓ PH-03 slideshow: wraps, clamps, empty has no next
+  ✓ WD-03 zone convert: dateline shift reported, invalid refused
+  ✓ MU-02 recent plays: front-dedup, validated, capped
+
+11 passed, 0 failed

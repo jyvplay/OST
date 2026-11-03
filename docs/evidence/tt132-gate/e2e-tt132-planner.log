@@ -1,0 +1,19 @@
+Actual browser: 143.0.7499.0
+  ✓ create an undated task with literal multiline notes using the real form
+  ✓ Enter submits the focused Planner window, not another window's duplicate global ID
+  ✓ create a timed event and preserve both endpoints through API and ICS export
+  ✓ rename and edit task notes without changing its ID or millisecond due time
+  ✓ reschedule a reminder and then clear its due date from the editor
+  ✓ edit event start/end and refuse an inverted interval without discarding typed fields
+  ✓ convert task to event and back and edit completion without losing notes
+  ✓ stale save returns a real 409, retains the draft, and explicit reload shows the new server item
+  ✓ delete asks for confirmation, Cancel preserves the row, and a changed item refuses deletion
+  ✓ dirty editor close is guarded; Cancel keeps it open and Save actually commits before closing
+  ✓ switching or cancelling a dirty editor offers Cancel, Discard and real Save
+  ✓ closing during a held real save cannot dismiss the window or duplicate the request
+  ✓ local edit preserves the second DST fold occurrence and rejects a nonexistent local time
+  ✓ week navigation crosses DST by calendar dates and event buttons open the real editor
+  ✓ held-out read failure is visible and Retry loading reaches the actual server
+  ✓ populated editor has named original icon controls and no serious axe failures at a narrow viewport
+
+16 passed, 0 failed

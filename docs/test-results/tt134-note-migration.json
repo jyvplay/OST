@@ -1,0 +1,63 @@
+{
+  "suite": "tt134-note-migration",
+  "at": "2026-11-02T00:22:44.722Z",
+  "results": [
+    {
+      "suite": "tt134-note-migration",
+      "name": "Cold pre-TT133 notes really lack revision; owned original rows and unrelated canaries exist",
+      "covers": {},
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "Genuine SHARE lock makes the shipped ALTER fail near its four-second lock timeout, with no partial schema or user-data mutation",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 4021
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "Unblocked shipped migration initializes every legacy revision to one while preserving all IDs, Unicode, CRLF, tags, pins, timestamps and unrelated data",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "Migrated SQL CAS advances only its matching original row; a stale precondition changes nothing",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "Reapplying the same SQL does not reset advanced revisions, and a genuinely new row gets default revision one",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "Boundary witness, NOT acceptance: external delete/recreate of the same row ID resets revision and defeats a stale revision-one precondition",
+      "covers": {},
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt134-note-migration",
+      "name": "No background driver errors, and owned connections drain before non-forced cleanup",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

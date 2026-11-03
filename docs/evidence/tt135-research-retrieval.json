@@ -1,0 +1,65 @@
+{
+  "scope": "Actual retrieved source references. Retrieval is not complete review or production copying; reviewed conclusions will be recorded separately.",
+  "records": [
+    {
+      "repository": "mdn/content",
+      "commit": "9126ecf140009f571300b0d083148eb31e826128",
+      "path": "files/en-us/web/api/textdecoder/fatal/index.md",
+      "bytes": 980,
+      "sha256": "ecdb87affcbd3f75898bff5537cc2c2a1e2d04acbc8382e9c031a01719ab3d77",
+      "url": "https://github.com/mdn/content/blob/9126ecf140009f571300b0d083148eb31e826128/files/en-us/web/api/textdecoder/fatal/index.md",
+      "retrievedAt": "2026-11-02T16:20:00.804733+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mdn-content/files/en-us/web/api/textdecoder/fatal/index.md"
+    },
+    {
+      "repository": "mdn/content",
+      "commit": "9126ecf140009f571300b0d083148eb31e826128",
+      "path": "files/en-us/web/api/subtlecrypto/digest/index.md",
+      "bytes": 6440,
+      "sha256": "11746967ff69afc05d2e5ad5183e8cd049b1011d74769665466e021d53eb70d2",
+      "url": "https://github.com/mdn/content/blob/9126ecf140009f571300b0d083148eb31e826128/files/en-us/web/api/subtlecrypto/digest/index.md",
+      "retrievedAt": "2026-11-02T16:20:01.061984+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mdn-content/files/en-us/web/api/subtlecrypto/digest/index.md"
+    },
+    {
+      "repository": "mdn/content",
+      "commit": "9126ecf140009f571300b0d083148eb31e826128",
+      "path": "files/en-us/web/api/element/scrolltop/index.md",
+      "bytes": 3568,
+      "sha256": "95efb8ea6d14ee22971f2f0a46dc9ece5b023952e41769d91517b3efdd44d9da",
+      "url": "https://github.com/mdn/content/blob/9126ecf140009f571300b0d083148eb31e826128/files/en-us/web/api/element/scrolltop/index.md",
+      "retrievedAt": "2026-11-02T16:20:01.310266+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mdn-content/files/en-us/web/api/element/scrolltop/index.md"
+    },
+    {
+      "repository": "mholt/PapaParse",
+      "commit": "1fcb83c64acf61ae636b556b0eadeebaca0aea33",
+      "path": "LICENSE",
+      "bytes": 1079,
+      "sha256": "99aa68e4b42758b09828a46515f70369e5463458ab7a990189f641af2b8d9b4e",
+      "url": "https://github.com/mholt/PapaParse/blob/1fcb83c64acf61ae636b556b0eadeebaca0aea33/LICENSE",
+      "retrievedAt": "2026-11-02T16:20:02.089786+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mholt-PapaParse/LICENSE"
+    },
+    {
+      "repository": "mholt/PapaParse",
+      "commit": "1fcb83c64acf61ae636b556b0eadeebaca0aea33",
+      "path": "papaparse.js",
+      "bytes": 51338,
+      "sha256": "e0214bc097afa2a963611f43190b0f720d5f23ae51474e8dbfb063ecc54e1435",
+      "url": "https://github.com/mholt/PapaParse/blob/1fcb83c64acf61ae636b556b0eadeebaca0aea33/papaparse.js",
+      "retrievedAt": "2026-11-02T16:20:02.379456+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mholt-PapaParse/papaparse.js"
+    },
+    {
+      "repository": "mozilla-comm/ical.js",
+      "commit": "7bc16367692451cea30b2751f4ed5532d709d402",
+      "path": "LICENSE",
+      "bytes": 16725,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "url": "https://github.com/mozilla-comm/ical.js/blob/7bc16367692451cea30b2751f4ed5532d709d402/LICENSE",
+      "retrievedAt": "2026-11-02T16:20:03.537129+00:00",
+      "draftReferencePath": ".cache/tt135-drafts/references/mozilla-comm-ical.js/LICENSE"
+    }
+  ]
+}

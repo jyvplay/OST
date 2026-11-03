@@ -1,0 +1,116 @@
+Fusion
+Search
+Overview
+Main
+COOL · 60 fps
+12:11 AM
+budget.csv
+capabilities.md
+sample.ics
+sample.json
+vecmvyh9xf0-art.fsvg
+welcome.md
+workbook.xlsx
+12:11 AM
+Monday, November 2
+COOL
+60 fps
+1 windows
+100%
+Sticky
+counter.worker.js
+worker-isolated
+11
+ticks (worker-isolated)
+writer
+Keep
+Tweak
+Look
+Put
+Polish
+Glance
+AutoSave
+Normal
+Title
+Subtitle
+Heading 1
+Heading 2
+Heading 3
+Quote
+ListParagraph
+Code
+Header
+Footer
+FootnoteText
+FootnoteReference
+EndnoteText
+EndnoteReference
+Font
+Calibri Light
+Calibri
+Cambria
+Arial
+Times New Roman
+Georgia
+Verdana
+Courier New
+Consolas
+Segoe UI
+Aptos
+–
+8
+9
+10
+10.5
+11
+12
+14
+16
+18
+20
+24
+28
+36
+48
+72
+B
+I
+U
+S
+x²
+x₂
+No highlight
+yellow
+green
+cyan
+magenta
+red
+lightGray
+Spacing
+1.00
+1.15
+1.50
+2.00
+2.50
+3.00
+• List
+1. List
+⇤
+⇥
+Clear
+Layout
+More
+Unsaved changes found — a recovery draft of an untitled document (“Untitled document”) from 11/2/2026, 12:07:05 AM.
+Restore
+Discard draft
+
+SECOND_AFTER_TIMEOUTFIRST_BLOCKED_RECOVERY
+
+No spelling issues
+Page count: 1
+5 words
+42 characters
+Word count…
+unsaved
+writer
+1 window · rev 93263

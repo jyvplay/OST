@@ -13,8 +13,8 @@ import { F } from "./row";
  */
 export const tt117Features = [
   F("CK-01", "Clock", "Alarms: daily/weekly schedules, snooze, persisted", "A", "P2", "src/lib/clock-core.ts + alarm-store.ts + ShellDaemons.tsx + Clock alarms section",
-    "Weekday controls and validated browser-local schedules feed a shell-owned foreground timer, so closing Clock does not stop it. A frozen or closed page can miss alarms; cross-tab suppression needs Web Locks and storage. Amnesic alarms are page-only and do not use OS notifications. Snooze has arithmetic only, not an actionable UI or scheduler, so this row remains partial.",
-    "partial", "e2e-tt130-alarms.mts (foreground delivery, weekdays, storage denial, amnesia and cross-tab claims); tt117-core.mts CK-01 (next-fire and snooze arithmetic)"),
+    "Weekday controls and validated browser-local schedules feed a shell-owned foreground timer, so closing Clock does not stop it. A frozen or closed page can miss alarms; cross-tab suppression needs Web Locks and storage. Amnesic alarms are page-only and do not use OS notifications. TT132 adds a persistent actionable alarm center, repeat snooze/cancel/dismiss, missed-snooze reporting and identity-preserving schedule editing. Still partial: delivery requires a running page; no native exact-time or physical-wake guarantee.",
+    "partial", "e2e-tt132-alarms.mts + tt132-core.mts (actionable activity and occurrence tokens); e2e-tt130-alarms.mts (foreground schedules/privacy/claims); tt117-core.mts (arithmetic)"),
   F("CK-02", "Clock", "Stopwatch lap splits with fastest/slowest", "A", "P2", "src/lib/clock-core.ts lapStats + Clock stopwatch",
     "Laps are cumulative readings; splits are the deltas. Non-monotonic readings are refused rather than silently producing a negative lap. Fastest/slowest/average are computed from the same readings the UI displays, in the Clock module under the lap list.",
     "built", "tt117-core.mts CK-02 (deltas, fastest/slowest, monotonic refusal)"),

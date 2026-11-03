@@ -1,0 +1,17 @@
+    worst relative error vs Chromium: bbox 1.49e-4, length 9.02e-5
+  ✓ ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)
+    8538 containment points agree (111 edge points skipped), 13 transform lists agree
+  ✓ ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal
+    153600 px: 160 differ by > 24/255 (0.104%), mean |Δ| 0.061, max 147; painted px 153600
+  ✓ ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)
+  ✓ UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard
+  ✓ UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10
+  ✓ UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor
+  ✓ UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)
+  ✓ UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup
+  ✓ UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)
+  ✓ UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move
+  ✓ TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo
+  ✓ no page errors during the vector session
+
+12 passed, 0 failed

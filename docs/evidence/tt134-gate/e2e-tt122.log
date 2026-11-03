@@ -1,0 +1,24 @@
+  ✓ PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style
+  ✗ NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears
+    locator.click: Timeout 20000ms exceeded.
+Call log:
+  - waiting for getByTestId('notes-bundle')
+    - locator resolved to <button type="button" class="fs-btn " data-variant="ghost" data-testid="notes-bundle">Export all</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    39 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+  ✓ DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress
+
+2 passed, 1 failed
+FAILED: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears

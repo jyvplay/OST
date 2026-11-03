@@ -1,0 +1,12 @@
+file:///home/user/OST/scripts/tt132-fixture.mts:7
+  if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL || !process.env.BASE) throw new Error("exclusive disposable BASE and DATABASE_URL required");
+                                                                                                            ^
+
+Error: exclusive disposable BASE and DATABASE_URL required
+    at disposableShell (file:///home/user/OST/scripts/tt132-fixture.mts:7:109)
+    at file:///home/user/OST/scripts/e2e-tt133-openssh.mts:12:18
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

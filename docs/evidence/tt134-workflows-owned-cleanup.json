@@ -1,0 +1,63 @@
+{
+  "at": "2026-11-02T03:34:55.363Z",
+  "scope": "Explicit inspected leftovers from the first owned HTTP fixture and recorded native runs, not a user-data cleanup",
+  "before": [
+    {
+      "id": 32,
+      "path": "/Documents/tt134-http-mvyo200j",
+      "trashed": true
+    },
+    {
+      "id": 33,
+      "path": "/Documents/tt134-http-mvyo200j/early.txt",
+      "trashed": true
+    },
+    {
+      "id": 36,
+      "path": "/Documents/tt134-http-mvyo200j/late.txt",
+      "trashed": true
+    },
+    {
+      "id": 39,
+      "path": "/Documents/tt134-http-mvyo200j/archive_%",
+      "trashed": true
+    },
+    {
+      "id": 40,
+      "path": "/Documents/tt134-http-mvyo200j/archive_%/hidden.txt",
+      "trashed": true
+    },
+    {
+      "id": 43,
+      "path": "/Documents/tt134-http-mvyo200j/archive_%sibling",
+      "trashed": true
+    },
+    {
+      "id": 44,
+      "path": "/Documents/tt134-http-mvyo200j/archive_%sibling/visible.txt",
+      "trashed": true
+    },
+    {
+      "id": 47,
+      "path": "/Documents/tt134-http-mvyo200j/preview.txt",
+      "trashed": true
+    },
+    {
+      "id": 50,
+      "path": "/Documents/tt134-http-mvyo200j/binary.bin",
+      "trashed": true
+    }
+  ],
+  "ownedVersionPaths": [
+    {
+      "path": "/Documents/tt134-find-mvyoyfm0/early.txt",
+      "n": 1
+    },
+    {
+      "path": "/System/vault.fvault",
+      "n": 3
+    }
+  ],
+  "deletedNodes": 9,
+  "afterOwnedNodes": 0
+}

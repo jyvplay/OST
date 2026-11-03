@@ -1,0 +1,61 @@
+{
+  "at": "2026-11-02T17:00:41.608Z",
+  "scope": "Completion of TT134 carryover only; none counted as TT135 additions",
+  "acceptedTT134": 20,
+  "acceptedTT135": 0,
+  "basePrHead": "71c27a6cc2d1e330c4b8016de843e2cdd98b044e",
+  "pr": 17,
+  "prState": "OPEN",
+  "gate": {
+    "suiteInvocations": 96,
+    "distinctSuites": 92,
+    "passedCaseExecutions": 867,
+    "failedCaseExecutions": 0,
+    "sourceSha256": "cf71e45cc623ad38fb3a6f8700610f5885d747b7e60bb0f7717b41bf93680699",
+    "sourceFileCount": 1422,
+    "audit": "tt135-carryover-final-gate-audit.json",
+    "metrics": "tt135-carryover-final-gate-metrics.json"
+  },
+  "postGateChanges": [
+    "scripts/review-gate-logs.mjs",
+    "src/data/coverage.json",
+    "scripts/tt135-gate-audit-attacks.mjs"
+  ],
+  "releaseSourceSha256": "082ca7fecb4d5cf851701b983ec6d351f603eaa3cbb34279933f24f939543dbf",
+  "releaseSourceWithoutCoverageSha256": "cc70afea5fec7b95f3a379ef17cf7ad2007252e1092569c730d2f9988e8987fe",
+  "releaseSourceFileCount": 1423,
+  "checks": {
+    "buildExit": 0,
+    "lintErrors": 0,
+    "lintWarnings": 6,
+    "clipboardNative": {
+      "passed": 11,
+      "failed": 0
+    },
+    "auditArtifactAttacks": {
+      "passed": 8,
+      "failed": 0
+    },
+    "postMetadata": {
+      "tt131-ledger": {
+        "passed": 5,
+        "failed": 0
+      },
+      "tt134-icon-review": {
+        "passed": 5,
+        "failed": 0
+      },
+      "tt134-review-repairs": {
+        "passed": 8,
+        "failed": 0
+      }
+    }
+  },
+  "visualReview": "../REVIEW-TT134-WORKFLOWS.md",
+  "limitations": [
+    "Native gate is Chromium in an explicitly disposable environment",
+    "Wall/cgroup measurements overlap independent draft preparation; no comparative Pareto claim",
+    "Mixed-date historical coverage is not a fresh all-feature gate",
+    "Canonical OS completeness, device diversity, screen-reader acceptance and exhaustive license review remain unmet"
+  ]
+}

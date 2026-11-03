@@ -2,7 +2,7 @@
 import { parseBackupManifest, compareManifests } from "@/lib/backup-compare";
 import { fz } from "@/lib/uiscale";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fmtBytes } from "@/lib/api";
 import { fromB64, openText, sealText, type Envelope } from "@/lib/crypto";
 import { MAX_BACKUP_BYTES, verifyBackup, type BackupBundle } from "@/lib/backup/bundle";
@@ -82,13 +82,12 @@ export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
   const [savedBackups, setSavedBackups] = useState<string[]>([]);
-  const loadSavedBackups = async () => {
-    try {
-      const r = await fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups")).then((x) => x.json()) as { nodes?: { name: string; kind: string }[] };
-      setSavedBackups((r.nodes ?? []).filter((n) => n.kind === "file").map((n) => n.name));
-    } catch { setSavedBackups([]); }
-  };
-  useEffect(() => { void loadSavedBackups(); }, []);
+  const loadSavedBackups = useCallback(() =>
+    fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups"))
+      .then(x => x.json() as Promise<{ nodes?: { name: string; kind: string }[] }>)
+      .then(r => setSavedBackups((r.nodes ?? []).filter(n => n.kind === "file").map(n => n.name)))
+      .catch(() => setSavedBackups([])), []);
+  useEffect(() => { void loadSavedBackups(); }, [loadSavedBackups]);
   const [showContents, setShowContents] = useState(false);
   const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");

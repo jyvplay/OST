@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 import { createHash } from "node:crypto";
 import { and, asc, eq, inArray, like, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -221,7 +222,7 @@ export async function writeFile(args: WriteArgs) {
       }
       if (isPrivateVfsPath(path)) await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, path)));
       else {
-        const body = isTextual(mime) && encoding === "utf8" ? args.content.slice(0, 50_000) : "";
+        const body = isTextual(mime) && encoding === "utf8" ? searchIndexText(args.content) : "";
         await tx.insert(indexDocs).values({ source: "file", ref: path, title: name, body, updatedAt: new Date() })
           .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: name, body, updatedAt: new Date() } });
       }

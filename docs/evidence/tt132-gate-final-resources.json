@@ -1,0 +1,8 @@
+{
+  "exit_status": 0,
+  "wall_seconds": 991.0887872120002,
+  "child_user_seconds": 604.360317,
+  "child_system_seconds": 147.65007,
+  "cpu_count": 2,
+  "note": "Entire gate; not isolated per-suite energy/memory or a comparison with main."
+}

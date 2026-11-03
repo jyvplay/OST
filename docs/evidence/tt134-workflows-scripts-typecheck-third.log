@@ -1,0 +1,6 @@
+scripts/tt134-workflows-benchmark.mts(73,9): error TS7034: Variable 'setups' implicitly has type 'any[]' in some locations where its type cannot be determined.
+scripts/tt134-workflows-benchmark.mts(77,9): error TS7034: Variable 'ranges' implicitly has type 'any[]' in some locations where its type cannot be determined.
+scripts/tt134-workflows-benchmark.mts(78,116): error TS7005: Variable 'setups' implicitly has an 'any[]' type.
+scripts/tt134-workflows-benchmark.mts(78,208): error TS7005: Variable 'setups' implicitly has an 'any[]' type.
+scripts/tt134-workflows-benchmark.mts(79,123): error TS7005: Variable 'ranges' implicitly has an 'any[]' type.
+scripts/tt134-workflows-benchmark.mts(79,215): error TS7005: Variable 'ranges' implicitly has an 'any[]' type.

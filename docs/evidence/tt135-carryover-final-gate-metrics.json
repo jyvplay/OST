@@ -1,0 +1,30 @@
+{
+  "label": "TT135 completed carryover gate after full-body capture readiness repair, all original assertions retained",
+  "startedAt": "2026-11-02T16:20:58.770167+00:00",
+  "finishedAt": "2026-11-02T16:48:39.080366+00:00",
+  "command": [
+    "bash",
+    "scripts/run-gate.sh"
+  ],
+  "cwd": "/home/user/OST",
+  "log": "docs/evidence/tt135-carryover-final-gate.log",
+  "rawReturnCode": 0,
+  "exitCode": 0,
+  "wallSeconds": 1660.3099001639998,
+  "childUserSeconds": 1623.864625,
+  "childSystemSeconds": 262.843541,
+  "childCpuSeconds": 1886.708166,
+  "largestChildMaxRssKiB": 662696,
+  "sandboxCpuSeconds": 2886.005145,
+  "cpuAffinity": [
+    0,
+    1
+  ],
+  "scope": {
+    "childCpu": "Waited command children/descendants; excludes independently started web server and database",
+    "sandboxCpu": "Whole readable Linux cgroup; includes server/database and any concurrent sandbox work; not command-exclusive",
+    "memory": "Largest waited-child high-water RSS on Linux; NOT summed or simultaneous process-tree peak",
+    "fidelity": "No scheduling, assertion, workload or return-code substitution; all stdout/stderr retained in log"
+  },
+  "spawnError": null
+}

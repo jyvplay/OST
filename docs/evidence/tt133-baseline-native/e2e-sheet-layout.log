@@ -1,0 +1,26 @@
+  ✓ Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells
+  ✓ Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears
+  ✗ Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByRole('button', { name: 'Data validation' })
+
+  ✗ Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByRole('button', { name: 'Freeze first column' })
+
+  ✗ Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByRole('button', { name: 'Data validation' })
+
+  ✗ TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByRole('button', { name: /^Name Manager/ })
+
+  ✓ no page errors during the layout session
+
+3 passed, 4 failed
+FAILED: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it | Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message | Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader) | TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen

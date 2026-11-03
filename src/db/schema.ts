@@ -162,6 +162,7 @@ export const settingsHistory = pgTable("settings_history", {
 
 export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
+  revision: integer("revision").notNull().default(1),
   title: text("title").notNull().default("Untitled"),
   body: text("body").notNull().default(""),
   tags: text("tags").notNull().default(""),

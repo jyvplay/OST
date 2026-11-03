@@ -28,7 +28,7 @@ const tmp = mkdtempSync(join(tmpdir(), "e2e65-"));
 const { test, finish } = makeHarness("e2e-tt65");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const eq = (a: unknown, b: unknown, m = "") => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m}: expected ${JSON.stringify(b)} got ${JSON.stringify(a)}`); };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const api = async (method: string, path: string, body?: unknown): Promise<{ status: number; json: any }> => {
   const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
   return { status: r.status, json: await r.json().catch(() => null) };

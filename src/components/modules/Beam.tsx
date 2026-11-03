@@ -14,7 +14,7 @@ interface SessionRow { id: number; targetName: string; transport: string; source
 
 interface Transport {
   id: string; label: string; capId: string | null; available: boolean;
-  how: string; blocked?: string; run?: () => Promise<void> | void;
+  how: string; blocked?: string;
 }
 
 /**
@@ -29,40 +29,81 @@ interface Transport {
 export default function BeamModule(_: ModuleProps) {
   const shell = useShell();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [media, setMedia] = useState<{ url: string; name: string } | null>(null);
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [beamQ, setBeamQ] = useState("");
   const [status, setStatus] = useState("");
   const [beamNow, setBeamNow] = useState(() => Date.now());
   useEffect(() => { const t = window.setInterval(() => setBeamNow(Date.now()), 1000); return () => window.clearInterval(t); }, []);
+  // Each selected local file owns exactly one browser object URL; no upload.
+  useEffect(() => { if (!media) return; return () => URL.revokeObjectURL(media.url); }, [media]);
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null);
 
   const load = () => api<{ sessions: SessionRow[] }>("/api/beam").then((r) => setSessions(r.sessions)).catch(() => undefined);
   useEffect(() => { void load(); }, []);
 
   useEffect(() => {
-    const v = videoRef.current as (HTMLVideoElement & { remote?: { watchAvailability: (cb: (a: boolean) => void) => Promise<number> } }) | null;
-    v?.remote?.watchAvailability((a) => setRemoteAvailable(a)).catch(() => setRemoteAvailable(null));
+    const remote = (videoRef.current as (HTMLVideoElement & { remote?: {
+      watchAvailability: (cb: (a: boolean) => void) => Promise<number>;
+      cancelWatchAvailability: (id: number) => Promise<void>;
+    } }) | null)?.remote;
+    if (!remote) return;
+    let active = true, watch: number | undefined;
+    const cancel = (id: number) => { void remote.cancelWatchAvailability(id).catch(() => undefined); };
+    void remote.watchAvailability(a => { if (active) setRemoteAvailable(a); }).then(id => {
+      if (active) watch = id; else cancel(id);
+    }).catch(() => { if (active) setRemoteAvailable(null); });
+    return () => { active = false; if (watch !== undefined) cancel(watch); };
   }, []);
 
   const startSession = async (target: string, transport: string, source: string, stop: () => void) => {
+    try {
     const seen = await post<{ firstSeen: boolean; trusted: boolean }>("/api/beam", {
       action: "seen", name: target, kind: transport, capability: { transport },
     });
-    if (seen.firstSeen && !confirm(`First time casting to "${target}". Trust this target for future sessions?`)) {
+    if (!seen.trusted && !confirm(`Trust "${target}" for this and future sessions?`)) {
       setStatus("Cancelled — unknown targets are never auto-trusted (CA-14).");
-      return;
+      stop(); return false;
     }
     await post("/api/beam", { action: "trust", name: target, trusted: true });
-    const r = await post<{ sessionId: number }>("/api/beam", { action: "start", name: target, transport, source });
+    const r = await post<{ sessionId: number; startedAt: string }>("/api/beam", { action: "start", name: target, transport, source });
     shell.setBeam({
-      id: r.sessionId, target, transport, source, startedAt: Date.now(),
+      id: r.sessionId, target, transport, source, startedAt: Date.parse(r.startedAt),
       stop: () => {
         stop();
         void post("/api/beam", { action: "stop", sessionId: r.sessionId }).then(load);
         shell.setBeam(null);
       },
     });
-    await load();
+    await load(); return true;
+    } catch (error) { stop(); throw error; }
+  };
+
+  const runTransport = async (id: string): Promise<string> => {
+    if (id === "remote-playback") {
+      const video = videoRef.current as (HTMLVideoElement & { remote?: { prompt: () => Promise<void> } }) | null;
+      if (!media || !video?.remote?.prompt) throw new Error("Choose a playable local media file first; Remote Playback must be available.");
+      await video.remote.prompt(); await video.play();
+      return await startSession("remote-playback receiver", "remote-playback", media.name, () => video.pause()) ? "Remote Playback route selected" : "Cancelled";
+    }
+    if (id === "presentation") {
+      const PR = (window as unknown as { PresentationRequest?: new (urls: string[]) => { start: () => Promise<{ close: () => void }> } }).PresentationRequest;
+      if (!PR) throw new Error("PresentationRequest missing");
+      const connection = await new PR([`${location.origin}/present?room=BEAM1`]).start();
+      return await startSession("presentation display", "presentation", "/present", () => connection.close()) ? "Presentation opened" : "Cancelled";
+    }
+    if (id === "second-window") {
+      const details = await (window as unknown as { getScreenDetails: () => Promise<{ screens: { label: string; availLeft: number; availTop: number; availWidth: number; availHeight: number }[] }> }).getScreenDetails();
+      const screen = details.screens[1] ?? details.screens[0];
+      if (!screen) throw new Error("The browser reported no screens");
+      const child = window.open("/display", "fusion-display-2", `popup=1,left=${screen.availLeft},top=${screen.availTop},width=${screen.availWidth},height=${screen.availHeight}`);
+      if (!child) throw new Error("Popup blocked; allow the display window and retry");
+      const opened = await startSession(screen.label || "display window", "second-window", "/display", () => child.close());
+      return opened ? details.screens.length > 1 ? "Opened on the second reported screen" : "Only one screen reported; opened a separate window there" : "Cancelled";
+    }
+    if (id === "pip") return "Use ⧉ in a window title bar to request picture-in-picture.";
+    if (id === "webrtc") { shell.open("share"); return "Share opened. Choose a role and join there; no screen capture has started yet."; }
+    throw new Error("This transport is not available to the web app");
   };
 
   const transports: Transport[] = [
@@ -71,51 +112,30 @@ export default function BeamModule(_: ModuleProps) {
       capId: "remotePlayback", available: Boolean(capOf(shell.caps, "remotePlayback")?.available),
       how: "HTMLMediaElement.remote.prompt() — the browser enumerates receivers and streams the element",
       blocked: "HTMLMediaElement.remote is not implemented in this browser",
-      run: async () => {
-        const v = videoRef.current as (HTMLVideoElement & { remote?: { prompt: () => Promise<void> } }) | null;
-        await v?.remote?.prompt();
-        await startSession("remote-playback receiver", "remote-playback", "beam demo clip", () => undefined);
-      },
     },
     {
       id: "presentation", label: "Presentation API (cast a Fusion page)",
       capId: "presentation", available: Boolean(capOf(shell.caps, "presentation")?.available),
       how: "new PresentationRequest(['/present']) — the receiver runs our own page and joins the Together clock",
       blocked: "navigator.presentation is unavailable",
-      run: async () => {
-        const PR = (window as unknown as { PresentationRequest?: new (urls: string[]) => { start: () => Promise<{ id: string; close: () => void }> } }).PresentationRequest;
-        if (!PR) throw new Error("PresentationRequest missing");
-        const req = new PR([`${location.origin}/present?room=BEAM1`]);
-        const conn = await req.start();
-        await startSession("presentation display", "presentation", "/present", () => conn.close());
-      },
     },
     {
       id: "second-window", label: "Second screen / extended display",
       capId: "multiScreen", available: Boolean(capOf(shell.caps, "multiScreen")?.available),
       how: "getScreenDetails() + window.open on the target screen — zero latency, full desktop, its own layout",
       blocked: "window.getScreenDetails() unavailable (grant the window-management permission)",
-      run: async () => {
-        const det = await (window as unknown as { getScreenDetails: () => Promise<{ screens: { label: string; availLeft: number; availTop: number; availWidth: number; availHeight: number }[] }> }).getScreenDetails();
-        const other = det.screens[1] ?? det.screens[0];
-        const w = window.open("/display", "fusion-display-2",
-          `popup=1,left=${other.availLeft},top=${other.availTop},width=${other.availWidth},height=${other.availHeight}`);
-        await startSession(other.label || "screen 2", "second-window", "/display", () => w?.close());
-      },
     },
     {
       id: "pip", label: "Document picture-in-picture (always on top)",
       capId: "documentPiP", available: Boolean(capOf(shell.caps, "documentPiP")?.available),
       how: "documentPictureInPicture.requestWindow() — pop any Fusion window above every other app",
       blocked: "documentPictureInPicture is unavailable",
-      run: async () => { shell.toast("Use the ⧉ button in any window's title bar to pop it out.", "info"); },
     },
     {
       id: "webrtc", label: "Peer screen share (our own Miracast analog)",
       capId: "rtc", available: Boolean(capOf(shell.caps, "rtc")?.available) && Boolean(capOf(shell.caps, "displayCapture")?.available),
       how: "getDisplayMedia → RTCPeerConnection with Postgres signalling; encrypted, peer to peer",
       blocked: "WebRTC or screen capture unavailable",
-      run: async () => { shell.open("together"); shell.toast("Screen-share signalling lives in the Together room (skeleton).", "info"); },
     },
     { id: "raop", label: "AirPlay audio (RAOP/ALAC) direct", capId: null, available: false,
       how: "—", blocked: "raw UDP/TCP sockets + mDNS service discovery + RSA key exchange: no browser exposes any of these" },
@@ -136,16 +156,21 @@ export default function BeamModule(_: ModuleProps) {
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <strong style={{ fontSize: fz(13) }}>Beam</strong>
         <Badge tone={remoteAvailable ? "ok" : "warn"}>
-          receivers on this network: {remoteAvailable === null ? "cannot be detected by a web app" : remoteAvailable ? "at least one" : "none reported"}
+          receivers: {remoteAvailable === null ? "cannot be detected by a web app" : remoteAvailable ? "at least one" : "none reported"}
         </Badge>
         {shell.beam ? <Badge tone="bad">live: {shell.beam.transport} → {shell.beam.target}</Badge> : null}
       </div>
 
-      {/* hidden element that owns the Remote Playback route */}
-      <video ref={videoRef} playsInline muted style={{ display: "none" }}
-        src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tAAAAAA==" />
+      <label className="fs-dim" style={{ fontSize: fz(12), display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>Local media
+        <input type="file" accept="video/*,audio/*" aria-label="Media to cast" onChange={event => {
+          const file = event.target.files?.[0]; event.target.value = "";
+          if (file) { setMedia({ url: URL.createObjectURL(file), name: file.name }); setStatus("Local file selected; nothing uploaded or cast yet."); }
+        }} />
+      </label>
+      <video ref={videoRef} playsInline controls preload="metadata" style={{ display: media ? "block" : "none", width: "100%", maxHeight: 180 }} src={media?.url}
+        onError={() => setStatus("This browser could not play that media file. Choose a supported audio/video format.")} />
 
-      <Section title="Transports — what this browser actually grants">
+      <Section title="Browser transports">
         <div style={{ display: "grid", gap: 6 }}>
           {transports.map((t) => (
             <div key={t.id} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4, borderColor: t.available ? "var(--fs-border)" : "rgba(255,107,107,.3)" }}>
@@ -154,11 +179,11 @@ export default function BeamModule(_: ModuleProps) {
                   <Badge tone={t.available ? "ok" : "bad"}>{t.available ? "available" : "blocked"}</Badge>
                   <strong style={{ fontSize: fz(12) }}>{t.label}</strong>
                 </span>
-                {t.available && t.run ? (
-                  <Btn variant="primary" onClick={async () => {
-                    try { await t.run!(); setStatus(`${t.label}: started`); }
+                {t.available ? (
+                  <Btn variant="primary" disabled={t.id === "remote-playback" && !media} onClick={async () => {
+                    try { setStatus(await runTransport(t.id)); }
                     catch (e) { setStatus(`${t.label}: ${String((e as Error).message)}`); }
-                  }}>Start</Btn>
+                  }}>{t.id === "webrtc" ? "Open Share" : t.id === "pip" ? "How to" : "Start"}</Btn>
                 ) : null}
               </div>
               <div className="fs-dim" style={{ fontSize: fz(11.5) }}>
@@ -185,7 +210,7 @@ export default function BeamModule(_: ModuleProps) {
               <span>{s.transport} → {s.targetName}</span>
               <span className="fs-row" style={{ gap: 6 }}>
                 <Badge tone={s.state === "active" ? "warn" : "ok"}>{s.state}</Badge>
-                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || Date.now(), beamNow)}` : ""}</span>
+                <span className="fs-dim">{fmtTime(s.startedAt)}{s.state === "active" ? ` · ${elapsedLabel(new Date(s.startedAt).getTime() || beamNow, beamNow)}` : ""}</span>
               </span>
             </div>
           ))}

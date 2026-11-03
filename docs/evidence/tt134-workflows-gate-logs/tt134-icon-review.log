@@ -1,0 +1,8 @@
+Actual browser: 143.0.7499.0
+  ✓ wide: notes original mark renders in the real window without an external asset or page error
+  ✓ wide: find original mark renders in the real window without an external asset or page error
+  ✓ compact: notes original mark renders in the real window without an external asset or page error
+  ✓ compact: find original mark renders in the real window without an external asset or page error
+  ✓ compact Contacts: the initially clipped Duplicates command scrolls into view and actually opens its panel
+
+5 passed, 0 failed

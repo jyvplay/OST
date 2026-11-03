@@ -4,7 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
-import { nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
+import { ALARM_LIMIT, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
 import { updateAlarms, useAlarms } from "@/lib/alarm-store";
 import { privacy } from "@/lib/privacy/session";
 import { commonWindows, validateCountdowns, daysUntil, type Countdown } from "@/lib/zones";
@@ -15,6 +15,7 @@ import { TIMER_PRESETS } from "@/lib/timer-presets";
 import { lapsText } from "@/lib/laps-text";
 import { sortZonesByOffset, offsetLabel, offsetMinutes } from "@/lib/zone-offset";
 import { worldTimesText } from "@/lib/world-times";
+import ActionGlyph from "../ActionGlyph";
 
 const fmt = (ms: number) => {
   const neg = ms < 0;
@@ -52,6 +53,10 @@ export default function ClockModule(_: ModuleProps) {
   const [alarmTime, setAlarmTime] = useState("07:30");
   const [alarmLabel, setAlarmLabel] = useState("");
   const [alarmDays, setAlarmDays] = useState<number[]>([]);
+  const [alarmSnooze, setAlarmSnooze] = useState("9");
+  const [editingAlarm, setEditingAlarm] = useState<Alarm | null>(null);
+  const alarmForm = useRef<HTMLFormElement>(null);
+  const resetAlarmEditor = () => { setEditingAlarm(null); setAlarmLabel(""); setAlarmDays([]); setAlarmSnooze("9"); };
   const [dateA, setDateA] = useState(() => localDateInput(new Date()));
   const [dateB, setDateB] = useState(() => localDateInput(addDays(new Date(), 7)));
   const changeAlarms = (change: (previous: Alarm[]) => Alarm[]) => {
@@ -85,12 +90,13 @@ export default function ClockModule(_: ModuleProps) {
       fired.current = true;
       setTimerEnd(null);
       shell.toast("Timer finished", "ok");
-      if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Fusion timer finished");
+      try { if (!privacy.status().amnesic && typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("Fusion timer finished"); } catch { /* the in-page toast still confirms completion */ }
       try {
         const ctx = new AudioContext();
         const o = ctx.createOscillator(); const g = ctx.createGain();
         o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
         g.gain.setValueAtTime(0.2, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        o.onended = () => { void ctx.close().catch(() => undefined); };
         o.start(); o.stop(ctx.currentTime + 0.8);
       } catch { /* audio needs a prior gesture; the toast is the fallback */ }
     }
@@ -134,11 +140,28 @@ export default function ClockModule(_: ModuleProps) {
         {laps.length > 1 ? (() => { const st = lapStats([...laps].reverse()); return <div className="fs-dim" data-testid="clock-lap-stats" style={{ fontSize: fz(11) }}>fastest lap {st.fastest!.index} ({fmt(st.fastest!.splitMs)}) · slowest lap {st.slowest!.index} ({fmt(st.slowest!.splitMs)}) · average split {fmt(Math.round(st.averageSplitMs))}</div>; })() : null}
       </Section>
 
-      <Section title="Alarms">
+      <Section title="Alarms" right={alarms.length > 1 ? <Btn variant="ghost" disabled={!alarms.some((a) => a.enabled)} onClick={() => changeAlarms((all) => all.map((a) => ({ ...a, enabled: false })))}>Pause all</Btn> : null}>
+        <form ref={alarmForm} aria-label="Alarm editor" onSubmit={(event) => {
+          event.preventDefault();
+          try {
+            const id = editingAlarm?.id ?? globalThis.crypto?.randomUUID?.() ?? `a${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+            const value: Alarm = { id, label: alarmLabel, time: alarmTime, days: alarmDays, enabled: editingAlarm?.enabled ?? true, snoozeMin: Number(alarmSnooze) };
+            changeAlarms((previous) => {
+              if (!editingAlarm) return [...previous, value];
+              if (JSON.stringify(previous.find((a) => a.id === id)) !== JSON.stringify(editingAlarm)) throw new Error("This alarm changed in another window. Cancel and reopen the editor.");
+              return previous.map((a) => a.id === id ? value : a);
+            });
+            resetAlarmEditor();
+          } catch (error) { shell.toast(String((error as Error).message), "warn"); }
+        }} style={{ display: "grid", gap: 6 }}>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
-          <input className="fs-input" type="time" style={{ width: fz(110) }} value={alarmTime} onChange={(e) => setAlarmTime(e.target.value)} aria-label="Alarm time" />
-          <input className="fs-input" style={{ flex: 1, minWidth: fz(120) }} placeholder="Label" value={alarmLabel} onChange={(e) => setAlarmLabel(e.target.value)} aria-label="Alarm label" />
-          <Btn variant="primary" onClick={() => { try { const id = globalThis.crypto?.randomUUID?.() ?? `a${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`; changeAlarms((a) => [...a, { id, label: alarmLabel, time: alarmTime, days: alarmDays, enabled: true, snoozeMin: 9 }]); setAlarmLabel(""); } catch (e) { shell.toast(String((e as Error).message), "warn"); } }}>Add<span className="sr-only"> alarm</span></Btn>
+          <input className="fs-input" type="time" required style={{ width: fz(110) }} value={alarmTime} onChange={(e) => setAlarmTime(e.target.value)} aria-label="Alarm time" />
+          <input className="fs-input" maxLength={80} style={{ flex: 1, minWidth: fz(100) }} placeholder="Label" value={alarmLabel} onChange={(e) => setAlarmLabel(e.target.value)} aria-label="Alarm label" />
+          <label className="fs-row" style={{ gap: 4, fontSize: fz(11) }}><ActionGlyph name="snooze" size={16} />Snooze
+            <input className="fs-input" type="number" min={1} max={60} step={1} required value={alarmSnooze} onChange={(e) => setAlarmSnooze(e.target.value)} aria-label="Snooze minutes" style={{ width: fz(60) }} />m
+          </label>
+          <Btn type="submit" variant="primary" disabled={!editingAlarm && alarms.length >= ALARM_LIMIT}>{editingAlarm ? "Save alarm" : <>Add<span className="sr-only"> alarm</span></>}</Btn>
+          {editingAlarm ? <Btn variant="ghost" onClick={resetAlarmEditor}>Cancel edit</Btn> : null}
         </div>
         <div className="fs-row" role="group" aria-label="Alarm weekdays" style={{ gap: 3, flexWrap: "wrap" }}>
           {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day, i) => (
@@ -146,16 +169,21 @@ export default function ClockModule(_: ModuleProps) {
               onClick={() => setAlarmDays((days) => days.includes(i) ? days.filter((d) => d !== i) : [...days, i])}>{day.slice(0, 3)}</Btn>
           ))}
         </div>
+        </form>
         {upcomingAlarms(alarms, new Date()).slice(0, 1).map(({ alarm, at }) => <Badge key={alarm.id} tone="info">next: {alarm.label || alarm.time} · {at.toLocaleString()}</Badge>)}
         {alarms.map((a) => { const at = nextFire(a, new Date()); return (
           <div key={a.id} className="fs-row" style={{ justifyContent: "space-between", gap: 6 }}>
             <span style={{ fontSize: fz(12) }}>{a.time} {a.label} <span className="fs-dim">{a.days.length ? a.days.map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]).join(" ") : "daily"}{at ? ` · next ${at.toLocaleString()}` : ""}</span></span>
             <span className="fs-row" style={{ gap: 4 }}>
+              <Btn variant="ghost" aria-label={`Edit alarm ${a.label || a.time}`} title={`Edit alarm ${a.label || a.time}`} onClick={() => {
+                setEditingAlarm(a); setAlarmTime(a.time); setAlarmLabel(a.label); setAlarmDays([...a.days]); setAlarmSnooze(String(a.snoozeMin));
+                alarmForm.current?.scrollIntoView({ block: "nearest" }); alarmForm.current?.querySelector<HTMLInputElement>('[aria-label="Alarm time"]')?.focus();
+              }}><ActionGlyph name="edit" size={15} /></Btn>
               <Btn variant="ghost" aria-pressed={a.enabled} onClick={() => changeAlarms((l) => l.map((x) => x.id === a.id ? { ...x, enabled: !x.enabled } : x))}>{a.enabled ? "On" : "Off"}</Btn>
-              <Btn variant="ghost" onClick={() => changeAlarms((l) => l.filter((x) => x.id !== a.id))}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
+              <Btn variant="ghost" onClick={() => { changeAlarms((l) => l.filter((x) => x.id !== a.id)); if (editingAlarm?.id === a.id) resetAlarmEditor(); }}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
             </span>
           </div> ); })}
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>Daily if no days selected. With Fusion running, Clock may close; frozen or closed pages may miss alarms.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>No days selected = daily. Closing Clock is safe; frozen or closed pages may miss alarms.</div>
       </Section>
 
       <Section title="Meeting overlap">
@@ -193,8 +221,7 @@ export default function ClockModule(_: ModuleProps) {
           {TIMER_PRESETS.map((p) => <Btn key={p.label} variant="ghost" disabled={remaining !== null} onClick={() => { setTimerMin(Math.floor(p.seconds / 60)); setTimerSec(p.seconds % 60); }}>{p.label}</Btn>)}
         </div>
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Fires while Fusion is open. A closed web app cannot schedule an exact alarm (Notification Triggers never
-          shipped), so this is stated rather than implied.
+          Keep Clock open. Frozen or closed pages may miss timers.
         </div>
       </Section>
     </div>

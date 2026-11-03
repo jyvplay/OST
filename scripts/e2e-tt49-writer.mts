@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const RUN = `hf${Date.now().toString(36)}`;
@@ -18,7 +19,7 @@ const { test, finish } = makeHarness("e2e-tt49-writer");
 const COV = { "FF-22": "full" } as const;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const eq = (a: unknown, b: unknown, m = "") => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m} expected ${JSON.stringify(b)} got ${JSON.stringify(a)}`); };
-const PY = "/home/user/tools/venv/bin/python", CORPUS = "/home/user/tools/corpus/docx";
+const PY = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python", CORPUS = process.env.CORPUS_DOCX ?? "/home/user/tools/corpus/docx";
 const tmp = mkdtempSync(join(tmpdir(), "e2e49w-"));
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) }; };
 async function resetDesktop() {
@@ -43,7 +44,7 @@ async function openWriter(path: string): Promise<{ page: Page; dlg: Locator; pan
   const dlg = page.locator('[role=dialog][aria-label="Writer"]').first();
   await dlg.waitFor({ state: "visible", timeout: 25_000 });
   await dlg.locator('[data-testid="writer-body"] [data-pid]').first().waitFor({ timeout: 25_000 });
-  await dlg.getByRole("button", { name: "Header & footer", exact: true }).click();
+  await bannerClick(page, dlg, /^Header & footer$/, /^Header & footer$/);
   const panel = dlg.locator('[data-testid="hf-panel"]'); await panel.waitFor();
   return { page, dlg, panel, close: () => ctx.close() };
 }
@@ -52,8 +53,8 @@ const pageTexts = async (dlg: Locator, cls: "whdr" | "wftr") => dlg.locator(`.wp
 /** the status may still read "Saved" from an earlier save — wait for the dirty marker to clear instead */
 async function save(dlg: Locator) {
   const b = dlg.locator('[data-testid="writer-save"]');
-  await dlg.locator('[data-testid="writer-save"]', { hasText: "Save •" }).waitFor({ timeout: 5_000 });
-  await b.click();
+  await dlg.locator('[data-testid="writer-save"]', { hasText: "Save •" }).waitFor({ state: "attached", timeout: 5_000 });
+  await bannerTestId(dlg.page(), dlg, "writer-save", /^Save(?: •)?$/);
   await dlg.page().waitForFunction((el) => el?.textContent === "Save", await b.elementHandle(), { timeout: 15_000 });
   await dlg.locator('[data-testid="writer-status"]', { hasText: "Saved" }).waitFor({ timeout: 15_000 });
 }
@@ -103,7 +104,7 @@ await test("edit a real Word header (POI bug57031.docx): the change shows on eve
   await input.fill("Edited header {PAGE}"); await panel.getByRole("button", { name: "Apply header" }).click(); await page.waitForTimeout(400);
   const after = await pageTexts(dlg, "whdr");
   ok(after.every((t, i) => t!.includes(`Edited header ${i + 1}`)), `per-page edited headers ${JSON.stringify(after)}`);
-  await dlg.getByRole("button", { name: "Undo", exact: true }).click(); await page.waitForTimeout(400);
+  await bannerClick(page, dlg, /^Undo$/, /^Undo$/); await page.waitForTimeout(400);
   eq(await pageTexts(dlg, "whdr"), before, "undo restores the page headers");
   eq(await input.inputValue(), orig, "undo restores the panel line");
   await input.fill("Edited header {PAGE}"); await panel.getByRole("button", { name: "Apply header" }).click();
@@ -159,7 +160,7 @@ await test("Undo of an ADDED header through the UI: pages and panel return to 'n
   await panel.getByRole("button", { name: "Add line" }).click(); await panel.getByLabel("header line 1", { exact: true }).fill("Temporary");
   await panel.getByRole("button", { name: "Apply header" }).click(); await page.waitForTimeout(300);
   ok(await dlg.locator(".wpage .whdr").count() > 0, "header drawn");
-  await dlg.getByRole("button", { name: "Undo", exact: true }).click(); await page.waitForTimeout(400);
+  await bannerClick(page, dlg, /^Undo$/, /^Undo$/); await page.waitForTimeout(400);
   eq(await dlg.locator(".wpage .whdr").count(), 0, "no header after undo");
   ok((await panel.innerText()).includes("has no header yet"), "panel back to the empty state");
   // body editing after an hf undo: caret placement still works (the TT49 docGen regression)

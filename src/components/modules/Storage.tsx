@@ -56,10 +56,8 @@ export default function StorageModule(_: ModuleProps) {
     });
   }, []);
 
-  const load = useCallback(() => {
-    refreshBrowserStorage();
-    return api<Data>("/api/storage").then(setD).catch(() => undefined);
-  }, [refreshBrowserStorage]);
+  const load = useCallback(() => api<Data>("/api/storage").then(setD).catch(() => undefined)
+    .finally(refreshBrowserStorage), [refreshBrowserStorage]);
 
   useEffect(() => {
     void load();

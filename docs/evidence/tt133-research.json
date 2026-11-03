@@ -1,0 +1,79 @@
+[
+  {
+    "name": "react-refs",
+    "repo": "reactjs/react.dev",
+    "path": "src/content/reference/react/useRef.md",
+    "ref": "main",
+    "blobSha": "6f7728f0a2a6e838e2dff10c94e3885edf0dfde0",
+    "sha256": "99f33fa0551558fbb8b9feb2062cb58e4d10749ac48c8a5ca0c56863794c00f6",
+    "url": "https://github.com/reactjs/react.dev/blob/main/src/content/reference/react/useRef.md",
+    "retrievedAt": "2026-10-31T15:07:37.395237+00:00",
+    "bytes": 17114
+  },
+  {
+    "name": "react-effects",
+    "repo": "reactjs/react.dev",
+    "path": "src/content/learn/you-might-not-need-an-effect.md",
+    "ref": "main",
+    "blobSha": "81a0842eb60f53c3f97e56f6c4d9e8b18bf846d8",
+    "sha256": "fdfe964a7819e6e22f52c110225726f2cb5b9a46c6ca245173283da0cbfd5a0c",
+    "url": "https://github.com/reactjs/react.dev/blob/main/src/content/learn/you-might-not-need-an-effect.md",
+    "retrievedAt": "2026-10-31T15:07:37.671514+00:00",
+    "bytes": 61408
+  },
+  {
+    "name": "playwright-readiness",
+    "repo": "microsoft/playwright",
+    "path": "docs/src/api/params.md",
+    "ref": "main",
+    "blobSha": "749a50eebd0f837b1cfd8a4f7e953992fd4e5215",
+    "sha256": "cecd48bed2776f309bab22ddc7f684c056abe3d6d5871b74c0ec0c39ba76f241",
+    "url": "https://github.com/microsoft/playwright/blob/main/docs/src/api/params.md",
+    "retrievedAt": "2026-10-31T15:07:37.986166+00:00",
+    "bytes": 86479
+  },
+  {
+    "name": "postgres-locks",
+    "repo": "postgres/postgres",
+    "path": "doc/src/sgml/mvcc.sgml",
+    "ref": "REL_16_STABLE",
+    "blobSha": "f8f83d463d4294f72092d83ea12cf7848387cad2",
+    "sha256": "e32e2bd1754f10457dada8fc785a95f56955fcbdc400aa143660e1d22b330826",
+    "url": "https://github.com/postgres/postgres/blob/REL_16_STABLE/doc/src/sgml/mvcc.sgml",
+    "retrievedAt": "2026-10-31T15:07:38.313524+00:00",
+    "bytes": 81846
+  },
+  {
+    "name": "worker-termination",
+    "repo": "mdn/content",
+    "path": "files/en-us/web/api/worker/terminate/index.md",
+    "ref": "main",
+    "blobSha": "b83072c7ff2aa062c04057e11d0d93458c252a13",
+    "sha256": "8e0c6e05ff01f9e18662482c98140e492d02141dcc19f51deef995202648bec7",
+    "url": "https://github.com/mdn/content/blob/main/files/en-us/web/api/worker/terminate/index.md",
+    "retrievedAt": "2026-10-31T15:07:38.587763+00:00",
+    "bytes": 1311
+  },
+  {
+    "name": "react-license",
+    "repo": "facebook/react",
+    "path": "LICENSE",
+    "ref": "main",
+    "blobSha": "b93be90515ccd0b9daedaa589e42bf5929693f1f",
+    "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+    "url": "https://github.com/react/react/blob/main/LICENSE",
+    "retrievedAt": "2026-10-31T15:07:38.958788+00:00",
+    "bytes": 1088
+  },
+  {
+    "name": "playwright-license",
+    "repo": "microsoft/playwright",
+    "path": "LICENSE",
+    "ref": "main",
+    "blobSha": "df112373eb2e23e459bf93ec412be1764dc5a38b",
+    "sha256": "45873d00a0dd243596deb4aa23b2493b3d1f0671921bf2538ea431d7380220eb",
+    "url": "https://github.com/microsoft/playwright/blob/main/LICENSE",
+    "retrievedAt": "2026-10-31T15:07:39.238777+00:00",
+    "bytes": 11601
+  }
+]

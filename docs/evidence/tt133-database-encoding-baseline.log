@@ -1,0 +1,10 @@
+ server_encoding 
+-----------------
+ SQL_ASCII
+(1 row)
+
+ client_encoding 
+-----------------
+ SQL_ASCII
+(1 row)
+

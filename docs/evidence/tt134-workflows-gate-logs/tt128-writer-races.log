@@ -1,0 +1,4 @@
+  ✓ ordinary writer commits first: stale conditional writer rejects
+  ✓ conditional writer commits first: a later unconditional write can overwrite it
+
+2 passed, 0 failed

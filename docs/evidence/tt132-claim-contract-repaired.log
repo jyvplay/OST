@@ -1,0 +1,5 @@
+  ✓ an exception after entering a claim callback is propagated, never retried outside the lock
+  ✓ a lock API failure before callback entry uses the fallback exactly once
+  ✓ a synchronous callback failure is also never retried
+
+3 passed, 0 failed

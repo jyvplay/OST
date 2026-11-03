@@ -62,7 +62,13 @@ try {
       await page.clock.setFixedTime(new Date("2024-04-07T16:00:00Z"));
       await page.goto(BASE, { waitUntil: "domcontentloaded" });
       await page.getByLabel("Task title").waitFor();
-      await page.getByText("TZID and floating dates are interpreted in the server’s local timezone, not the source timezone.").waitFor();
+      await page.getByText("Keep Fusion open for reminders.", { exact: true }).waitFor();
+      const limits = page.locator("details").filter({ has: page.getByText("Limits & timezones", { exact: true }) });
+      await limits.locator("summary").click(); assert.equal(await limits.evaluate((el) => (el as HTMLDetailsElement).open), true);
+      const boundaries = await limits.innerText();
+      assert.match(boundaries, /Imported TZID\/floating dates use the server’s timezone/);
+      assert.match(boundaries, /Edited times use this browser’s timezone/);
+      assert.match(boundaries, /repeated hours follow the browser’s first occurrence unless the input is unchanged/);
       await page.getByText(`tt128-${nonce}-sunday`).waitFor();
       await page.getByLabel("Task title").fill("A repeat needs a date");
       await page.getByLabel("Repeat").selectOption("FREQ=DAILY");

@@ -1,0 +1,71 @@
+{
+  "suite": "e2e-tt133-boundaries",
+  "at": "2026-11-02T16:24:26.014Z",
+  "results": [
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work",
+      "covers": {
+        "NT-08": "full",
+        "NT-09": "full",
+        "NT-18": "partial"
+      },
+      "pass": true,
+      "ms": 3824
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft",
+      "covers": {
+        "NT-08": "full",
+        "NT-09": "full"
+      },
+      "pass": true,
+      "ms": 4065
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour",
+      "covers": {
+        "SR-19": "full"
+      },
+      "pass": true,
+      "ms": 964
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent",
+      "covers": {
+        "SR-19": "full",
+        "SV-02": "full"
+      },
+      "pass": true,
+      "ms": 3253
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Native profile import warns about plaintext Private queries before replacing; cancel preserves the list, and malformed Unicode/unknown fields are refused atomically",
+      "covers": {
+        "SV-03": "full"
+      },
+      "pass": true,
+      "ms": 2802
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext",
+      "covers": {
+        "SR-19": "partial"
+      },
+      "pass": true,
+      "ms": 1245
+    },
+    {
+      "suite": "e2e-tt133-boundaries",
+      "name": "No uncaught browser errors during native quota/privacy/profile boundary attacks",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

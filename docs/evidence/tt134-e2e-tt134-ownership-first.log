@@ -1,0 +1,16 @@
+Actual browser: 143.0.7499.0
+  ✓ Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForResponse: Timeout 12000ms exceeded while waiting for event "response"
+    at /home/user/OST/scripts/e2e-tt134-ownership.mts:45:23
+    at async module (/home/user/OST/scripts/e2e-tt134-ownership.mts:18:249)
+    at async test (/home/user/OST/scripts/harness.mts:26:7)
+    at async file:///home/user/OST/scripts/e2e-tt134-ownership.mts:43:3 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v22.22.3

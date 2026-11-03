@@ -1,0 +1,10 @@
+  ✓ Transitive production search-path/resource imports run in the native browser, including real calendar and literal-folder refusals
+  ✓ Native RAF coalesces 100 actual VT writes into one publication and keeps the cached snapshot stable before the frame
+  ✓ Copied cursor, mode, line/run and style snapshots cannot be rewritten by later ANSI/Unicode or parser-mode changes
+  ✓ Real CSI 3J history shrink while scrolled up clamps the viewport instead of dereferencing a removed row
+  ✓ Synchronous resize/reset cancels a queued native frame; dispose cancels pending publication and unsubscribes bells
+  ✓ Real localStorage purge removes canonical and malformed legacy Private aliases, keeps public neighbours and never creates an empty key
+  ✓ Corrupt native history JSON cannot retain a Private query after purge
+  ✓ No uncaught browser errors in native kernel ownership/scheduler/storage attacks
+
+8 passed, 0 failed

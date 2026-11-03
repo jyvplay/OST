@@ -1,0 +1,313 @@
+{
+  "branch": "arena/723a3a13-ost",
+  "base": "6014dc1e4b69eca986c2d11b87d84313fbbfba98",
+  "at": "2026-10-31T07:45:44.114687+00:00",
+  "note": "Final modified/added source, scripts and configuration; this binds the delivered bytes, not a claim that every listed historical script was executed. See report for actual gate/capture scopes.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 264,
+      "sha256": "d7a5c45506bb964ad6245f82813fc2eb26f0b0be191ea7ef4acc09be79fd8b72"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "bytes": 378,
+      "sha256": "af19d293ac28944706503b9191764b48eff6ba1e2e69442ebc0af7f06db653da"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1263,
+      "sha256": "79a1e1905b1a67f05f058ab6404bcc8830619b1bb666dd8107f39beb3b29df7a"
+    },
+    {
+      "path": "scripts/benchmark-lint.py",
+      "bytes": 7204,
+      "sha256": "d70141820c15d579d3df8547064c53cc73b3a943ab0bd3b669667b5ae7a45bb8"
+    },
+    {
+      "path": "scripts/e2e-tt128-time.mts",
+      "bytes": 7675,
+      "sha256": "4d4d727a7a0d31dd245bbb0943fa53adba7f45e6a5056e9a7a02756a10bcf561"
+    },
+    {
+      "path": "scripts/e2e-tt130-alarms.mts",
+      "bytes": 20516,
+      "sha256": "a2b9a73485c531c9bf517f25e903809c26dca2d2b81df87237829e17dff03f72"
+    },
+    {
+      "path": "scripts/e2e-tt132-alarms.mts",
+      "bytes": 19087,
+      "sha256": "bf6f04e717690742c5586f4234f5245c00bf4bce3f67d8efb47e2227294cc21d"
+    },
+    {
+      "path": "scripts/e2e-tt132-planner.mts",
+      "bytes": 21790,
+      "sha256": "4268546e69aa17cc9fc67772b1ac1d0fe898a8a193789eecc8e1d48de51ccc49"
+    },
+    {
+      "path": "scripts/e2e-tt52-pdf.mts",
+      "bytes": 18423,
+      "sha256": "c9aa037dc0f0338a898e673bc83e72da2c0969c82584d3aa97848f6936ec3991"
+    },
+    {
+      "path": "scripts/e2e-tt53-media.mts",
+      "bytes": 8520,
+      "sha256": "3e179dd5c533bfec0730ace0416aeb51a914856329d5fa3b4a820394fe3f4ad9"
+    },
+    {
+      "path": "scripts/e2e-tt54.mts",
+      "bytes": 24824,
+      "sha256": "8a909fd0de3e1136048e0470cbfe2cf67df17700eaf5045c87150d8f2e794b07"
+    },
+    {
+      "path": "scripts/e2e-tt55-shell.mts",
+      "bytes": 11371,
+      "sha256": "5dde4e17333c097039d424d2c4d4beebbf81eb860e1c751d399e23d3e78bb01b"
+    },
+    {
+      "path": "scripts/e2e-tt56-rows.mts",
+      "bytes": 12903,
+      "sha256": "ae339a707f751bd31eaca4b28656fe8474624a1c0c1f6f6be29dbc917d193f8b"
+    },
+    {
+      "path": "scripts/e2e-tt56.mts",
+      "bytes": 27900,
+      "sha256": "597d491ce6d42a5b96c5081267096e634ccf2cdff444941feba34b91afa5c67f"
+    },
+    {
+      "path": "scripts/e2e-tt57-rows.mts",
+      "bytes": 10303,
+      "sha256": "521a6172e1506077a7aefd4d80dbece5c54eda3256a62b63955e094a61c71301"
+    },
+    {
+      "path": "scripts/e2e-tt57.mts",
+      "bytes": 15313,
+      "sha256": "04da1c9e587d91d4496ab97d30b9f18cda739b1496e9ae5edfde2b0eb2900f5e"
+    },
+    {
+      "path": "scripts/e2e-tt58-rows.mts",
+      "bytes": 11125,
+      "sha256": "8ad51eebab8482f72a7a90dfb0c1385eb049af7d8c705e02022280567a4b9c1e"
+    },
+    {
+      "path": "scripts/e2e-tt58.mts",
+      "bytes": 19669,
+      "sha256": "f6ff61ff28dbf093c8be9950735b926f548582ebada595ab1a39a509ff69864c"
+    },
+    {
+      "path": "scripts/e2e-tt63.mts",
+      "bytes": 12064,
+      "sha256": "3cf965afd1c83aa9fd1f35762098be01cdaebad2a9da2760c88d7c2ab96c6e2a"
+    },
+    {
+      "path": "scripts/e2e-tt64.mts",
+      "bytes": 13631,
+      "sha256": "0fc452d7bb2325da5c71230b781f009a359e4fd99d42888cf6f87f5b840c5e0a"
+    },
+    {
+      "path": "scripts/e2e-tt65.mts",
+      "bytes": 11938,
+      "sha256": "114df1f10e7fbdd9f97c60449441e99369844fc9bb833471d9b713aea30beefa"
+    },
+    {
+      "path": "scripts/e2e-tt68-sheet.mts",
+      "bytes": 9828,
+      "sha256": "956efdaf233a189449424c78d6872ab5d9d12a6abbcca49f63b8eb0bc22f488d"
+    },
+    {
+      "path": "scripts/e2e-tt69-lifecycle.mts",
+      "bytes": 24773,
+      "sha256": "09abffcae71932250f58d1c023da61cac68e9ba691add65e49cbf012d7804cb2"
+    },
+    {
+      "path": "scripts/e2e-tt70-closeall.mts",
+      "bytes": 11765,
+      "sha256": "3aa0578833b6693049838393c376c153ff69ddd0425c7ce426845ae80f11f66d"
+    },
+    {
+      "path": "scripts/e2e-tt70-rows.mts",
+      "bytes": 13485,
+      "sha256": "df033b71561f7b758375a272ef8565f28a3223eafb686e18007b1b74416b2b66"
+    },
+    {
+      "path": "scripts/e2e-tt70-seal.mts",
+      "bytes": 15334,
+      "sha256": "8a8600d8032cd1793d51d7a18a982d5ec2c1a2c731ca239d6f9c585dc1fcdeba"
+    },
+    {
+      "path": "scripts/e2e-tt71-focus.mts",
+      "bytes": 16181,
+      "sha256": "6b30df02e14120b5d7ceaf47bb0e73f01374a5e8c7e2c71a41c277b1de75464a"
+    },
+    {
+      "path": "scripts/e2e-tt72-access.mts",
+      "bytes": 11794,
+      "sha256": "ad5256d0b04f687ed056d431fcfea52245abcdb876bd8cb6dd8cf3ffe4c7efa0"
+    },
+    {
+      "path": "scripts/e2e-tt72-pad.mts",
+      "bytes": 13422,
+      "sha256": "0e34fe01c7c55ce0afe4c3cdd0e9561b232adb277a3dd98419c0564bac3e8d63"
+    },
+    {
+      "path": "scripts/lint.mjs",
+      "bytes": 3126,
+      "sha256": "7f486740075c13115ef24120a00a520002c6b9f1f177e7f005313da125a83707"
+    },
+    {
+      "path": "scripts/run-gate.sh",
+      "bytes": 3501,
+      "sha256": "e8c98d5da5df658286596d0b792486e3bd0e9fea2ed979e6684d8b238bbd7bb9"
+    },
+    {
+      "path": "scripts/tt132-claim-contract.mts",
+      "bytes": 2719,
+      "sha256": "e94e1becde59e92683dc8323cc6ed175da9df189f7da1881f653157688229073"
+    },
+    {
+      "path": "scripts/tt132-contact-sheet.py",
+      "bytes": 1288,
+      "sha256": "c3a79908891170c91114abb596c471a4815f9dd93f79cb410a576a18967033a3"
+    },
+    {
+      "path": "scripts/tt132-core.mts",
+      "bytes": 9531,
+      "sha256": "ff2d812a7de477aaf2a08acba3eda7c58fdfcfa5509edcee052a0955fe7c0ae4"
+    },
+    {
+      "path": "scripts/tt132-fixture.mts",
+      "bytes": 3241,
+      "sha256": "76cd768ba069367f9bcb590ccec63a901e07354f00cea5f4a935ad842e870120"
+    },
+    {
+      "path": "scripts/tt132-lint-contract.mts",
+      "bytes": 2467,
+      "sha256": "acb5b3479f730d88e1bb00a95764af3c257c029d1fbf2ef01c9a0c16d7d33b12"
+    },
+    {
+      "path": "scripts/tt132-oracles.mts",
+      "bytes": 5186,
+      "sha256": "c388ffe483e0fb79b795da534c3c39ec05e8b881b5677c208d2e2642cc4d4414"
+    },
+    {
+      "path": "scripts/tt132-planner-http.mts",
+      "bytes": 10840,
+      "sha256": "8646a1c302c16fda8472e5876382c4a1315d37bcf83c3a965f110a1de1d55c05"
+    },
+    {
+      "path": "scripts/tt132-visual.mts",
+      "bytes": 3224,
+      "sha256": "55a0c7ffb641104e8423931161a1ac20cf8f405166a95f85fe32e69acd96c6c9"
+    },
+    {
+      "path": "src/app/api/tasks/route.ts",
+      "bytes": 5948,
+      "sha256": "b261dff109137352abc549374b956a541473bc749f14cb9e72789ae344ad72a4"
+    },
+    {
+      "path": "src/app/globals.css",
+      "bytes": 73360,
+      "sha256": "5561cafb096001a7624f970fcd8f1151aa617b9c4f527a861f5b326c94ec73b2"
+    },
+    {
+      "path": "src/components/ActionGlyph.tsx",
+      "bytes": 1396,
+      "sha256": "a0dd754568f094b21f1be75704fc2c53f11225668b52b3991bc50a79d5f681a8"
+    },
+    {
+      "path": "src/components/AlarmCenter.tsx",
+      "bytes": 3432,
+      "sha256": "7e381791671800d413f403d1c98ec470dc441ddfb8c8aad18592e1863405e2ae"
+    },
+    {
+      "path": "src/components/QuickPanel.tsx",
+      "bytes": 8640,
+      "sha256": "d2f1791885956ff41d4ffaf4ceddeb4f12a3ed6cced22dcc2e78f50f7ddc78ab"
+    },
+    {
+      "path": "src/components/Shell.tsx",
+      "bytes": 58305,
+      "sha256": "55ff0aae73f0945501473408f6902400ab918016cc5b3d6ec08aa893590abc68"
+    },
+    {
+      "path": "src/components/ShellDaemons.tsx",
+      "bytes": 12824,
+      "sha256": "e0b0ca8c7cb10e25b288b82fd8d826491cc2f622f484783e0f7da7d70723c5bc"
+    },
+    {
+      "path": "src/components/modules/Beam.tsx",
+      "bytes": 12421,
+      "sha256": "4c8e816b5b5f3d87fee53e8b5bd800668e6ea773c27143a063ba09bfe7188483"
+    },
+    {
+      "path": "src/components/modules/Clock.tsx",
+      "bytes": 22517,
+      "sha256": "e6bf12e2692d896319956dbd606bdfc10d9ecef0df28148a253f60cdc67ff359"
+    },
+    {
+      "path": "src/components/modules/Messages.tsx",
+      "bytes": 8694,
+      "sha256": "b75e3fd02bb70cf4c642a8189eb22af443b4ac26e54d69e5ebf2fc73b93b93f5"
+    },
+    {
+      "path": "src/components/modules/Planner.tsx",
+      "bytes": 20072,
+      "sha256": "7c1b24117644bcc6f5613ac02a10d77fc4d3e8d2842c8c74e2728398b698cf60"
+    },
+    {
+      "path": "src/components/modules/PlannerEditor.tsx",
+      "bytes": 5295,
+      "sha256": "29276e88e11546b24d4ed07efd2dbe3372eda8048453b8d7c77741c3614f7286"
+    },
+    {
+      "path": "src/components/modules/Share.tsx",
+      "bytes": 14280,
+      "sha256": "6696b619f00c6bde87ec7a698fc0f7ca701cfd2dec0d28b38bb492578a11d6f7"
+    },
+    {
+      "path": "src/data/coverage.json",
+      "bytes": 611330,
+      "sha256": "b21bc4452fa4f51a346356b7da50a8029127a80b32cffe64e9bf3d5787b370e6"
+    },
+    {
+      "path": "src/db/seed-data/features-tt117.ts",
+      "bytes": 9756,
+      "sha256": "10024a5d661dfcedc9419ff401dabf800bffe83ea60dd06167d69d441c8d9efc"
+    },
+    {
+      "path": "src/lib/alarm-activity-core.ts",
+      "bytes": 5836,
+      "sha256": "049a31ef014fa43cf471ac740d9ab5365bb1b9f09cfb412c15b7afcc4bc3b7b9"
+    },
+    {
+      "path": "src/lib/alarm-activity-store.ts",
+      "bytes": 5116,
+      "sha256": "cb14f9f66331537968035c573445145728123373f02b0424e36290cd26f37834"
+    },
+    {
+      "path": "src/lib/alarm-store.ts",
+      "bytes": 2771,
+      "sha256": "1930fe506b0a856890cbf8c759131ceb776ab8adbcdd2a24bf2f2471a8807db2"
+    },
+    {
+      "path": "src/lib/clock-alarm-claim.ts",
+      "bytes": 2134,
+      "sha256": "e114405fd49b0ddd09caed8cd30c2d81a34859dfc6cbbe74d6df222b53b05fe7"
+    },
+    {
+      "path": "src/lib/doc-lifecycle.ts",
+      "bytes": 11084,
+      "sha256": "2ca658b5ce8f2c46671eaceb455668defa4e56afe98f2c4a327835e7d6153a72"
+    },
+    {
+      "path": "src/lib/input.ts",
+      "bytes": 10760,
+      "sha256": "e0123e959d757129bb394c99fe9dff68a01662abb793487b56c005fd6057cadd"
+    },
+    {
+      "path": "src/lib/task-model.ts",
+      "bytes": 7538,
+      "sha256": "fc35387a2eb900a732e1923d9a5590363eac33020210cdfd3ffc282f6f0cecc9"
+    }
+  ]
+}

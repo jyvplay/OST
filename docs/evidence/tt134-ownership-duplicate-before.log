@@ -1,0 +1,32 @@
+Actual browser: 143.0.7499.0
+  ✗ Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair
+    locator.click: Timeout 12000ms exceeded.
+Call log:
+  - waiting for getByTestId('close-confirm-save')
+    - locator resolved to <button type="button" class="fs-btn" data-variant="primary" data-testid="close-confirm-save">Save</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - element is outside of the viewport
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - element is outside of the viewport
+    - retrying click action
+      - waiting 100ms
+    23 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - element is outside of the viewport
+     - retrying click action
+       - waiting 500ms
+
+
+0 passed, 1 failed
+FAILED: Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair

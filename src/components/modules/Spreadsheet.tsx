@@ -1162,7 +1162,14 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }} onKeyDown={event => {
+      // A More-menu action returns focus to its toolbar, not the grid. Find
+      // still belongs to this workbook there; do not hand Ctrl+F to the shell
+      // or browser just because the user's last action was a toolbar command.
+      if (!event.defaultPrevented && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "f") {
+        event.preventDefault(); event.stopPropagation(); setPanel("find");
+      }
+    }}>
       {/* TT80 banner: Keep · Tweak · Look · Crunch · Put · Glance · Polish over one tool strip */}
       <AppBanner label="Spreadsheet" status={<>
           <Badge tone={dirty ? "warn" : "ok"}>{dirty ? "unsaved" : "saved"}</Badge>

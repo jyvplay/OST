@@ -1,0 +1,10 @@
+file:///home/user/OST/scripts/tt132-claim-contract.mts:6
+import { withClockClaimLock } from "../src/lib/clock-alarm-claim.ts";
+         ^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../src/lib/clock-alarm-claim.ts' does not provide an export named 'withClockClaimLock'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:226:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:335:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

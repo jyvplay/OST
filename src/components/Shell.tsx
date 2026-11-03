@@ -9,10 +9,11 @@ import { fz, readUiUnit, applyTextScale, DEFAULT_TEXT_SCALE, TEXT_SCALE_MIN, TEX
 import { DEFAULT_WALLPAPER } from "@/lib/appearance";
 import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api, post, put } from "@/lib/api";
 import type { RoutineAction } from "@/lib/routines";
 import ShellDaemons from "./ShellDaemons";
+import AlarmCenter from "./AlarmCenter";
 import DesktopWidgets from "./DesktopWidgets";
 import { probeCapabilities, refineCapabilities, type CapabilityReport } from "@/lib/capabilities";
 import { governor, type GovernorSnapshot } from "@/lib/governor";
@@ -105,10 +106,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     setPalette(action === "palette");
   }, []);
 
-  const streams = useRef(new Map<string, MediaStream>()).current;
-  const commandLog = useRef<{ cmd: WindowCommand; at: number }[]>([]).current;
+  const [streams, setStreams] = useState(() => new Map<string, MediaStream>());
+  const [commandLog, setCommandLog] = useState<{ cmd: WindowCommand; at: number }[]>([]);
   const stateRefOpen = useRef(state);
-  stateRefOpen.current = state;
+  useLayoutEffect(() => { stateRefOpen.current = state; }, [state]);
   const counter = useRef(0);
   const loaded = useRef(false);
   const saveTimer = useRef<number | null>(null);
@@ -119,10 +120,10 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
   /* ------------------------------------------------------------ dispatch */
   const rawDispatch = useCallback((cmd: WindowCommand) => {
-    commandLog.push({ cmd, at: Date.now() });
-    if (commandLog.length > 400) commandLog.shift();
+    const entry = { cmd, at: Date.now() };
+    setCommandLog((log) => [...log.slice(-399), entry]);
     setState((s) => reduce(s, cmd));
-  }, [commandLog]);
+  }, []);
 
   /* TT69 FF-15: every close path (title bar, Alt+F4 / Cmd+W, menus, Quit, dock, taskbar, Overview, shelf middle-click,
      routines' Close all) dispatches "close"/"closeAll" — so the Save-changes question is asked HERE, once, for all */
@@ -180,9 +181,19 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     const head = liveAsk()[0]; if (!head) { settleHead("cancelled", false, true); return; }
     const g = guardFor(head.id);
     setAskBusy(true);
-    // the last edits are drafted before the window goes (bounded: a hung store must not trap the user)
-    if (g) await Promise.race([g.flushDraft().catch(() => undefined), new Promise((r) => setTimeout(r, 4000))]);
-    settleHead("discarded", true);
+    // A deadline must not turn an unconfirmed recovery write into permission
+    // to lose edits. Cancel and Save remain available after a failure/timeout.
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    try {
+      if (g) await Promise.race([
+        g.flushDraft(),
+        new Promise<never>((_, reject) => { deadline = setTimeout(() => reject(new Error("Recovery write timed out")), 4000); }),
+      ]);
+      settleHead("discarded", true);
+    } catch {
+      setAskBusy(false);
+      setAskErr("Recovery failed. Your changes are still open. Save, or Cancel to export, free space, or explicitly discard changes in the editor.");
+    } finally { if (deadline !== undefined) clearTimeout(deadline); }
   }, [settleHead, liveAsk]);
   const answerCancel = useCallback(() => settleHead("cancelled", false, true), [settleHead]);
 
@@ -235,10 +246,13 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   const editClips = useCallback((fn: (c: ClipEntry[]) => ClipEntry[]) => setClips(fn), []);
 
   const publishStream = useCallback((id: string, stream: MediaStream | null) => {
-    if (stream) streams.set(id, stream);
-    else streams.delete(id);
+    setStreams((previous) => {
+      const next = new Map(previous);
+      if (stream) next.set(id, stream); else next.delete(id);
+      return next;
+    });
     setStreamVersion((v) => v + 1);
-  }, [streams]);
+  }, []);
 
   const setSetting = useCallback(async (key: string, value: string) => {
     const prev = settings[key];
@@ -395,7 +409,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       dirtySince.current = 0;
       void fetch("/api/state", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: stateId, state, revision: state.revision }) })
         .then(async (r) => {
-          if (r.status !== 409) return;
+          if (r.status !== 409) { await r.arrayBuffer(); return; }
           // TT48 (SH-08 contract): a newer desktop was saved by another tab/window — adopt it instead of silently dropping
           // this save (and, before this fix, every later one: the stale revision never caught up)
           const j = await r.json().catch(() => null) as { row?: { state?: DesktopState; revision?: number } } | null;
@@ -411,7 +425,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         .then((sealed) => { try { localStorage.setItem(`fusion.state.${stateId}`, JSON.stringify(sealed)); } catch { /* quota */ } });
     }, wait);
     return () => { if (saveTimer.current) window.clearTimeout(saveTimer.current); };
-  }, [state, stateId]);
+  }, [state, stateId, dispatch, toast]);
 
   useEffect(() => {
     const flush = () => {
@@ -426,11 +440,11 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         headers: { "content-type": "application/json" },
         body,
         keepalive: body.length < 60_000,
-      }).catch(() => undefined);
+      }).then(r => r.arrayBuffer()).catch(() => undefined);
     };
     window.addEventListener("pagehide", flush);
     return () => window.removeEventListener("pagehide", flush);
-  }, [state, stateId]);
+  }, [state, stateId, dispatch, toast]);
 
   /* ------------------------------------------------------- viewport size */
   useEffect(() => {
@@ -573,7 +587,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dispatch, open, preset, state.focus, state.focusMode]);
+  }, [dispatch, open, preset, state.focus, state.focusMode, state.windows]);
 
   /* ------------------------- SH-06 viewport pointer triggers */
   useEffect(() => {
@@ -719,8 +733,6 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
   }, [beam, settings, toast]);
 
   /* -------------------------------------- routine/preset executor (AU-01/02) */
-  const stateRef = useRef(state);
-  stateRef.current = state;
   const runActions = useCallback(async (actions: RoutineAction[]) => {
     let last: string | null = null;
     for (const a of actions) {
@@ -731,14 +743,14 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           else toast(`Routine: unknown module "${arg}"`, "warn");
           break;
         case "tile": {
-          const id = last ?? stateRef.current.focus;
+          const id = last ?? stateRefOpen.current.focus;
           const slots = ["left", "right", "top", "bottom", "tl", "tr", "bl", "br", "third-l", "third-c", "third-r", "center", "full"];
           if (id && slots.includes(arg)) dispatch({ t: "tile", id, slot: arg as "left" });
           break;
         }
         case "workspace": {
           const n = Number(arg);
-          if (stateRef.current.workspaces.some((w) => w.id === n)) dispatch({ t: "switchWorkspace", workspace: n });
+          if (stateRefOpen.current.workspaces.some((w) => w.id === n)) dispatch({ t: "switchWorkspace", workspace: n });
           break;
         }
         case "focusMode": dispatch({ t: "focusMode", on: arg !== "off" }); break;
@@ -753,7 +765,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
         case "preset": {
           const r = await api<{ row: { state: DesktopState } | null }>(`/api/state?id=${encodeURIComponent(`preset:${arg}`)}`);
           if (!r.row) { toast(`Preset "${arg}" not found`, "warn"); break; }
-          const cur = stateRef.current;
+          const cur = stateRefOpen.current;
           dispatch({ t: "hydrate", state: { ...initialDesktop(), ...r.row.state, viewport: cur.viewport, revision: cur.revision + 1 } });
           toast(`Restored preset "${arg}"`, "ok");
           break;
@@ -761,7 +773,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       }
       await new Promise((res) => setTimeout(res, 30)); // let each command commit before the next reads state
     }
-  }, [dispatch, open, setSetting, toast]);
+  }, [dispatch, open, setSetting, toast, settings]);
 
   const pulse = useCallback((ts: number) => governor.tick(ts), []);
   /** SH-04: a file change made in another tab / window of this browser (same origin) refreshes this desktop too — the bump
@@ -864,7 +876,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
               {booted ? <DesktopWidgets /> : null}
             </>
           )}
-          {booted ? <ShellDaemons /> : null}
+          {booted ? <><ShellDaemons /><AlarmCenter /></> : null}
           {visible.map((w) => <WindowFrame key={w.id} win={w} />)}
           {booted ? <SnapHost /> : null}
 
@@ -978,7 +990,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       }}/>
       {askHead ? (
         <CloseConfirm key={askHead.id + askHead.mode} title={askGuard?.title() ?? state.windows.find((w) => w.id === askHead.id)?.title ?? "document"}
-          recoverable={askGuard?.recoverable?.() ?? true} mode={askHead.mode} busy={askBusy} error={askErr} queued={askLive.length}
+          recoverable={askGuard?.recoverable?.() ?? true} recoveryDetail={askGuard?.recoveryDetail?.()} mode={askHead.mode} busy={askBusy} error={askErr} queued={askLive.length}
           onSave={() => void answerSave()} onDiscard={() => void answerDiscard()} onCancel={answerCancel} />
       ) : null}
     </ShellContext.Provider>

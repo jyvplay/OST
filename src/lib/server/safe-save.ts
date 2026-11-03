@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 /**
  * FM-18 — the safe-save contract.
  *
@@ -324,7 +325,7 @@ async function indexOrForget(tx: Parameters<Parameters<typeof safeTransaction>[0
     await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, path)));
     return;
   }
-  const body = isTextual(mime) && encoding === "utf8" ? content.slice(0, 50_000) : "";
+  const body = isTextual(mime) && encoding === "utf8" ? searchIndexText(content) : "";
   await tx.insert(indexDocs).values({ source: "file", ref: path, title: baseName(path), body, updatedAt: new Date() })
     .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: baseName(path), body, updatedAt: new Date() } });
 }

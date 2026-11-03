@@ -1,0 +1,11 @@
+Actual browser: 143.0.7499.0
+  actual native sessionStorage quota: 72 real writes then 5 quota refusals
+  ✓ Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work
+  actual native sessionStorage quota: 72 real writes then 5 quota refusals
+  ✓ Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft
+  ✓ Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour
+  ✓ Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent
+  ✓ Native profile import warns about plaintext Private queries before replacing; cancel preserves the list, and malformed Unicode/unknown fields are refused atomically
+  ✓ No uncaught browser errors during native quota/privacy/profile boundary attacks
+
+6 passed, 0 failed

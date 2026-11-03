@@ -1,0 +1,5 @@
+  ✓ concurrent create allows exactly one winner and returns its committed identity
+  ✓ two writers from one snapshot yield one success, no lost update
+  ✓ stale identity, modified content, and trashed destination refuse writes
+
+3 passed, 0 failed

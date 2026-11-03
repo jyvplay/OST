@@ -1,0 +1,77 @@
+{
+  "scope": "Actual presentation-repair attacks and supplemental captures, not new Class A features or universal device acceptance",
+  "records": [
+    {
+      "app": "browser-unknown",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/browser-unknown-wide.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvypsku0-wide.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvypsku0-wide.invalid",
+        "host": "S3-handoff",
+        "tookMs": 4
+      }
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-wide.png",
+      "words": 11777
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-wide.png",
+      "words": 12217
+    },
+    {
+      "app": "beam",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/beam-wide.png",
+      "words": 291,
+      "proof": {
+        "localFileGapPx": 8
+      }
+    },
+    {
+      "app": "browser-unknown",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/browser-unknown-compact.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvypsvfg-compact.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvypsvfg-compact.invalid",
+        "host": "S3-handoff",
+        "tookMs": 5
+      }
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-compact.png",
+      "words": 11777
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-compact.png",
+      "words": 12217
+    },
+    {
+      "app": "beam",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/beam-compact.png",
+      "words": 291,
+      "proof": {
+        "localFileGapPx": 8
+      }
+    }
+  ]
+}

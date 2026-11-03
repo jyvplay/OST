@@ -7,6 +7,7 @@
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const { test, finish } = makeHarness("e2e-sheet-layout");
@@ -83,7 +84,7 @@ await test("Data validation: list dropdown picks a value; Stop rejects (rolled b
   const s = await openSheet();
   try {
     await s.cell("K10").click(); await s.cell("K14").click({ modifiers: ["Shift"] });
-    await s.dlg.getByRole("button", { name: "Data validation" }).click();
+    await bannerClick(s.page, s.dlg, "Data validation", /^Validation/);
     await s.dlg.getByLabel("List source").fill("Low,Medium,High"); await s.dlg.getByLabel("Input message").fill("pick a priority");
     await s.dlg.getByRole("button", { name: "Apply rule" }).click();
     await s.cell("K10").click();
@@ -111,7 +112,7 @@ await test("Data validation: list dropdown picks a value; Stop rejects (rolled b
     await s.dlg.getByLabel("Input message").fill(""); await s.dlg.getByRole("button", { name: "Apply rule" }).click();
     await typeIn(s, "L10", "50"); await alert.waitFor({ timeout: 4000 }); eq(await alert.getAttribute("data-style"), "warning");
     await alert.getByRole("button", { name: "Yes" }).click(); eq(await text(s.cell("L10")), "50", "Warning: Yes keeps the entry");
-    await s.dlg.getByRole("button", { name: "Circle invalid data" }).click();
+    await bannerClick(s.page, s.dlg, "Circle invalid data", "Circle invalid");
     await waitFor(async () => (await s.cell("L10").locator("[data-invalid]").count()) === 1, "L10 not circled");
     eq(await s.cell("K10").locator("[data-invalid]").count(), 0, "valid cell not circled");
   } finally { await s.close(); }
@@ -120,7 +121,7 @@ await test("Data validation: list dropdown picks a value; Stop rejects (rolled b
 await test("Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message", { "FF-33": "full", "FF-28": "partial" }, async () => {
   const s = await openSheet();
   try {
-    await s.dlg.getByRole("button", { name: "Freeze first column" }).click();
+    await bannerClick(s.page, s.dlg, "Freeze first column", "Freeze col");
     const grid = s.dlg.locator('[data-testid="sheet-grid"]');
     const x0 = (await s.cell("A3").boundingBox())!.x;
     await grid.evaluate((e) => { e.scrollLeft = 900; e.dispatchEvent(new Event("scroll")); });
@@ -130,7 +131,7 @@ await test("Freeze first column stays put on horizontal scroll; sorting a range 
     await grid.evaluate((e) => { e.scrollLeft = 0; e.dispatchEvent(new Event("scroll")); });
     await s.cell("A3").click(); await s.cell("B3").click({ modifiers: ["Shift"] });
     await s.dlg.getByLabel("Merge", { exact: true }).selectOption("merge");
-    await s.cell("A2").click(); await s.dlg.getByRole("button", { name: "Sort ascending by the active column" }).click();
+    await s.cell("A2").click(); await bannerClick(s.page, s.dlg, "Sort ascending by the active column", "Sort A-Z");
     await waitFor(async () => /identically sized/.test(await text(s.dlg.locator('[data-testid="sheet-status"]'))), "sort was not refused");
   } finally { await s.close(); }
 });
@@ -141,10 +142,10 @@ await test("Full stack: merges + borders + validation + frozen panes survive Exp
   try {
     await s.cell("H10").click(); await s.cell("J11").click({ modifiers: ["Shift"] }); await s.dlg.getByLabel("Merge", { exact: true }).selectOption("merge");
     await s.cell("L13").click(); await s.dlg.getByLabel("Borders", { exact: true }).selectOption("thickOutside");
-    await s.cell("K10").click(); await s.dlg.getByRole("button", { name: "Data validation" }).click(); await s.dlg.getByLabel("List source").fill("Yes,No");
+    await s.cell("K10").click(); await bannerClick(s.page, s.dlg, "Data validation", /^Validation/); await s.dlg.getByLabel("List source").fill("Yes,No");
     await s.dlg.getByRole("button", { name: "Apply rule" }).click();
-    await s.dlg.getByRole("button", { name: "Freeze first column" }).click();
-    await s.dlg.getByRole("button", { name: "Export .xlsx" }).click();
+    await bannerClick(s.page, s.dlg, "Freeze first column", "Freeze col");
+    await bannerClick(s.page, s.dlg, "Export .xlsx", "Export .xlsx");
     await waitFor(async () => /exported .* (?:→|to) /.test(await text(s.dlg.locator('[data-testid="sheet-status"]'))), "export failed", 10_000);
     dest = /(?:→| to) (\S+\.xlsx)/.exec(await text(s.dlg.locator('[data-testid="sheet-status"]')))![1];
   } finally { await s.close(); }
@@ -181,20 +182,20 @@ await test("TT19 defined names: Name Box defines a name for the selection and ju
     await s.page.keyboard.press("Escape");
     await s.cell("A1").click(); await box().click(); await box().fill("qty"); await box().press("Enter");
     await waitFor(async () => (await box().inputValue()) === "Qty", "typing a name (any case) selects its range");
-    await s.dlg.getByRole("button", { name: /^Name Manager/ }).click();
+    await bannerClick(s.page, s.dlg, /^Name Manager/, /^Names/);
     const row = s.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]');
     await row.waitFor({ timeout: 5000 });
     eq(/\$B\$2:\$B\$4/.test(await row.innerText()), true, "Name Manager shows refers-to");
-    await s.dlg.getByRole("button", { name: "Export .xlsx" }).click();
+    await bannerClick(s.page, s.dlg, "Export .xlsx", "Export .xlsx");
     await waitFor(async () => /exported .* (?:→|to) /.test(await status()), "export failed", 10_000);
     dest = /(?:→| to) (\S+\.xlsx)/.exec(await status())![1];
   } finally { await s.close(); }
   const r = await openSheet(dest);
   try {
     await waitFor(async () => /^\$?42(\.00)?$/.test(await text(r.cell("D2"))), `name-based formula lost in the .xlsx round trip: ${await text(r.cell("D2"))}`, 10_000);
-    const nb = r.dlg.getByRole("button", { name: /^Name Manager/ });
-    eq((await nb.innerText()).trim(), "Names (1)", "reopened workbook carries exactly one name");
-    await nb.click();
+    const nb = r.dlg.getByRole("button", { name: /^Name Manager/, includeHidden: true });
+    eq((await nb.textContent())!.trim(), "Names (1)", "reopened workbook carries exactly one name");
+    await bannerClick(r.page, r.dlg, /^Name Manager/, /^Names \(1\)$/);
     await r.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]').waitFor({ timeout: 5000 });
     await r.dlg.locator('[data-testid="names-panel"] tr[data-name="Qty"]').getByRole("button", { name: "Delete" }).click();
     await waitFor(async () => (await text(r.cell("D2"))) === "#NAME?", "deleting the name gives #NAME?");

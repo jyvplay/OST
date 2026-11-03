@@ -1,0 +1,664 @@
+{
+  "suite": "tt132-visual",
+  "at": "2026-10-31T07:19:57.468Z",
+  "results": [
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Recall",
+      "covers": {},
+      "pass": true,
+      "ms": 9487
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Files",
+      "covers": {},
+      "pass": true,
+      "ms": 9786
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 9325
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Find",
+      "covers": {},
+      "pass": true,
+      "ms": 9368
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Terminal",
+      "covers": {},
+      "pass": true,
+      "ms": 9228
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: SSH",
+      "covers": {},
+      "pass": true,
+      "ms": 9355
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Notes",
+      "covers": {},
+      "pass": true,
+      "ms": 9188
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Browser",
+      "covers": {},
+      "pass": true,
+      "ms": 9372
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Media",
+      "covers": {},
+      "pass": true,
+      "ms": 9611
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Capture",
+      "covers": {},
+      "pass": true,
+      "ms": 9232
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Lens",
+      "covers": {},
+      "pass": true,
+      "ms": 9414
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Beam",
+      "covers": {},
+      "pass": true,
+      "ms": 9449
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Together",
+      "covers": {},
+      "pass": true,
+      "ms": 9465
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Messages",
+      "covers": {},
+      "pass": true,
+      "ms": 9646
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Vault",
+      "covers": {},
+      "pass": true,
+      "ms": 9518
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Privacy",
+      "covers": {},
+      "pass": true,
+      "ms": 9364
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Backup",
+      "covers": {},
+      "pass": true,
+      "ms": 9390
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Alerts",
+      "covers": {},
+      "pass": true,
+      "ms": 9264
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Monitor",
+      "covers": {},
+      "pass": true,
+      "ms": 9421
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Apps",
+      "covers": {},
+      "pass": true,
+      "ms": 9387
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Calculator",
+      "covers": {},
+      "pass": true,
+      "ms": 9438
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Settings",
+      "covers": {},
+      "pass": true,
+      "ms": 9651
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Spec",
+      "covers": {},
+      "pass": true,
+      "ms": 9675
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Clock",
+      "covers": {},
+      "pass": true,
+      "ms": 9748
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Planner",
+      "covers": {},
+      "pass": true,
+      "ms": 9357
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Devices",
+      "covers": {},
+      "pass": true,
+      "ms": 9208
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Share",
+      "covers": {},
+      "pass": true,
+      "ms": 9213
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Routines",
+      "covers": {},
+      "pass": true,
+      "ms": 9251
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Clipboard",
+      "covers": {},
+      "pass": true,
+      "ms": 9268
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Storage",
+      "covers": {},
+      "pass": true,
+      "ms": 9364
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Archive",
+      "covers": {},
+      "pass": true,
+      "ms": 9190
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Local disk",
+      "covers": {},
+      "pass": true,
+      "ms": 9149
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Photos",
+      "covers": {},
+      "pass": true,
+      "ms": 9278
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Image Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 9388
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Vector",
+      "covers": {},
+      "pass": true,
+      "ms": 9352
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Writer",
+      "covers": {},
+      "pass": true,
+      "ms": 9555
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: PDF",
+      "covers": {},
+      "pass": true,
+      "ms": 9235
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Books",
+      "covers": {},
+      "pass": true,
+      "ms": 9262
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Slides",
+      "covers": {},
+      "pass": true,
+      "ms": 9298
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Spreadsheet",
+      "covers": {},
+      "pass": true,
+      "ms": 9750
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Contacts",
+      "covers": {},
+      "pass": true,
+      "ms": 9286
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Tables",
+      "covers": {},
+      "pass": true,
+      "ms": 9291
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Whiteboard",
+      "covers": {},
+      "pass": true,
+      "ms": 9314
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Peek",
+      "covers": {},
+      "pass": true,
+      "ms": 9190
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Video",
+      "covers": {},
+      "pass": true,
+      "ms": 9644
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Music",
+      "covers": {},
+      "pass": true,
+      "ms": 9468
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "wide initial view: Maps",
+      "covers": {},
+      "pass": true,
+      "ms": 9619
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Recall",
+      "covers": {},
+      "pass": true,
+      "ms": 9266
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Files",
+      "covers": {},
+      "pass": true,
+      "ms": 9255
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 9052
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Find",
+      "covers": {},
+      "pass": true,
+      "ms": 9155
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Terminal",
+      "covers": {},
+      "pass": true,
+      "ms": 9057
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: SSH",
+      "covers": {},
+      "pass": true,
+      "ms": 9162
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Notes",
+      "covers": {},
+      "pass": true,
+      "ms": 9062
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Browser",
+      "covers": {},
+      "pass": true,
+      "ms": 9149
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Media",
+      "covers": {},
+      "pass": true,
+      "ms": 9200
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Capture",
+      "covers": {},
+      "pass": true,
+      "ms": 9138
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Lens",
+      "covers": {},
+      "pass": true,
+      "ms": 9069
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Beam",
+      "covers": {},
+      "pass": true,
+      "ms": 9449
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Together",
+      "covers": {},
+      "pass": true,
+      "ms": 9318
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Messages",
+      "covers": {},
+      "pass": true,
+      "ms": 9468
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Vault",
+      "covers": {},
+      "pass": true,
+      "ms": 9162
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Privacy",
+      "covers": {},
+      "pass": true,
+      "ms": 9205
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Backup",
+      "covers": {},
+      "pass": true,
+      "ms": 9129
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Alerts",
+      "covers": {},
+      "pass": true,
+      "ms": 9182
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Monitor",
+      "covers": {},
+      "pass": true,
+      "ms": 9175
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Apps",
+      "covers": {},
+      "pass": true,
+      "ms": 9240
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Calculator",
+      "covers": {},
+      "pass": true,
+      "ms": 9344
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Settings",
+      "covers": {},
+      "pass": true,
+      "ms": 9744
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Spec",
+      "covers": {},
+      "pass": true,
+      "ms": 9592
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Clock",
+      "covers": {},
+      "pass": true,
+      "ms": 9396
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Planner",
+      "covers": {},
+      "pass": true,
+      "ms": 9171
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Devices",
+      "covers": {},
+      "pass": true,
+      "ms": 9061
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Share",
+      "covers": {},
+      "pass": true,
+      "ms": 9208
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Routines",
+      "covers": {},
+      "pass": true,
+      "ms": 9149
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Clipboard",
+      "covers": {},
+      "pass": true,
+      "ms": 9076
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Storage",
+      "covers": {},
+      "pass": true,
+      "ms": 9335
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Archive",
+      "covers": {},
+      "pass": true,
+      "ms": 9034
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Local disk",
+      "covers": {},
+      "pass": true,
+      "ms": 8962
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Photos",
+      "covers": {},
+      "pass": true,
+      "ms": 9176
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Image Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 9314
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Vector",
+      "covers": {},
+      "pass": true,
+      "ms": 9156
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Writer",
+      "covers": {},
+      "pass": true,
+      "ms": 9250
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: PDF",
+      "covers": {},
+      "pass": true,
+      "ms": 9057
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Books",
+      "covers": {},
+      "pass": true,
+      "ms": 9071
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Slides",
+      "covers": {},
+      "pass": true,
+      "ms": 9096
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Spreadsheet",
+      "covers": {},
+      "pass": true,
+      "ms": 9539
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Contacts",
+      "covers": {},
+      "pass": true,
+      "ms": 9122
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Tables",
+      "covers": {},
+      "pass": true,
+      "ms": 9051
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Whiteboard",
+      "covers": {},
+      "pass": true,
+      "ms": 9038
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Peek",
+      "covers": {},
+      "pass": true,
+      "ms": 8997
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Video",
+      "covers": {},
+      "pass": true,
+      "ms": 9387
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Music",
+      "covers": {},
+      "pass": true,
+      "ms": 9231
+    },
+    {
+      "suite": "tt132-visual",
+      "name": "compact initial view: Maps",
+      "covers": {},
+      "pass": true,
+      "ms": 9327
+    }
+  ]
+}

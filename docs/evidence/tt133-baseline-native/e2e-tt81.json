@@ -1,0 +1,72 @@
+{
+  "suite": "e2e-tt81",
+  "at": "2026-10-31T14:41:18.390Z",
+  "results": [
+    {
+      "suite": "e2e-tt81",
+      "name": "E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
+      "covers": {
+        "FF-78": "full"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Spreadsheet', exact: true }).last().getByRole('button', { name: 'Save workbook', exact: true })\n",
+      "ms": 17919
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
+      "covers": {
+        "FF-79": "full"
+      },
+      "pass": true,
+      "ms": 4901
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
+      "covers": {
+        "FF-80": "full"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Slides', exact: true }).last().getByTestId('app-banner').getByRole('button', { name: 'Save', exact: true })\n",
+      "ms": 18431
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
+      "covers": {
+        "FF-81": "full"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('pdf-app').last().getByRole('button', { name: '100%', exact: true })\n",
+      "ms": 16421
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
+      "covers": {
+        "FF-82": "full"
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('[role=\"dialog\"][aria-label=\"Writer\"]').last().getByTestId('writer-new')\n    - locator resolved to <button type=\"button\" class=\"fs-btn \" data-variant=\"ghost\" data-testid=\"writer-new\">New</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    27 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 16529
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
+      "covers": {
+        "AP-02": "full",
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 4826
+    },
+    {
+      "suite": "e2e-tt81",
+      "name": "E7 no browser page errors",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

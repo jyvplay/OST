@@ -1,0 +1,20 @@
+reference 0 5.09405 5.05866 78464
+candidate 0 0.20441 0.17269 77680
+candidate 1 0.18938 0.15951 77600
+reference 1 4.91778 4.88378 78396
+reference 2 4.63843 4.60635 78540
+candidate 2 0.17819 0.15032 77660
+{
+  "reference": {
+    "wallSeconds": 4.917782146999798,
+    "cpuSeconds": 4.883776999999999,
+    "peakRssKiB": 78464
+  },
+  "candidate": {
+    "wallSeconds": 0.18938126099965302,
+    "cpuSeconds": 0.15950799999999998,
+    "peakRssKiB": 77660
+  },
+  "wallSpeedup": 25.96762805908663,
+  "cpuSpeedup": 30.617755849236403
+}

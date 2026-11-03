@@ -1,0 +1,51 @@
+    spec         12382 words    7 marks  622 controls  EMOJI-IN-CONTROL
+    settings     1450 words  119 marks  169 controls  EMOJI-IN-CONTROL
+    apps          883 words   54 marks   61 controls
+    monitor       471 words    7 marks    9 controls
+    backup        432 words    7 marks   19 controls
+    storage       387 words    7 marks   44 controls
+    beam          296 words    7 marks   14 controls  EMOJI-IN-CONTROL
+    messages      291 words    7 marks   18 controls
+    media         202 words    7 marks   23 controls  EMOJI-IN-CONTROL
+    files         192 words   36 marks   34 controls
+    alerts        185 words    7 marks   34 controls
+    sheet         180 words    7 marks   37 controls
+    recall        156 words   61 marks   50 controls
+    vector        143 words   16 marks   67 controls  EMOJI-IN-CONTROL
+    clock         142 words    8 marks   47 controls  EMOJI-IN-CONTROL
+    clipboard     137 words    8 marks   10 controls
+    find          131 words    7 marks   17 controls
+    lens          124 words    7 marks   26 controls
+    writer        121 words   12 marks   40 controls  EMOJI-IN-CONTROL
+    calculator    117 words    7 marks   46 controls  EMOJI-IN-CONTROL
+    imageedit     112 words   17 marks   70 controls
+    tables        100 words    7 marks   39 controls
+    routines       96 words    8 marks   13 controls
+    localdisk      87 words    7 marks    7 controls
+    capture        85 words    8 marks    9 controls  EMOJI-IN-CONTROL
+    together       85 words    7 marks   16 controls
+    slides         78 words   12 marks   35 controls
+    privacy        77 words    7 marks   18 controls
+    whiteboard     72 words    8 marks   22 controls
+    ssh            61 words    7 marks   17 controls
+    share          61 words    7 marks   11 controls
+    vault          59 words    7 marks    9 controls
+    archive        54 words    8 marks   24 controls
+    maps           54 words    7 marks   23 controls  EMOJI-IN-CONTROL
+    pdf            50 words    7 marks   36 controls  EMOJI-IN-CONTROL
+    music          50 words    7 marks   10 controls
+    photos         45 words   11 marks   28 controls
+    devices        41 words    8 marks   16 controls  EMOJI-IN-CONTROL
+    video          41 words    7 marks   10 controls
+    notes          38 words    7 marks   23 controls  EMOJI-IN-CONTROL
+    contacts       38 words   10 marks   22 controls
+    books          26 words    7 marks    6 controls
+    editor         22 words    8 marks   12 controls
+    planner        20 words   10 marks   22 controls
+    terminal       14 words    7 marks    7 controls
+    browser         7 words   23 marks   30 controls
+    peek            4 words    8 marks    6 controls
+    measured 47/47 modules
+  ✓ AX-20: every app measured, none wordier than the ceiling, no emoji marks
+
+1 passed, 0 failed

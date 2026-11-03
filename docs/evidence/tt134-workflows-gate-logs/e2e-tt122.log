@@ -1,0 +1,13 @@
+  ✓ PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style
+  ✗ NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears
+    locator.click: Error: strict mode violation: locator('[data-testid="note-editor"] details').filter({ has: getByTestId('notes-bundle') }).locator('summary') resolved to 2 elements:
+    1) <summary>More</summary> aka getByText('More')
+    2) <summary>Text tools</summary> aka getByText('Text tools')
+
+Call log:
+  - waiting for locator('[data-testid="note-editor"] details').filter({ has: getByTestId('notes-bundle') }).locator('summary')
+
+  ✓ DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress
+
+2 passed, 1 failed
+FAILED: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears

@@ -1,0 +1,16 @@
+  ✓ Native runtime exposes non-null positive note revisions; strict writes reject bad JSON field values without changing the note or index
+  ✓ Eight concurrent genuine HTTP saves serialize on one PostgreSQL row: exactly one revision wins, seven get 409, index agrees
+  ✓ A→B→A is still a new revision; old equal-content token cannot overwrite it
+  ✓ Native cancellation after note UPDATE but during blocked index UPSERT rolls back both; server reports 503, never saved
+  ✓ Every note/file index prefix is 50,000 Unicode code points, matches real PostgreSQL left(), and never splits a surrogate
+  ✓ Source/metadata/suffix/mode validation runs before search work and refuses nonsensical combinations
+  ✓ Literal search keeps SQL wildcard characters literal, returns numeric ranks and excludes fuzzy-only names
+  ✓ Metadata suffix filtering occurs before the 32-file page, not after consuming wrong-suffix budget
+  ✓ Current exclusions are literal folder boundaries in fast search, live metadata and diagnostics (underscore cannot hide its neighbour)
+  ✓ Path diagnosis distinguishes saved/current, stale, missing, folders, trash, private and name-only binary content
+  ✓ Unconfirmed rebuilds and malformed bodies return 400 without changing any index rows
+  actual rebuild lock timeout: 4007.596ms
+  ✓ Native lock timeout after a rebuild DELETE starts rolls it all back; concurrent readers see the complete old index and 503 says not rebuilt
+  ✓ A confirmed real rebuild repairs missing/stale entries, preserves notes/files and all spec/setting rows, and matches PostgreSQL's canonical prefix
+
+13 passed, 0 failed

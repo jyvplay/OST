@@ -1,0 +1,32 @@
+{
+  "scope": "Read-only prerequisites and identities, not executed app/oracle acceptance",
+  "tools": "/home/user/tools",
+  "packages": {
+    "@js-temporal/polyfill": {
+      "version": "0.5.1",
+      "license": "ISC"
+    },
+    "ical.js": {
+      "version": "2.2.1",
+      "license": "MPL-2.0"
+    },
+    "pdfjs-dist": {
+      "version": "6.5.438",
+      "license": "Apache-2.0"
+    },
+    "@napi-rs/canvas": {
+      "version": "1.1.0",
+      "license": "MIT"
+    }
+  },
+  "python": "/home/user/tools/venv/bin/python",
+  "pythonPackages": {
+    "Pillow": "13.0.0",
+    "python-docx": "1.2.0",
+    "openpyxl": "3.1.5",
+    "python-pptx": "1.0.2",
+    "pypdf": "6.21.0"
+  },
+  "corpus": "/home/user/tools/corpus/docx",
+  "pinnedCorpusFiles": 2
+}

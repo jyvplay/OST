@@ -1,0 +1,5 @@
+# Preserve verbatim tool stdout (psql padding, CRLF, final blank lines) and
+# actual Writer document diagnostics. These are evidence DATA, not source.
+# All production/script/source whitespace checks remain enabled.
+docs/evidence/**/*.log -whitespace
+docs/evidence/*-writer-failure.txt -whitespace

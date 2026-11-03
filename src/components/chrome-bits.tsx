@@ -119,7 +119,16 @@ export function MenuButton({ label, items, children, testid, buttonStyle, align 
             <button key={it.label + i} type="button" role={it.checked === undefined ? "menuitem" : "menuitemcheckbox"}
               aria-checked={it.checked === undefined ? undefined : it.checked} disabled={it.disabled} data-testid={it.testid}
               className="fs-menuitem" tabIndex={-1}
-              onClick={() => { close(false); it.onSelect?.(); }}>
+              onClick={() => {
+                const previous = document.activeElement;
+                close(false);
+                try { it.onSelect?.(); } finally {
+                // Removing the focused menu item otherwise leaves focus on
+                // <body>, where Ctrl+F reaches the shell instead of this app.
+                // Do not steal focus that the command deliberately moved.
+                if (document.activeElement === previous || document.activeElement === document.body) btn.current?.focus();
+                }
+              }}>
               <span aria-hidden="true" style={{ width: fz(12), display: "inline-block" }}>{it.checked ? "✓" : ""}</span>
               <span style={{ flex: 1, textAlign: "left" }}>{it.label}</span>
               {it.hint ? <span className="fs-dim" style={{ fontSize: fz(11) }}>{it.hint}</span> : null}

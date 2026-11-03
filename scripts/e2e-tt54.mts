@@ -27,7 +27,6 @@ if (!["v23.mp3", "song.m4a", "anim.gif", "vector.svg", "expected.json"].every((n
 if (!existsSync(join(VF, "vp9-opus.webm"))) execFileSync(PY, ["scripts/oracle/media_fixtures.py", VF], { stdio: "inherit" });
 const PDF = "/home/user/tools/corpus/pdf/Embedded_font.pdf";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; };
 const created: string[] = [];
 async function upload(path: string, bytes: Uint8Array, mime: string) { created.push(path); const r = await api("POST", "/api/fs", { op: "upload", path, content: Buffer.from(bytes).toString("base64"), mime }); ok(r.status < 300, `upload ${path}: ${r.status} ${JSON.stringify(r.json)}`); }

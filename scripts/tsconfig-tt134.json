@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "allowImportingTsExtensions": true,
+    "incremental": false,
+    "noEmit": true
+  },
+  "include": [
+    "tt133*.mts",
+    "tt134*.mts",
+    "e2e-tt133*.mts",
+    "e2e-tt134*.mts",
+    "banner-click.mts",
+    "tt132-visual.mts",
+    "e2e-tt117.mts",
+    "e2e-tt122.mts"
+  ]
+}

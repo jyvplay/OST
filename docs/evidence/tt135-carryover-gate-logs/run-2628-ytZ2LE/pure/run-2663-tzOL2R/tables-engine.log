@@ -1,0 +1,11 @@
+  ✓ typed cells: coercion and refusals per field type (number precision, dates, email, url schemes, checkbox words, rating bounds)
+  ✓ select fields: unknown options are added once with a colour, matching is case-insensitive, multi-select de-duplicates
+  ✓ two-way links: linking updates the inverse field, unlinking removes it, unknown ids are refused, deleting a record scrubs every reference
+  ✓ lookup / rollup / count follow the link and recompute; deleting the link field removes its inverse and breaks dependants visibly
+  ✓ formulas: precedence, functions, field refs incl. lookups, text & dates, errors (div/0, unknown field/function) and #CYCLE
+  ✓ type conversion: number→text→number round-trips, text→select collects options, failures are counted and cleared (never mangled), links refuse
+  ✓ views: AND/OR filters, multi-sort with empties last in both directions, select sorts by option order, grouping, search over visible fields
+  ✓ CSV: RFC 4180 parse (quotes, doubled quotes, CRLF, embedded newline), type inference, export guards formula injection and round-trips
+  ✓ integrity: deleting a table drops links into it, deleting a field strips it from views, the last table/view cannot be deleted, loadBase rejects junk
+
+9 passed, 0 failed

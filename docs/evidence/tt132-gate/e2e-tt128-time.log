@@ -1,0 +1,9 @@
+  ✓ Clock: local date controls and explicit overlap/gap choices
+  ✗ Planner: week columns and completion counts survive midnight DST transition
+    locator.waitFor: Timeout 25000ms exceeded.
+Call log:
+  - waiting for getByText('TZID and floating dates are interpreted in the server’s local timezone, not the source timezone.') to be visible
+
+
+1 passed, 1 failed
+FAILED: Planner: week columns and completion counts survive midnight DST transition

@@ -1,0 +1,25 @@
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+/home/user/OST/src/lib/task-model.ts:11
+export class TaskInputError extends Error {
+  constructor(message: string, readonly status = 400) { super(message); this.name = "TaskInputError"; }
+                                        ^^^^^^^^^^^^
+}
+
+SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript parameter property is not supported in strip-only mode
+    at parseTypeScript (node:internal/modules/typescript:63:40)
+    at processTypeScriptCode (node:internal/modules/typescript:133:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:163:10)
+    at Object.getFileProtocolModuleFormat [as file:] (node:internal/modules/esm/get_format:170:30)
+    at defaultGetFormat (node:internal/modules/esm/get_format:245:36)
+    at defaultLoad (node:internal/modules/esm/load:98:16)
+    at nextLoad (node:internal/modules/esm/hooks:748:28)
+    at Hooks.load (node:internal/modules/esm/hooks:385:26)
+    at MessagePort.handleMessage (node:internal/modules/esm/worker:199:24)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20) {
+  code: 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX'
+}
+
+Node.js v22.22.3

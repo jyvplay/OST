@@ -1,0 +1,4 @@
+  ✓ Clock: local date controls and explicit overlap/gap choices
+  ✓ Planner: week columns and completion counts survive midnight DST transition
+
+2 passed, 0 failed

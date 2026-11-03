@@ -18,7 +18,7 @@ const COV = { "MD-08": "full" } as const;
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const PY = "/home/user/tools/venv/bin/python"; const FIX = "/tmp/tt53-media"; const SHOTS = process.env.SHOTS ?? "/tmp"; const OUT = join(FIX, "e2e"); mkdirSync(OUT, { recursive: true });
 if (!existsSync(join(FIX, "vp9-opus.webm"))) execFileSync(PY, ["scripts/oracle/media_fixtures.py", FIX], { stdio: "inherit" });
-const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; }; // eslint-disable-line @typescript-eslint/no-explicit-any
+const api = async (method: string, path: string, body?: unknown) => { const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) as Record<string, any> }; };
 async function resetDesktop() {
   const cur = await api("GET", "/api/state?id=default"); const rev = Number(cur.json.row?.revision ?? 1) + 1000;
   await api("PUT", "/api/state", { id: "default", revision: rev, state: { windows: [], focus: null, workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 10, viewport: { w: 1440, h: 900 }, icons: [], focusMode: false } });
@@ -47,7 +47,7 @@ async function cut(file: string, mime: string, from: number, to: number, opts: {
   await ctx.close(); return { text, ms };
 }
 const parse = (text: string) => { const m = /Lossless cut ([\d.]+)–([\d.]+) s .*saved to (\/Documents\/\S+)/.exec(text); ok(m, `status: ${text}`); created.push(m![3]); return { start: Number(m![1]), end: Number(m![2]), path: m![3] }; };
-const good = (c: Record<string, any>, what: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+const good = (c: Record<string, any>, what: string) => {
   ok(c.decode_errors === 0 && c.packets_foreign === 0 && c.video_match && c.video_got > 0, `${what}: ${JSON.stringify(c)}`);
   ok(c.time_err_rel <= 0.002 && c.time_shift <= 0.002 && c.time_shift > -0.0345, `${what}: timing ${JSON.stringify(c)}`);
 };

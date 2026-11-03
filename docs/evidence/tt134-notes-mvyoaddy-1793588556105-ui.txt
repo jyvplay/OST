@@ -1,0 +1,65 @@
+Fusion
+Search
+Overview
+Main
+COOL · 60 fps
+03:02 AM
+budget.csv
+capabilities.md
+sample.ics
+sample.json
+welcome.md
+03:02 AM
+Monday, November 2
+COOL
+60 fps
+1 windows
+100%
+Sticky
+counter.worker.js
+worker-isolated
+2
+ticks (worker-isolated)
+notes
+New
+↻
+Daily
+Import
+Recently edited
+Title A–Z
+Oldest first
+All tags
+one
+sticky
+tag{{date}}
+tag2026-11-02
+two
+Untagged
+1 / 17
+Library
+Check shown
+Clear checks
+0/32 checked
+Merge checked…
+Export checked JSON
+Import JSON copies…
+Tasks
+Templates
+ Include completed tasks
+0 tasks · 17/17 notes scanned. Caps: 100 notes, 2 MiB text, 200 tasks, 5,000 lines/note. Saved snapshots only.
+
+No matching tasks in the scanned saved notes
+
+tt134-notes-mvyoaddy tasks
+Nov 2, 03:02 AM
+Save
+Preview
+Pin
+Outline
+More
+saved
+6 words · 109 chars · 0 sentences · 1 min read
+1 code blocks (excluded from words)
+Draft: this tab
+notes
+1 window · rev 9064

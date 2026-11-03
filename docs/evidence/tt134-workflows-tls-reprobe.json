@@ -1,0 +1,1 @@
+{"ok":true,"url":"https://github.com/","status":200,"verdict":"deny","reason":"X-Frame-Options: DENY","host":"S3-handoff","headers":{"x-frame-options":"deny","frame-ancestors":"'none'"},"tookMs":380}

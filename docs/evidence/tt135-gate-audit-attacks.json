@@ -1,0 +1,56 @@
+{
+  "at": "2026-11-02T16:55:35.395Z",
+  "scope": "Real auditor on intact and deliberately corrupted copies of actual gate artifacts. Not native application execution or a synthetic gate success.",
+  "mainPath": "docs/evidence/tt135-carryover-final-gate.log",
+  "metricsPath": "docs/evidence/tt135-carryover-final-gate-metrics.json",
+  "results": [
+    {
+      "kind": "intact-copy",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "pass": true
+    },
+    {
+      "kind": "failed-command",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "missing-case-line",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "sparse-suite",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "foreign-pure-root",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "historical-receipt-window",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "wrong-measurement-log",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    },
+    {
+      "kind": "corrupt-frozen-receipt",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "pass": true
+    }
+  ]
+}

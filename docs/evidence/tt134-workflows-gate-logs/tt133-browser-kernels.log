@@ -1,0 +1,13 @@
+
+0 passed, 0 failed
+FAILED: no tests selected
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: TypeError: Failed to resolve module specifier "./search-path". Invalid relative url or base scheme isn't hierarchical.
+    at /home/user/OST/scripts/tt133-browser-kernels.mts:22:29 {
+  log: []
+}
+
+Node.js v22.22.3

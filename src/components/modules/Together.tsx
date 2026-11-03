@@ -11,6 +11,16 @@ import { Badge, Btn, Section } from "../ui";
 interface Room { code: string; mediaRef: string; positionMs: number; playing: boolean; anchorMs: number; leaderClient: string }
 interface Ev { id: number; clientId: string; kind: string; payload: Record<string, unknown>; serverTs: number }
 
+async function sampleClock() {
+  let best = { rtt: Infinity, offset: 0 };
+  for (let i = 0; i < 3; i++) {
+    const t0 = Date.now(), r = await api<{ serverNow: number }>(`/api/together?t0=${t0}`), t1 = Date.now();
+    const rtt = t1 - t0, offset = r.serverNow + rtt / 2 - t1;
+    if (rtt < best.rtt) best = { rtt, offset };
+  }
+  return best;
+}
+
 /**
  * CA-11 Together — anchor-clock synchronisation.
  *
@@ -34,20 +44,12 @@ export default function TogetherModule({ win }: ModuleProps) {
   const [mediaRef, setMediaRef] = useState<string>((win.props.mediaRef as string) ?? "");
   const [chat, setChat] = useState("");
 
-  /** Three-sample clock offset estimate (lowest RTT wins). */
-  const syncClock = useCallback(async () => {
-    let best = { rtt: Infinity, offset: 0 };
-    for (let i = 0; i < 3; i++) {
-      const t0 = Date.now();
-      const r = await api<{ serverNow: number }>(`/api/together?t0=${t0}`);
-      const t1 = Date.now();
-      const roundTrip = t1 - t0;
-      const offset = r.serverNow + roundTrip / 2 - t1;
-      if (roundTrip < best.rtt) best = { rtt: roundTrip, offset };
-    }
+  /** Three native server samples; the lowest RTT supplies the offset. */
+  const [clockOffset, setClockOffset] = useState(0);
+  const syncClock = useCallback(() => sampleClock().then(best => {
     offsetRef.current = best.offset;
-    setRtt(best.rtt);
-  }, []);
+    setClockOffset(best.offset); setRtt(best.rtt);
+  }), []);
 
   const poll = useCallback(async () => {
     const r = await api<{ room: Room | null; events: Ev[]; serverNow: number; authoritativePositionMs: number }>(
@@ -103,7 +105,7 @@ export default function TogetherModule({ win }: ModuleProps) {
           ? <Btn variant="danger" onClick={() => { setJoined(false); void send("leave"); }}>Leave</Btn>
           : <Btn variant="primary" onClick={async () => { await send("join"); setJoined(true); }}>Join / create</Btn>}
         <Badge tone={Math.abs(drift) <= 100 ? "ok" : Math.abs(drift) <= 400 ? "warn" : "bad"}>drift {drift} ms</Badge>
-        <Badge tone="info">rtt {rtt} ms · offset {Math.round(offsetRef.current)} ms</Badge>
+        <Badge tone="info">rtt {rtt} ms · offset {Math.round(clockOffset)} ms</Badge>
       </div>
 
       <video ref={videoRef} controls playsInline src={mediaRef.startsWith("http") ? mediaRef : undefined}

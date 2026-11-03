@@ -1,0 +1,8 @@
+{
+  "observedAt": "2026-11-02T16:11:37.105528+00:00",
+  "status": "incomplete; prior runtime process unavailable after new-turn resume",
+  "completionMetricsExist": false,
+  "lastLogLine": "== e2e-tt121",
+  "acceptedAdditionalTT134": 0,
+  "sourceIdentityEqualOnResume": true
+}

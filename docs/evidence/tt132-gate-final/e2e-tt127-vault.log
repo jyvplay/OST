@@ -1,0 +1,5 @@
+  ✓ simultaneous create: one wins, the other must recheck before continuing
+  ✓ stale unlocked tab refuses to overwrite the newer saved item
+  ✓ a dropped write response reports uncertainty and reopening finds committed data
+
+3 passed, 0 failed

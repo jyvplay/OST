@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { type Browser, type Locator, type Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 
 const BASE = process.env.BASE ?? "http://localhost:3999";
 const RUN = `t73w${Date.now().toString(36)}`;
@@ -61,15 +62,15 @@ async function openWriter(path: string): Promise<{ page: Page; dlg: Locator; pan
   const dlg = page.locator('[role=dialog][aria-label="Writer"]').first();
   await dlg.waitFor({ state: "visible", timeout: 25_000 });
   await dlg.locator('[data-testid="writer-body"] [data-pid]').first().waitFor({ timeout: 25_000 });
-  await dlg.getByRole("button", { name: "Header & footer", exact: true }).click();
+  await bannerClick(page, dlg, /^Header & footer$/, /^Header & footer$/);
   const panel = dlg.locator('[data-testid="hf-panel"]'); await panel.waitFor();
   return { page, dlg, panel, close: () => ctx.close() };
 }
 const headerImgs = async (dlg: Locator) => dlg.locator(".wpage").evaluateAll((ps) => ps.map((p) => p.querySelectorAll(".whdr img").length));
 async function save(dlg: Locator) {
   const b = dlg.locator('[data-testid="writer-save"]');
-  await dlg.locator('[data-testid="writer-save"]', { hasText: "Save •" }).waitFor({ timeout: 5_000 });
-  await b.click();
+  await dlg.locator('[data-testid="writer-save"]', { hasText: "Save •" }).waitFor({ state: "attached", timeout: 5_000 });
+  await bannerTestId(dlg.page(), dlg, "writer-save", /^Save(?: •)?$/);
   await dlg.page().waitForFunction((el) => el?.textContent === "Save", await b.elementHandle(), { timeout: 15_000 });
   await dlg.locator('[data-testid="writer-status"]', { hasText: "Saved" }).waitFor({ timeout: 15_000 });
 }
@@ -90,9 +91,9 @@ await test("header picture through the panel: the typed line is applied first, t
   // Word's rule: a header taller than the top margin pushes the body down — the body never runs under the logo
   const hb = await dlg.locator('.wpage[data-page="1"] .whdr').boundingBox(); const bb = await dlg.locator('[data-testid="writer-body"] [data-pid]').first().boundingBox();
   ok(hb && bb && bb.y >= hb.y + hb.height - 1, `body top ${bb?.y} overlaps the header (bottom ${hb ? hb.y + hb.height : "?"})`);
-  await dlg.getByRole("button", { name: "Undo", exact: true }).click(); await page.waitForTimeout(400);
+  await bannerClick(page, dlg, /^Undo$/, /^Undo$/); await page.waitForTimeout(400);
   const undone = await headerImgs(dlg); ok(undone.every((n) => n === 0), `after Undo ${JSON.stringify(undone)}`);
-  await dlg.getByRole("button", { name: "Redo", exact: true }).click(); await page.waitForTimeout(400);
+  await bannerClick(page, dlg, /^Redo$/, /^Redo$/); await page.waitForTimeout(400);
   const redone = await headerImgs(dlg); ok(redone.every((n) => n === 1), `after Redo ${JSON.stringify(redone)}`);
   await save(dlg);
   const o = pyHeader(await readBytes(path), "logo-saved.docx");
@@ -112,7 +113,7 @@ await test("refusals: an SVG and a PNG over 5 MB are refused with a visible reas
   await panel.locator('[data-testid="hf-picture-input"]').setInputFiles(big); await page.waitForTimeout(600);
   ok(/5 MB/.test(await panel.locator('[data-testid="hf-refusal"]').innerText()), "oversize refusal text");
   const imgs = await headerImgs(dlg); ok(imgs.every((n) => n === 0), `pictures after refusals ${JSON.stringify(imgs)}`);
-  ok((await dlg.locator('[data-testid="writer-save"]').innerText()).trim() === "Save", "document became dirty after refusals");
+  ok((await dlg.locator('[data-testid="writer-save"]').textContent())!.trim() === "Save", "document became dirty after refusals");
   await close();
 });
 

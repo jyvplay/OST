@@ -1,0 +1,12 @@
+  ✓ malformed write matrix returns 400 without adding database rows
+  ✓ create task with notes and no due time, then verify the real SQL row
+  ✓ create event with explicit offset and millisecond end, exported as real VEVENT
+  ✓ guarded rename and note edit preserve UID and dates
+  ✓ reschedule and clear due rearm reminders; an unchanged due instant does not
+  ✓ event duration edits validate the merged row and roll back invalid partial edits
+  ✓ task to event and event to task conversion preserve notes and clear event-only data
+  ✓ two forced concurrent edits of one baseline commit once and return one real 409
+  ✓ a stale delete cannot destroy a changed item; a current delete removes it
+  ✓ empty patches, malformed IDs and deleted items have explicit 400/404 responses
+
+10 passed, 0 failed

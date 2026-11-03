@@ -1,0 +1,32 @@
+Actual browser: 143.0.7499.0
+  ✓ CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact
+Actual post-copy native focus: { tag: 'BODY', inside: false }
+  ✓ CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape
+  ✓ CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin
+  ✓ CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit
+  ✓ CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused
+  ✗ CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison
+    locator.click: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator('[data-win-id="w1"]').getByRole('button', { name: /Compare checked/ })
+    - locator resolved to <button disabled type="button" class="fs-btn " data-variant="default">Compare checked (1/2)</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+      - waiting 100ms
+    23 × waiting for element to be visible, enabled and stable
+       - element is not enabled
+     - retrying click action
+       - waiting 500ms
+
+  ✓ Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled
+  ✓ Real emergency chord remains active while the new clipboard modal owns normal shortcuts
+  ✓ Native clipboard workflows emitted no unhandled browser exceptions
+
+8 passed, 1 failed
+FAILED: CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison

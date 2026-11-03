@@ -1,0 +1,117 @@
+{
+  "retrievedAt": "2026-11-02T03:21:58.268Z",
+  "method": "Actual gh api retrieval from primary repositories; no production implementation copied",
+  "sources": [
+    {
+      "repo": "mdn/content",
+      "requestedRef": "main",
+      "commit": "a0ba038b5e77c06c820e90dc39133acb70dd476a",
+      "path": "files/en-us/web/api/clipboard/readtext/index.md",
+      "file": "clipboard-readtext-pinned.md",
+      "retrievedAt": "2026-11-02T03:21:54.106Z",
+      "bytes": 2332,
+      "sha256": "d4bce8de0108bd0c20cb2b5c6d776d3ad4ca4de1bd80fc42699e8ebc3d2e205a",
+      "url": "https://github.com/mdn/content/blob/a0ba038b5e77c06c820e90dc39133acb70dd476a/files/en-us/web/api/clipboard/readtext/index.md"
+    },
+    {
+      "repo": "postgres/postgres",
+      "requestedRef": "REL_16_STABLE",
+      "commit": "582db3ee09e9d2128c2510937bbc3c9f763d97bf",
+      "path": "doc/src/sgml/queries.sgml",
+      "file": "postgresql-queries-pinned.sgml",
+      "retrievedAt": "2026-11-02T03:21:54.759Z",
+      "bytes": 104611,
+      "sha256": "a43a3ecabc9e286923ac075e7a0d33d0f548301919ce8195f3d0491bf1d0d979",
+      "url": "https://github.com/postgres/postgres/blob/582db3ee09e9d2128c2510937bbc3c9f763d97bf/doc/src/sgml/queries.sgml"
+    },
+    {
+      "repo": "postgres/postgres",
+      "requestedRef": "REL_16_STABLE",
+      "commit": "582db3ee09e9d2128c2510937bbc3c9f763d97bf",
+      "path": "doc/src/sgml/mvcc.sgml",
+      "file": "postgresql-mvcc-pinned.sgml",
+      "retrievedAt": "2026-11-02T03:21:55.493Z",
+      "bytes": 81846,
+      "sha256": "e32e2bd1754f10457dada8fc785a95f56955fcbdc400aa143660e1d22b330826",
+      "url": "https://github.com/postgres/postgres/blob/582db3ee09e9d2128c2510937bbc3c9f763d97bf/doc/src/sgml/mvcc.sgml"
+    },
+    {
+      "repo": "w3c/aria-practices",
+      "requestedRef": "main",
+      "commit": "0f765e4dc33e966026114ac12a8380db1de3b787",
+      "path": "content/patterns/dialog-modal/dialog-modal-pattern.html",
+      "file": "modal-pattern-pinned.html",
+      "retrievedAt": "2026-11-02T03:21:56.054Z",
+      "bytes": 11000,
+      "sha256": "14ce04000352a8d8ee6cf2ec4419e1cf28a8d6648736a1cf6653d38bc24099e3",
+      "url": "https://github.com/w3c/aria-practices/blob/0f765e4dc33e966026114ac12a8380db1de3b787/content/patterns/dialog-modal/dialog-modal-pattern.html"
+    },
+    {
+      "repo": "mdn/content",
+      "requestedRef": "main",
+      "commit": "a0ba038b5e77c06c820e90dc39133acb70dd476a",
+      "path": "files/en-us/web/html/reference/elements/textarea/index.md",
+      "file": "textarea-pinned.md",
+      "retrievedAt": "2026-11-02T03:21:56.677Z",
+      "bytes": 16053,
+      "sha256": "af7cf6640488f2ed6c9e116ee5dfb9b3a123fafb3f2f8d953124e5c7c41a81e9",
+      "url": "https://github.com/mdn/content/blob/a0ba038b5e77c06c820e90dc39133acb70dd476a/files/en-us/web/html/reference/elements/textarea/index.md"
+    }
+  ],
+  "frontier": {
+    "query": "repo:w3c/aria-practices is:issue dialog focus return",
+    "search": {
+      "items": [
+        {
+          "html_url": "https://github.com/w3c/aria-practices/issues/2924",
+          "number": 2924,
+          "title": "Dialog (Modal) Pattern. A question of modality and focus management"
+        },
+        {
+          "html_url": "https://github.com/w3c/aria-practices/issues/1409",
+          "number": 1409,
+          "title": "Menuitem opening a dialog - should menu stay visible?"
+        },
+        {
+          "html_url": "https://github.com/w3c/aria-practices/issues/599",
+          "number": 599,
+          "title": "Keyboard method to jump out of NON-modal dialogs?"
+        }
+      ],
+      "total_count": 18
+    },
+    "readIssues": [
+      {
+        "number": 2924,
+        "url": "https://github.com/w3c/aria-practices/issues/2924",
+        "title": "Dialog (Modal) Pattern. A question of modality and focus management",
+        "state": "open",
+        "stateReason": null,
+        "updatedAt": "2024-02-09T22:29:22Z",
+        "closedAt": null,
+        "body": "I am seeking guidance to understand the tab ring behaviour for non-modal dialogs that use aria-modal false. This is specifically in reference to the ARIA Practices Guide for [Dialog (Modal)](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/#:~:text=Like%20non-modal,closing%20the%20dialog.).\r\n\r\n\"Like **non-modal dialogs**, modal dialogs **contain their tab sequence**. That is, Tab and Shift + Tab **do not move focus outside the dialog.** However, unlike most non-modal dialogs, modal dialogs do not **provide means for moving keyboard focus outside the dialog window without closing the dialog**.\"\r\n\r\nIf I remove the references to **modal** I get.\r\n\r\n_'non-modal dialogs contain their tab sequence and do not move focus outside the dialog. Provide a means for moving keyboard focus outside the dialog window without closing the dialog.'_\r\n\r\n\r\n- For a non-modal dialog, for example an information sheet, that is non-critical, how should this work? \r\n- What recommended practices are there for the keyboard user to interact with the main screen without dismissing the modal? Would being able to minimise the dialog be an accepted means to enable access to the main page content?\r\n- Would a button that the user can click to move to the main page content be sufficient?\r\n- What is the recommendation for focus management when the user is focused on the main content, and how do they return to the dialog? \r\n- Is the only way to access the dialog content clicking the triggering button?\r\n\r\nI have these questions swirling around in my head and seek clarity in what recommendations to make in regard to accessibility for a non-modal dialog for focus management and expected behaviour."
+      },
+      {
+        "number": 1409,
+        "url": "https://github.com/w3c/aria-practices/issues/1409",
+        "title": "Menuitem opening a dialog - should menu stay visible?",
+        "state": "open",
+        "stateReason": null,
+        "updatedAt": "2020-05-21T14:26:53Z",
+        "closedAt": null,
+        "body": "It is said that it's allowed for a menuitem to activate a dialog - I have a situation when we open modal dialog upon activation. The problem is though that it's not obvious:\r\n- if the menu should stay open\r\n- if it can get closed (which seems reasonable to me) when the focus should return to when the dialog gets closed? Seems like a reasonable answer to that is that it should return to the originating menu button\r\n\r\nIt would be great to clarify this somewhere - when I receive an answer I would happily contribute this information back to the ARIA practices."
+      },
+      {
+        "number": 599,
+        "url": "https://github.com/w3c/aria-practices/issues/599",
+        "title": "Keyboard method to jump out of NON-modal dialogs?",
+        "state": "open",
+        "stateReason": null,
+        "updatedAt": "2025-03-25T18:36:29Z",
+        "closedAt": null,
+        "body": "In https://www.w3.org/TR/wai-aria-practices-1.1/#dialog_modal it says\r\n\r\n> Like non-modal dialogs, modal dialogs contain their tab sequence. That is, `Tab` and `Shift + Tab` do not move focus outside the dialog. However, unlike most non-modal dialogs, modal dialogs do not provide means for moving keyboard focus outside the dialog window without closing the dialog.\r\n\r\nWhat *are* the means for moving keyboard focus outside the dialog window without closing the dialog? Is there a suggested key/key combination (which works reliably for web content)? `CTRL+TAB`? And if so, can that be expanded on and documented? Also, is it not acceptable to have non-modal dialogs NOT contain focus?\r\n\r\n(and incidentally, the only other place \"non-modal\" is mentioned is in 3.23 Tooltip widget https://www.w3.org/TR/wai-aria-practices-1.1/#tooltip \"A hover that contains focusable elements can be made using a non-modal dialog.\" with no link or reference) "
+      }
+    ],
+    "limit": "Only these three issue bodies were read; not an exhaustive or resolved frontier claim."
+  }
+}

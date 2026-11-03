@@ -81,7 +81,7 @@ export default function SpecModule({ win }: ModuleProps) {
 
       <div style={{ display: "grid", gap: 3 }}>
         {shown.map((r) => (
-          <div key={r.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4 }}>
+          <div key={r.code} data-testid="spec-row" data-code={r.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 4 }}>
             <button className="fs-row" style={{ justifyContent: "space-between", gap: 8, background: "none", border: 0, color: "inherit", textAlign: "left", cursor: "pointer" }}
               onClick={() => setOpen(open === r.code ? null : r.code)}>
               <span className="fs-row" style={{ gap: 6, minWidth: 0 }}>
@@ -92,10 +92,11 @@ export default function SpecModule({ win }: ModuleProps) {
                 <Badge>{r.tier}</Badge>
                 <Badge>{r.phase}</Badge>
                 <Badge tone={STATUS_TONE[r.status] ?? "default"}>{r.status}</Badge>
-                <Badge tone={cov?.rows[r.code]?.tested === "full" ? "ok" : cov?.rows[r.code]?.tested === "partial" ? "warn" : "default"}
-                  title={(cov?.rows[r.code]?.tests ?? []).join("\n") || "no passing automated test covers this row"}>
-                  {cov?.rows[r.code]?.tested === "full" ? "tested" : cov?.rows[r.code]?.tested === "partial" ? "part-tested" : "untested"}
-                </Badge>
+                <span role="img" aria-label={`Saved coverage: ${cov?.rows[r.code]?.tested ?? "none"}`} title={`Saved-suite snapshot, not one fresh run. ${(cov?.rows[r.code]?.tests ?? []).join(" · ") || "No passing automated coverage"}`}>
+                  <Badge tone={cov?.rows[r.code]?.tested === "full" ? "ok" : cov?.rows[r.code]?.tested === "partial" ? "warn" : "default"}>
+                    <svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.4" />{cov?.rows[r.code]?.tested === "full" ? <path d="m4.5 8 2.2 2.3 4.8-5" fill="none" stroke="currentColor" strokeWidth="1.6" /> : cov?.rows[r.code]?.tested === "partial" ? <path d="M8 2a6 6 0 0 1 0 12Z" fill="currentColor" /> : <path d="M5 8h6" stroke="currentColor" strokeWidth="1.5" />}</svg>
+                  </Badge>
+                </span>
               </span>
             </button>
             {open === r.code ? (
@@ -121,10 +122,12 @@ export default function SpecModule({ win }: ModuleProps) {
         : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>checking…</span>}
       </Section>
 
-      <Section title="Spikes — open questions with pass criteria">
+      <details data-testid="spec-spikes">
+        <summary style={{ cursor: "pointer", fontSize: fz(12) }}>Questions &amp; checks ({spikes.length})</summary>
+        <Section title="Spikes — open questions with pass criteria">
         <div style={{ display: "grid", gap: 4 }}>
           {spikes.map((s) => (
-            <div key={s.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
+            <div key={s.code} data-testid="spec-spike" data-code={s.code} className="fs-panel" style={{ padding: 8, display: "grid", gap: 3 }}>
               <div className="fs-row" style={{ justifyContent: "space-between" }}>
                 <span className="fs-row" style={{ gap: 6 }}>
                   <span className="fs-mono" style={{ fontSize: fz(11) }}>{s.code}</span>
@@ -137,7 +140,8 @@ export default function SpecModule({ win }: ModuleProps) {
             </div>
           ))}
         </div>
-      </Section>
+        </Section>
+      </details>
 
       <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
         Status vocabulary: <strong>built</strong> runs end to end here · <strong>partial</strong> runs with a named

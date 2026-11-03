@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 import { and, eq, inArray } from "drizzle-orm";
 import { safeTransaction, type TransactionDb } from "@/lib/server/transaction";
 import { lockVfsPurge } from "@/lib/server/vfs-mutation-lock";
@@ -165,7 +166,7 @@ export async function restoreInTransaction(tx: Tx, payload: BackupPayload, diges
       if (isPrivateVfsPath(entry.path)) {
         await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, entry.path)));
       } else {
-        const body = isTextual(entry.mime) && entry.encoding === "utf8" ? entry.content.slice(0, 50_000) : "";
+        const body = isTextual(entry.mime) && entry.encoding === "utf8" ? searchIndexText(entry.content) : "";
         await tx.insert(indexDocs).values({ source: "file", ref: entry.path, title: baseName(entry.path), body, updatedAt: new Date() })
           .onConflictDoUpdate({ target: [indexDocs.source, indexDocs.ref], set: { title: baseName(entry.path), body, updatedAt: new Date() } });
       }

@@ -1,0 +1,70 @@
+Fusion
+Search
+Overview
+Main
+COOL · 60 fps
+03:02 AM
+budget.csv
+capabilities.md
+sample.ics
+sample.json
+welcome.md
+03:02 AM
+Monday, November 2
+COOL
+60 fps
+1 windows
+100%
+Sticky
+counter.worker.js
+worker-isolated
+2
+ticks (worker-isolated)
+notes
+New
+↻
+Daily
+Import
+Recently edited
+Title A–Z
+Oldest first
+All tags
+one
+sticky
+tag{{date}}
+tag2026-11-02
+two
+Untagged
+1 / 18
+Library
+Check shown
+Clear checks
+0/32 checked
+Merge checked…
+Export checked JSON
+Import JSON copies…
+Tasks
+Templates
+ Include completed tasks
+1 tasks · 18/18 notes scanned. Caps: 100 notes, 2 MiB text, 200 tasks, 5,000 lines/note. Saved snapshots only.
+tt134-notes-mvyoaddy guarded-line tt134-notes-mvyoaddy shifted tasks
+tt134-notes-mvyoaddy shifted tasks
+Nov 2, 03:02 AM
+Save
+Preview
+Pin
+Outline
+More
+unsaved
+3 words · 46 chars · 0 sentences · 1 min read
+Draft: this tab
+Updating notes…
+notes
+1 window · rev 10068
+Save changes to “tt134-notes-mvyoaddy shifted tasks”?
+
+Switching documents replaces these edits. Draft recovery is limited to this tab and this window ID. Switching back can offer it; reopening a closed window cannot. Save or Download first if you need to keep the edits. If writing the draft fails, this editor stays open.
+
+Cancel
+Don't save
+Save

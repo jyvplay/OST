@@ -1,0 +1,22 @@
+  ✓ PK-01 file facts: text counted with wc rules, binary never invents lines
+  ✓ CP-01 capture delay: ladder snapped, labels honest
+  ✓ DV-01 battery: clamped percent, unknown times stated
+  ✓ MN-01 job sort: copies, three orders
+  ✓ RT-02 routine filter: name+actions, order preserved
+  ✓ AR-01 archive filter: name match keeps folder context
+  ✓ LN-16 facing: auto omits the constraint entirely
+  ✓ ED-06 wrap: style pair consistent, storage read guarded
+  ✓ CK-06 laps text: splits from cumulative, fastest marked
+  ✓ NT-06 notes bundle: title order, solo-export rendering reused
+  ✓ CN-08 contact card: slug filename, serializer round-trips
+  ✓ BK-10 backup inventory: dated sorted newest-first, undated unknown
+  ✓ MD-11 loop: label states state, toggle flips
+  ✓ ST-11 reclaim summary: only real duplicate groups count
+  ✓ SP-02 family progress: built share per family, sorted
+  ✓ AP-07 app sort: registry group order, alpha within group
+  ✓ MU-05 library stats: per-kind counts from the shared library
+  ✓ PH-06 shuffle: permutation, seeded determinism, identity detection
+  ✓ PL-07 completion stats: today/week windows, undated kept separate
+  ✓ LD-01 sync summary: conflicts never read as clean
+
+20 passed, 0 failed

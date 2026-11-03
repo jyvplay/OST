@@ -1,0 +1,52 @@
+  ✓ E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output
+  ✓ E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry
+  ✓ E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback
+node:internal/modules/esm/resolve:275
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/OST/.cache/ost-tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs' imported from /home/user/OST/scripts/oracle/pdfjs-scale.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///home/user/OST/.cache/ost-tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs'
+}
+
+Node.js v22.22.3
+  ✗ E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify
+    Command failed: /usr/local/bin/node scripts/oracle/pdfjs-scale.mjs /tmp/e2e81-Pifbrl/user-unit-ui.pdf
+node:internal/modules/esm/resolve:275
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/OST/.cache/ost-tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs' imported from /home/user/OST/scripts/oracle/pdfjs-scale.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:861:10)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///home/user/OST/.cache/ost-tools/node_modules/pdfjs-dist/legacy/build/pdf.mjs'
+}
+
+Node.js v22.22.3
+
+  ✓ E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions
+  ✓ E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge
+  ✓ E7 no browser page errors
+
+6 passed, 1 failed
+FAILED: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify

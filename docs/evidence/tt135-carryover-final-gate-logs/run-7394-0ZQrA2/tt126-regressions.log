@@ -1,0 +1,8 @@
+  ✓ zoom: bounded grid samples, tiny steps, nonaligned max and invalid capabilities
+  ✓ aliases: inherited names are commands unless explicitly defined
+  ✓ service worker: unrelated caches survive and only the canonical successful shell refreshes root
+  ✓ service worker: cache storage failures do not turn working network assets into 504s
+  ✓ browser gate rejects a process that prints success then exits nonzero
+  ✓ fast default retains the external oracle and propagates its failure
+
+6 passed, 0 failed

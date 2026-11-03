@@ -1,0 +1,135 @@
+{
+  "scope": "Actual presentation-repair attacks and supplemental captures, not new Class A features or universal device acceptance",
+  "records": [
+    {
+      "app": "browser-deny",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/browser-deny-wide.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 770
+      },
+      "sha256": "3452a79ed3ba10ec53ba16bb0aaf5a5f7c351f02581702eb43384d571f573ca8",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-unknown",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/browser-unknown-wide.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvykrwni-wide.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvykrwni-wide.invalid",
+        "host": "S3-handoff",
+        "tookMs": 4
+      },
+      "sha256": "4419185a44cf44a7e64f87193277509dd51f0071efa2038eaa4d4a527ef92020",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/spec-collapsed-wide.png",
+      "words": 12217,
+      "sha256": "400f319e8d79dea0bc5d5b59a292a95ca575c402202b4e69c07532558bb7d8d2",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/spec-expanded-wide.png",
+      "words": 12657,
+      "sha256": "8a51150edae798722e3378a40d3bf9cda611ec8d976de1b87b17e5c84a7a61d1",
+      "manuallyViewed": true
+    },
+    {
+      "app": "beam",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/beam-wide.png",
+      "words": 291,
+      "sha256": "b7cb53cb4aaf099049fe71fd01122903c72e89f523c2af46d2a7e1424f1d3849",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-deny",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/browser-deny-compact.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 725
+      },
+      "sha256": "5f3b3ab931759c33ad2212b615dbbec9165691376de382e907b75636721746f5",
+      "manuallyViewed": true
+    },
+    {
+      "app": "browser-unknown",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/browser-unknown-compact.png",
+      "words": 60,
+      "proof": {
+        "ok": true,
+        "url": "https://tt134-mvyks6tn-compact.invalid/",
+        "status": 0,
+        "verdict": "unknown",
+        "reason": "probe failed: DNS lookup failed for tt134-mvyks6tn-compact.invalid",
+        "host": "S3-handoff",
+        "tookMs": 5
+      },
+      "sha256": "dd33ed19127a566959a8011ab30310ca38f60ae1bcb0a68421424842e3d3b62f",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/spec-collapsed-compact.png",
+      "words": 12217,
+      "sha256": "df75d0f2c0a60c6337df091057d947a44d50a7f758479b4fb2c9809a756b565c",
+      "manuallyViewed": true
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/spec-expanded-compact.png",
+      "words": 12657,
+      "sha256": "8bc39239384ef63e2a16a043715e24fc0e47827e03fd2b61e326bba4b34c623b",
+      "manuallyViewed": true
+    },
+    {
+      "app": "beam",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs-before-spacing/beam-compact.png",
+      "words": 291,
+      "sha256": "79ba802218e94b24995b91dc7f9846a6afcdf290a17adf6e1dac13d0bd55a307",
+      "manuallyViewed": true
+    }
+  ],
+  "phase": "Source 5, before final Beam label-spacing correction",
+  "manualFindings": [
+    "All ten captures actually viewed. Known GitHub refusal retains policy detail and alternatives; actual DNS failure has a separate neutral unverified state.",
+    "All 627 feature rows and 12 spike records remain; the native summary opens below the still-long register health list. The captured expanded viewport shows the first question, not every off-viewport criterion.",
+    "Beam Local media text touches the native file picker; a real label/control gap must be repaired and tested. Hardware enumeration remains none reported, not no devices exist."
+  ]
+}

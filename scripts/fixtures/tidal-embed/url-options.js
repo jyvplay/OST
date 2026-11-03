@@ -1,4 +1,4 @@
-export default {
+const options = {
   get cleanInitially() {
     const url = new URL(document.location.href);
 
@@ -81,3 +81,5 @@ export default {
     return Boolean(url.searchParams.get('sendMediaEvents'));
   },
 };
+
+export default options;

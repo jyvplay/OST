@@ -17,7 +17,12 @@ export const SENSITIVE_CLEAR_MS = 30_000;
 export function addClip(list: ClipEntry[], e: ClipEntry, max = CLIP_MAX): ClipEntry[] {
   const prev = !e.sensitive ? list.find((c) => !c.sensitive && c.text === e.text) : undefined;
   const rest = prev ? list.filter((c) => c !== prev) : list;
-  const next = [{ ...e, pinned: prev?.pinned }, ...rest];
+  // Timestamp is the existing public entry identity. Native clipboard writes
+  // may settle in one millisecond (or after a clock rollback); never alias two
+  // independently captured entries, pin/remove targets, or comparison picks.
+  let at = e.at;
+  for (const entry of list) at = Math.max(at, entry.at + 1);
+  const next = [{ ...e, at, pinned: prev?.pinned }, ...rest];
   const pinned = next.filter((c) => c.pinned).length;
   let unpinnedLeft = Math.max(0, max - pinned);
   return next.filter((c) => c.pinned || unpinnedLeft-- > 0);

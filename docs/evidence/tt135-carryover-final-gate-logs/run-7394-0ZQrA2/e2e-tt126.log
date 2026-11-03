@@ -1,0 +1,6 @@
+  ✓ terminal aliases expand the command body, and inherited names do not crash
+  ✓ vault: create, save, reuse audit, lock and reopen real encrypted data
+  ✓ camera controls are visible without a device and report no torch
+  ✓ Files operation journal is named and keyboard-focusable
+
+4 passed, 0 failed

@@ -1,0 +1,51 @@
+{
+  "suite": "tt129-worker-unit",
+  "at": "2026-11-02T16:21:16.699Z",
+  "results": [
+    {
+      "suite": "tt129-worker-unit",
+      "name": "worker discovers shell assets and only permitted same-origin CSS resources",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt129-worker-unit",
+      "name": "worker installation rejects missing JS and missing CSS dependencies",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt129-worker-unit",
+      "name": "failed refresh retains the previous root, then commits once assets succeed",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt129-worker-unit",
+      "name": "unchanged root refresh does not refetch already cached shell assets",
+      "covers": {
+        "SH-14": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt129-worker-unit",
+      "name": "HTML masquerading as a chunk is rejected without poisoning the cache",
+      "covers": {
+        "AP-04": "partial"
+      },
+      "pass": true,
+      "ms": 4
+    }
+  ]
+}

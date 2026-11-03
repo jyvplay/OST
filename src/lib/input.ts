@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 /**
  * IN-01 desktopMouse contract.
@@ -27,7 +27,7 @@ export interface DesktopMouseHandlers {
 
 export function useDesktopMouse(handlers: DesktopMouseHandlers, cfg: MouseConfig = DEFAULT_MOUSE) {
   const ref = useRef(handlers);
-  ref.current = handlers;
+  useLayoutEffect(() => { ref.current = handlers; }, [handlers]);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     if (e.button === cfg.back || e.button === cfg.forward) {
@@ -176,14 +176,15 @@ export function captureNextButton(onPress: (button: number, e: MouseEvent) => bo
  * NOT stop propagation, so a surface with its own history (Files) still receives the press and goes back / forward.
  */
 export function useMouseNavGuard(cfg: MouseConfig = DEFAULT_MOUSE) {
+  const { back, forward } = cfg;
   useEffect(() => {
-    const guarded = guardedButtons(cfg);
+    const guarded = guardedButtons({ back, forward, linesPerNotch: DEFAULT_MOUSE.linesPerNotch });
     const swallow = (e: MouseEvent) => { if (guarded.includes(e.button)) e.preventDefault(); };
     // NOT pointerdown: cancelling it suppresses the compatibility mouseup (Pointer Events §11), which is exactly where Files
     // listens for buttons 3/4 — that variant broke Files' own Back / Forward (TT66 second-order finding)
     const types = ["mousedown", "mouseup", "pointerup", "auxclick"] as const;
     for (const t of types) window.addEventListener(t, swallow as EventListener, { capture: true });
     return () => { for (const t of types) window.removeEventListener(t, swallow as EventListener, { capture: true }); };
-  }, [cfg.back, cfg.forward]);
+  }, [back, forward]);
 }
 

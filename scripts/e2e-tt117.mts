@@ -1,5 +1,6 @@
 /** TT117 — the new engines are reachable by a person, not just by their unit tests. */
 import assert from "node:assert/strict";
+import { expect } from "playwright/test";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
@@ -21,7 +22,10 @@ async function openModule(module: string) {
   page.setDefaultTimeout(20_000);
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForTimeout(1200);
+  await page.waitForFunction(() => {
+    const body = document.querySelector('[data-win-id="w1"] .fs-winbody');
+    return body && body.children.length > 0 && !/^Loading[.…\s]*$/.test(body.textContent?.trim() ?? "");
+  });
   return { page, context };
 }
 
@@ -42,14 +46,25 @@ await test("CK-01/02/03 in Clock: add an alarm, see next fire and the date calcu
 await test("NT-01 in Notes: statistics follow the text being edited", { "NT-01": "full" }, async () => {
   const { page, context } = await openModule("notes");
   const win = page.locator('[data-win-id="w1"]');
-  await win.getByRole("button", { name: "New" }).click();
-  await page.waitForTimeout(800);
-  await win.getByLabel("Note body").fill("# Heading\n\nTwo words here. And more prose follows now!\n\n```\ncode words must not count at all\n```");
-  const stats = win.getByTestId("note-stats");
-  await stats.waitFor();
-  const text = await stats.innerText();
-  assert.match(text, /words/); assert.match(text, /Heading/); assert.match(text, /code blocks/);
-  await context.close();
+  let created: { id: number; revision: number } | undefined;
+  try {
+    const acknowledgement = page.waitForResponse(r => new URL(r.url()).pathname === "/api/notes" && r.request().method() === "POST");
+    await win.getByRole("button", { name: "New", exact: true }).click();
+    const reply = await acknowledgement; assert.equal(reply.status(), 200); created = (await reply.json()).row;
+    await expect(win.getByRole("button", { name: "New", exact: true })).toBeEnabled();
+    await expect(win.getByLabel("Note body")).toHaveValue("");
+    const source = "# Heading\n\nTwo words here. And more prose follows now!\n\n```\ncode words must not count at all\n```";
+    await win.getByLabel("Note body").fill(source);
+    const stats = win.getByTestId("note-stats"); await expect(stats).toContainText(`9 words · ${source.length} chars · 2 sentences`);
+    await expect(stats).toContainText("1 code blocks (excluded from words)");
+    // The outline is a real separate control now, not a static statistics badge.
+    await win.getByRole("button", { name: "Outline", exact: true }).click();
+    await win.getByRole("navigation", { name: "Note outline" }).getByRole("button", { name: "Heading", exact: true }).click();
+    await expect(win.getByTestId("note-preview").getByRole("heading", { name: "Heading", exact: true })).toBeInViewport();
+  } finally {
+    await context.close();
+    if (created) await api("DELETE", `/api/notes?id=${created.id}`, { expectedRevision: created.revision });
+  }
 });
 
 await test("CB-01/RT-01/FN-01/BR-01 controls exist with their full names", { "CB-01": "full", "RT-01": "full", "FN-01": "full", "BR-01": "full" }, async () => {

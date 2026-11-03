@@ -1,0 +1,15 @@
+{
+  "files": 1171,
+  "errors": 135,
+  "warnings": 13,
+  "rules": {
+    "import/no-anonymous-default-export": 1,
+    "@next/next/no-img-element": 3,
+    "react-hooks/set-state-in-effect": 11,
+    "react-hooks/refs": 120,
+    "null": 4,
+    "react-hooks/purity": 1,
+    "react-hooks/immutability": 3,
+    "react-hooks/exhaustive-deps": 5
+  }
+}

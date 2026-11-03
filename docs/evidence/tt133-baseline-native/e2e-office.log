@@ -1,0 +1,81 @@
+  ✓ sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet
+  ✓ autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates
+  ✓ drag-select a range → status bar Sum/Count; Ctrl+A selects current region
+  ✓ fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs
+  ✓ Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour
+  ✓ clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block
+  ✗ sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match
+    locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().getByLabel('Find', { exact: true })
+
+  ✓ charts panel renders SVG chart images (bar → pie) from a dynamic-array source
+  ✗ column resize by dragging the header edge; frozen header row stays visible; rows are virtualised
+    width 138 → 138
+  ✗ save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths
+    locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[role=dialog][aria-label="Spreadsheet"]').first().locator('[data-cell="A3"]')
+    - locator resolved to <td data-cell="A3">Gadget</td>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <td data-cell="A2">Widget</td> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <td data-cell="A2">Widget</td> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+  2 × retrying click action
+      - waiting 100ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <button type="button" class="fs-btn" data-variant="ghost" data-testid="recover-discard">Discard draft</button> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+  13 × retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <td data-cell="A2">Widget</td> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <td data-cell="A2">Widget</td> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <button type="button" class="fs-btn" data-variant="ghost" data-testid="recover-discard">Discard draft</button> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <button type="button" class="fs-btn" data-variant="ghost" data-testid="recover-discard">Discard draft</button> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+  2 × retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <td data-cell="A2">Widget</td> from <div tabindex="-1" role="dialog" class="fs-window" aria-modal="false" data-focused="true" data-win-id="w2_sheet" aria-label="Spreadsheet">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+
+  ✓ no uncaught page errors during the spreadsheet session
+
+8 passed, 3 failed
+FAILED: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match | column resize by dragging the header edge; frozen header row stays visible; rows are virtualised | save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths

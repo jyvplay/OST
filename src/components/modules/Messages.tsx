@@ -98,8 +98,8 @@ export default function MessagesModule(_: ModuleProps) {
         <details>
           <summary style={{ fontSize: fz(11.5), cursor: "pointer" }}>Bicubic interpolation — no model bundled. Why?</summary>
           <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-            The Lens module's canvas output is bicubic-upsampled when the requested output height exceeds the captured
-            height, and the governor's cast ceiling still applies. No super-resolution model is bundled; a real one would
+            The Lens module’s canvas output is bicubic-upsampled when the requested output height exceeds the captured
+            height, and the governor’s cast ceiling still applies. No super-resolution model is bundled; a real one would
             be a multi-GB download and the admissible-weights question from the native spec is unresolved.
           </div>
         </details>

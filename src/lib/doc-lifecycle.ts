@@ -17,7 +17,7 @@ export const DOC_KINDS: readonly DocKind[] = ["writer", "sheet", "editor"];
 
 export interface DocGuard {
   winId: string;
-  kind: DocKind | "recall";
+  kind: DocKind | "recall" | "planner" | "notes";
   title(): string;
   dirty(): boolean;
   /** true when the document is now saved; false when it is not (Save As still open, refused, failed) */
@@ -26,6 +26,8 @@ export interface DocGuard {
   flushDraft(): Promise<void>;
   /** false when this document keeps no draft (password-protected: a draft would be plaintext) */
   recoverable?(): boolean;
+  /** Optional exact recovery scope; never promise a reopen path this module lacks. */
+  recoveryDetail?(): string;
   /** the random id of an untitled document's draft, so another window never offers it while it is open */
   draftKey?(): string;
 }

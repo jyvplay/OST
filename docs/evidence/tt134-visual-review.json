@@ -1,0 +1,1550 @@
+{
+  "reviewedAt": "2026-11-02T00:35:40.058188+00:00",
+  "scope": "47 real rendered initial app states at two window sizes; sixteen contact sheets were manually visually read. Public application state API initializes windows; this is not 94 native Launcher interaction proofs, a physical-device study, or all-state/all-feature acceptance.",
+  "appsReviewed": 47,
+  "viewsReviewed": 94,
+  "networkSettledViews": 92,
+  "networkUnsettledViews": 2,
+  "cleanVisualBillOfHealthAccepted": false,
+  "rows": [
+    {
+      "id": "recall",
+      "title": "Recall",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/recall.png",
+          "sha256": "316a4512852adfae924aab0e02077f967e2964d8977f587b47784ffbbf2b8bda",
+          "networkSettled": true,
+          "renderedWordCount": 236,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/recall.png",
+          "sha256": "480c050662b9ff43d0bd754beb71110f96c7eb2e6e4a2c61ed957d2b6bd03de4",
+          "networkSettled": true,
+          "renderedWordCount": 236,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Method groups and limits are folded; two-column controls remain dense in compact view. Recording and background/OS-wide recall are not inferred from an idle preview.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "files",
+      "title": "Files",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/files.png",
+          "sha256": "b85cb1d254467a70494adf57b5020aba03e847fb0de1626654ef5aef5479c7f7",
+          "networkSettled": true,
+          "renderedWordCount": 95,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/files.png",
+          "sha256": "3822ace0847bd8322295a4d2f40acb09a98fb16c22d31810090a51461fcec899",
+          "networkSettled": true,
+          "renderedWordCount": 95,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Folder table and top actions are legible at both sizes; the operation journal is real test-generated state. Initial view is not an exercise of every file operation.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "editor",
+      "title": "Editor",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/editor.png",
+          "sha256": "b0d9ccc950e87eba6a36f1e0d81248b162742a26aed3a826158abb8d74afe061",
+          "networkSettled": true,
+          "renderedWordCount": 21,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/editor.png",
+          "sha256": "621945738dc1c63c1b8ef62a7ae07c1b10b64d27f4a19779d99815491f29e449",
+          "networkSettled": true,
+          "renderedWordCount": 21,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Sparse, clear no-document state; Save is visible but no file is open. Empty state is not an editing/encoding acceptance test.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "find",
+      "title": "Find",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/find.png",
+          "sha256": "8045e26c833c3e23f017519f27781c5d62d90cc502a8658afed286e2047f6a99",
+          "networkSettled": true,
+          "renderedWordCount": 39,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/find.png",
+          "sha256": "38d44ab427759ce05403bcd578add09599b8ab1b61f025abe1036d067ced9836",
+          "networkSettled": true,
+          "renderedWordCount": 39,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Primary controls fit in compact view; saved searches and diagnostics are folded. Initial results area is visually sparse. Functional acceptance is in the native search suite, not this image.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "terminal",
+      "title": "Terminal",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/terminal.png",
+          "sha256": "58536a27b54fcfa461a95e65dd1a603f0681ce6edf3f76ce890e43042cbf4ad0",
+          "networkSettled": true,
+          "renderedWordCount": 13,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/terminal.png",
+          "sha256": "af617aef805d2c9ef9280ed8dd8237d4118e103254fa47fbc00a883093ba6cad",
+          "networkSettled": true,
+          "renderedWordCount": 13,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Minimal dark terminal and one-line context; the visible surface is the application VFS shell, not a claim to expose the host operating-system terminal.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "ssh",
+      "title": "SSH",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-01.jpg",
+        "docs/screens/tt134-review/compact-01.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/ssh.png",
+          "sha256": "ca1299fc2e0b47a3d21669af6417f3e1486461c6f99e260207113df0114a4a4b",
+          "networkSettled": true,
+          "renderedWordCount": 61,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/ssh.png",
+          "sha256": "3cdb667c3779f2a068496b9a147e19948cfe82b17691db195552370fdb16bf6c",
+          "networkSettled": true,
+          "renderedWordCount": 61,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Connection/key controls fit; recent localhost address is the real disposable sshd used by the native suite. Password/host-key guidance is still a paragraph.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "notes",
+      "title": "Notes",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/notes.png",
+          "sha256": "9dfe3b78cc424982521b24e0ce5dda3f1a29e72e73af576e1a4568545ec6589b",
+          "networkSettled": true,
+          "renderedWordCount": 54,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/notes.png",
+          "sha256": "e7f3c8392e3b4870b8e1a60a7cba93dfa1e8ee4f0944840274202cd088cd8d93",
+          "networkSettled": true,
+          "renderedWordCount": 54,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Compact title input ellipsizes, tags and Save stay available, outline and extra commands are folded. Saved test notes are visible; a screenshot alone cannot establish ownership/CAS correctness.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "browser",
+      "title": "Browser",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/browser.png",
+          "sha256": "732f8b2e379336493ddb48611fa259099bcd0009e3d491c4d5d9cf9ca1a72305",
+          "networkSettled": true,
+          "renderedWordCount": 130,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/browser.png",
+          "sha256": "66ef5e7767a2bdbff4c9e826acb67ca0621decf24a310e2c82016f67eab336a0",
+          "networkSettled": true,
+          "renderedWordCount": 130,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Blocked external embed is explicitly disclosed; handoff, proxy and reader paths are distinct. The failure explanation remains wordy; sandbox egress refusal is not evidence that all external sites refuse embedding.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "media",
+      "title": "Media",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/media.png",
+          "sha256": "428fece058d35cae6a10322ac2ea387957522d04560d952976343f07f47b8e1a",
+          "networkSettled": true,
+          "renderedWordCount": 213,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/media.png",
+          "sha256": "83fae5a17a2c9caffb2e838c27c5aeb20a0bcd6dd0437513ee336e0c84e0c8e5",
+          "networkSettled": true,
+          "renderedWordCount": 213,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Native empty player is honest; captions and export panels occupy substantial vertical space. Real external receiver/playback/codec behavior was not established by this view.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "capture",
+      "title": "Capture",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/capture.png",
+          "sha256": "037812c08c1e83b2dd36b1b20a936b5364c170e09a2cd06b53605900714e72e1",
+          "networkSettled": true,
+          "renderedWordCount": 88,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/capture.png",
+          "sha256": "7cac0cb169986d9c8fbcd253853b758b4b60feb982d68c0126a3a4c639ea48b7",
+          "networkSettled": true,
+          "renderedWordCount": 88,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Empty authorized-capture preview; browser and storage limits are visible. An initial Muted HUD overlays part of the view. No physical screen-sharing/audio grant was exercised here.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "lens",
+      "title": "Lens",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/lens.png",
+          "sha256": "21cbf530fd5ed343c179f7a38e7401a500b2ba03b90164963acea2cba3f64e69",
+          "networkSettled": true,
+          "renderedWordCount": 142,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/lens.png",
+          "sha256": "db1743c5f3ac7f830345d18b28e06a0a37aed7d5641daaa12a1018299e76a7af",
+          "networkSettled": true,
+          "renderedWordCount": 142,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Camera start and effect controls are visible, with a blank unstarted preview. Compact canvas/controls still fit; lower transport explanations are dense. Physical camera/microphone quality is unverified.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "beam",
+      "title": "Beam",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-02.jpg",
+        "docs/screens/tt134-review/compact-02.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/beam.png",
+          "sha256": "d632d64791cb8d476c80f9379afe065227a282f73cd23fb7ed87ee40fbbb370f",
+          "networkSettled": true,
+          "renderedWordCount": 302,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/beam.png",
+          "sha256": "b5bd0158bce1be62fbf8e1a8cfd913812a66e29992a7d80e90b572a78314e0e9",
+          "networkSettled": true,
+          "renderedWordCount": 302,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Several real transport APIs are separated from explicitly blocked native protocols. Status and explanatory cards are text-heavy; availability is not evidence of a receiver connection.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "together",
+      "title": "Together",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/together.png",
+          "sha256": "0acf3cd0a9571a74a54451ac3ba9bd2296ff1bae2d5cda281636c3286d43b0e9",
+          "networkSettled": true,
+          "renderedWordCount": 84,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/together.png",
+          "sha256": "7dd500190bc333eae6ab05d597b0d63b7185084ff7ae7cc24d5099e45e112c8e",
+          "networkSettled": true,
+          "renderedWordCount": 84,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Room/media controls and idle event panel are legible. Not joined; this image does not prove two-device clock synchronization.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/messages.png",
+          "sha256": "2cbb45a6e4bfdc25677d4c75c7689e1e077c98e8b1b2246da64cb391cc5f0147",
+          "networkSettled": true,
+          "renderedWordCount": 294,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/messages.png",
+          "sha256": "d11190b4365d4b0d00acaf96a514b14cfa121b689b6233f6c0b4143a6f9ffb25",
+          "networkSettled": true,
+          "renderedWordCount": 294,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Bridge configuration and generic message connector are visible, followed by capability explanations. This remains an externally dependent/skeleton surface, not a verified universal messaging client.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "vault",
+      "title": "Vault",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/vault.png",
+          "sha256": "a7c224fd18059518885acaad613db7d4f3a600b7ea4c3dac13042571717a8706",
+          "networkSettled": true,
+          "renderedWordCount": 58,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/vault.png",
+          "sha256": "4ea4596e8dd1279221354faa68e69219ee05db6a76d0253fa2986e2dcac5d1c2",
+          "networkSettled": true,
+          "renderedWordCount": 58,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Focused create-vault card with no-recovery and encryption warning. A reported passkey capability does not prove a physical authenticator ceremony.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/privacy.png",
+          "sha256": "1969dabe8b15fe8e27275696ca18f60416322d95ceecd962ea674c80773f9ad1",
+          "networkSettled": true,
+          "renderedWordCount": 76,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/privacy.png",
+          "sha256": "b4fe9591da4afcbd29d219908e109f27413c39838fba61a7c399e1121eab00f1",
+          "networkSettled": true,
+          "renderedWordCount": 76,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Creation and encrypted-restore forms fit. Security and persistence claims require separate tests; no claim of secure disk erasure or resistance to a compromised host is inferred.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "backup",
+      "title": "Backup",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/backup.png",
+          "sha256": "e5974c61cc5c121c38e53e66fe00467ea32472c747542f4aa05559ccddad79f4",
+          "networkSettled": true,
+          "renderedWordCount": 436,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/backup.png",
+          "sha256": "54ccaf301513930c1726d9222b6d9bed70dc9827973f88172cabfc894ac79660",
+          "networkSettled": true,
+          "renderedWordCount": 436,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Export, saved bundles, recovery key and restore form are organized but still dense, especially compact. Critical secret/recovery warnings should not be removed merely to lower a word count.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "alerts",
+      "title": "Alerts",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-03.jpg",
+        "docs/screens/tt134-review/compact-03.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/alerts.png",
+          "sha256": "2b821d001ff7e46676e3db0ff408544a06b5538de606b3962452cba498990261",
+          "networkSettled": true,
+          "renderedWordCount": 97,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/alerts.png",
+          "sha256": "9375c147a0aa901b5325cce59cb9bfe26f4c1f86c643adcc566290ae4f45cb3e",
+          "networkSettled": true,
+          "renderedWordCount": 97,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Clear no-alert state and explicit browser notification boundary; cannot read another application\u2019s notifications. Physical OS delivery/permission interaction is not proved by this capture.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "monitor",
+      "title": "Monitor",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/monitor.png",
+          "sha256": "2a9e0556fa1afb8777bb4ef40d0f00038b87e3fa274f27c9d05510aaed9bf2e6",
+          "networkSettled": true,
+          "renderedWordCount": 460,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/monitor.png",
+          "sha256": "1cd9c0cf006b56015ae34763cc4d1faaad927a9cdd100af3fb7e15b47f2be774",
+          "networkSettled": true,
+          "renderedWordCount": 460,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Measured browser/runtime values are visibly labeled, not host-wide instrumentation. Long compositor/job detail creates a dense scrolling initial module; frame cost is only a thermal proxy.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "apps",
+      "title": "Apps",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/apps.png",
+          "sha256": "9f5bf9edb5ba3c91cb7e7b9b38ba29f0797bb331e16612b785d18bcfaf62d362",
+          "networkSettled": true,
+          "renderedWordCount": 891,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/apps.png",
+          "sha256": "7cca30907fea99e40f8d9aef522a7e0cc92a8ec65916eb5bbb01f2ae225d587e",
+          "networkSettled": true,
+          "renderedWordCount": 891,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Install/handler declarations are explained as declarations, not installed-OS acceptance. Large handler/startup listing remains text-heavy; native handler registration needs installed-device verification.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "calculator",
+      "title": "Calculator",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/calculator.png",
+          "sha256": "722ff97035e17fc2f0379a025fb50066ff6bda35b6ce02875ce5546e76a799b8",
+          "networkSettled": true,
+          "renderedWordCount": 180,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/calculator.png",
+          "sha256": "73edd7cf834b61f9101e8b2792052cba54d694bd1a53be4be7879ef215df5d79",
+          "networkSettled": true,
+          "renderedWordCount": 180,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Keypad and result/history controls are clear; converter is below the fold compact. Existing Number/programmer precision and breadth boundaries remain, despite the polished initial keypad.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/settings.png",
+          "sha256": "c8b00eb5bfadf751c3c52f68baa91a66765336ffdf7c1c01664c25497e3e5ba6",
+          "networkSettled": true,
+          "renderedWordCount": 1014,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/settings.png",
+          "sha256": "5cf62e0a41fa8c85d48f6ac401a355fcb7edd4c132db02a7e5e7f9c43175be32",
+          "networkSettled": true,
+          "renderedWordCount": 1014,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Original layout diagrams/style swatches help scanning. Numerous settings remain in one long scrolling pane; not a complete reduction of wordiness or exhaustive device/settings test.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "spec",
+      "title": "Spec",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/spec.png",
+          "sha256": "0f52d6f7f2636b03f4ea85f1a7ff12b11cf676dc0756c176cb9838417293883a",
+          "networkSettled": true,
+          "renderedWordCount": 12653,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/spec.png",
+          "sha256": "d0cbf40eee53a403f431ba2f21f837e9daeb3b80854770a2652c97819e0027bf",
+          "networkSettled": true,
+          "renderedWordCount": 12653,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "The full 627-row register is a deliberately long document, with filter/export/status tools. Rendered-text word count includes off-viewport register rows; it is not the number simultaneously visible.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "clock",
+      "title": "Clock",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-04.jpg",
+        "docs/screens/tt134-review/compact-04.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/clock.png",
+          "sha256": "a0d44538c0dc6f535423e6286ef7132d9e66fe9c58d60ccefb73e36629f2fdf4",
+          "networkSettled": true,
+          "renderedWordCount": 1581,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/clock.png",
+          "sha256": "5d622d22a8207e2e63b0aab3696346484515c4ca4ee97ad274cd78e95cbc299a",
+          "networkSettled": true,
+          "renderedWordCount": 1581,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "World clocks and timezone conversion are legible; stopwatch/timer/tool sections create a long document. Test browser timezone is not proof of all physical-device alarm/background behavior.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "planner",
+      "title": "Planner",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/planner.png",
+          "sha256": "beb789f70ff7405e63493110bbfeceb573f1962bc5e184d5f25ad6da18bbfbe5",
+          "networkSettled": true,
+          "renderedWordCount": 34,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/planner.png",
+          "sha256": "003141f918ea9800755f85bcbf195ef53f4b3d20ab62be0f2d456f4819e978f2",
+          "networkSettled": true,
+          "renderedWordCount": 34,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Concise task toolbar, folded notes/limits and clear empty agenda. Foreground reminder notice is retained; background OS scheduling remains outside the verified contract.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "devices",
+      "title": "Devices",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/devices.png",
+          "sha256": "09079f6b986429c40b22cc127493450ba17dd7c61befa1233757d090501c42f7",
+          "networkSettled": true,
+          "renderedWordCount": 40,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/devices.png",
+          "sha256": "72a29356df29be95ca0b583b3354e6e49b66d797f7d76679e83dc26d061fd25f",
+          "networkSettled": true,
+          "renderedWordCount": 40,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Capability tabs and unstarted recorder are clear. Zero origin-storage usage is compatible with a fresh browser context and is separate from server VFS size. No hardware was attached or invented.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "share",
+      "title": "Share",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/share.png",
+          "sha256": "0a2c4df6fe8b0bfaac86300ef035c7705e5a7db3c4d817598bd60b08cacf6332",
+          "networkSettled": true,
+          "renderedWordCount": 67,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/share.png",
+          "sha256": "dfc1e5399f3362dbddc5315b28b630cf31cb8e4b698b55ffdc8f00ec374f5a89",
+          "networkSettled": true,
+          "renderedWordCount": 67,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Honest empty screen/room controls and browser-only transport boundary. No physical second device or authenticated remote hardware connection was exercised here.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "routines",
+      "title": "Routines",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/routines.png",
+          "sha256": "5a40b69d08c5a93ba908b65ad2bde3ef6a16201749bee66506f5e7cd5daebb30",
+          "networkSettled": true,
+          "renderedWordCount": 98,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/routines.png",
+          "sha256": "e19c628c8733e79ff778668c5c36cedce50ffa5b1151cdafb2f804db5669ac2d",
+          "networkSettled": true,
+          "renderedWordCount": 98,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Workspace preset and original command-list routine editor are coherent; dry-run status is distinct from execution. Empty routine list is not proof of trigger coverage.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "clipboard",
+      "title": "Clipboard",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/clipboard.png",
+          "sha256": "4fa6dd5cbe6564e8360a4f355556a44640c8163a38c5d42280eb3c02b5c13898",
+          "networkSettled": true,
+          "renderedWordCount": 136,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/clipboard.png",
+          "sha256": "5a95715a193df7cb0524be3073089470c82f42e149ae23f2e13de91be334b1c8",
+          "networkSettled": true,
+          "renderedWordCount": 136,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Clear zero-entry memory-only state; explicit capture is required for another app\u2019s clipboard. Scope explanation remains long but avoids falsely implying OS-wide clipboard surveillance.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "storage",
+      "title": "Storage",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-05.jpg",
+        "docs/screens/tt134-review/compact-05.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/storage.png",
+          "sha256": "e058ec37c89c280dbf035f51608fa13de12e129ed00ac580cdeab2486a91e354",
+          "networkSettled": true,
+          "renderedWordCount": 338,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/storage.png",
+          "sha256": "52a7c709a7ec1c4752b094d820ea62367e26f901012f4dedc0dd9778b9bd1351",
+          "networkSettled": true,
+          "renderedWordCount": 349,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Server VFS values are populated (505/515 KiB across sequential captures), origin usage is separately zero, real generated duplicate groups are visible. Initial zero VFS is not reproduced here; duplicate actions need separate ownership tests.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "archive",
+      "title": "Archive",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/archive.png",
+          "sha256": "e49997697f70cd9af7f9f9952a5789fd50647cb7c9c8a84c84407bc0161a8db4",
+          "networkSettled": true,
+          "renderedWordCount": 58,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/archive.png",
+          "sha256": "6e3a245653d3cb0c6ce660dba9f9533dec029605e4363ef01d8adb4e34b0c74a",
+          "networkSettled": true,
+          "renderedWordCount": 58,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Clean no-archive state; many actions share a horizontally scrollable toolbar. No encryption/extraction acceptance is inferred from disabled controls.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "localdisk",
+      "title": "Local disk",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/localdisk.png",
+          "sha256": "49121ccea4d189bf26fe3351e45552ee4a3d4f510a9f5cb24fd5dd10b8361cc9",
+          "networkSettled": true,
+          "renderedWordCount": 85,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/localdisk.png",
+          "sha256": "064951dba77d07ec6c1b5c136bb06a167102b0095829e5ddd76003572e010a99",
+          "networkSettled": true,
+          "renderedWordCount": 85,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "One clear mount action and an honest direct-child/UTF-8/conflict boundary. A real OS directory permission grant and file-system-provider equivalence were not exercised here.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "photos",
+      "title": "Photos",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/photos.png",
+          "sha256": "b76500b5fd37957f4527a69929f4390df1515c51775bbc514564d4f2997d19bb",
+          "networkSettled": false,
+          "renderedWordCount": 39,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/photos.png",
+          "sha256": "933c8a0a3ae482884dfc09fb3b1b412bffb034ec16941fc99fb81188edd8ef35",
+          "networkSettled": false,
+          "renderedWordCount": 37,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Actual VFS thumbnails/graphics are visible and wrap in compact view. Both captures missed network-idle settling, explicitly retained rather than relabeled; initial thumbnails are not all format/metadata/recipe operations.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "imageedit",
+      "title": "Image Editor",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/imageedit.png",
+          "sha256": "2bed298adc964d097984d5c1ef3ac0a25cc9c1c805c73752e71b3d51e0007e6d",
+          "networkSettled": true,
+          "renderedWordCount": 161,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/imageedit.png",
+          "sha256": "d25bc4f6ca10ce2480a1abd6cd1aab419be1169c50a7a176b900efea6a2019d5",
+          "networkSettled": true,
+          "renderedWordCount": 143,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Canvas, tool icons and layer/brush controls are readable in compact view; horizontal toolbar overflow is folded. An empty background layer is not all editing/format coverage.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "vector",
+      "title": "Vector",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/vector.png",
+          "sha256": "ba876c8bf12df91d6d55bc3e91c34e5e5f30f8cbb359b83fdf869489c4f0c388",
+          "networkSettled": true,
+          "renderedWordCount": 158,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/vector.png",
+          "sha256": "3d02b5a1b84a9c80492473ec30afdccada5097f1780e07f88478761df330acab",
+          "networkSettled": true,
+          "renderedWordCount": 144,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Original shapes on canvas, explicit tools and properties are visible at both sizes. Native resize/export checks supply actual dimensions; initial layout alone is not SVG equivalence.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "writer",
+      "title": "Writer",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-06.jpg",
+        "docs/screens/tt134-review/compact-06.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/writer.png",
+          "sha256": "46401c8b55432e6b6433394aba9868d2685519071e3351774089cd8a5dea2836",
+          "networkSettled": true,
+          "renderedWordCount": 198,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/writer.png",
+          "sha256": "adff542981c10bc5a53228ccd2a8d7349672356e1a3f1c75af1bcfc9b586750a",
+          "networkSettled": true,
+          "renderedWordCount": 201,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Toolbar overflow has a More action; document canvas scrolls in compact view. An authentic recovery offer from earlier interrupted test work is visible, not an invented clean-store screenshot. Cross-paragraph correctness comes from the independent saved ZIP/XML test.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "pdf",
+      "title": "PDF",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/pdf.png",
+          "sha256": "c25567ac2905a87f4f0845eb1dbe1b1f27f69d29373a703b38efba99dc4fca33",
+          "networkSettled": true,
+          "renderedWordCount": 39,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/pdf.png",
+          "sha256": "cc02b796b3d40565b2b466bf3857d401706ee8fbd7f900a1b535dcb1743bf490",
+          "networkSettled": true,
+          "renderedWordCount": 39,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Clear no-file state, short toolbar and page/forms/signatures tabs. Empty viewer is not a PDF fidelity/security/signature acceptance test.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "books",
+      "title": "Books",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/books.png",
+          "sha256": "79572687172af18de0bf3dea507e4298ba0f2a7d79875c1fb1dda6d30d4f309a",
+          "networkSettled": true,
+          "renderedWordCount": 25,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/books.png",
+          "sha256": "cdcaa019790b72e180740510299c0f540de1e41f7d48715b7454414036c96298",
+          "networkSettled": true,
+          "renderedWordCount": 25,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Small, clear open-book prompt with the scripts-never-run boundary retained. No claim that all EPUB variants were manually opened in this review.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "slides",
+      "title": "Slides",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/slides.png",
+          "sha256": "eca6fc5187f926133923b80a95ec1ffae71eac43b73ecfa5e28ea79204959b32",
+          "networkSettled": true,
+          "renderedWordCount": 92,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/slides.png",
+          "sha256": "5419431d49dbe22589d6a0ce65027eac1dd634d893f3e9f3bf6119e9dcf3db70",
+          "networkSettled": true,
+          "renderedWordCount": 87,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Initial editable slide/thumbnail and speaker-note area fit both sizes. Toolbar uses overflow; kept-media-not-played caveat is visible. No universal PPTX fidelity claim.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "sheet",
+      "title": "Spreadsheet",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/sheet.png",
+          "sha256": "0752f3633da75977a85f947806366bf67fd8c7f383460c616279e8bfd137bdae",
+          "networkSettled": true,
+          "renderedWordCount": 295,
+          "bodyHorizontalOverflowPx": 289
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/sheet.png",
+          "sha256": "a479409de66c50073f3688ae687c7ffb1cce79150fba11fb03ee944171f3100f",
+          "networkSettled": true,
+          "renderedWordCount": 297,
+          "bodyHorizontalOverflowPx": 575
+        }
+      ],
+      "observation": "Dense editable grid intentionally scrolls; measured body scrollWidth exceeds clientWidth by 289px wide/575px compact. Do not report zero overflow or that all columns/actions are visible at once; native layout tests separately exercise navigation/save/export.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "contacts",
+      "title": "Contacts",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/contacts.png",
+          "sha256": "25a8f66a5d4164ed43d27eef1d281e121d666b2d5f111ec526702a4b6b0e36a8",
+          "networkSettled": true,
+          "renderedWordCount": 51,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/contacts.png",
+          "sha256": "ed279f39601c0e49b2f9527c39811d49ee4b9959398f25fcc34e4fef1c1c4e1f",
+          "networkSettled": true,
+          "renderedWordCount": 51,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Address-book empty state is clear. The compact toolbar clips later actions at the initial scroll position; CSS deliberately supplies horizontal toolbar scrolling, rather than wrapping. Discoverability is a follow-up, not proof that controls were removed.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "tables",
+      "title": "Tables",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-07.jpg",
+        "docs/screens/tt134-review/compact-07.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/tables.png",
+          "sha256": "459ac8c8c8d41328450c43d34477b1e4fa26193029ec1301d9f0447d85c320ff",
+          "networkSettled": true,
+          "renderedWordCount": 90,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/tables.png",
+          "sha256": "7d534a821ef63c3e35c4f36a3f0d2c684ceed4c6aeb9f7d0e6acdf3a7001db34",
+          "networkSettled": true,
+          "renderedWordCount": 90,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Initial linked task table is coherent and readable; wide data columns scroll within the data area. This view does not establish every type/link/formula operation.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "whiteboard",
+      "title": "Whiteboard",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-08.jpg",
+        "docs/screens/tt134-review/compact-08.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/whiteboard.png",
+          "sha256": "ec0482c5156e5a4d91343e23ae299420ec1ffd1a398c75ccbb21fc69025712de",
+          "networkSettled": true,
+          "renderedWordCount": 70,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/whiteboard.png",
+          "sha256": "7a5026b1cd86f505737379382ebc2796b6a517bf24da341494ceb912c5b8b520",
+          "networkSettled": true,
+          "renderedWordCount": 62,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Original sample sticky, ellipse and connector are legible; layer list remains beside the canvas compact. Sample content is disclosed, not a purported user-created drawing.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "peek",
+      "title": "Peek",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-08.jpg",
+        "docs/screens/tt134-review/compact-08.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/peek.png",
+          "sha256": "1db11b5b05faeaa6c288ed969db0f6e287448770003b34e95a7f0789a96b5ed8",
+          "networkSettled": true,
+          "renderedWordCount": 3,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/peek.png",
+          "sha256": "917717630af8544399163523600797615eaed917da067304bc3146f26f79ef13",
+          "networkSettled": true,
+          "renderedWordCount": 3,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Minimal Nothing to preview state; intentionally almost no prose. A selected-file preview would be a different state to verify.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "video",
+      "title": "Video",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-08.jpg",
+        "docs/screens/tt134-review/compact-08.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/video.png",
+          "sha256": "6635e230d558ff71905eeae1dbe4758ef384740baf0af038aa21fce932a071d5",
+          "networkSettled": true,
+          "renderedWordCount": 40,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/video.png",
+          "sha256": "4859c74bd11dab14a6e4b76170701f0f83fb204600b8e7cfd58e7b31bd0cfd74",
+          "networkSettled": true,
+          "renderedWordCount": 40,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Empty player, URL field and saved-library area are clear. External service playability is not established in an egress-restricted sandbox.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "music",
+      "title": "Music",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-08.jpg",
+        "docs/screens/tt134-review/compact-08.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/music.png",
+          "sha256": "990197705642654280f817b87dea264aaef0952f130b4c604a6b98ad0245ff01",
+          "networkSettled": true,
+          "renderedWordCount": 49,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/music.png",
+          "sha256": "ca6794d295da30a3f3b8d7083c697006dd78cb042a5afc62a1d499ce5067c24f",
+          "networkSettled": true,
+          "renderedWordCount": 49,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "URL and library controls are clear, but the multi-service example explanation remains verbose. No streaming entitlement, physical audio, or external-service availability assertion.",
+      "allFeatureFunctionalityInferred": false
+    },
+    {
+      "id": "maps",
+      "title": "Maps",
+      "reviewedModes": [
+        "wide",
+        "compact"
+      ],
+      "sheets": [
+        "docs/screens/tt134-review/wide-08.jpg",
+        "docs/screens/tt134-review/compact-08.jpg"
+      ],
+      "views": [
+        {
+          "mode": "wide",
+          "path": "docs/screens/tt134-visual/wide/maps.png",
+          "sha256": "b6db75d3b30a6d93758c8d93aec8557c841a943309120daa7fbdc4cda90f318a",
+          "networkSettled": true,
+          "renderedWordCount": 57,
+          "bodyHorizontalOverflowPx": 0
+        },
+        {
+          "mode": "compact",
+          "path": "docs/screens/tt134-visual/compact/maps.png",
+          "sha256": "ec7489fa3e790b6379cc8f9ba78ee6138125d3b26cad8f20872110067316e513",
+          "networkSettled": true,
+          "renderedWordCount": 57,
+          "bodyHorizontalOverflowPx": 0
+        }
+      ],
+      "observation": "Real offline border map, original controls and attribution fit compact. No tile server/online route/physical GPS success is inferred; GeoNames and Natural Earth are attributed.",
+      "allFeatureFunctionalityInferred": false
+    }
+  ],
+  "finalBuildSupplement": {
+    "scope": "Four real updated Notes/Find mark views plus compact Contacts after native browser scroll/click. Supplemental five views, not a second all-app initial review.",
+    "manuallyReviewed": true,
+    "nativeSuiteResult": "5 passed, 0 failed",
+    "paths": [
+      {
+        "path": "docs/screens/tt134-polish/contacts-compact-scrolled.png",
+        "sha256": "cf840ff8cdb123024a9ea1808745913a7dbc7287bbd443253f207a4a50419c34"
+      },
+      {
+        "path": "docs/screens/tt134-polish/find-compact.png",
+        "sha256": "585dbeb60f2a0212c0c20213d21a7937f45a8139b19125d1e9b3c8edc5f4e201"
+      },
+      {
+        "path": "docs/screens/tt134-polish/find-wide.png",
+        "sha256": "22a74984cb62fe9c7af001035d33791b94dd31da888fb356bee288623b01ef49"
+      },
+      {
+        "path": "docs/screens/tt134-polish/notes-compact.png",
+        "sha256": "9f89a3df69a2f756f478e4c029bbb1722977fc76275db782c78aefb1c44f99f9"
+      },
+      {
+        "path": "docs/screens/tt134-polish/notes-wide.png",
+        "sha256": "5ac0e8e432d14032011a548c06df844dbef1dd514d9200107b2869515d6b872f"
+      }
+    ],
+    "observation": "New header marks are visible and consistent at both sizes. Notes compact controls wrap; Find stays sparse with folded details. Contacts Duplicates actually opens and is reachable by horizontal toolbar scrolling; later/earlier actions are not simultaneously visible, and discoverability remains a follow-up.",
+    "sourceStage": "Historical source 4 icon/compact-layout review; AppIcon/Contacts were not changed by the later Browser/Spec/Beam repairs."
+  },
+  "reviewRepairSupplement": {
+    "initialSource5BeforeSpacing": "docs/evidence/tt134-review-repairs-before-spacing.json",
+    "finalSource6": "docs/evidence/tt134-review-repairs.json",
+    "caseReceipt": "docs/evidence/tt134-final-native.json",
+    "manualReview": "All ten before-spacing and all ten final screenshots were actually viewed using read_file; not replacements for the 94 source-3 initial app views."
+  }
+}

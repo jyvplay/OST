@@ -1,0 +1,290 @@
+Full suite logs: docs/evidence/tt134-gate
+== pure suites (parallel via run-fast.sh)
+=== tt133-projections
+6 passed, 0 failed
+=== tt133-core
+23 passed, 0 failed
+=== tt132-core
+12 passed, 0 failed
+=== tt132-lint-contract
+=== tt132-claim-contract
+4 passed, 0 failed
+3 passed, 0 failed
+=== a11y-unit
+8 passed, 0 failed
+=== layout-unit
+8 passed, 0 failed
+=== maps-unit
+6 passed, 0 failed
+=== stream-unit
+7 passed, 0 failed
+=== tabletop-unit
+17 passed, 0 failed
+=== contacts-engine
+8 passed, 0 failed
+=== image-engine
+16 passed, 0 failed
+=== vector-engine
+18 passed, 0 failed
+=== unit
+23 passed, 0 failed
+=== whiteboard-engine
+9 passed, 0 failed
+=== tables-engine
+9 passed, 0 failed
+=== tt117-core
+12 passed, 0 failed
+=== tt118-core
+12 passed, 0 failed
+=== tt119-core
+11 passed, 0 failed
+=== ai-format
+5 passed, 0 failed
+=== tt120-core
+10 passed, 0 failed
+=== tt121-core
+19 passed, 0 failed
+=== tt122-core
+20 passed, 0 failed
+=== tt123-core
+18 passed, 0 failed
+=== tt125-core
+17 passed, 0 failed
+=== tt124-core
+19 passed, 0 failed
+=== tt129-core
+7 passed, 0 failed
+=== tt129-worker-unit
+5 passed, 0 failed
+=== tt129-calendar-core
+6 passed, 0 failed
+=== tt130-alarms-core
+4 passed, 0 failed
+=== tt128-core
+23 passed, 0 failed
+=== tt85-inventory
+4 passed, 0 failed
+=== tt130-privacy-boot
+1 passed, 0 failed
+FASTDONE
+  ✓ zoom: bounded grid samples, tiny steps, nonaligned max and invalid capabilities
+  ✓ aliases: inherited names are commands unless explicitly defined
+  ✓ service worker: unrelated caches survive and only the canonical successful shell refreshes root
+  ✓ service worker: cache storage failures do not turn working network assets into 504s
+  ✓ browser gate rejects a process that prints success then exits nonzero
+  ✓ fast default retains the external oracle and propagates its failure
+
+6 passed, 0 failed
+== tt133-http
+13 passed, 0 failed
+== tt133-browser-kernels
+7 passed, 0 failed
+== e2e-tt133-notes-find
+27 passed, 0 failed
+== e2e-tt133-boundaries
+7 passed, 0 failed
+== e2e-tt134-ownership
+6 passed, 0 failed
+== tt134-icon-review
+5 passed, 0 failed
+== integration
+25 passed, 0 failed
+== e2e-office
+11 passed, 0 failed
+== e2e-sheet-layout
+7 passed, 0 failed
+== e2e-vector
+12 passed, 0 failed
+== e2e-tt81
+7 passed, 0 failed
+== e2e-tt49-writer
+6 passed, 0 failed
+== e2e-tt73-writer
+4 passed, 0 failed
+== tt132-oracles
+5 passed, 0 failed
+== tt132-planner-http
+11 passed, 0 failed
+== e2e-tt132-alarms
+13 passed, 0 failed
+== e2e-tt132-planner
+17 passed, 0 failed
+== tt131-ledger
+5 passed, 0 failed
+== e2e-tt131-image-viewport
+10 passed, 0 failed
+== e2e-tt130-privacy
+1 passed, 0 failed
+== e2e-tt130-alarms
+9 passed, 0 failed
+== e2e-tt129-offline
+4 passed, 0 failed
+== e2e-tt129-calendar
+3 passed, 0 failed
+== tt128-calendar-race
+1 passed, 0 failed
+== tt128-writer-races
+2 passed, 0 failed
+== e2e-tt128-worker
+4 passed, 0 failed
+== e2e-tt128-photos
+11 passed, 0 failed
+== e2e-tt128-time
+2 passed, 0 failed
+== e2e-tt128-editor
+4 passed, 0 failed
+== tt124-core
+19 passed, 0 failed
+== e2e-tt124
+4 passed, 0 failed
+== e2e-tt125
+3 passed, 0 failed
+== e2e-tt126
+4 passed, 0 failed
+== tt127-conditional
+3 passed, 0 failed
+== e2e-tt127-vault
+3 passed, 0 failed
+== e2e-tt127-photos
+1 passed, 0 failed
+== tt123-core
+18 passed, 0 failed
+== e2e-tt123
+3 passed, 0 failed
+== tt122-core
+20 passed, 0 failed
+== e2e-tt122
+2 passed, 1 failed
+FAILED: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears
+Exit 1; full diagnostics: docs/evidence/tt134-gate/e2e-tt122.log
+  ✓ PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style
+  ✗ NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears
+    locator.click: Timeout 20000ms exceeded.
+Call log:
+  - waiting for getByTestId('notes-bundle')
+    - locator resolved to <button type="button" class="fs-btn " data-variant="ghost" data-testid="notes-bundle">Export all</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    39 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+  ✓ DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress
+
+2 passed, 1 failed
+FAILED: NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears
+== e2e-tt121
+4 passed, 0 failed
+== tt120-core
+10 passed, 0 failed
+== e2e-tt120
+4 passed, 0 failed
+== e2e-tt119
+4 passed, 0 failed
+== e2e-tt117
+4 passed, 1 failed
+FAILED: NT-01 in Notes: statistics follow the text being edited
+Exit 1; full diagnostics: docs/evidence/tt134-gate/e2e-tt117.log
+  ✓ CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator
+  ✗ NT-01 in Notes: statistics follow the text being edited
+    The input did not match the regular expression /Heading/. Input:
+
+'9 words · 96 chars · 2 sentences · 1 min read\n' +
+  '1 code blocks (excluded from words)\n' +
+  'Draft: this tab'
+
+  ✓ CB-01/RT-01/FN-01/BR-01 controls exist with their full names
+  ✓ SP-01 in Spec: the register health panel renders a verdict
+  ✓ RC-40 in Recall: manifest controls answer to their names
+
+4 passed, 1 failed
+FAILED: NT-01 in Notes: statistics follow the text being edited
+== e2e-a11y
+9 passed, 0 failed
+== tt124-density
+22 passed, 1 failed
+FAILED: density spec: words<=12400
+Exit 1; full diagnostics: docs/evidence/tt134-gate/tt124-density.log
+  ✓ density editor: words<=210
+  ✓ density clock: words<=340
+  ✓ density pdf: words<=400
+  ✓ density peek: words<=260
+  ✓ density lens: words<=320
+  ✓ density monitor: words<=520
+  ✓ density writer: words<=900
+  ✓ density imageedit: words<=320
+  ✓ density media: words<=340
+  ✓ density contacts: words<=240
+  ✓ density messages: words<=400
+  ✓ density photos: words<=240
+  ✓ density vector: words<=340
+  ✓ density capture: words<=320
+  ✓ density together: words<=340
+  ✓ density routines: words<=300
+  ✗ density spec: words<=12400
+    spec words 12574 > 12400
+  ✓ density beam: words<=320
+  ✓ density ssh: words<=320
+  ✓ density storage: words<=480
+  ✓ TT124 register: all twenty codes built, register grew past TT123's 567
+  ✓ AX-26: indent and compare glyphs render on their buttons
+  ✓ screenshots: writer goal dialog + spec family progress
+
+22 passed, 1 failed
+FAILED: density spec: words<=12400
+== tt125-density
+3 passed, 0 failed
+== tt123-density
+22 passed, 1 failed
+FAILED: density beam: words<=300
+Exit 1; full diagnostics: docs/evidence/tt134-gate/tt123-density.log
+  ✓ density whiteboard: words<=260
+  ✓ density vector: words<=320
+  ✗ density beam: words<=300
+    beam words 303 > 300
+  ✓ density privacy: words<=420
+  ✓ density ssh: words<=300
+  ✓ density clock: words<=320
+  ✓ density editor: words<=200
+  ✓ density notes: words<=120
+  ✓ density backup: words<=470
+  ✓ density terminal: words<=260
+  ✓ density calculator: words<=260
+  ✓ density messages: words<=380
+  ✓ density photos: words<=220
+  ✓ density planner: words<=260
+  ✓ density find: words<=320
+  ✓ density devices: words<=300
+  ✓ density slides: words<=380
+  ✓ density contacts: words<=220
+  ✓ density files: words<=320
+  ✓ density streams: words<=380
+  ✓ TT123 register: all twenty codes built, register grew past TT122's 547
+  ✓ AX-25: shuffle and wrap glyphs render beside their labels
+  ✓ screenshots: devices + spec
+
+22 passed, 1 failed
+FAILED: density beam: words<=300
+== tt122-density
+1 passed, 0 failed
+== tt121-density
+1 passed, 0 failed
+== tt120-density
+1 passed, 0 failed
+== tt119-density
+1 passed, 0 failed
+== tt118-density
+1 passed, 0 failed
+== tt117-density
+1 passed, 0 failed
+== tt116-density
+6 passed, 0 failed
+GATE FAILED (browser): e2e-tt122 e2e-tt117 tt124-density tt123-density

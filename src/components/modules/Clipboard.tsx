@@ -9,7 +9,8 @@ import { mergeClipTexts } from "@/lib/merge-clips";
 import { filterByKind, type ClipKind } from "@/lib/clip-kind";
 import { exportClips, parseClipImport } from "@/lib/clip-io";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Badge, Btn, Empty, Section } from "../ui";
+import { Badge, Btn, Empty } from "../ui";
+import { useClipboardWorkflows } from "./clipboard/useClipboardWorkflows";
 
 /**
  * PR-12. History of copies made *through Fusion*. A web app cannot observe the
@@ -19,20 +20,21 @@ import { Badge, Btn, Empty, Section } from "../ui";
  */
 export default function ClipboardModule(_: ModuleProps) {
   const shell = useShell();
-  const [pasted, setPasted] = useState("");
+  const [capturedLength, setCapturedLength] = useState(0);
+  const workflows = useClipboardWorkflows(shell.clips);
   const [q, setQ] = useState("");
   const [kind, setKind] = useState<ClipKind | "all">("all");
   const shown = filterByKind(filterClips(ordered(shell.clips), q), kind);
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
-      <div className="fs-row" style={{ gap: 6 }}>
-        <Btn variant="primary" disabled={!capAvailable(shell.caps, "clipboardRead")} onClick={async () => {
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <Btn variant="primary" aria-label="Capture system clipboard now" title="Explicit, permission-gated system clipboard read" disabled={!capAvailable(shell.caps, "clipboardRead")} onClick={async () => {
           try {
             const t = await clipboardRead("Clipboard");
-            setPasted(t);
+            setCapturedLength(t.length);
             await shell.copy(t, "system clipboard (explicit read)");
           } catch (e) { shell.toast(`Clipboard read refused: ${String((e as Error).message)}`, "warn"); }
-        }}>Capture system clipboard now</Btn>
+        }}><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M8 5H5v16h14V5h-3M8 3h8v4H8zM12 10v7m-3-3 3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg> Capture</Btn>
         <Badge>{shell.clips.length} entries · memory only</Badge>
         <Btn variant="ghost" disabled={!shell.clips.some((c) => !c.pinned)} onClick={() => shell.editClips(clearUnpinned)}>Clear<span className="sr-only"> unpinned entries</span></Btn>
         <Btn variant="ghost" disabled={shown.filter((c) => !c.sensitive).length < 2} title="Fold the clips on screen into one new clip" onClick={() => void shell.copy(mergeClipTexts(shown.filter((c) => !c.sensitive).map((c) => c.text)), "clipboard history (merged)")} data-testid="clip-merge">Merge shown</Btn>
@@ -52,28 +54,30 @@ export default function ClipboardModule(_: ModuleProps) {
             e.target.value = "";
           }} />
         </label>
+        {workflows.toolbar}
       </div>
       {shell.clips.length ? <div className="fs-row" style={{ gap: 4 }} role="group" aria-label="Filter by kind" data-testid="clip-kind-filter">
         {(["all", "text", "link", "email", "code"] as const).map((k) => <Btn key={k} variant={kind === k ? "primary" : "ghost"} aria-pressed={kind === k} onClick={() => setKind(k)}>{k}</Btn>)}
       </div> : null}
       {shell.clips.length ? <input className="fs-input" type="search" aria-label="Search clipboard history" placeholder="Search history" value={q} onChange={(e) => setQ(e.target.value)} /> : null}
-      {pasted ? <div className="fs-dim" style={{ fontSize: fz(11) }}>Captured {pasted.length} characters with your explicit permission.</div> : null}
+      {capturedLength ? <div className="fs-dim" style={{ fontSize: fz(11) }}>Captured {capturedLength} characters with your explicit permission.</div> : null}
       {shell.clips.length === 0 ? <Empty title="No copies yet" hint="Copy a path in Files, a result in Calculator, or capture the system clipboard above." glyph="clipin" /> : null}
       {shell.clips.length && !shown.length ? <div className="fs-dim" data-testid="clip-none">No entries match “{q}”.</div> : null}
       <div role="list" aria-label="Clipboard history" data-testid="clip-list" style={{ display: "grid", gap: 2 }}>
         {shown.map((c, i) => (
-          <div key={c.at} role="listitem" className="fs-list-item" data-pinned={c.pinned ? "1" : undefined}>
-            <span className="fs-mono" style={{ flex: 1, fontSize: fz(11.5), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.text}</span>
+          <div key={c.at} role="listitem" className="fs-list-item" data-pinned={c.pinned ? "1" : undefined} style={{ flexWrap: "wrap" }}>
+            <span className="fs-mono" style={{ flex: "1 1 180px", minWidth: 0, fontSize: fz(11.5), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.text}</span>
             {c.sensitive ? <Badge tone="warn">sensitive · masked</Badge> : null}
             <Badge>{c.from}</Badge>
             <span className="fs-dim" style={{ fontSize: fz(10.5) }}>{new Date(c.at).toLocaleTimeString()}</span>
+            {workflows.row(c)}
             <Btn variant="ghost" disabled={c.sensitive} onClick={() => void shell.copy(c.text, "clipboard history")}>Copy again<span className="sr-only"> entry {i + 1}</span></Btn>
             <Btn variant="ghost" disabled={c.sensitive} aria-pressed={!!c.pinned} onClick={() => shell.editClips((l) => togglePin(l, c.at))}>{c.pinned ? "Unpin" : "Pin"}<span className="sr-only"> entry {i + 1}</span></Btn>
             <Btn variant="ghost" onClick={() => shell.editClips((l) => removeClip(l, c.at))}>Remove<span className="sr-only"> entry {i + 1}</span></Btn>
           </div>
         ))}
       </div>
-      <Section title="Scope">
+      <details><summary>Clipboard scope</summary>
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
           History covers copies made inside Fusion plus explicit captures. Copies made in other apps are invisible
           until you press “Capture”: browsers only allow clipboard reads with focus and a user gesture, and there is no
@@ -82,7 +86,8 @@ export default function ClipboardModule(_: ModuleProps) {
           ones are never dropped. Sensitive copies (Vault) are stored masked, and the system clipboard is cleared after
           30 seconds if it still holds the secret.
         </div>
-      </Section>
+      </details>
+      {workflows.dialog}
     </div>
   );
 }

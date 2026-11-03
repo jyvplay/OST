@@ -1,0 +1,146 @@
+Collecting pgserver==0.1.4
+  Downloading pgserver-0.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (11.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 6.2 MB/s eta 0:00:00
+Collecting pillow
+  Downloading pillow-13.0.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 24.7 MB/s eta 0:00:00
+Collecting numpy
+  Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 89.0 MB/s eta 0:00:00
+Collecting shapely
+  Downloading shapely-2.2.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (2.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 87.6 MB/s eta 0:00:00
+Collecting cryptography
+  Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 47.5 MB/s eta 0:00:00
+Collecting argon2-cffi
+  Downloading argon2_cffi-25.1.0-py3-none-any.whl (14 kB)
+Collecting python-docx
+  Downloading python_docx-1.2.0-py3-none-any.whl (252 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 253.0/253.0 kB 93.6 MB/s eta 0:00:00
+Collecting python-pptx
+  Downloading python_pptx-1.0.2-py3-none-any.whl (472 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.8/472.8 kB 137.8 MB/s eta 0:00:00
+Collecting pypdf
+  Downloading pypdf-6.21.4-py3-none-any.whl (410 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.4/410.4 kB 125.2 MB/s eta 0:00:00
+Collecting lxml
+  Downloading lxml-6.1.3-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 115.7 MB/s eta 0:00:00
+Collecting pikepdf
+  Downloading pikepdf-10.17.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (2.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB 135.0 MB/s eta 0:00:00
+Collecting openpyxl
+  Downloading openpyxl-3.1.5-py2.py3-none-any.whl (250 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250.9/250.9 kB 104.9 MB/s eta 0:00:00
+Collecting formulas
+  Downloading formulas-1.3.4-py2.py3-none-any.whl (126 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 126.5/126.5 kB 69.8 MB/s eta 0:00:00
+Collecting psd-tools
+  Downloading psd_tools-1.26.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (942 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 942.1/942.1 kB 93.9 MB/s eta 0:00:00
+Collecting svgelements
+  Downloading svgelements-1.9.6-py2.py3-none-any.whl (137 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.9/137.9 kB 62.7 MB/s eta 0:00:00
+Collecting msoffcrypto-tool
+  Downloading msoffcrypto_tool-6.0.0-py3-none-any.whl (48 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.8/48.8 kB 23.3 MB/s eta 0:00:00
+Collecting olefile
+  Downloading olefile-0.47-py2.py3-none-any.whl (114 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.6/114.6 kB 65.8 MB/s eta 0:00:00
+Collecting vobject
+  Downloading vobject-0.9.9-py2.py3-none-any.whl (47 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.5/47.5 kB 26.9 MB/s eta 0:00:00
+Collecting pypdfium2
+  Downloading pypdfium2-5.14.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 57.0 MB/s eta 0:00:00
+Collecting pymupdf
+  Downloading pymupdf-2.0-cp311-abi3-manylinux_2_28_x86_64.whl (68.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.9/68.9 MB 9.7 MB/s eta 0:00:00
+Collecting piexif
+  Downloading piexif-1.1.3-py2.py3-none-any.whl (20 kB)
+Collecting av
+  Downloading av-18.1.0-cp311-abi3-manylinux_2_28_x86_64.whl (35.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.8/35.8 MB 19.1 MB/s eta 0:00:00
+Collecting mutagen
+  Downloading mutagen-1.48.1-py3-none-any.whl (195 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 195.7/195.7 kB 61.4 MB/s eta 0:00:00
+Collecting fasteners>=0.19
+  Downloading fasteners-0.20-py3-none-any.whl (18 kB)
+Collecting platformdirs>=4.0.0
+  Downloading platformdirs-4.14.3-py3-none-any.whl (35 kB)
+Collecting psutil>=5.9.0
+  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.6/155.6 kB 52.1 MB/s eta 0:00:00
+Collecting cffi>=2.0.0
+  Downloading cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (217 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 217.8/217.8 kB 76.6 MB/s eta 0:00:00
+Collecting argon2-cffi-bindings
+  Downloading argon2_cffi_bindings-26.1.0-cp310-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (26 kB)
+Collecting typing_extensions>=4.9.0
+  Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.6/45.6 kB 26.4 MB/s eta 0:00:00
+Collecting XlsxWriter>=0.5.7
+  Downloading xlsxwriter-3.3.1-py3-none-any.whl (180 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 180.6/180.6 kB 57.2 MB/s eta 0:00:00
+Collecting packaging
+  Downloading packaging-26.3-py3-none-any.whl (129 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 40.6 MB/s eta 0:00:00
+Collecting et-xmlfile
+  Downloading et_xmlfile-2.0.0-py3-none-any.whl (18 kB)
+Collecting click
+  Downloading click-8.5.0-py3-none-any.whl (125 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.3/125.3 kB 44.1 MB/s eta 0:00:00
+Collecting regex
+  Downloading regex-2026.9.29-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 805.0/805.0 kB 110.3 MB/s eta 0:00:00
+Collecting schedula>=1.4.1
+  Downloading schedula-1.6.15-py2.py3-none-any.whl (6.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.4/6.4 MB 45.0 MB/s eta 0:00:00
+Collecting python-dateutil
+  Downloading python_dateutil-4.0.0-py3-none-any.whl (92 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 92.9/92.9 kB 37.8 MB/s eta 0:00:00
+Collecting numpy-financial
+  Downloading numpy_financial-1.0.0-py3-none-any.whl (14 kB)
+Collecting scipy
+  Downloading scipy-1.17.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 19.5 MB/s eta 0:00:00
+Collecting tqdm
+  Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.2/80.2 kB 5.9 MB/s eta 0:00:00
+Collecting attrs>=23.0.0
+  Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.5/67.5 kB 36.6 MB/s eta 0:00:00
+Collecting pytz
+  Downloading pytz-2026.6-py2.py3-none-any.whl (506 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 506.3/506.3 kB 47.0 MB/s eta 0:00:00
+Collecting six
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting networkx
+  Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 106.4 MB/s eta 0:00:00
+Collecting onnxruntime
+  Downloading onnxruntime-1.31.1-cp311-cp311-manylinux_2_28_x86_64.whl (23.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.8/23.8 MB 31.9 MB/s eta 0:00:00
+Collecting pyyaml
+  Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 139.3 MB/s eta 0:00:00
+Collecting pymupdf-layout==2.0
+  Downloading pymupdf_layout-2.0-py3-none-any.whl (927 bytes)
+Collecting tabulate
+  Downloading tabulate-0.10.0-py3-none-any.whl (39 kB)
+Collecting pymupdf4llm==2.0
+  Downloading pymupdf4llm-2.0-py3-none-any.whl (904 bytes)
+Collecting pycparser
+  Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.6/62.6 kB 35.7 MB/s eta 0:00:00
+Collecting tzdata
+  Downloading tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 348.2/348.2 kB 127.5 MB/s eta 0:00:00
+Collecting flatbuffers
+  Downloading flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+Collecting protobuf>=4.25.8
+  Downloading protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl (343 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 343.2/343.2 kB 119.1 MB/s eta 0:00:00
+Installing collected packages: svgelements, schedula, pytz, pymupdf4llm, pymupdf-layout, flatbuffers, XlsxWriter, tzdata, typing_extensions, tqdm, tabulate, six, regex, pyyaml, pypdfium2, pypdf, pycparser, psutil, protobuf, platformdirs, pillow, piexif, packaging, olefile, numpy, networkx, mutagen, lxml, fasteners, et-xmlfile, click, av, attrs, shapely, scipy, python-pptx, python-docx, python-dateutil, psd-tools, pikepdf, pgserver, openpyxl, onnxruntime, numpy-financial, cffi, vobject, pymupdf, formulas, cryptography, argon2-cffi-bindings, msoffcrypto-tool, argon2-cffi
+Successfully installed XlsxWriter-3.3.1 argon2-cffi-25.1.0 argon2-cffi-bindings-26.1.0 attrs-26.1.0 av-18.1.0 cffi-2.1.1 click-8.5.0 cryptography-50.0.2 et-xmlfile-2.0.0 fasteners-0.20 flatbuffers-25.12.19 formulas-1.3.4 lxml-6.1.3 msoffcrypto-tool-6.0.0 mutagen-1.48.1 networkx-3.6.1 numpy-2.4.6 numpy-financial-1.0.0 olefile-0.47 onnxruntime-1.31.1 openpyxl-3.1.5 packaging-26.3 pgserver-0.1.4 piexif-1.1.3 pikepdf-10.17.0 pillow-13.0.0 platformdirs-4.14.3 protobuf-7.36.2 psd-tools-1.26.0 psutil-7.2.2 pycparser-3.12 pymupdf-2.0 pymupdf-layout-2.0 pymupdf4llm-2.0 pypdf-6.21.4 pypdfium2-5.14.0 python-dateutil-4.0.0 python-docx-1.2.0 python-pptx-1.0.2 pytz-2026.6 pyyaml-6.0.3 regex-2026.9.29 schedula-1.6.15 scipy-1.17.1 shapely-2.2.0 six-1.17.0 svgelements-1.9.6 tabulate-0.10.0 tqdm-4.70.1 typing_extensions-4.16.0 tzdata-2026.6 vobject-0.9.9

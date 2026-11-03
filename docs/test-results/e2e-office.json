@@ -1,6 +1,6 @@
 {
   "suite": "e2e-office",
-  "at": "2026-10-30T17:52:41.332Z",
+  "at": "2026-11-02T16:26:12.524Z",
   "results": [
     {
       "suite": "e2e-office",
@@ -11,7 +11,7 @@
         "FF-19": "partial"
       },
       "pass": true,
-      "ms": 3931
+      "ms": 2701
     },
     {
       "suite": "e2e-office",
@@ -20,7 +20,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 4051
+      "ms": 3192
     },
     {
       "suite": "e2e-office",
@@ -29,7 +29,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 2854
+      "ms": 3238
     },
     {
       "suite": "e2e-office",
@@ -38,7 +38,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 4393
+      "ms": 3932
     },
     {
       "suite": "e2e-office",
@@ -47,7 +47,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3525
+      "ms": 3154
     },
     {
       "suite": "e2e-office",
@@ -56,7 +56,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3958
+      "ms": 3085
     },
     {
       "suite": "e2e-office",
@@ -64,9 +64,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByLabel('Find', { exact: true })\n",
-      "ms": 33192
+      "pass": true,
+      "ms": 3654
     },
     {
       "suite": "e2e-office",
@@ -75,7 +74,7 @@
         "FF-29": "full"
       },
       "pass": true,
-      "ms": 2423
+      "ms": 2608
     },
     {
       "suite": "e2e-office",
@@ -84,7 +83,7 @@
         "FF-28": "full"
       },
       "pass": true,
-      "ms": 3148
+      "ms": 3017
     },
     {
       "suite": "e2e-office",
@@ -95,7 +94,7 @@
         "FF-21": "partial"
       },
       "pass": true,
-      "ms": 6740
+      "ms": 6058
     },
     {
       "suite": "e2e-office",

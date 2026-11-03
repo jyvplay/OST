@@ -1,0 +1,6 @@
+  ✓ no enabled alarms means no repeating scheduler timer
+  ✓ delivery window is inclusive at due and excludes a full minute late
+  ✓ weekday schedules do not become daily; empty days mean daily
+  ✓ 2,000 seeded plans match direct UTC day enumeration
+
+4 passed, 0 failed

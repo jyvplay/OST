@@ -1,0 +1,5 @@
+  ✓ an exception after entering a claim callback is propagated, never retried outside the lock
+  ✓ a lock API failure before callback entry uses the fallback exactly once
+  ✓ a scheduling predicate exception is propagated without a second predicate evaluation
+
+3 passed, 0 failed

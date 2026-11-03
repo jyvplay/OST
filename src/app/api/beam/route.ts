@@ -49,15 +49,15 @@ export async function POST(req: NextRequest) {
     if (typeof b.name !== "string" || b.name.trim() === "") {
       return NextResponse.json({ ok: false, error: "a cast session needs the target name" }, { status: 400 });
     }
-    const known = await db.select({ id: castTargets.id }).from(castTargets).where(eq(castTargets.name, b.name)).limit(1);
-    if (!known[0]) {
-      return NextResponse.json({ ok: false, error: "unknown cast target: register it with 'seen' and confirm it first" }, { status: 400 });
+    const known = await db.select({ id: castTargets.id, trusted: castTargets.trusted }).from(castTargets).where(eq(castTargets.name, b.name)).limit(1);
+    if (!known[0]?.trusted) {
+      return NextResponse.json({ ok: false, error: "untrusted cast target: register it with 'seen' and confirm it first" }, { status: 400 });
     }
     const [row] = await db.insert(beamSessions).values({
       targetName: b.name, transport: b.transport ?? "unknown", source: b.source ?? "unknown",
       state: "active", stats: (b.stats ?? {}) as object,
-    }).returning({ id: beamSessions.id });
-    return NextResponse.json({ ok: true, sessionId: row.id });
+    }).returning({ id: beamSessions.id, startedAt: beamSessions.startedAt });
+    return NextResponse.json({ ok: true, sessionId: row.id, startedAt: row.startedAt });
   }
   if (b.action === "stop" && b.sessionId) {
     await db.update(beamSessions).set({

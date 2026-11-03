@@ -1,0 +1,7 @@
+  ✓ CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator
+  ✓ NT-01 in Notes: statistics follow the text being edited
+  ✓ CB-01/RT-01/FN-01/BR-01 controls exist with their full names
+  ✓ SP-01 in Spec: the register health panel renders a verdict
+  ✓ RC-40 in Recall: manifest controls answer to their names
+
+5 passed, 0 failed

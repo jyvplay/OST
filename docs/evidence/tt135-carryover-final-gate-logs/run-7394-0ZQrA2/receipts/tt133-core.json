@@ -1,0 +1,219 @@
+{
+  "suite": "tt133-core",
+  "at": "2026-11-02T16:21:04.719Z",
+  "results": [
+    {
+      "suite": "tt133-core",
+      "name": "Notes validator rejects wrong fields, blank/control titles, malformed Unicode, oversized bodies and nonintegral IDs",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Revision comparison rejects stale saves including equal-content ABA histories",
+      "covers": {
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Per-window recovery keys are injective; strict codecs preserve content and reject stale/future/malformed records",
+      "covers": {
+        "NT-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Amnesic draft path uses actual page-RAM storage operations and the same decoder, never an injected persistent store",
+      "covers": {
+        "NT-09": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Note filter is NFKC/case-normalized, ANDs terms across title/body/tags, and preserves original order/data",
+      "covers": {
+        "NT-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Markdown import: fatal UTF-8, byte cap and NUL rejection; exact CRLF body and first heading title",
+      "covers": {
+        "NT-13": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget",
+      "covers": {
+        "NT-12": "partial",
+        "NT-15": "partial"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Inline view uses text-only tokens; executable/relative/data URLs are not links and unmatched delimiters are linear-bounded",
+      "covers": {
+        "NT-12": "partial"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Checklist edits change exactly one marker, preserve CRLF and unrelated text, and refuse stale line numbers",
+      "covers": {
+        "NT-17": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Excerpt extraction is an exact UTF-16 selection, never modifies its source, and refuses empty/out-of-range selections",
+      "covers": {
+        "NT-16": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms",
+      "covers": {
+        "SR-13": "partial",
+        "SR-16": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks",
+      "covers": {
+        "SR-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit",
+      "covers": {
+        "SR-15": "partial",
+        "SR-16": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Missing-path validator does not normalize traversal, trailing separators or private-name aliases",
+      "covers": {
+        "SR-18": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate",
+      "covers": {
+        "SV-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Portable profiles round-trip canonically; malformed, future, oversized and duplicate records are refused atomically",
+      "covers": {
+        "SV-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt133-core",
+      "name": "History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+      "covers": {
+        "SV-02": "partial",
+        "SR-19": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary",
+      "covers": {
+        "SR-17": "partial",
+        "NT-10": "partial"
+      },
+      "pass": true,
+      "ms": 13
+    },
+    {
+      "suite": "tt133-core",
+      "name": "RAM recovery capacity is a real 64-entry bound: refusal cannot evict any live draft and removal releases exactly one slot",
+      "covers": {
+        "NT-09": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt133-core",
+      "name": "RAM byte quota counts actual JSON-escaped UTF-16, not source characters: overflow retains all previously stored large drafts",
+      "covers": {
+        "NT-09": "partial"
+      },
+      "pass": true,
+      "ms": 193
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Wiki-link graph refuses duplicate saved titles in both directions; backlinks reverse only actual unambiguous navigation edges",
+      "covers": {
+        "NT-14": "partial",
+        "NT-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Backlinks use saved destination identity, not unsaved title impersonation",
+      "covers": {
+        "NT-14": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt133-core",
+      "name": "Generated note titles never split a valid surrogate pair at the import/duplicate cap",
+      "covers": {
+        "NT-13": "partial"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

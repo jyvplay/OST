@@ -1,0 +1,6 @@
+  ✓ AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work
+  ✓ AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached
+  ✓ AP-05: observers receive bounded snapshots and unsubscribe prevents later notifications
+  ✓ AP-05: status text is bounded and records do not persist or expose payload fields
+
+4 passed, 0 failed

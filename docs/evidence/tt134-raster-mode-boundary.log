@@ -1,0 +1,8 @@
+Actual Pillow 13.0.0
+PASS unsupported L refused, no alpha/luminance reinterpretation
+PASS unsupported RGBA refused, no alpha/luminance reinterpretation
+PASS unsupported P refused, no alpha/luminance reinterpretation
+PASS RGB threshold (230, 230, 230) None
+PASS RGB threshold (229, 255, 255) [0, 0, 0, 0]
+PASS RGB threshold (255, 229, 255) [0, 0, 0, 0]
+PASS RGB threshold (255, 255, 229) [0, 0, 0, 0]

@@ -1,0 +1,27 @@
+Actual browser: 143.0.7499.0
+  actual native sessionStorage quota: 72 real writes then 5 quota refusals
+  ✗ Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work
+    locator.click: Error: strict mode violation: locator('[data-win-id="w1"]').getByTestId('note-editor').locator('details').first().locator('summary') resolved to 2 elements:
+    1) <summary>More</summary> aka getByText('More')
+    2) <summary>Text tools</summary> aka getByText('Text tools')
+
+Call log:
+  - waiting for locator('[data-win-id="w1"]').getByTestId('note-editor').locator('details').first().locator('summary')
+
+  actual native sessionStorage quota: 72 real writes then 5 quota refusals
+  ✗ Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft
+    locator.click: Error: strict mode violation: locator('[data-win-id="w1"]').getByTestId('note-editor').locator('details').first().locator('summary') resolved to 2 elements:
+    1) <summary>More</summary> aka getByText('More')
+    2) <summary>Text tools</summary> aka getByText('Text tools')
+
+Call log:
+  - waiting for locator('[data-win-id="w1"]').getByTestId('note-editor').locator('details').first().locator('summary')
+
+  ✓ Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour
+  ✓ Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent
+  ✓ Native profile import warns about plaintext Private queries before replacing; cancel preserves the list, and malformed Unicode/unknown fields are refused atomically
+  ✓ Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext
+  ✓ No uncaught browser errors during native quota/privacy/profile boundary attacks
+
+5 passed, 2 failed
+FAILED: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work | Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft

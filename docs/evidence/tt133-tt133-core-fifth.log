@@ -1,0 +1,24 @@
+  ✓ Notes validator rejects wrong fields, blank/control titles, malformed Unicode, oversized bodies and nonintegral IDs
+  ✓ Revision comparison rejects stale saves including equal-content ABA histories
+  ✓ Per-window recovery keys are injective; strict codecs preserve content and reject stale/future/malformed records
+  ✓ Amnesic draft path uses actual page-RAM storage operations and the same decoder, never an injected persistent store
+  ✓ Note filter is NFKC/case-normalized, ANDs terms across title/body/tags, and preserves original order/data
+  ✓ Markdown import: fatal UTF-8, byte cap and NUL rejection; exact CRLF body and first heading title
+  ✓ Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget
+  native unmatched-delimiter scan: 7.577 ms
+  ✓ Inline view uses text-only tokens; executable/relative/data URLs are not links and unmatched delimiters are linear-bounded
+  ✓ Checklist edits change exactly one marker, preserve CRLF and unrelated text, and refuse stale line numbers
+  ✓ Excerpt extraction is an exact UTF-16 selection, never modifies its source, and refuses empty/out-of-range selections
+  ✓ Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms
+  ✓ Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks
+  ✓ Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit
+  ✓ Missing-path validator does not normalize traversal, trailing separators or private-name aliases
+  ✓ Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate
+  ✓ Portable profiles round-trip canonically; malformed, future, oversized and duplicate records are refused atomically
+  ✓ History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency
+  ✓ Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary
+  ✓ RAM recovery capacity is a real 64-entry bound: refusal cannot evict any live draft and removal releases exactly one slot
+  ✓ RAM byte quota counts actual JSON-escaped UTF-16, not source characters: overflow retains all previously stored large drafts
+  ✓ Wiki-link graph refuses duplicate saved titles in both directions; backlinks reverse only actual unambiguous navigation edges
+
+21 passed, 0 failed

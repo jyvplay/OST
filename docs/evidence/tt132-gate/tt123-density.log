@@ -1,0 +1,25 @@
+  ✓ density whiteboard: words<=260
+  ✓ density vector: words<=320
+  ✓ density beam: words<=300
+  ✓ density privacy: words<=420
+  ✓ density ssh: words<=300
+  ✓ density clock: words<=320
+  ✓ density editor: words<=200
+  ✓ density notes: words<=120
+  ✓ density backup: words<=470
+  ✓ density terminal: words<=260
+  ✓ density calculator: words<=260
+  ✓ density messages: words<=380
+  ✓ density photos: words<=220
+  ✓ density planner: words<=260
+  ✓ density find: words<=320
+  ✓ density devices: words<=300
+  ✓ density slides: words<=380
+  ✓ density contacts: words<=220
+  ✓ density files: words<=320
+  ✓ density streams: words<=380
+  ✓ TT123 register: all twenty codes built, register grew past TT122's 547
+  ✓ AX-25: shuffle and wrap glyphs render beside their labels
+  ✓ screenshots: devices + spec
+
+23 passed, 0 failed

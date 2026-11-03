@@ -21,6 +21,17 @@ cd "$(dirname "$0")/.." || exit 1
 JOBS="${JOBS:-2}"
 case "$JOBS" in ''|*[!0-9]*) echo "JOBS must be a positive integer" >&2; exit 2;; esac
 [ "$JOBS" -ge 1 ] || { echo "JOBS must be >= 1" >&2; exit 2; }
+# Optional durable full output. Summaries alone hid passing-case diagnostics;
+# the gate gives pure runs a distinct directory so repeated lane names cannot
+# overwrite these receipts. The provided path is a root, not an invocation ID;
+# nested invocations always get a new directory. Assertions and exit rules stay equal.
+if [ -n "${FAST_LOG_DIR:-}" ]; then
+  FAST_LOG_ROOT="$FAST_LOG_DIR"
+  mkdir -p -- "$FAST_LOG_ROOT" || exit 2
+  FAST_LOG_DIR="$(mktemp -d "$FAST_LOG_ROOT/run-$$-XXXXXX")" || exit 2
+  export FAST_LOG_DIR
+  echo "Full pure suite logs: $FAST_LOG_DIR"
+fi
 
 DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
 SUITES="${*:-$DEFAULT}"
@@ -44,6 +55,9 @@ run_one() {
   s="$1"
   out=$(timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1)
   status=$?
+  if [ -n "${FAST_LOG_DIR:-}" ]; then
+    printf '%s\n' "$out" >"$FAST_LOG_DIR/$s.log" || { echo "FAILED $s (full log write)"; return; }
+  fi
   if [ "$status" -ne 0 ] || echo "$out" | grep -qE "[1-9][0-9]* failed"; then echo "FAILED $s"; fi
   if ! echo "$out" | grep -qE "[0-9]+ passed, [0-9]+ failed"; then echo "CRASHED $s (no summary line)"; echo "$out" | tail -6; fi
   echo "=== $s"

@@ -1,0 +1,58 @@
+{
+  "scope": "Independent real bundle check corrected to the documented front-matter format, with a newly persisted literal-# Unicode title and exact all-row title/body/readback; no production export format was changed. Prior rejected oracle remains in the first repair batch evidence.",
+  "wallSeconds": 24.813471290000052,
+  "cpuSeconds": 21.468185000000002,
+  "commands": [
+    {
+      "name": "script-semantic-typecheck",
+      "exitCode": 0,
+      "wallSeconds": 4.999455923999449,
+      "log": "docs/evidence/tt134-script-typecheck.log"
+    },
+    {
+      "name": "e2e-tt122",
+      "exitCode": 0,
+      "wallSeconds": 19.81367788999978,
+      "log": "docs/evidence/tt134-repaired-e2e-tt122-v2.log"
+    }
+  ],
+  "result": {
+    "suite": "e2e-tt122",
+    "at": "2026-11-02T01:33:15.408Z",
+    "results": [
+      {
+        "suite": "e2e-tt122",
+        "name": "PK-01/ED-06: peek facts agree with wc; editor wrap changes the textarea style",
+        "covers": {
+          "PK-01": "full",
+          "ED-06": "full"
+        },
+        "pass": true,
+        "ms": 4044
+      },
+      {
+        "suite": "e2e-tt122",
+        "name": "NT-06/MD-11/CK-06: bundle export lands in Files; loop toggles the element; laps copy appears",
+        "covers": {
+          "NT-06": "full",
+          "MD-11": "full",
+          "CK-06": "full"
+        },
+        "pass": true,
+        "ms": 8833
+      },
+      {
+        "suite": "e2e-tt122",
+        "name": "DV-01/CP-01/BK-10/SP-02 controls render: battery card, capture delay, backup inventory, family progress",
+        "covers": {
+          "DV-01": "full",
+          "CP-01": "full",
+          "BK-10": "full",
+          "SP-02": "full"
+        },
+        "pass": true,
+        "ms": 6018
+      }
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+import { literalPage, resourceFiltersUsed, resourceOptions } from "../search-resources";
 /**
  * Privacy transport layer (TT18) — the single choke point between every module and the host.
  *
@@ -25,6 +26,7 @@
  *    - desktop state: plaintext /Private paths inside the persisted state are replaced by their
  *      encrypted form (or "/Private/[locked]" when no key is loaded) before leaving the tab.
  */
+import { diagnosticFilePath, hasSearchExtension, searchOptions } from "../search-query";
 import type {MetaNode} from '../search/metadata';
 import {
   CLEAR_PREFIX, ENC_MIME, KEYSLOT_FILE, KEYSLOT_PATH, PRIVATE_ROOT, decryptContent, decryptName, decryptPath, encryptContent,
@@ -37,7 +39,7 @@ export type RawFetch = (url: string, init?: RequestInit) => Promise<Response>;
 type Json = Record<string, unknown>;
 
 /** Non-GET endpoints that persist nothing (grep-verified: no db.insert/update/delete/writeFile). */
-export const COMPUTE = new Set(["/api/forge", "/api/office", "/api/search", "/api/sheet"]);
+export const COMPUTE = new Set(["/api/forge", "/api/office", "/api/sheet"]);
 /** Endpoints that accept {path} OR {base64} and parse server-side. */
 const INLINE_READERS = new Set(["/api/forge", "/api/office", "/api/sheet"]);
 
@@ -187,11 +189,32 @@ export class PrivacyLayer {
    * place; the host is asked only when the scope is NOT inside /Private (the host never sees /Private queries).
    */
   private async search(u: URL, url: string, init: RequestInit): Promise<Response | null> {
-    const q = (u.searchParams.get("q") ?? "").trim();
+    if (u.searchParams.get("mode") === "diagnose") {
+      let path: string;
+      try { path = diagnosticFilePath(u.searchParams.get("path") ?? ""); } catch (error) { return fail(400, error instanceof Error ? error.message : String(error)); }
+      if (isPrivatePath(path)) return json({ ok: true, path, status: "private", indexed: false, hostQueried: false, notice: "Private names are not checked on the host. Search /Private inside the unlocked tab." });
+      if (this.amnesic) return json({ ok: true, path, status: "amnesic", indexed: false, hostQueried: false, notice: "Host index diagnostics are disabled in an amnesic session. Search the RAM overlay instead." });
+      return null;
+    }
+    let options: ReturnType<typeof searchOptions>;
+    try { options = searchOptions(u.searchParams); } catch (error) { return fail(400, error instanceof Error ? error.message : String(error)); }
+    const q = options.q, extension = options.extension;
     const rawScope = (u.searchParams.get("scope") ?? "").trim();
     const scope = rawScope ? norm(rawScope) : "";
     const source = u.searchParams.get("source") ?? "";
     const privScope = !!scope && isPrivatePath(scope);
+    // Resource predicates have no canonical size/time fields in the in-tab
+    // text index. Never silently merge unfiltered Private/RAM hits, and never
+    // forward a Private query merely to obtain these new public capabilities.
+    let publicOnly = false;
+    try {
+      const page = literalPage(u.searchParams);
+      publicOnly = resourceFiltersUsed(resourceOptions(u.searchParams)) || page.publicPages || page.offset > 0;
+    } catch (error) { return fail(400, error instanceof Error ? error.message : String(error)); }
+    if (publicOnly) {
+      if (privScope || this.amnesic) return json({ ok: false, error: "Date, size, folder-exclusion and public-page controls are unavailable for Private/RAM search. Clear them to search in this tab; no query was sent to the host.", hostQueried: false }, 422);
+      return this.raw(url, init);
+    }
     if(u.searchParams.get('mode')==='metadata'&&(privScope||this.amnesic)){
       try{
         const started=performance.now();
@@ -208,7 +231,7 @@ export class PrivacyLayer {
           }
           enumerationTruncated=enumerationTruncated||pending.length>0||candidates.length>=5000;
         }else candidates=[...this.ram.nodes.values()].filter(n=>n.kind==='file'&&(!scope||scope==='/'||n.path===scope||n.path.startsWith(scope+'/'))).map(n=>({...n}));
-        candidates=candidates.filter(n=>String(n.path)>options.cursor).sort((a,b)=>String(a.path)<String(b.path)?-1:String(a.path)>String(b.path)?1:0);
+        candidates=candidates.filter(n=>hasSearchExtension(String(n.path),extension)&&String(n.path)>options.cursor).sort((a,b)=>String(a.path)<String(b.path)?-1:String(a.path)>String(b.path)?1:0);
         const selected=candidates.slice(0,META_LIMITS.files),nodes:MetaNode[]=[];
         for(const n of selected){
           const path=String(n.path),name=String(n.name??baseOf(path));
@@ -223,13 +246,17 @@ export class PrivacyLayer {
         return json({ok:true,...page,tookMs:Math.round(performance.now()-started),mode:'metadata',hostQueried:false,storage:privScope?'private in-tab':'amnesic RAM only',hasMore:candidates.length>META_LIMITS.files,nextCursor:candidates.length>META_LIMITS.files?nodes.at(-1)?.path:null,enumerationTruncated,coverageNotice:'Bounded live page; no host query text. Private traversal capped at 256 folders/5000 files/32 levels. RAM scan does not search the host overlay.'});
       }catch(e){return json({ok:false,error:e instanceof Error?e.message:String(e),hostQueried:false},e instanceof HttpError?e.status:400);}
     }
-    if (!q || (!this.active && !privScope)) return null;
+    if (!q) {
+      if (privScope) return json({ ok: true, hits: [], coverage: [], tookMs: 0, locked: !this.keys, hostQueried: false, private: { indexed: this.pidx?.docs.size ?? 0, local: true } });
+      return null;
+    }
+    if (!this.active && !privScope) return null;
     const t0 = performance.now();
     const wantFiles = !source || source === "file";
     let priv: PHit[] = []; let pinfo: Json | null = null;
     if (wantFiles && this.keys && (!scope || privScope || PRIVATE_ROOT.startsWith(`${scope}/`) || scope === "/")) {
       const idx = await this.privateIndex();
-      priv = idx.search(q, privScope ? scope : "");
+      priv = idx.search(q, privScope ? scope : "", 40, "private-local", options);
       pinfo = { indexed: idx.docs.size, truncated: idx.truncated, buildMs: idx.buildMs, local: true };
     } else if (privScope && !this.keys) {
       return json({ ok: true, hits: [], coverage: [], tookMs: 0, locked: true, hostQueried: false, private: { indexed: 0, local: true } });
@@ -240,7 +267,7 @@ export class PrivacyLayer {
         const body = docBody(n.content, n.encoding, n.mime);
         return { path: n.path, name: n.name, body, lower: `${n.name}\n${body}`.toLowerCase() };
       });
-      ram = searchDocs(docs, q, scope === "/" ? "" : scope, 40, "amnesic-ram");
+      ram = searchDocs(docs, q, scope === "/" ? "" : scope, 40, "amnesic-ram", options);
     }
     let host: Json = { ok: true, hits: [], coverage: [] };
     if (!privScope) {

@@ -1,0 +1,34 @@
+{
+  "kind": "native-browser-primitive-experiment-not-app-acceptance",
+  "browser": "143.0.7499.0",
+  "cases": [
+    {
+      "readonly": false,
+      "stop": false,
+      "start": 4,
+      "end": 6,
+      "selection": "🧭"
+    },
+    {
+      "readonly": false,
+      "stop": true,
+      "start": 4,
+      "end": 6,
+      "selection": "🧭"
+    },
+    {
+      "readonly": true,
+      "stop": false,
+      "start": 22,
+      "end": 22,
+      "selection": ""
+    },
+    {
+      "readonly": true,
+      "stop": true,
+      "start": 22,
+      "end": 22,
+      "selection": ""
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+Actual browser: 143.0.7499.0
+  ✓ Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions
+  ✓ Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits
+  ✓ Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair
+  ✓ Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds
+  ✗ Native Writer: a real blocked recovery write exceeds the four-second close timeout; Cancel/edit/unlock cannot late-close the window or lose the newer recovery bytes
+    expect(locator).toContainText(expected) failed
+
+Locator: locator('[data-win-id="w1"]').getByTestId('writer-words')
+Expected substring: "1 words"
+Received string:    "3 words"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toContainText" locator('[data-win-id="w1"]').getByTestId('writer-words') with timeout 5000ms
+  - waiting for locator('[data-win-id="w1"]').getByTestId('writer-words')
+    14 × locator resolved to <span data-testid="writer-words">3 words</span>
+       - unexpected value "3 words"
+
+  ✓ No uncaught browser exceptions during native note/Writer ownership checks
+
+5 passed, 1 failed
+FAILED: Native Writer: a real blocked recovery write exceeds the four-second close timeout; Cancel/edit/unlock cannot late-close the window or lose the newer recovery bytes

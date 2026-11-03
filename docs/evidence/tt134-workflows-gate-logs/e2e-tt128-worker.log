@@ -1,0 +1,6 @@
+  ✓ successful worker install and activation; API and query URLs never enter the cache
+  ✓ failed upgrade preserves the previous activated worker and cache
+  ✓ successful upgrade waits for consent, then activates and reloads
+  ✓ offline API reports 503 and non-desktop navigation shows the explicit fallback
+
+4 passed, 0 failed

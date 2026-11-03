@@ -1,9 +1,10 @@
 "use client";
 import { askText } from "@/lib/ask";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { fz } from "@/lib/uiscale";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { fz, useUiUnit } from "@/lib/uiscale";
 import { api, post } from "@/lib/api";
-import { Vt, keyToBytes, mouseReport, A, DEFAULT, RGB, type Row } from "@/lib/vt";
+import { keyToBytes, mouseReport } from "@/lib/vt";
+import { TerminalDisplay, TERM_FG as FG, TERM_BG as BG } from "@/lib/terminal-display";
 import { createSession, SshConnection, pasteBytes, sftpUpload, type SshEvent } from "@/lib/ssh-client";
 import { Btn, Badge } from "../ui";
 import { clampTermFont, stepTermFont } from "@/lib/term-font";
@@ -24,142 +25,102 @@ interface KnownHost { line: number; marker: string | null; hosts: string; type: 
 interface Prompt { kind: "hostkey" | "auth"; host?: string; port?: number; fingerprint?: string; alg?: string; knownTypes?: string[]; canSave?: boolean; path?: string; method?: string; name?: string; instruction?: string; prompts?: { prompt: string; echo: boolean }[] }
 interface Ready { server: string; negotiated: Record<string, string>; authMethod: string; fingerprint: string; hostKeyAlg: string; remote: string; route: string }
 
-// ------------------------------------------------------------------------------------------------ colours
-const BASE16 = ["#1b1e28", "#e0566c", "#4fc08d", "#e5b567", "#5aa6f0", "#c678dd", "#43c6d6", "#c8ccd4", "#5c6370", "#ff7a90", "#74e0a8", "#ffd48a", "#82c0ff", "#e19cf2", "#7fe3ee", "#ffffff"];
-const FG = "#e6edf7", BG = "#05080f";
-function palette(n: number): string {
-  if (n < 16) return BASE16[n];
-  if (n < 232) { const i = n - 16, l = [0, 95, 135, 175, 215, 255]; return `rgb(${l[Math.floor(i / 36)]},${l[Math.floor(i / 6) % 6]},${l[i % 6]})`; }
-  const g = 8 + (n - 232) * 10; return `rgb(${g},${g},${g})`;
-}
-const colour = (c: number, dflt: string) => (c === DEFAULT ? dflt : c & RGB ? `#${(c & 0xffffff).toString(16).padStart(6, "0")}` : palette(c));
-
-function runs(row: Row, cursorX: number): { text: string; style: React.CSSProperties }[] {
-  const out: { text: string; style: React.CSSProperties; key: string }[] = [];
-  for (let x = 0; x < row.cols; x++) {
-    const at = row.at[x];
-    if (at & A.WIDE_CONT) continue;
-    let fg = row.fg[x], bg = row.bg[x];
-    const bold = (at & A.BOLD) !== 0;
-    if (bold && fg >= 0 && fg < 8) fg += 8; // bold-as-bright for the 8 base colours (xterm default)
-    let f = colour(fg, FG), b = colour(bg, "transparent");
-    if (at & A.INVERSE) { const t = f; f = bg === DEFAULT ? BG : b; b = t; }
-    if (x === cursorX) { const t = f; f = b === "transparent" ? BG : b; b = t; }
-    const deco = [at & A.UNDERLINE ? "underline" : "", at & A.STRIKE ? "line-through" : "", at & A.OVERLINE ? "overline" : ""].filter(Boolean).join(" ");
-    const key = `${f}|${b}|${bold}|${at & (A.ITALIC | A.DIM | A.HIDDEN)}|${deco}|${at & A.WIDE}|${x === cursorX}`;
-    const ch = at & A.HIDDEN ? " " : row.ch[x] || " ";
-    const last = out[out.length - 1];
-    if (last && last.key === key && !(at & A.WIDE)) { last.text += ch; continue; }
-    const style: React.CSSProperties = { color: f };
-    if (b !== "transparent") style.background = b;
-    if (bold) style.fontWeight = 700;
-    if (at & A.ITALIC) style.fontStyle = "italic";
-    if (at & A.DIM) style.opacity = 0.6;
-    if (deco) style.textDecoration = deco;
-    if (at & A.WIDE) { style.display = "inline-block"; style.width = "2ch"; }
-    out.push({ text: ch, style, key });
-  }
-  return out;
-}
-
 // ------------------------------------------------------------------------------------------------ terminal view
-function TerminalView({ conn, vt, onTitle, focusKey }: { conn: SshConnection; vt: Vt; onTitle: (t: string) => void; focusKey: number }) {
-  const [, setTick] = useState(0);
-  const [scroll, setScroll] = useState(0); // rows scrolled back
-  const [bell, setBell] = useState(false);
-  const [font, setFont] = useState(13);
+function TerminalView({ conn, terminal, focusKey }: { conn: SshConnection; terminal: TerminalDisplay; focusKey: number }) {
+  const view = useSyncExternalStore(terminal.subscribe, terminal.getSnapshot, terminal.getServerSnapshot);
+  const [bell, setBell] = useState(false), [font, setFont] = useState(13);
+  const [metrics, setMetrics] = useState({ w: 8, h: 17 });
+  const uiUnit = useUiUnit();
   const box = useRef<HTMLDivElement | null>(null), ta = useRef<HTMLTextAreaElement | null>(null), probe = useRef<HTMLSpanElement | null>(null);
   const cell = useRef({ w: 8, h: 17 });
-  const composing = useRef(false);
-  const raf = useRef(0);
-  const redraw = useCallback(() => { if (!raf.current) raf.current = requestAnimationFrame(() => { raf.current = 0; setTick((t) => t + 1); }); }, []);
-
+  const composing = useRef(false), held = useRef(-1);
   useEffect(() => {
-    vt.onReply = (s) => conn.send(s);
-    vt.onBell = () => { setBell(true); setTimeout(() => setBell(false), 160); };
-    vt.onTitle = (t) => onTitle(t);
-    (vt as unknown as { redraw: () => void }).redraw = redraw;
-    return () => { cancelAnimationFrame(raf.current); raf.current = 0; };
-  }, [vt, conn, onTitle, redraw]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = terminal.subscribeBell(() => {
+      setBell(true); if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(() => setBell(false), 160);
+    });
+    return () => { unsubscribe(); if (timer !== undefined) clearTimeout(timer); };
+  }, [terminal]);
   useEffect(() => { ta.current?.focus({ preventScroll: true }); }, [focusKey]);
 
-  // size: measured monospace cell → cols × rows; the server is told via a control frame
+  // The initial ResizeObserver notification and subsequent native geometry
+  // changes publish copied cell metrics. Font/root scale changes remeasure too.
   useLayoutEffect(() => {
     const el = box.current; if (!el) return;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const fit = () => {
-      const p = probe.current; if (p) { const r = p.getBoundingClientRect(); if (r.width > 0) cell.current = { w: r.width / 10, h: r.height }; }
+      const p = probe.current;
+      if (p) {
+        const r = p.getBoundingClientRect();
+        if (r.width > 0) {
+          const measured = { w: r.width / 10, h: r.height };
+          cell.current = measured;
+          setMetrics(old => old.w === measured.w && old.h === measured.h ? old : { ...measured });
+        }
+      }
       const cols = Math.max(20, Math.floor((el.clientWidth - 16) / cell.current.w)), rows = Math.max(5, Math.floor((el.clientHeight - 12) / cell.current.h));
-      if (cols !== vt.cols || rows !== vt.rows) {
-        vt.resize(cols, rows); redraw();
+      if (terminal.resize(cols, rows)) {
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => conn.control({ t: "resize", cols, rows }), 120);
       }
     };
-    const ro = new ResizeObserver(fit); ro.observe(el); fit();
+    const ro = new ResizeObserver(fit); ro.observe(el);
     return () => { ro.disconnect(); if (timer) clearTimeout(timer); };
-  }, [vt, conn, redraw]);
+  }, [terminal, conn, font, uiUnit]);
 
-  const send = (s: string) => { setScroll(0); conn.send(s); };
+  const send = (text: string) => { terminal.scrollTo(0); conn.send(text); };
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (composing.current || e.nativeEvent.isComposing) return;
-    if (e.ctrlKey && e.shiftKey && (e.key === "C" || e.key === "V")) return; // copy / paste chords stay with the browser
-    if (e.shiftKey && (e.key === "PageUp" || e.key === "PageDown")) { e.preventDefault(); setScroll((s) => Math.max(0, Math.min(vt.scrollback.length, s + (e.key === "PageUp" ? 1 : -1) * (vt.rows - 1)))); return; }
-    const b = keyToBytes(e, vt.modes);
-    if (b !== null) { e.preventDefault(); send(b); }
+    if (e.ctrlKey && e.shiftKey && ["c", "v"].includes(e.key.toLowerCase())) return;
+    if (e.shiftKey && (e.key === "PageUp" || e.key === "PageDown")) { e.preventDefault(); terminal.scrollBy((e.key === "PageUp" ? 1 : -1) * (terminal.input().rows - 1)); return; }
+    const bytes = keyToBytes(e, terminal.input().modes);
+    if (bytes !== null) { e.preventDefault(); send(bytes); }
   };
   const onInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
     if (composing.current) return;
-    const t = e.currentTarget; if (t.value) { send(t.value.replace(/\n/g, "\r")); t.value = ""; }
+    const target = e.currentTarget; if (target.value) { send(target.value.replace(/\n/g, "\r")); target.value = ""; }
   };
   const onPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    e.preventDefault(); const text = e.clipboardData.getData("text/plain"); if (text) send(pasteBytes(text, vt.modes.bracketedPaste));
+    e.preventDefault(); const text = e.clipboardData.getData("text/plain"); if (text) send(pasteBytes(text, terminal.input().modes.bracketedPaste));
   };
   const at = (e: React.MouseEvent | React.WheelEvent) => {
-    const r = box.current!.getBoundingClientRect();
-    return { x: Math.max(0, Math.min(vt.cols - 1, Math.floor((e.clientX - r.left - 8) / cell.current.w))), y: Math.max(0, Math.min(vt.rows - 1, Math.floor((e.clientY - r.top - 6) / cell.current.h))) };
+    const r = box.current!.getBoundingClientRect(), input = terminal.input();
+    return { x: Math.max(0, Math.min(input.cols - 1, Math.floor((e.clientX - r.left - 8) / cell.current.w))), y: Math.max(0, Math.min(input.rows - 1, Math.floor((e.clientY - r.top - 6) / cell.current.h))) };
   };
   const mods = (e: React.MouseEvent) => ({ shift: e.shiftKey, alt: e.altKey, ctrl: e.ctrlKey });
-  const held = useRef(-1);
   const mouse = (kind: "down" | "up" | "move", e: React.MouseEvent) => {
-    if (!vt.modes.mouse || e.shiftKey) return false; // Shift = local selection even when the app grabs the mouse
-    const p = at(e); const btn = kind === "move" ? held.current : e.button;
+    const input = terminal.input(); if (!input.modes.mouse || e.shiftKey) return false;
+    const p = at(e), button = kind === "move" ? held.current : e.button;
     if (kind === "down") held.current = e.button; else if (kind === "up") held.current = -1;
-    const s = mouseReport(vt.modes, kind, btn, p.x, p.y, mods(e)); if (s) { conn.send(s); e.preventDefault(); }
+    const text = mouseReport(input.modes, kind, button, p.x, p.y, mods(e)); if (text) { conn.send(text); e.preventDefault(); }
     return true;
   };
   const onWheel = (e: React.WheelEvent) => {
-    if (vt.modes.mouse && !e.shiftKey) { const p = at(e); const s = mouseReport(vt.modes, "wheel", e.deltaY > 0 ? 1 : -1, p.x, p.y, mods(e)); if (s) conn.send(s); return; }
-    if (vt.isAlt) { send((e.deltaY > 0 ? keyToBytes({ key: "ArrowDown", ctrlKey: false, altKey: false, shiftKey: false, metaKey: false }, vt.modes) : keyToBytes({ key: "ArrowUp", ctrlKey: false, altKey: false, shiftKey: false, metaKey: false }, vt.modes))!.repeat(3)); return; }
-    setScroll((s) => Math.max(0, Math.min(vt.scrollback.length, s + (e.deltaY > 0 ? -3 : 3))));
+    const input = terminal.input();
+    if (input.modes.mouse && !e.shiftKey) { const p = at(e); const text = mouseReport(input.modes, "wheel", e.deltaY > 0 ? 1 : -1, p.x, p.y, mods(e)); if (text) conn.send(text); return; }
+    if (input.isAlt) { send(keyToBytes({ key: e.deltaY > 0 ? "ArrowDown" : "ArrowUp", ctrlKey: false, altKey: false, shiftKey: false, metaKey: false }, input.modes)!.repeat(3)); return; }
+    terminal.scrollBy(e.deltaY > 0 ? -3 : 3);
   };
-
-  const sb = vt.scrollback, view: Row[] = [];
-  const top = sb.length - scroll;
-  for (let i = 0; i < vt.rows; i++) { const k = top + i; view.push(k < sb.length ? sb[k] : vt.screen[k - sb.length]); }
-  const cur = vt.cursor, showCursor = scroll === 0 && vt.modes.cursorVisible;
+  const cur = view.cursor, showCursor = view.showCursor;
   return (
-    <div ref={box} data-testid="ssh-term" className="fs-mono" onMouseDown={(e) => { if (!mouse("down", e)) return; }} onMouseUp={(e) => { mouse("up", e); if (!window.getSelection()?.toString()) ta.current?.focus({ preventScroll: true }); }}
-      onMouseMove={(e) => { if (vt.modes.mouse === 1003 || (vt.modes.mouse === 1002 && held.current >= 0)) mouse("move", e); }} onWheel={onWheel}
+    <div ref={box} data-testid="ssh-term" className="fs-mono" onMouseDown={e => { mouse("down", e); }} onMouseUp={e => { mouse("up", e); if (!window.getSelection()?.toString()) ta.current?.focus({ preventScroll: true }); }}
+      onMouseMove={e => { const mode = terminal.input().modes.mouse; if (mode === 1003 || (mode === 1002 && held.current >= 0)) mouse("move", e); }} onWheel={onWheel}
       style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden", padding: "6px 8px", background: BG, color: FG, fontSize: fz(font), lineHeight: 1.3, cursor: "text", outline: bell ? "2px solid #ffd48a" : "none", outlineOffset: -2 }}>
       <span ref={probe} aria-hidden style={{ position: "absolute", visibility: "hidden", whiteSpace: "pre" }}>WWWWWWWWWW</span>
       <div role="log" aria-live="off" aria-label="Remote terminal" style={{ whiteSpace: "pre" }}>
-        {view.map((row, y) => (
-          <div key={y} data-row={y} style={{ height: `${cell.current.h}px` }}>
-            {runs(row, showCursor && y === cur.y ? Math.min(cur.x, vt.cols - 1) : -1).map((r, i) => <span key={i} style={r.style}>{r.text}</span>)}
-          </div>
-        ))}
+        {view.lines.map((line, y) => <div key={y} data-row={y} style={{ height: `${metrics.h}px` }}>{line.map((run, i) => <span key={i} style={run.style}>{run.text}</span>)}</div>)}
       </div>
       <span style={{ position: "absolute", right: 10, bottom: 6, display: "flex", gap: 4, zIndex: 2 }}>
-        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Decrease terminal font size" onClick={() => setFont((f) => stepTermFont(f, -1))} data-testid="ssh-font-down">A−</button>
-          {["uptime", "df -h /", "free -m"].map((sn) => <button key={sn} type="button" className="fs-btn" data-variant="ghost" title={`Send "${sn}" to the session`} onClick={() => conn.send(sn + "\r")} data-testid={`ssh-snippet-${sn.split(" ")[0]}`}>{sn}</button>)}
-        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Increase terminal font size" onClick={() => setFont((f) => stepTermFont(f, 1))} data-testid="ssh-font-up">A+</button>
+        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Decrease terminal font size" onClick={() => setFont(f => stepTermFont(f, -1))} data-testid="ssh-font-down">A−</button>
+        {["uptime", "df -h /", "free -m"].map(sn => <button key={sn} type="button" className="fs-btn" data-variant="ghost" title={`Send "${sn}" to the session`} onClick={() => conn.send(sn + "\r")} data-testid={`ssh-snippet-${sn.split(" ")[0]}`}>{sn}</button>)}
+        <button type="button" className="fs-btn" data-variant="ghost" aria-label="Increase terminal font size" onClick={() => setFont(f => stepTermFont(f, 1))} data-testid="ssh-font-up">A+</button>
       </span>
-      {scroll > 0 && <div style={{ position: "absolute", right: 10, top: 6, fontSize: fz(11), background: "#ffd48a", color: "#1b1e28", padding: "1px 8px", borderRadius: 8 }}>scrollback −{scroll}</div>}
-      <textarea ref={ta} aria-label="Remote terminal input" data-testid="ssh-input" autoCapitalize="off" autoComplete="off" autoCorrect="off" spellCheck={false}
+      {view.scroll > 0 && <div style={{ position: "absolute", right: 10, top: 6, fontSize: fz(11), background: "#ffd48a", color: "#1b1e28", padding: "1px 8px", borderRadius: 8 }}>scrollback −{view.scroll}</div>}
+      <textarea ref={ta} aria-label="Remote terminal input" title="Paste: Ctrl+Shift+V or ⌘V. Ctrl+V is sent to the terminal." data-testid="ssh-input" autoCapitalize="off" autoComplete="off" autoCorrect="off" spellCheck={false}
         onKeyDown={onKeyDown} onInput={onInput} onPaste={onPaste}
-        onCompositionStart={() => { composing.current = true; }} onCompositionEnd={(e) => { composing.current = false; const d = e.data; e.currentTarget.value = ""; if (d) send(d); }}
-        style={{ position: "absolute", left: showCursor ? 8 + cur.x * cell.current.w : 0, top: 6 + cur.y * cell.current.h, width: 2, height: cell.current.h, opacity: 0, padding: 0, border: 0, resize: "none", overflow: "hidden" }} />
+        onCompositionStart={() => { composing.current = true; }} onCompositionEnd={e => { composing.current = false; const text = e.data; e.currentTarget.value = ""; if (text) send(text); }}
+        style={{ position: "absolute", left: showCursor ? 8 + cur.x * metrics.w : 0, top: 6 + cur.y * metrics.h, width: 2, height: metrics.h, opacity: 0, padding: 0, border: 0, resize: "none", overflow: "hidden" }} />
     </div>
   );
 }
@@ -259,15 +220,17 @@ export default function SshModule({ win }: ModuleProps) {
   const [showSftp, setShowSftp] = useState(false); const [focusKey, setFocusKey] = useState(0);
   const [kg, setKg] = useState<{ pub?: string; msg?: string; dl?: string } | null>(null);
   const conn = useRef<SshConnection | null>(null);
-  const vt = useMemo(() => new Vt(80, 24, 5000), []);
-  const dec = useRef(new TextDecoder());
+  const [terminal] = useState(() => new TerminalDisplay(80, 24, 5000));
+  const [connection, setConnection] = useState<SshConnection | null>(null);
 
-  const refresh = useCallback(async () => {
-    try { const r = await api<{ route: { label: string }; knownHosts: { entries: KnownHost[] } }>("/api/ssh"); setRoute(r.route.label); setKnown(r.knownHosts.entries); } catch { /* listed on next open */ }
-    try { const r = await api<{ node: { content: string } | null }>(`/api/fs?op=read&path=${encodeURIComponent(RECENT)}`); setRecent(r.node ? (JSON.parse(r.node.content) as Recent[]).slice(0, 8) : []); } catch { setRecent([]); }
-  }, []);
+  const refresh = useCallback(() => Promise.all([
+    api<{ route: { label: string }; knownHosts: { entries: KnownHost[] } }>("/api/ssh")
+      .then(r => { setRoute(r.route.label); setKnown(r.knownHosts.entries); }).catch(() => undefined),
+    api<{ node: { content: string } | null }>(`/api/fs?op=read&path=${encodeURIComponent(RECENT)}`)
+      .then(r => setRecent(r.node ? (JSON.parse(r.node.content) as Recent[]).slice(0, 8) : [])).catch(() => setRecent([])),
+  ]).then(() => undefined), []);
   useEffect(() => { void refresh(); }, [refresh]);
-  useEffect(() => () => { conn.current?.detach(); }, []);
+  useEffect(() => () => { conn.current?.detach(); terminal.dispose(); }, [terminal]);
 
   const remember = async () => {
     const r: Recent = { host, port: Number(port) || 22, username: user, keyPath: keyMode === "vfs" ? keyPath : undefined, at: Date.now() };
@@ -280,7 +243,7 @@ export default function SshModule({ win }: ModuleProps) {
   const onEvent = useCallback((e: SshEvent) => {
     switch (e.t) {
       case "status": setStatus(String(e.text ?? "")); break;
-      case "banner": vt.write(String(e.text ?? "").replace(/\r?\n/g, "\r\n")); (vt as unknown as { redraw?: () => void }).redraw?.(); break;
+      case "banner": terminal.write(String(e.text ?? "").replace(/\r?\n/g, "\r\n")); break;
       case "prompt": setPrompt(e as unknown as Prompt); setAnswers([]); break;
       case "hostkey-refused": setRefused({ why: String(e.why), fingerprint: String(e.fingerprint), line: e.line as number | undefined, path: String(e.path) }); break;
       case "ready": setReady(e as unknown as Ready); setStatus(""); setPrompt(null); setFocusKey((k) => k + 1); break;
@@ -288,7 +251,7 @@ export default function SshModule({ win }: ModuleProps) {
       case "error": setError(`${String(e.message ?? "error")}${e.code ? ` (${String(e.code)})` : ""}`); break;
       case "closed": setStatus(`Disconnected — ${String(e.why ?? "")}`); setPrompt(null); break;
     }
-  }, [vt]);
+  }, [terminal]);
 
   const connect = async (override?: Partial<Recent>) => {
     const h = override?.host ?? host, p = override?.port ?? (Number(port) || 22), u = override?.username ?? user, kp = override?.keyPath ?? (keyMode === "vfs" ? keyPath : undefined);
@@ -301,16 +264,17 @@ export default function SshModule({ win }: ModuleProps) {
         if (r.node) privateKey = r.node.encoding === "base64" ? atob(r.node.content) : r.node.content;
         else if (!override) { setStatus(""); setError(`No key file at ${kp}. Generate one below, choose "Paste", or "Password only".`); return; }
       } else if (keyMode === "paste" && keyText.trim()) privateKey = keyText;
-      vt.reset(); vt.write("\x1b[2J\x1b[H");
-      const id = await createSession({ host: h, port: p, username: u, privateKey, cols: vt.cols, rows: vt.rows, direct, lang: navigator.language?.replace(/-/g, "_") + ".UTF-8" });
+      terminal.reset(); terminal.write("\x1b[2J\x1b[H");
+      const dimensions = terminal.input();
+      const id = await createSession({ host: h, port: p, username: u, privateKey, cols: dimensions.cols, rows: dimensions.rows, direct, lang: navigator.language?.replace(/-/g, "_") + ".UTF-8" });
       privateKey = undefined;
-      const c = new SshConnection(id, { onEvent, onData: (d) => { vt.write(d); (vt as unknown as { redraw?: () => void }).redraw?.(); }, onDetach: (why) => setStatus(`Reconnecting the stream (${why})…`) });
-      conn.current = c; setPhase("session");
+      const c = new SshConnection(id, { onEvent, onData: d => terminal.write(d), onDetach: (why) => setStatus(`Reconnecting the stream (${why})…`) });
+      conn.current = c; terminal.connect(text => c.send(text), setTitle); setConnection(c); setPhase("session");
       void c.attach();
       void remember();
     } catch (e) { setStatus(""); setError((e as Error).message); }
   };
-  const disconnect = async () => { await conn.current?.close(); conn.current = null; setPhase("form"); setShowSftp(false); setReady(null); setStatus(""); void refresh(); };
+  const disconnect = async () => { await conn.current?.close(); conn.current = null; setConnection(null); setPhase("form"); setShowSftp(false); setReady(null); setStatus(""); void refresh(); };
 
   const answerHostKey = (accept: boolean, save: boolean) => { conn.current?.control({ t: "hostkey", accept, save }); setPrompt(null); if (accept) setStatus("Host key accepted — authenticating…"); };
   const answerAuth = (cancel: boolean) => { conn.current?.control({ t: "auth", answers: cancel ? null : (prompt_?.prompts ?? []).map((_, i) => answers[i] ?? "") }); setPrompt(null); setAnswers([]); };
@@ -410,8 +374,8 @@ export default function SshModule({ win }: ModuleProps) {
             </div>
           )}
           <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
-            {conn.current && <TerminalView conn={conn.current} vt={vt} onTitle={setTitle} focusKey={focusKey} />}
-            {showSftp && ready && conn.current && <SftpPane id={conn.current.id} />}
+            {connection && <TerminalView conn={connection} terminal={terminal} focusKey={focusKey} />}
+            {showSftp && ready && connection && <SftpPane id={connection.id} />}
           </div>
         </>
       )}

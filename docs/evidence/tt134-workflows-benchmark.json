@@ -1,0 +1,156 @@
+{
+  "at": "2026-11-02T03:39:35.997Z",
+  "cpuAffinity": "Cpus_allowed_list:\t0-1",
+  "availableParallelism": 2,
+  "node": "v22.22.3",
+  "sourceSha256": "6fead8bc868734c8f16b83f14a1613476c3f07d6a1b69d2c40b84977db9ce9a1",
+  "scope": "32 successful valid public-note fixture creates; exact title/body/tags/pin/revision/index projection, not identity/time equality, failure equivalence or peak-memory Pareto. LF-only 1,048,576-code-unit repeated selection mapping; mixed-ending correctness checked separately. Not universal whole-app latency dominance.",
+  "cpuScope": "API setup CPU is whole-sandbox cgroup usage including Node client, real Next server, PostgreSQL and idle infrastructure; range CPU is the executing Node process. No concurrent verification was intentionally scheduled.",
+  "warmups": [
+    {
+      "kind": "serial",
+      "warmup": true,
+      "wallMs": 2051.635303,
+      "sandboxCpuMs": 1747.857,
+      "clientCpuMs": 177.282,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "batch",
+      "warmup": true,
+      "wallMs": 19.484853,
+      "sandboxCpuMs": 24,
+      "clientCpuMs": 2.351,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    }
+  ],
+  "setups": [
+    {
+      "kind": "serial",
+      "warmup": false,
+      "wallMs": 282.430623,
+      "sandboxCpuMs": 291.982,
+      "clientCpuMs": 44.64,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "batch",
+      "warmup": false,
+      "wallMs": 13.846996,
+      "sandboxCpuMs": 12,
+      "clientCpuMs": 1.721,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "batch",
+      "warmup": false,
+      "wallMs": 11.706191,
+      "sandboxCpuMs": 16,
+      "clientCpuMs": 1.775,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "serial",
+      "warmup": false,
+      "wallMs": 215.96787,
+      "sandboxCpuMs": 199.9,
+      "clientCpuMs": 42.414,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "serial",
+      "warmup": false,
+      "wallMs": 219.124414,
+      "sandboxCpuMs": 247.91,
+      "clientCpuMs": 42.35,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    },
+    {
+      "kind": "batch",
+      "warmup": false,
+      "wallMs": 11.381367,
+      "sandboxCpuMs": 16,
+      "clientCpuMs": 1.858,
+      "createdRows": 32,
+      "projectionSha256": "1da3e0cdf62c47ba7132fd51ca3d6bbd21cbdc71ff713543dfdb0adfac2eace7",
+      "identitiesExcludedFromComparison": true
+    }
+  ],
+  "setupSummary": {
+    "serial": {
+      "medianWallMs": 219.124414,
+      "medianSandboxCpuMs": 247.91
+    },
+    "batch": {
+      "medianWallMs": 11.706191,
+      "medianSandboxCpuMs": 16
+    }
+  },
+  "rangeIterations": 200,
+  "ranges": [
+    {
+      "kind": "traversal",
+      "wallMs": 358.92295,
+      "processCpuMs": 358.579,
+      "checksum": 419410400
+    },
+    {
+      "kind": "fast-path",
+      "wallMs": 2.517897,
+      "processCpuMs": 2.524,
+      "checksum": 419410400
+    },
+    {
+      "kind": "fast-path",
+      "wallMs": 2.607672,
+      "processCpuMs": 2.614,
+      "checksum": 419410400
+    },
+    {
+      "kind": "traversal",
+      "wallMs": 355.830568,
+      "processCpuMs": 355.519,
+      "checksum": 419410400
+    },
+    {
+      "kind": "traversal",
+      "wallMs": 335.068579,
+      "processCpuMs": 335.033,
+      "checksum": 419410400
+    },
+    {
+      "kind": "fast-path",
+      "wallMs": 2.393319,
+      "processCpuMs": 2.398,
+      "checksum": 419410400
+    }
+  ],
+  "rangeSummary": {
+    "traversal": {
+      "medianWallMs": 355.830568,
+      "medianProcessCpuMs": 355.519
+    },
+    "fast-path": {
+      "medianWallMs": 2.517897,
+      "medianProcessCpuMs": 2.524
+    }
+  },
+  "pareto": {
+    "setup": true,
+    "range": true
+  }
+}

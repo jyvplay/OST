@@ -1,0 +1,256 @@
+{
+  "idle": false,
+  "wallMs": 8830.98885,
+  "pending": [
+    {
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=%2FPrivate%2F.keyslots.json",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 601.175739
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/state",
+      "method": "PUT",
+      "type": "fetch",
+      "startMs": 1365.644195
+    }
+  ],
+  "traces": [
+    {
+      "url": "http://127.0.0.1:3000/",
+      "method": "GET",
+      "type": "document",
+      "startMs": 7.660558000000037,
+      "endMs": 61.996973000000025,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/3bhd64x-hzy66.css",
+      "method": "GET",
+      "type": "stylesheet",
+      "startMs": 31.609999000000016,
+      "endMs": 61.41108400000007,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/0n8kzvw2z_6as.css",
+      "method": "GET",
+      "type": "stylesheet",
+      "startMs": 31.648360000000025,
+      "endMs": 61.967779000000064,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/1x6obpmlu1_c2.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.677687000000105,
+      "endMs": 62.164784000000054,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/1yrh6cr1_x_bo.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.70611400000007,
+      "endMs": 62.24452700000006,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/3wbm-994r45kr.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.771105000000034,
+      "endMs": 200.4705580000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/17uvqm6h_64kn.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.808985000000007,
+      "endMs": 138.40989100000002,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/turbopack-2c3mg3r-05n1w.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.888528000000065,
+      "endMs": 130.7561740000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/0umf92h1sb77c.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 31.930638000000044,
+      "endMs": 131.91483100000005,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/0cryn4jsydk0z.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.0199990000001,
+      "endMs": 200.304121,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/3zycrwema5clc.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.05472600000007,
+      "endMs": 200.55217300000004,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/24o_qyjznfbg1.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.078357000000096,
+      "endMs": 200.39843400000007,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/1-zcgiiccgtx2.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.100099,
+      "endMs": 346.887328,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/1cvz79iza5e3o.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.122715000000085,
+      "endMs": 201.264994,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/_next/static/chunks/2hmb18-s_p9a6.js",
+      "method": "GET",
+      "type": "script",
+      "startMs": 32.14348700000005,
+      "endMs": 201.20115800000008,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/wallpapers/poolside.svg",
+      "method": "GET",
+      "type": "image",
+      "startMs": 62.93468900000005,
+      "endMs": 194.439476,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/fonts/nunito-latin-wght-normal.woff2",
+      "method": "GET",
+      "type": "font",
+      "startMs": 62.985367,
+      "endMs": 199.36123500000008,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=%2FPrivate%2F.keyslots.json",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 601.175739
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/fs?op=list&path=/Documents",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 644.4646660000001,
+      "endMs": 669.355798,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/bootstrap",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 645.093519,
+      "endMs": 669.3735490000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/settings",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 669.432121,
+      "endMs": 679.48732,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/state?id=default",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 686.5018540000001,
+      "endMs": 695.1441770000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/notes",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 762.777904,
+      "endMs": 794.6026770000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/fs?op=list&path=/Widgets",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 763.3153070000001,
+      "endMs": 795.260219,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/tasks",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 763.795136,
+      "endMs": 795.707478,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/routines",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 764.2321440000001,
+      "endMs": 804.5830880000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/notes",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 764.7797580000001,
+      "endMs": 797.6759950000001,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/fs?op=read&path=%2FWidgets%2Fcounter.worker.js",
+      "method": "GET",
+      "type": "fetch",
+      "startMs": 801.9103970000001,
+      "endMs": 826.660024,
+      "finished": true
+    },
+    {
+      "url": "blob:http://127.0.0.1:3000/df8361bb-2250-4fa1-bf39-97526e5ed265",
+      "method": "GET",
+      "type": "script",
+      "startMs": 832.5613519999999,
+      "endMs": 844.2566940000002,
+      "finished": true
+    },
+    {
+      "url": "http://127.0.0.1:3000/api/state",
+      "method": "PUT",
+      "type": "fetch",
+      "startMs": 1365.644195
+    }
+  ]
+}

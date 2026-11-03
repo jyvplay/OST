@@ -1,23 +1,410 @@
 {
- "generatedAt": "2026-10-31T04:54:01.757Z",
+ "generatedAt": "2026-11-02T16:51:42.862Z",
  "totals": {
   "built": {
-   "full": 499,
+   "full": 539,
    "partial": 84,
    "blocked": 24,
    "none": 0
   },
   "tested": {
-   "full": 448,
-   "partial": 123,
+   "full": 489,
+   "partial": 122,
    "untested": 36
   },
   "tests": {
-   "total": 3208,
-   "passed": 3194
+   "total": 3742,
+   "passed": 3742
   }
  },
  "rows": {
+  "NT-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-19: native collection download/file import round-trips fields into new indexed IDs; invalid/cancelled import changes nothing",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Portable note copies round-trip editable fields only; unknown envelopes and identities are refused",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: All-row input validation and byte-stream limit reject without creating any partial notes",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-20: merge checked saved snapshots into a new note; an unsaved source draft and both original records remain exact",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Merge creates a separate saved-body composition, preserves inputs and rejects oversized output",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-21: split the current draft at real top-level headings, ignore fenced headings, preserve every source character and support cancellation",
+    "tt134-workflows-core: Copy-only batch validates all rows, forbids identities/unknowns, enforces 32 rows and UTF-8 budget",
+    "tt134-workflows-core: Heading splits ignore fenced headings and preserve the exact CRLF source when rejoined",
+    "tt134-workflows-http: Batch commits exact editable fields and every real public index row together",
+    "tt134-workflows-http: Real index-table lock causes four-second refusal and rolls back already-inserted batch notes"
+   ]
+  },
+  "NT-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-22: native find-next selects/wraps actual textarea matches; literal replace saves exact Unicode and empty find is refused",
+    "e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte",
+    "tt134-workflows-core: Literal replace is exact/case-sensitive, supports deletion, and refuses explosive expansion before construction",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "NT-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-23: real selection + link form inserts a safe encoded Markdown anchor; active schemes fail without altering the draft",
+    "e2e-tt134-workflows-notes: NT-22/23 patch attack: a CRLF source find selects the visible Unicode match and link replacement preserves every other source byte",
+    "tt134-workflows-core: Link construction replaces only the selected range, rejects active schemes/bracket labels, encodes URL parentheses",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "NT-24": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-24: table builder validates dimensions; native saved preview renders escaped cells/alignment without interpreting HTML",
+    "tt134-workflows-core: Pipe tables parse escaped pipes/backslashes and alignment, keep HTML as text and bound rows/columns"
+   ]
+  },
+  "NT-25": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-25: save a real VFS template and instantiate its local text tokens into a distinct indexed note without rewriting source/template",
+    "tt134-workflows-core: Templates expand only three plain tokens using the supplied real clock; no expression execution or recursive evaluation",
+    "tt134-workflows-core: Template budget includes the complete wrapper: exact 4 MiB roundtrip, one byte over refused"
+   ]
+  },
+  "NT-26": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision",
+    "e2e-tt134-workflows-notes: Large-text patch attack: the real async comparison heading follows saved 125/200 percent settings and remains closeable",
+    "tt134-workflows-core: Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim",
+    "tt134-workflows-core: Comparison-limit copy attack: supplementary Unicode is counted as UTF-16 code units, never MiB bytes"
+   ]
+  },
+  "NT-27": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-notes: NT-27: cross-note saved task rollup ignores fences, commits exact task markers and rejects a stale row instead of overwriting a real winner",
+    "e2e-tt134-workflows-notes: NT-27 patch attack: an own Save inserting a line cannot retarget the old rollup checkbox to another source line"
+   ]
+  },
+  "CB-04": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact",
+    "e2e-tt134-workflows-clipboard: CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "e2e-tt134-workflows-clipboard: Real emergency chord remains active while the new clipboard modal owns normal shortcuts",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Native LF textarea offsets map back to exact CRLF/CR source excerpts, with invalid ranges refused",
+    "tt134-workflows-core: Source/native textarea ranges invert across every boundary in mixed CRLF/CR/Unicode text"
+   ]
+  },
+  "CB-05": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries"
+   ]
+  },
+  "CB-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries"
+   ]
+  },
+  "CB-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Create-only clipboard destinations reject Private, traversal, repeated slash and noncanonical paths"
+   ]
+  },
+  "CB-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-clipboard: CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison",
+    "e2e-tt134-workflows-clipboard: CB-08 patch attack: repeated native keyboard/pointer toggles keep both independent checks and release comparison focus",
+    "e2e-tt134-workflows-clipboard: CB-08 readiness attack: a checked identity stays checked when same-prefix native captures arrive",
+    "e2e-tt134-workflows-clipboard: Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+    "tt134-workflows-core: Saved-body/clipboard line diff exactly reconstructs each side, including empty/CRLF/Unicode; it is not an LCS claim",
+    "tt134-workflows-core: Clipboard tools refuse sensitive/oversized/invalid text without discarding original entries",
+    "tt134-workflows-core: Same-millisecond/clock-rollback captures retain distinct identities and independent removal/pin targets",
+    "tt134-workflows-core: 170,000 retained pins do not overflow a timestamp spread/argument stack",
+    "tt134-workflows-core: Comparison-limit copy attack: supplementary Unicode is counted as UTF-16 code units, never MiB bytes"
+   ]
+  },
+  "SR-20": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Modified intervals read canonical file timestamps, not fresh index/rebuild timestamps, in literal and live metadata",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-21": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-21: inclusive byte controls distinguish Unicode file bytes and note-body bytes; bad intervals cannot search or export stale results",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Resource filters validate exact UTC calendar days, half-open intervals and canonical safe byte ranges",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Content byte intervals use real UTF-8 file/note sizes; zero/bad/incompatible ranges are explicit",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-22": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-22: native query-folder exclusion removes only the literal subtree, composes with scope, and works in live metadata",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Folder exclusion is canonical, rejects traversal and retains SQL wildcard characters as literal path data",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults",
+    "tt134-workflows-http: Folder exclusion applies before all server branches and metadata paging, preserving wildcard-named siblings",
+    "tt134-workflows-http: Actual fuzzy fallback cannot bypass canonical size/date/exclusion predicates"
+   ]
+  },
+  "SR-23": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-23: real JSON/CSV downloads contain the current visible ordered hit and completed query, independently parsed; editing query invalidates export",
+    "e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled",
+    "tt134-workflows-core: Result JSON is lossless for visible rows/query; CSV neutralizes spreadsheet formulas and independently parses quotes/newlines"
+   ]
+  },
+  "SR-24": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-24: actual result preview fetches fresh bounded text safely, restores focus, and reports a now-missing result instead of its stale snippet",
+    "e2e-tt134-workflows-find: Private export uses real encrypted storage/local search, explicit plaintext consent/cancel and actual lock clearing; Private preview stays disabled",
+    "tt134-workflows-http: Preview reads current bounded public text, not stale index snippets; binary/Private/trashed/excluded/missing cases stay safe"
+   ]
+  },
+  "SR-25": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt134-workflows-find: SR-25: native continuation retrieves the second real page, deduplicates fixed-index rows, keeps one history entry and invalidates after changing input",
+    "e2e-tt134-workflows-find: Private resource-filter refusal never sends the query to the host, in text and metadata modes",
+    "tt134-workflows-core: Literal paging allows exactly four bounded public offsets, rejects ranked/metadata/invalid continuations",
+    "tt134-workflows-http: Literal public pages have deterministic disjoint fixed-index coverage, cap 200 and reject invalid offsets"
+   ]
+  },
+  "NT-08": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work",
+    "e2e-tt133-boundaries: Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft",
+    "e2e-tt133-notes-find: NT-08: changing notes asks; Cancel preserves all edits, Save commits before navigation and no delayed draft resurrects",
+    "e2e-tt133-notes-find: NT-08: New and window Close cannot silently destroy dirty Notes; cancel both native UI actions",
+    "e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
+    "e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
+    "e2e-tt134-ownership: Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair",
+    "e2e-tt134-ownership: Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision"
+   ]
+  },
+  "NT-09": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work",
+    "e2e-tt133-boundaries: Real quota: explicit Discard edits is separately confirmed, preserves the saved note and cannot resurrect a delayed recovery draft",
+    "e2e-tt133-notes-find: NT-09: a real sessionStorage draft survives reload, restores exact text with its old revision, and Save clears it",
+    "e2e-tt133-notes-find: NT-09 patch attack: temporarily blank titles are recoverable editing states, and Discard draft does not write the note",
+    "tt133-core: Per-window recovery keys are injective; strict codecs preserve content and reject stale/future/malformed records",
+    "tt133-core: Amnesic draft path uses actual page-RAM storage operations and the same decoder, never an injected persistent store",
+    "tt133-core: RAM recovery capacity is a real 64-entry bound: refusal cannot evict any live draft and removal releases exactly one slot",
+    "tt133-core: RAM byte quota counts actual JSON-escaped UTF-16, not source characters: overflow retains all previously stored large drafts"
+   ]
+  },
+  "NT-10": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-10: another real HTTP writer wins; stale UI save is refused, editor text remains, and confirmed Reload obtains the winner",
+    "e2e-tt134-ownership: Notes Orbit clean-load attack: Pin, Duplicate and Delete work without a prior editor Save, and do not adopt unrelated revisions",
+    "e2e-tt134-ownership: Notes Orbit Save→Pin uses its own acknowledged new revision, retains edited text and performs exactly two commits",
+    "e2e-tt134-ownership: Notes Orbit Save→Delete: Cancel keeps the just-saved record, a genuine writer during confirmation is not adopted as delete consent, and a later confirmed delete succeeds",
+    "e2e-tt134-workflows-notes: NT-26: compare with a real concurrent saved winner; modal contains keyboard focus/blocks live tiling and never silently accepts its revision",
+    "tt133-core: Notes validator rejects wrong fields, blank/control titles, malformed Unicode, oversized bodies and nonintegral IDs",
+    "tt133-core: Revision comparison rejects stale saves including equal-content ABA histories",
+    "tt133-core: Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary",
+    "tt133-http: Native runtime exposes non-null positive note revisions; strict writes reject bad JSON field values without changing the note or index",
+    "tt133-http: Eight concurrent genuine HTTP saves serialize on one PostgreSQL row: exactly one revision wins, seven get 409, index agrees",
+    "tt133-http: A→B→A is still a new revision; old equal-content token cannot overwrite it",
+    "tt133-http: Native cancellation after note UPDATE but during blocked index UPSERT rolls back both; server reports 503, never saved",
+    "tt133-http: Every note/file index prefix is 50,000 Unicode code points, matches real PostgreSQL left(), and never splits a surrogate",
+    "tt134-note-migration: Genuine SHARE lock makes the shipped ALTER fail near its four-second lock timeout, with no partial schema or user-data mutation",
+    "tt134-note-migration: Unblocked shipped migration initializes every legacy revision to one while preserving all IDs, Unicode, CRLF, tags, pins, timestamps and unrelated data",
+    "tt134-note-migration: Migrated SQL CAS advances only its matching original row; a stale precondition changes nothing",
+    "tt134-note-migration: Reapplying the same SQL does not reset advanced revisions, and a genuinely new row gets default revision one"
+   ]
+  },
+  "NT-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-11: local full-text filtering composes with stored-tag filtering, preserves selection, and has a real empty state",
+    "tt133-core: Note filter is NFKC/case-normalized, ANDs terms across title/body/tags, and preserves original order/data"
+   ]
+  },
+  "NT-12": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-12: preview renders a safe Markdown subset without executing raw HTML, loading remote images, or enabling javascript links",
+    "tt133-core: Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget",
+    "tt133-core: Inline view uses text-only tokens; executable/relative/data URLs are not links and unmatched delimiters are linear-bounded"
+   ]
+  },
+  "NT-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-13: native file input imports fatal UTF-8 Markdown into a persisted indexed note; invalid UTF-8 cannot add a note",
+    "e2e-tt134-ownership: Notes Orbit Save→Duplicate copies the newly saved body and a 500-code-unit Unicode title without splitting its last surrogate pair",
+    "tt133-core: Markdown import: fatal UTF-8, byte cap and NUL rejection; exact CRLF body and first heading title",
+    "tt133-core: Generated note titles never split a valid surrogate pair at the import/duplicate cap"
+   ]
+  },
+  "NT-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-14: real wiki navigation and reverse backlinks open the correct notes; absent and ambiguous destinations cannot choose an arbitrary record",
+    "e2e-tt133-notes-find: NT-14 saved-identity attack: an unsaved rename keeps the real backlink, and borrowing another saved title cannot impersonate its destination",
+    "tt133-core: Wiki-link graph refuses duplicate saved titles in both directions; backlinks reverse only actual unambiguous navigation edges",
+    "tt133-core: Backlinks use saved destination identity, not unsaved title impersonation"
+   ]
+  },
+  "NT-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-15: outline is clickable, fence-aware and shares exact preview line IDs, including indented headings far below the fold",
+    "tt133-core: Markdown blocks: headings, fenced code, quotes, list items and task lines, with explicit line budget"
+   ]
+  },
+  "NT-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-16: native textarea selection creates an exact independent note, leaves its source unchanged, and an empty selection cannot extract",
+    "tt133-core: Excerpt extraction is an exact UTF-16 selection, never modifies its source, and refuses empty/out-of-range selections"
+   ]
+  },
+  "NT-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: NT-17: interactive checklist checks and unchecks the right source marker; saving/reopening preserves other lines exactly",
+    "tt133-core: Checklist edits change exactly one marker, preserve CRLF and unrelated text, and refuse stale line numbers"
+   ]
+  },
+  "NT-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Real quota: failed Don't save retains modal and dirty text; native modal shortcuts cannot save behind it; Cancel/export/Save still work",
+    "e2e-tt133-notes-find: NT-18: an actual browser download is self-contained UTF-8 Markdown, includes unsaved text and cannot write a VFS file"
+   ]
+  },
+  "SR-13": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-13: the actual source control changes the native request and excludes other kinds, including an empty wrong source",
+    "tt133-core: Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms",
+    "tt133-http: Source/metadata/suffix/mode validation runs before search work and refuses nonsensical combinations"
+   ]
+  },
+  "SR-14": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-14: title and reference orders rearrange only the returned result set deterministically",
+    "e2e-tt134-workflows-find: Filter-state patch attack: native text/regex/case/order controls retain their independent scalar values without another host search",
+    "tt133-core: Result order is deterministic, copies rather than mutates, and uses source/reference tie-breaks"
+   ]
+  },
+  "SR-15": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-15: literal matching keeps internal whitespace and SQL wildcard characters literal, without ranked/fuzzy matches",
+    "tt133-core: Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit",
+    "tt133-http: Literal search keeps SQL wildcard characters literal, returns numeric ranks and excludes fuzzy-only names"
+   ]
+  },
+  "SR-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-16: file suffix control is case-insensitive and literal, and a non-file source disables/clears it",
+    "tt133-core: Search inputs reject malformed source/mode/strategies/scopes, normalize only documented folder/suffix forms",
+    "tt133-core: Private/RAM literal search preserves whitespace and punctuation; extension filters apply before limit",
+    "tt133-http: Source/metadata/suffix/mode validation runs before search work and refuses nonsensical combinations",
+    "tt133-http: Literal search keeps SQL wildcard characters literal, returns numeric ranks and excludes fuzzy-only names",
+    "tt133-http: Metadata suffix filtering occurs before the 32-file page, not after consuming wrong-suffix budget"
+   ]
+  },
+  "SR-17": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-17: native confirmation cancels without a rebuild, then a real confirmed rebuild preserves source bytes",
+    "tt133-core: Index prefix agrees with code-point slicing and cannot emit a split surrogate at the 50,000 boundary",
+    "tt133-http: Every note/file index prefix is 50,000 Unicode code points, matches real PostgreSQL left(), and never splits a surrogate",
+    "tt133-http: Current exclusions are literal folder boundaries in fast search, live metadata and diagnostics (underscore cannot hide its neighbour)",
+    "tt133-http: Unconfirmed rebuilds and malformed bodies return 400 without changing any index rows",
+    "tt133-http: Native lock timeout after a rebuild DELETE starts rolls it all back; concurrent readers see the complete old index and 503 says not rebuilt",
+    "tt133-http: A confirmed real rebuild repairs missing/stale entries, preserves notes/files and all spec/setting rows, and matches PostgreSQL's canonical prefix"
+   ]
+  },
+  "SR-18": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-notes-find: SR-18: path diagnosis shows an indexed real file, a nonexistent file, and invalid path refusal without hiding a previous diagnosis",
+    "tt133-core: Missing-path validator does not normalize traversal, trailing separators or private-name aliases",
+    "tt133-http: Current exclusions are literal folder boundaries in fast search, live metadata and diagnostics (underscore cannot hide its neighbour)",
+    "tt133-http: Path diagnosis distinguishes saved/current, stale, missing, folders, trash, private and name-only binary content"
+   ]
+  },
+  "SR-19": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Native Find mount purges canonical and malformed legacy Private history from actual localStorage but preserves a public neighbour",
+    "e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent",
+    "e2e-tt133-boundaries: Native corrupt-history attack: truncated JSON containing a Private query is erased rather than left as unparseable plaintext",
+    "e2e-tt133-notes-find: SR-19: Enter records complete history, Cancel keeps it, Clear deletes it and reload cannot resurrect it",
+    "e2e-tt133-notes-find: SR-19 patch attack: clearing history while a genuine PostgreSQL table lock holds a search cannot be undone by the late response",
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults"
+   ]
+  },
+  "SV-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Native locked-Private search stays local and outside automatic history; saving a named Private query requires explicit plaintext-profile consent",
+    "e2e-tt133-notes-find: SV-02: saved profiles replay every control instead of inheriting current phrase/field/source/filter state",
+    "e2e-tt134-workflows-find: SR-20: real UTC controls constrain canonical modification days and replay with every resource field after a reload",
+    "tt133-core: Saved searches retain phrase, field, source, strategy, suffix, order and client filter controls; old v1 defaults migrate",
+    "tt133-core: History distinguishes complete inputs, validates neighbours independently, and caps deterministic recency",
+    "tt134-workflows-core: New resource predicates round-trip complete profiles/history, while legacy profiles get explicit empty defaults"
+   ]
+  },
+  "SV-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt133-boundaries: Native profile import warns about plaintext Private queries before replacing; cancel preserves the list, and malformed Unicode/unknown fields are refused atomically",
+    "e2e-tt133-notes-find: SV-03: native JSON download → delete → file import restores complete profiles; cancelled and invalid imports leave the list untouched",
+    "tt133-core: Portable profiles round-trip canonically; malformed, future, oversized and duplicate records are refused atomically"
+   ]
+  },
   "ED-10": {
    "tested": "full",
    "tests": [
@@ -352,6 +739,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt123: TM-06/SSH-01/WB-07: history builtin exists; font buttons render; PNG export offered",
+    "e2e-tt133-openssh: Native ResizeObserver/font-size publication reaches the real PTY: stty rows equal rendered rows; size changes do not corrupt later input",
     "e2e: mount: ssh",
     "tt123-core: SSH-01 term font: clamped ladder, integer steps"
    ]
@@ -431,6 +819,7 @@
   "SR-12": {
    "tested": "full",
    "tests": [
+    "e2e-tt133-notes-find: Regex patch attack: three genuine metadata pages accumulate 65 matches; all pass the worker's 50-text messages under one total budget",
     "e2e: mount: find",
     "tt123-core: SR-12 phrase query: wrapped, embedded quotes doubled not stripped"
    ]
@@ -881,6 +1270,8 @@
   "SR-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt133-notes-find: Regex repair: native Worker times out hostile backtracking while the UI continues painting, then a corrected filter recovers",
+    "e2e-tt133-notes-find: Regex patch attack: three genuine metadata pages accumulate 65 matches; all pass the worker's 50-text messages under one total budget",
     "e2e: mount: find",
     "tt120-core: SR-10 result groups: first-seen order, counts"
    ]
@@ -1029,7 +1420,8 @@
    "tested": "full",
    "tests": [
     "e2e: mount: notes",
-    "tt118-core: NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly"
+    "tt118-core: NT-02 tags/links: headings and URLs are not tags, backlinks reverse exactly",
+    "tt133-core: Wiki-link graph refuses duplicate saved titles in both directions; backlinks reverse only actual unambiguous navigation edges"
    ]
   },
   "PL-03": {
@@ -1124,12 +1516,37 @@
     "e2e-tt130-alarms: amnesic sessions isolate alarms and do not write their settings or claims",
     "e2e-tt130-alarms: disabling an alarm while its claim is blocked cancels delivery",
     "e2e-tt130-alarms: two pages contend for one real browser lock and deliver only once",
+    "e2e-tt132-alarms: actionable ring survives Clock close and toast expiry; dismiss leaves the schedule enabled",
+    "e2e-tt132-alarms: configured snooze fires again once and can be snoozed a second time",
+    "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
+    "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
+    "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
+    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
+    "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
+    "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
+    "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
+    "e2e-tt132-alarms: disabling a snooze while its delivery claim waits cancels the actual pending callback",
+    "e2e-tt132-alarms: late snooze wake is explicitly missed rather than falsely reported on time",
+    "e2e-tt132-alarms: amnesic actionable snooze neither reads nor overwrites normal-profile activity",
+    "e2e-tt132-alarms: a throwing Notification constructor cannot abort countdown completion",
     "e2e: mount: clock",
     "tt117-core: CK-01 alarms: next fire, weekly days, disabled, snooze, validation",
     "tt130-alarms-core: no enabled alarms means no repeating scheduler timer",
     "tt130-alarms-core: delivery window is inclusive at due and excludes a full minute late",
     "tt130-alarms-core: weekday schedules do not become daily; empty days mean daily",
-    "tt130-alarms-core: 2,000 seeded plans match direct UTC day enumeration"
+    "tt130-alarms-core: 2,000 seeded plans match direct UTC day enumeration",
+    "tt131-ledger: the alarm row is partial and includes the real foreground regression evidence",
+    "tt132-claim-contract: an exception after entering a claim callback is propagated, never retried outside the lock",
+    "tt132-claim-contract: a lock API failure before callback entry uses the fallback exactly once",
+    "tt132-claim-contract: a scheduling predicate exception is propagated without a second predicate evaluation",
+    "tt132-core: alarm acknowledgements are bounded, canonical, label-free and reject corrupt storage whole",
+    "tt132-core: snooze uses configured elapsed minutes and repeated snoozes have new tokens",
+    "tt132-core: dismiss and cancel snooze remove an occurrence, never the recurring schedule",
+    "tt132-core: stale callbacks cannot undo a snooze or replace a newer occurrence",
+    "tt132-core: snooze delivery has exact early/on-time/late boundaries and reports a missed wake",
+    "tt132-core: delete, disable, schedule edits and expiry cancel pending activity; label edits do not",
+    "tt132-core: clock rollback preserves occurrence identity while snoozing from the new wall time",
+    "tt132-core: one thousand adversarial activity schedules preserve isolation and finite bounds"
    ]
   },
   "CK-02": {
@@ -2114,6 +2531,7 @@
     "e2e-tt92-trash: restoring the selected folder in Files reveals the original files and rebuilds search",
     "e2e: mount: find",
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+    "integration: SR-01 search finds new content with provenance",
     "integration: search treats % and _ in queries literally",
     "tt92-trash: trashing a directory hides every descendant from real search; restoring reindexes only that trash group",
     "tt92-trash: ordinary and conditional writes cannot overwrite a trashed item or create under a trashed parent",
@@ -2150,13 +2568,16 @@
    "tests": [
     "e2e-tt99-interactions: Find contextual Open routes a real CSV into the editor rather than window controls",
     "e2e-tt99-interactions: a stale Find result cannot open a deleted file or silently create a document",
-    "e2e: mount: find"
+    "e2e: mount: find",
+    "integration: SR-01 search finds new content with provenance",
+    "integration: deleting a note removes only its own index row"
    ]
   },
   "SR-03": {
    "tested": "full",
    "tests": [
     "e2e: palette: Ctrl+Space, typo 'noets' surfaces Notes with provenance; Enter opens it",
+    "integration: SR-03 typo tolerance over HTTP: 'noets' finds the notes; junk finds nothing",
     "unit: OSA distance counts adjacent transposition as 1",
     "unit: fuzzy scoring: typos match, short words exact only, junk rejected"
    ]
@@ -2611,6 +3032,7 @@
     "tt116-safesave: every safe save is visible in the job journal with the stages it really went through",
     "tt116-safesave: a safe-saved text file becomes searchable, and a refused one does not",
     "tt116-safesave: the temporary output folder cannot be used as a target",
+    "tt131-ledger: the VFS safe-save row does not claim the native SAF contract",
     "tt91-write-atomic: failed index update rolls back content, history and audit; the journal records failure",
     "tt91-write-atomic: two simultaneous overwrites preserve both serialized versions and the current search text",
     "tt91-write-mutants: publish without a data transaction",
@@ -2836,6 +3258,12 @@
   "TD-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt133-openssh: Real OpenSSH: Ed25519 login cannot start before the native UI fingerprint equals independent ssh-keygen; trust once does not persist the host key",
+    "e2e-tt133-openssh: Real shell ANSI + UTF-8: red text, combining mark, CJK and emoji render as safe spans, not HTML",
+    "e2e-tt133-openssh: Native ResizeObserver/font-size publication reaches the real PTY: stty rows equal rendered rows; size changes do not corrupt later input",
+    "e2e-tt133-openssh: Native terminal Ctrl+Shift+V clipboard paste preserves Unicode; Ctrl+V still belongs to the real TTY",
+    "e2e-tt133-openssh: Real OpenSSH SFTP: native upload, independent disk read, browser download and VFS copy preserve binary bytes; rename and two-step delete affect only the selected remote file",
+    "e2e-tt133-openssh: Explicit Disconnect closes the actual native SSH session and returns to the connection form",
     "e2e-tt44: Terminal `ssh` opens the SSH window prefilled; connect → host-key dialog with ssh-keygen's fingerprint → trust once → password → remote shell renders",
     "e2e-tt44: typed keys round-trip through the bridge; a pasted ANSI colour returns as a coloured span",
     "e2e-tt44: Files pane: list, upload through <input type=file> (bytes equal on the server), Save to Fusion → /Downloads; results stay visible",
@@ -2941,6 +3369,7 @@
     "e2e-tt99-interactions: Notes dirty draft disables destructive context actions and native text remains native",
     "e2e-tt99-interactions: Notes context deletion is cancelable and removes only the chosen note",
     "e2e: mount: notes",
+    "integration: deleting a note removes only its own index row",
     "tt111-core: notes are indexed in the same index as files, so one search reaches both"
    ]
   },
@@ -2948,8 +3377,45 @@
    "tested": "partial",
    "tests": [
     "e2e-tt129-calendar: overdue status updates when the clock passes a due time without another interaction",
+    "e2e-tt132-planner: create an undated task with literal multiline notes using the real form",
+    "e2e-tt132-planner: Enter submits the focused Planner window, not another window's duplicate global ID",
+    "e2e-tt132-planner: create a timed event and preserve both endpoints through API and ICS export",
+    "e2e-tt132-planner: rename and edit task notes without changing its ID or millisecond due time",
+    "e2e-tt132-planner: reschedule a reminder and then clear its due date from the editor",
+    "e2e-tt132-planner: edit event start/end and refuse an inverted interval without discarding typed fields",
+    "e2e-tt132-planner: convert task to event and back and edit completion without losing notes",
+    "e2e-tt132-planner: stale save returns a real 409, retains the draft, and explicit reload shows the new server item",
+    "e2e-tt132-planner: delete asks for confirmation, Cancel preserves the row, and a changed item refuses deletion",
+    "e2e-tt132-planner: dirty editor close is guarded; Cancel keeps it open and Save actually commits before closing",
+    "e2e-tt132-planner: switching or cancelling a dirty editor offers Cancel, Discard and real Save",
+    "e2e-tt132-planner: closing during a held real save cannot dismiss the window or duplicate the request",
+    "e2e-tt132-planner: local edit preserves the second DST fold occurrence and rejects a nonexistent local time",
+    "e2e-tt132-planner: week navigation crosses DST by calendar dates and event buttons open the real editor",
+    "e2e-tt132-planner: held-out read failure is visible and Retry loading reaches the actual server",
+    "e2e-tt132-planner: browser-offline save stays unsaved with its draft intact, then a real online retry commits",
+    "e2e-tt132-planner: populated editor has named original icon controls and no serious axe failures at a narrow viewport",
     "e2e: mount: planner",
-    "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar"
+    "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
+    "tt132-core: task and event validation rejects malformed types, limits, dates and impossible intervals",
+    "tt132-core: explicit-offset date parsing preserves millisecond precision and rejects rollover",
+    "tt132-core: snapshot checks reject lost updates in every edited field, without mutating the original",
+    "tt132-core: task/event conversion retains notes and dates and clears event-only end data",
+    "tt132-oracles: explicit-offset and low-year instants match Temporal rather than our own parser",
+    "tt132-oracles: both DST fold occurrences and the millisecond remainder agree with Temporal",
+    "tt132-oracles: spring DST gaps are rejected independently by Temporal and the editor converter",
+    "tt132-oracles: real ICAL.js reads exported event endpoints, Unicode folding, UID and literal notes",
+    "tt132-oracles: our importer agrees with independent UTC VEVENT output, not just self-generated ICS",
+    "tt132-planner-http: malformed write matrix returns 400 without adding database rows",
+    "tt132-planner-http: create task with notes and no due time, then verify the real SQL row",
+    "tt132-planner-http: create event with explicit offset and millisecond end, exported as real VEVENT",
+    "tt132-planner-http: guarded rename and note edit preserve UID and dates",
+    "tt132-planner-http: reschedule and clear due rearm reminders; an unchanged due instant does not",
+    "tt132-planner-http: a delayed reminder acknowledgement cannot mark a newly rescheduled item delivered",
+    "tt132-planner-http: event duration edits validate the merged row and roll back invalid partial edits",
+    "tt132-planner-http: task to event and event to task conversion preserve notes and clear event-only data",
+    "tt132-planner-http: two forced concurrent edits of one baseline commit once and return one real 409",
+    "tt132-planner-http: a stale delete cannot destroy a changed item; a current delete removes it",
+    "tt132-planner-http: empty patches, malformed IDs and deleted items have explicit 400/404 responses"
    ]
   },
   "PR-04": {
@@ -2957,6 +3423,23 @@
    "tests": [
     "e2e-tt129-calendar: preview reports known losses without inserting records",
     "e2e-tt129-calendar: cancel is non-mutating, same-file retry imports only after confirmation, reimport deduplicates",
+    "e2e-tt132-planner: create an undated task with literal multiline notes using the real form",
+    "e2e-tt132-planner: Enter submits the focused Planner window, not another window's duplicate global ID",
+    "e2e-tt132-planner: create a timed event and preserve both endpoints through API and ICS export",
+    "e2e-tt132-planner: rename and edit task notes without changing its ID or millisecond due time",
+    "e2e-tt132-planner: reschedule a reminder and then clear its due date from the editor",
+    "e2e-tt132-planner: edit event start/end and refuse an inverted interval without discarding typed fields",
+    "e2e-tt132-planner: convert task to event and back and edit completion without losing notes",
+    "e2e-tt132-planner: stale save returns a real 409, retains the draft, and explicit reload shows the new server item",
+    "e2e-tt132-planner: delete asks for confirmation, Cancel preserves the row, and a changed item refuses deletion",
+    "e2e-tt132-planner: dirty editor close is guarded; Cancel keeps it open and Save actually commits before closing",
+    "e2e-tt132-planner: switching or cancelling a dirty editor offers Cancel, Discard and real Save",
+    "e2e-tt132-planner: closing during a held real save cannot dismiss the window or duplicate the request",
+    "e2e-tt132-planner: local edit preserves the second DST fold occurrence and rejects a nonexistent local time",
+    "e2e-tt132-planner: week navigation crosses DST by calendar dates and event buttons open the real editor",
+    "e2e-tt132-planner: held-out read failure is visible and Retry loading reaches the actual server",
+    "e2e-tt132-planner: browser-offline save stays unsaved with its draft intact, then a real online retry commits",
+    "e2e-tt132-planner: populated editor has named original icon controls and no serious axe failures at a narrow viewport",
     "e2e: mount: planner",
     "integration: PR-04 ICS import is idempotent by UID; export is valid iCalendar",
     "tt111-core: an .ics round-trips and re-importing the same calendar never duplicates",
@@ -2978,6 +3461,26 @@
     "tt129-calendar-core: floating, all-day, invalid date and missing UID are distinct warnings",
     "tt129-calendar-core: nested alarm dates do not masquerade as event dates",
     "tt129-calendar-core: exception components and multiple missing UIDs are counted independently",
+    "tt132-core: task and event validation rejects malformed types, limits, dates and impossible intervals",
+    "tt132-core: explicit-offset date parsing preserves millisecond precision and rejects rollover",
+    "tt132-core: snapshot checks reject lost updates in every edited field, without mutating the original",
+    "tt132-core: task/event conversion retains notes and dates and clears event-only end data",
+    "tt132-oracles: explicit-offset and low-year instants match Temporal rather than our own parser",
+    "tt132-oracles: both DST fold occurrences and the millisecond remainder agree with Temporal",
+    "tt132-oracles: spring DST gaps are rejected independently by Temporal and the editor converter",
+    "tt132-oracles: real ICAL.js reads exported event endpoints, Unicode folding, UID and literal notes",
+    "tt132-oracles: our importer agrees with independent UTC VEVENT output, not just self-generated ICS",
+    "tt132-planner-http: malformed write matrix returns 400 without adding database rows",
+    "tt132-planner-http: create task with notes and no due time, then verify the real SQL row",
+    "tt132-planner-http: create event with explicit offset and millisecond end, exported as real VEVENT",
+    "tt132-planner-http: guarded rename and note edit preserve UID and dates",
+    "tt132-planner-http: reschedule and clear due rearm reminders; an unchanged due instant does not",
+    "tt132-planner-http: a delayed reminder acknowledgement cannot mark a newly rescheduled item delivered",
+    "tt132-planner-http: event duration edits validate the merged row and roll back invalid partial edits",
+    "tt132-planner-http: task to event and event to task conversion preserve notes and clear event-only data",
+    "tt132-planner-http: two forced concurrent edits of one baseline commit once and return one real 409",
+    "tt132-planner-http: a stale delete cannot destroy a changed item; a current delete removes it",
+    "tt132-planner-http: empty patches, malformed IDs and deleted items have explicit 400/404 responses",
     "unit: ICS unfolding, escapes, parameters, VTODO status, round trip"
    ]
   },
@@ -3367,6 +3870,19 @@
    "tests": [
     "e2e-tt130-alarms: control: an open Clock window fires the same alarm",
     "e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes",
+    "e2e-tt132-alarms: actionable ring survives Clock close and toast expiry; dismiss leaves the schedule enabled",
+    "e2e-tt132-alarms: configured snooze fires again once and can be snoozed a second time",
+    "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
+    "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
+    "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
+    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
+    "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
+    "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
+    "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
+    "e2e-tt132-alarms: disabling a snooze while its delivery claim waits cancels the actual pending callback",
+    "e2e-tt132-alarms: late snooze wake is explicitly missed rather than falsely reported on time",
+    "e2e-tt132-alarms: amnesic actionable snooze neither reads nor overwrites normal-profile activity",
+    "e2e-tt132-alarms: a throwing Notification constructor cannot abort countdown completion",
     "e2e-tt57-rows: PR-10 stopwatch: start → 65.43 s → lap → 10-minute jump with timers firing at most once (throttled tab) → still exact; pause holds; reset",
     "e2e-tt57-rows: PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before",
     "e2e-tt57-rows: no uncaught page errors during the TT57 rows session",
@@ -3817,6 +4333,7 @@
   "FF-15": {
    "tested": "full",
    "tests": [
+    "e2e-tt134-ownership: Native Writer: a real blocked recovery write exceeds the four-second close timeout; Cancel/edit/unlock cannot late-close the window or lose the newer recovery bytes",
     "e2e-tt69-lifecycle: Spreadsheet: closing a dirty window asks Save changes? — MODAL: Delete, typing, Ctrl+Z, Ctrl+S, Alt+F4, Meta+W, a script focusing the grid and a raw click on a cell never reach the workbook; Tab stays inside; Escape cancels; Save writes the file and closes",
     "e2e-tt69-lifecycle: Writer: typing writes a recovery draft (python-docx reads its bytes; no version snapshots); Close → Don't save keeps it; reopening offers Restore; Restore brings the text back unsaved; Save writes it and deletes the draft",
     "e2e-tt69-lifecycle: leaving the page with unsaved work raises the browser's beforeunload prompt (dismiss = stay); a page with nothing unsaved closes without one",
@@ -3956,6 +4473,8 @@
    "tested": "full",
    "tests": [
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "e2e-tt46: Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
     "e2e-tt46: Spreadsheet: no-edit Save of a chart workbook leaves it byte-identical; rename a sheet + Save keeps the chart part and openpyxl sees the new name",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
@@ -4032,6 +4551,7 @@
    "tested": "full",
    "tests": [
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
@@ -4347,6 +4867,7 @@
    "tested": "full",
    "tests": [
     "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
     "e2e: mount: vector"
    ]
   },
@@ -4806,9 +5327,11 @@
     "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
     "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
     "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
     "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
     "e2e-tt64: FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
     "e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF \"#N/A\" 1, COUNTA 3, \"=\" 1, \"<>\" 3, ISNA TRUE)",
@@ -4962,6 +5485,7 @@
     "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
     "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
     "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
     "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
     "e2e-vector: no page errors during the vector session",
     "e2e: mount: vector",
@@ -4993,6 +5517,8 @@
    "tested": "full",
    "tests": [
     "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: no page errors during the layout session",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
@@ -5006,6 +5532,8 @@
   "FF-34": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -5016,6 +5544,8 @@
   "FF-35": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -5264,6 +5794,7 @@
   "FF-36": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
     "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
     "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
@@ -5327,6 +5858,7 @@
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
+    "e2e-tt134-workflows-notes: Large-text patch attack: the real async comparison heading follows saved 125/200 percent settings and remains closeable",
     "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied"
    ]
   },
@@ -6814,6 +7346,7 @@
   "FF-78": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
     "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
     "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
     "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
@@ -6831,8 +7364,9 @@
    ]
   },
   "FF-80": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
     "tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits",
     "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
     "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
@@ -6844,12 +7378,14 @@
   "FF-81": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
     "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
    ]
   },
   "FF-82": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
     "tt84-wordcount: W1 empty text has zero counts",
     "tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
     "tt84-wordcount: W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",

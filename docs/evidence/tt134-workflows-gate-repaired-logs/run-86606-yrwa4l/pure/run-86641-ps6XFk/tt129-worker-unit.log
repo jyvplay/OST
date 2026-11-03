@@ -1,0 +1,7 @@
+  ✓ worker discovers shell assets and only permitted same-origin CSS resources
+  ✓ worker installation rejects missing JS and missing CSS dependencies
+  ✓ failed refresh retains the previous root, then commits once assets succeed
+  ✓ unchanged root refresh does not refetch already cached shell assets
+  ✓ HTML masquerading as a chunk is rejected without poisoning the cache
+
+5 passed, 0 failed

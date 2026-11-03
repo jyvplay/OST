@@ -1,0 +1,30 @@
+{
+  "label": "Expanded production gate, two CPUs, current workflow implementation",
+  "startedAt": "2026-11-02T03:54:58.557666+00:00",
+  "finishedAt": "2026-11-02T04:22:38.641631+00:00",
+  "command": [
+    "bash",
+    "scripts/run-gate.sh"
+  ],
+  "cwd": "/home/user/OST",
+  "log": "docs/evidence/tt134-workflows-gate.log",
+  "rawReturnCode": 1,
+  "exitCode": 1,
+  "wallSeconds": 1660.083694647,
+  "childUserSeconds": 2062.870898,
+  "childSystemSeconds": 292.598826,
+  "childCpuSeconds": 2355.469724,
+  "largestChildMaxRssKiB": 647896,
+  "sandboxCpuSeconds": 2836.305792,
+  "cpuAffinity": [
+    0,
+    1
+  ],
+  "scope": {
+    "childCpu": "Waited command children/descendants; excludes independently started web server and database",
+    "sandboxCpu": "Whole readable Linux cgroup; includes server/database and any concurrent sandbox work; not command-exclusive",
+    "memory": "Largest waited-child high-water RSS on Linux; NOT summed or simultaneous process-tree peak",
+    "fidelity": "No scheduling, assertion, workload or return-code substitution; all stdout/stderr retained in log"
+  },
+  "spawnError": null
+}

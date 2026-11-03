@@ -1,0 +1,107 @@
+{
+  "suite": "e2e-tt134-workflows-clipboard",
+  "at": "2026-11-02T16:22:34.851Z",
+  "results": [
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-04: native inspector exposes full exact text and copies only the real Unicode selection; source remains intact",
+      "covers": {
+        "CB-04": "full"
+      },
+      "pass": true,
+      "ms": 4264
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-04 patch attack: CRLF excerpts retain source bytes; bisected Unicode ranges refuse; async focus loss cannot strand Escape",
+      "covers": {
+        "CB-04": "full"
+      },
+      "pass": true,
+      "ms": 2258
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-05: editing creates a new native clipboard/history copy while retaining the original text and pin",
+      "covers": {
+        "CB-05": "full"
+      },
+      "pass": true,
+      "ms": 2214
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-06: save a clipboard entry through its real form into a separately indexed public note; blank title cannot commit",
+      "covers": {
+        "CB-06": "full"
+      },
+      "pass": true,
+      "ms": 2092
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-07: create-only public file transfer preserves exact bytes; Private paths and an existing-file overwrite are refused",
+      "covers": {
+        "CB-07": "full"
+      },
+      "pass": true,
+      "ms": 2524
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-08: check two real captures and compare their exact changed lines; one capture cannot launch a comparison",
+      "covers": {
+        "CB-08": "full"
+      },
+      "pass": true,
+      "ms": 1940
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-08 patch attack: repeated native keyboard/pointer toggles keep both independent checks and release comparison focus",
+      "covers": {
+        "CB-08": "full"
+      },
+      "pass": true,
+      "ms": 3928
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "CB-08 readiness attack: a checked identity stays checked when same-prefix native captures arrive",
+      "covers": {
+        "CB-08": "full"
+      },
+      "pass": true,
+      "ms": 4527
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "Sensitive native Vault copy is masked and every new inspect/edit/export/compare command is disabled",
+      "covers": {
+        "CB-04": "partial",
+        "CB-05": "partial",
+        "CB-06": "partial",
+        "CB-07": "partial",
+        "CB-08": "partial"
+      },
+      "pass": true,
+      "ms": 2342
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "Real emergency chord remains active while the new clipboard modal owns normal shortcuts",
+      "covers": {
+        "CB-04": "partial"
+      },
+      "pass": true,
+      "ms": 1861
+    },
+    {
+      "suite": "e2e-tt134-workflows-clipboard",
+      "name": "Native clipboard workflows emitted no unhandled browser exceptions",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

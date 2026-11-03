@@ -1,0 +1,23 @@
+[
+  {
+    "name": "pymupdf",
+    "version": "1.28.0",
+    "installedFileBytes": 66669555,
+    "license": "Dual Licensed - GNU AFFERO GPL 3.0 or Artifex Commercial License"
+  },
+  {
+    "name": "pymupdf-layout",
+    "installed": false,
+    "installedFileBytes": 0
+  },
+  {
+    "name": "pymupdf4llm",
+    "installed": false,
+    "installedFileBytes": 0
+  },
+  {
+    "name": "onnxruntime",
+    "installed": false,
+    "installedFileBytes": 0
+  }
+]

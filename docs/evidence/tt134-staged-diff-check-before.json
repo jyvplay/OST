@@ -1,0 +1,5 @@
+{
+  "scope": "First complete staged diff check; earlier unstaged checks did not inspect then-untracked raw evidence logs. Do not strip raw stdout/document whitespace to turn this into a fake pass.",
+  "exitCode": 2,
+  "log": "docs/evidence/tt134-staged-diff-check-before.log"
+}

@@ -2,7 +2,7 @@
 import { fz, stepTextScale, clampTextScale, DEFAULT_TEXT_SCALE, LARGE_TEXT_SCALE, isLargeText, TEXT_SCALE_MAX, TEXT_SCALE_MIN } from "@/lib/uiscale";
 import { STYLES, STYLE_IDS, DEFAULT_STYLE, isStyle } from "@/lib/style";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell } from "./shell-context";
 import { Badge, Btn, KV, Toggle } from "./ui";
@@ -15,13 +15,9 @@ import { LayoutSwitch } from "./chrome-bits";
  */
 export default function QuickPanel({ onClose, onBlackout, anchor = "top" }: { onClose: () => void; onBlackout: () => void; anchor?: "top" | "bottom" }) {
   const shell = useShell();
-  const [notif, setNotif] = useState<string>("default");
+  const [notif, setNotif] = useState<string>(() => typeof Notification === "undefined" ? "default" : Notification.permission);
   const [wake, setWake] = useState<WakeLockSentinel | null>(null);
   const [screens, setScreens] = useState<string>("");
-
-  useEffect(() => {
-    if (typeof Notification !== "undefined") setNotif(Notification.permission);
-  }, []);
 
   const themeSetting = shell.settings["appearance.theme"] ?? "dark";
   // TT56: with "Match system" the toggle flips away from what is currently shown (and leaves system-following)

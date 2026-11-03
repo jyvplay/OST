@@ -1,3 +1,4 @@
+import { searchIndexText } from "@/lib/search-index-text";
 /** Original guarded pair lifecycle. Soft trash only: no secure erasure or encryption claim. */
 import {and,eq,inArray,sql} from 'drizzle-orm';
 import {auditLog,fileOps,indexDocs,vfsNodes} from '@/db/schema';
@@ -40,7 +41,7 @@ export async function recallLifecycle(value:Record<string,unknown>){
   const trashed=action==='trash';
   await tx.update(vfsNodes).set({trashed,trashedFrom:trashed?path:null,version:sql`${vfsNodes.version}+1`,updatedAt:new Date()}).where(inArray(vfsNodes.path,paths));
   if(trashed)await tx.delete(indexDocs).where(and(eq(indexDocs.source,'file'),inArray(indexDocs.ref,paths)));
-  else for(const node of nodes)await tx.insert(indexDocs).values({source:'file',ref:node.path,title:node.name,body:node.encoding==='utf8'?node.content.slice(0,50000):'',updatedAt:new Date()}).onConflictDoUpdate({target:[indexDocs.source,indexDocs.ref],set:{title:node.name,body:node.encoding==='utf8'?node.content.slice(0,50000):'',updatedAt:new Date()}});
+  else for(const node of nodes)await tx.insert(indexDocs).values({source:'file',ref:node.path,title:node.name,body:node.encoding==='utf8'?searchIndexText(node.content):'',updatedAt:new Date()}).onConflictDoUpdate({target:[indexDocs.source,indexDocs.ref],set:{title:node.name,body:node.encoding==='utf8'?searchIndexText(node.content):'',updatedAt:new Date()}});
   for(const node of nodes)await tx.insert(fileOps).values({op:action,src:node.path,state:'COMPLETE',bytes:node.size});
   await tx.insert(auditLog).values({actor:'user',action:'fs.recall-'+action,detail:path});
   media.version++;receipt.version++;

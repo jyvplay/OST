@@ -1,0 +1,7 @@
+{
+  "stage": "unoptimized / PyMuPDF 2.0 / pyHanko installed",
+  "exit": 0,
+  "wallSeconds": 10.820375193000018,
+  "cpuSeconds": 12.163780000000001,
+  "largestChildPeakRssKiB": 176064
+}

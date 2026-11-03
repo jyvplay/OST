@@ -1,0 +1,664 @@
+{
+  "suite": "tt134-workflows-visual",
+  "at": "2026-11-02T03:43:52.511Z",
+  "results": [
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Recall",
+      "covers": {},
+      "pass": true,
+      "ms": 4159
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Files",
+      "covers": {},
+      "pass": true,
+      "ms": 3211
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 2019
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Find",
+      "covers": {},
+      "pass": true,
+      "ms": 2626
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Terminal",
+      "covers": {},
+      "pass": true,
+      "ms": 1968
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: SSH",
+      "covers": {},
+      "pass": true,
+      "ms": 2281
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Notes",
+      "covers": {},
+      "pass": true,
+      "ms": 2438
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Browser",
+      "covers": {},
+      "pass": true,
+      "ms": 3233
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Media",
+      "covers": {},
+      "pass": true,
+      "ms": 2872
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Capture",
+      "covers": {},
+      "pass": true,
+      "ms": 1945
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Lens",
+      "covers": {},
+      "pass": true,
+      "ms": 2517
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Beam",
+      "covers": {},
+      "pass": true,
+      "ms": 3333
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Together",
+      "covers": {},
+      "pass": true,
+      "ms": 2597
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Messages",
+      "covers": {},
+      "pass": true,
+      "ms": 2763
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Vault",
+      "covers": {},
+      "pass": true,
+      "ms": 2087
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Privacy",
+      "covers": {},
+      "pass": true,
+      "ms": 2200
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Backup",
+      "covers": {},
+      "pass": true,
+      "ms": 2057
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Alerts",
+      "covers": {},
+      "pass": true,
+      "ms": 2228
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Monitor",
+      "covers": {},
+      "pass": true,
+      "ms": 2356
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Apps",
+      "covers": {},
+      "pass": true,
+      "ms": 3002
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Calculator",
+      "covers": {},
+      "pass": true,
+      "ms": 2506
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Settings",
+      "covers": {},
+      "pass": true,
+      "ms": 3945
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Spec",
+      "covers": {},
+      "pass": true,
+      "ms": 3490
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Clock",
+      "covers": {},
+      "pass": true,
+      "ms": 3041
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Planner",
+      "covers": {},
+      "pass": true,
+      "ms": 2142
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Devices",
+      "covers": {},
+      "pass": true,
+      "ms": 2190
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Share",
+      "covers": {},
+      "pass": true,
+      "ms": 2295
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Routines",
+      "covers": {},
+      "pass": true,
+      "ms": 2805
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Clipboard",
+      "covers": {},
+      "pass": true,
+      "ms": 2019
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Storage",
+      "covers": {},
+      "pass": true,
+      "ms": 2645
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Archive",
+      "covers": {},
+      "pass": true,
+      "ms": 1927
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Local disk",
+      "covers": {},
+      "pass": true,
+      "ms": 1963
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Photos",
+      "covers": {},
+      "pass": true,
+      "ms": 9374
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Image Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 2906
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Vector",
+      "covers": {},
+      "pass": true,
+      "ms": 2551
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Writer",
+      "covers": {},
+      "pass": true,
+      "ms": 2699
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: PDF",
+      "covers": {},
+      "pass": true,
+      "ms": 1870
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Books",
+      "covers": {},
+      "pass": true,
+      "ms": 1891
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Slides",
+      "covers": {},
+      "pass": true,
+      "ms": 2572
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Spreadsheet",
+      "covers": {},
+      "pass": true,
+      "ms": 2788
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Contacts",
+      "covers": {},
+      "pass": true,
+      "ms": 2800
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Tables",
+      "covers": {},
+      "pass": true,
+      "ms": 2281
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Whiteboard",
+      "covers": {},
+      "pass": true,
+      "ms": 2125
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Peek",
+      "covers": {},
+      "pass": true,
+      "ms": 1763
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Video",
+      "covers": {},
+      "pass": true,
+      "ms": 2684
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Music",
+      "covers": {},
+      "pass": true,
+      "ms": 2363
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "wide initial view: Maps",
+      "covers": {},
+      "pass": true,
+      "ms": 3496
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Recall",
+      "covers": {},
+      "pass": true,
+      "ms": 2696
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Files",
+      "covers": {},
+      "pass": true,
+      "ms": 2583
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 1709
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Find",
+      "covers": {},
+      "pass": true,
+      "ms": 1669
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Terminal",
+      "covers": {},
+      "pass": true,
+      "ms": 1746
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: SSH",
+      "covers": {},
+      "pass": true,
+      "ms": 1977
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Notes",
+      "covers": {},
+      "pass": true,
+      "ms": 1819
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Browser",
+      "covers": {},
+      "pass": true,
+      "ms": 1892
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Media",
+      "covers": {},
+      "pass": true,
+      "ms": 2468
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Capture",
+      "covers": {},
+      "pass": true,
+      "ms": 1788
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Lens",
+      "covers": {},
+      "pass": true,
+      "ms": 2184
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Beam",
+      "covers": {},
+      "pass": true,
+      "ms": 2425
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Together",
+      "covers": {},
+      "pass": true,
+      "ms": 2186
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Messages",
+      "covers": {},
+      "pass": true,
+      "ms": 2457
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Vault",
+      "covers": {},
+      "pass": true,
+      "ms": 1903
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Privacy",
+      "covers": {},
+      "pass": true,
+      "ms": 1816
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Backup",
+      "covers": {},
+      "pass": true,
+      "ms": 2397
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Alerts",
+      "covers": {},
+      "pass": true,
+      "ms": 1731
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Monitor",
+      "covers": {},
+      "pass": true,
+      "ms": 2393
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Apps",
+      "covers": {},
+      "pass": true,
+      "ms": 2322
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Calculator",
+      "covers": {},
+      "pass": true,
+      "ms": 2324
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Settings",
+      "covers": {},
+      "pass": true,
+      "ms": 2930
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Spec",
+      "covers": {},
+      "pass": true,
+      "ms": 2944
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Clock",
+      "covers": {},
+      "pass": true,
+      "ms": 2610
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Planner",
+      "covers": {},
+      "pass": true,
+      "ms": 1835
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Devices",
+      "covers": {},
+      "pass": true,
+      "ms": 1700
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Share",
+      "covers": {},
+      "pass": true,
+      "ms": 1975
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Routines",
+      "covers": {},
+      "pass": true,
+      "ms": 2401
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Clipboard",
+      "covers": {},
+      "pass": true,
+      "ms": 1827
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Storage",
+      "covers": {},
+      "pass": true,
+      "ms": 2349
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Archive",
+      "covers": {},
+      "pass": true,
+      "ms": 1758
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Local disk",
+      "covers": {},
+      "pass": true,
+      "ms": 2208
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Photos",
+      "covers": {},
+      "pass": true,
+      "ms": 2209
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Image Editor",
+      "covers": {},
+      "pass": true,
+      "ms": 2070
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Vector",
+      "covers": {},
+      "pass": true,
+      "ms": 1766
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Writer",
+      "covers": {},
+      "pass": true,
+      "ms": 2341
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: PDF",
+      "covers": {},
+      "pass": true,
+      "ms": 2301
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Books",
+      "covers": {},
+      "pass": true,
+      "ms": 1590
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Slides",
+      "covers": {},
+      "pass": true,
+      "ms": 2248
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Spreadsheet",
+      "covers": {},
+      "pass": true,
+      "ms": 2442
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Contacts",
+      "covers": {},
+      "pass": true,
+      "ms": 2558
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Tables",
+      "covers": {},
+      "pass": true,
+      "ms": 2269
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Whiteboard",
+      "covers": {},
+      "pass": true,
+      "ms": 1849
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Peek",
+      "covers": {},
+      "pass": true,
+      "ms": 1651
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Video",
+      "covers": {},
+      "pass": true,
+      "ms": 1996
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Music",
+      "covers": {},
+      "pass": true,
+      "ms": 1912
+    },
+    {
+      "suite": "tt134-workflows-visual",
+      "name": "compact initial view: Maps",
+      "covers": {},
+      "pass": true,
+      "ms": 2561
+    }
+  ]
+}
