@@ -3,15 +3,18 @@
  * Every test works on its own /Contacts/e2e-<run>-<n>.vcf (passed as the window's path prop), so the user's
  * /Contacts/contacts.vcf is never touched, and the files are moved to the Trash at the end.
  * Checked through the UI AND through the file the UI wrote (read back over /api/fs and parsed by the engine).
- * Run: BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-contacts.mts
+ * Run on a disposable instance: TT89_DISPOSABLE_DATABASE=1 BASE=http://localhost:3999 node --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs scripts/e2e-contacts.mts
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import type { Browser, Locator, Page } from "playwright";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 import * as C from "../src/lib/contacts-core.ts";
 
-const BASE = process.env.BASE ?? "http://localhost:3999";
+if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.BASE) {
+  throw new Error("Refused: BASE and TT89_DISPOSABLE_DATABASE=1 are required for this state-mutating suite on an exclusive disposable server/database.");
+}
+const BASE = process.env.BASE;
 const { test, finish } = makeHarness("e2e-contacts");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
 const RUN = Date.now().toString(36);
@@ -192,7 +195,9 @@ await test("duplicates and merge, birthdays: two cards sharing an e-mail (differ
 });
 
 await test("export: CSV to Files (injection-guarded) and as a download; .vcf download re-imports to the same contacts", { "CN-04": "full" }, async () => {
-  const P = bookPath(6);
+  const dir = `/Contacts/e2e-${RUN}-export`; made.push(dir);
+  const created = await api("POST", "/api/fs", { op: "mkdir", path: dir }); ok(created.status === 200, "created owned export folder");
+  const P = `${dir}/book.vcf`;
   await writeBook(P, ["BEGIN:VCARD\r\nVERSION:4.0\r\nUID:e1\r\nFN:=HYPERLINK(\"http://evil\")\r\nTEL:+1 919 555 0100\r\nEND:VCARD", RFC6350_8].join("\r\n"));
   const { page, w, close } = await open(P);
   const [csvDl] = await Promise.all([page.waitForEvent("download"), w.getByTestId("ct-export-csv").click()]);
@@ -260,7 +265,86 @@ await test("axe-core: list, card, editor (with errors) and duplicates view — n
   ok(bad.length === 0, bad.join("\n      "));
 });
 
-await desktop([]);
-for (const p of [...made, "/Contacts/contacts-export.csv"]) await api("POST", "/api/fs", { op: "trash", path: p });
+await test("CSV export reports a real trashed destination refusal without changing the book", { "CN-04": "partial" }, async () => {
+  const dir = `/Contacts/e2e-${RUN}-blocked-export`; made.push(dir);
+  const created = await api("POST", "/api/fs", { op: "mkdir", path: dir }); ok(created.status === 200, "created owned folder");
+  const P = `${dir}/book.vcf`, target = `${dir}/contacts-export.csv`;
+  await writeBook(P, RFC2426_7); await api("POST", "/api/fs", { op: "write", path: target, content: "protected" });
+  await api("POST", "/api/fs", { op: "trash", path: target });
+  const { page, w, close } = await open(P);
+  await w.getByTestId("ct-export-csv").click();
+  await page.getByText(/CSV export failed:.*Trash/).waitFor();
+  ok(await readBook(P) === RFC2426_7, "source book unchanged");
+  await close();
+});
+
+await test("compact toolbar wraps and keeps each control inside its visible bounds", { "CN-02": "partial" }, async () => {
+  const P = bookPath(12); await desktop([{ ...cwin("ct1", { path: P }), w: 850, h: 800 }]);
+  const ctx = await browser.newContext({ viewport: { width: 900, height: 960 } });
+  const page = await ctx.newPage(); await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+  const w = page.locator('.fs-window[aria-label="Contacts"]');
+  const toolbar = w.getByTestId("contacts-toolbar"); await toolbar.waitFor({ timeout: 30000 });
+  const bounds = await toolbar.evaluate(el => {
+    const p = el.getBoundingClientRect();
+    return [...el.children].map(child => { const r = child.getBoundingClientRect(); return { x: r.left-p.left, right: r.right-p.right, top: r.top-p.top, bottom: r.bottom-p.bottom }; });
+  });
+  ok(bounds.length >= 9 && bounds.every(r => r.x >= -0.5 && r.right <= 0.5 && r.top >= -0.5 && r.bottom <= 0.5), JSON.stringify(bounds));
+  mkdirSync(".cache", { recursive: true });
+  await page.screenshot({path: ".cache/tt135-contacts-compact.png"});
+  await ctx.close();
+});
+
+await test("import repeated new UID skips the second card and persists only the first", { "CN-04": "partial" }, async () => {
+  const P = bookPath(10); await writeBook(P, RFC2426_7);
+  const { page, w, close } = await open(P);
+  const input = w.getByTestId("ct-import-file");
+  const v = (id: string, name: string) => `BEGIN:VCARD\r\nVERSION:4.0\r\nUID:${id}\r\nFN:${name}\r\nEND:VCARD\r\n`;
+  await input.setInputFiles({ name: "duplicate.vcf", mimeType: "text/vcard", buffer: Buffer.from(v("fresh", "First") + v("fresh", "Second") + v("frank", "Replaced")) });
+  await poll(async () => await items(w).count() === 2, "first unique import");
+  await page.getByText(/1 already present.*1 repeated UID\(s\) skipped/).waitFor();
+  await saved(w);
+  const contacts = C.parseVcf((await readBook(P))!).contacts;
+  ok(contacts.length === 2 && contacts.find(c => c.uid === "fresh")?.fn === "First" && contacts.find(c => c.uid === "frank")?.fn === "Frank Dawson", "stored identities preserved");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await poll(async () => await items(w).count() === 2, "reloaded unique book");
+  await close();
+});
+
+await test("truncated import is refused as a whole without changing the saved book", { "CN-04": "partial" }, async () => {
+  const P = bookPath(13); await writeBook(P, RFC2426_7);
+  const { page, w, close } = await open(P);
+  const content = "BEGIN:VCARD\r\nVERSION:4.0\r\nUID:repeated\r\nFN:Test\r\nEND:VCARD\r\n".repeat(C.MAX_CONTACTS + 1);
+  await w.getByTestId("ct-import-file").setInputFiles({name:"oversized.vcf", mimeType:"text/vcard", buffer:Buffer.from(content)});
+  await page.getByText("Import exceeds Contacts limits; no contacts imported.").waitFor();
+  ok(await items(w).count() === 1, "existing contact still visible");
+  ok(await readBook(P) === RFC2426_7, "no partial write");
+  await close();
+});
+
+await test("truncated source book is not editable and its bytes survive", { "CN-02": "partial" }, async () => {
+  const P = bookPath(14);
+  const content = Array.from({length:C.MAX_CONTACTS+1}, (_, i) => `BEGIN:VCARD\r\nVERSION:4.0\r\nUID:u${i}\r\nFN:Test\r\nEND:VCARD\r\n`).join("");
+  const written = await writeBook(P, content); ok(written.status === 200, "wrote large owned book");
+  await desktop([cwin("ct1", {path:P})]); const ctx = await browser.newContext(); const page = await ctx.newPage();
+  await page.goto(BASE + "/", {waitUntil:"domcontentloaded"});
+  const w = page.locator('.fs-window[aria-label="Contacts"]'); await w.getByText(/book exceeds the Contacts import limits/).waitFor({timeout:30000});
+  ok(await w.getByTestId("ct-new").count() === 0 && await readBook(P) === content, "no editing or partial overwrite");
+  await ctx.close();
+});
+
+await test("unsafe repeated UID book cannot be edited or overwritten", { "CN-02": "partial" }, async () => {
+  const P = bookPath(11), content = RFC2426_7 + "\r\n" + RFC2426_7.replace("Frank Dawson", "Other Frank");
+  await writeBook(P, content); await desktop([cwin("ct1", { path: P })]);
+  const ctx = await browser.newContext({ viewport: { width: 900, height: 960 } });
+  const page = await ctx.newPage(); await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+  const w = page.locator('.fs-window[aria-label="Contacts"]');
+  await w.getByText(/contains repeated UIDs/).waitFor({ timeout: 30000 });
+  ok(await w.getByTestId("ct-new").count() === 0, "editing controls unavailable");
+  ok(await readBook(P) === content, "original remains byte-for-byte intact");
+  await ctx.close();
+});
+
 await browser.close();
+await desktop([]);
+for (const p of made) await api("POST", "/api/fs", { op: "trash", path: p });
 finish();

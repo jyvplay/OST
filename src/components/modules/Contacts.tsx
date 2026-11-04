@@ -26,6 +26,7 @@ import { filterContacts, type ContactFacet } from "@/lib/contact-filter";
 import { sortByFamily } from "@/lib/contact-name-sort";
 import { emailList } from "@/lib/email-list";
 import { contactCardFile } from "@/lib/contact-card";
+import { bookProblem, contactImportProblem, planContactImport } from "@/lib/contact-import";
 import { UiGlyph } from "../AppIcon";
 const initials = (c: C.Contact) => (c.n.given || c.fn).charAt(0).toUpperCase() + (c.n.family ? c.n.family.charAt(0).toUpperCase() : "");
 const newUid = () => `urn:uuid:${crypto.randomUUID()}`;
@@ -60,7 +61,7 @@ export default function ContactsModule({ win }: ModuleProps) {
   useEffect(() => {
     let live = true;
     api<{ node: { content: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`)
-      .then((r) => { if (!live) return; const p = C.parseVcf(r.node.content); setList(p.contacts); setWarnings(p.warnings); })
+      .then((r) => { if (!live) return; const p = C.parseVcf(r.node.content); const problem = bookProblem(r.node.content, p); if (problem) { setLoadErr(problem); return; } setList(p.contacts); setWarnings(p.warnings); })
       .catch((e: Error) => { if (!live) return; if (/not found|404/i.test(e.message)) setList([]); else setLoadErr(e.message); });
     return () => { live = false; };
   }, [path]);
@@ -145,13 +146,14 @@ export default function ContactsModule({ win }: ModuleProps) {
   const importText = (text: string, from: string) => {
     if (!list) return;
     const r = C.parseVcf(text);
-    const have = new Set(list.map((c) => c.uid));
-    const fresh = r.contacts.filter((c) => !have.has(c.uid));
+    if (r.truncated) { shell.toast("Import exceeds Contacts limits; no contacts imported.", "bad"); return; }
+    const { fresh, alreadyPresent, repeated } = planContactImport(list, r.contacts);
+    const problem = fresh.length ? contactImportProblem(list, fresh) : null; if (problem) { shell.toast(problem, "bad"); return; }
     const next = [...list, ...fresh];
-    commit(next);
+    if (fresh.length) commit(next);
     const d = C.findDuplicates(next).length;
     setWarnings(r.warnings);
-    shell.toast(`Imported ${fresh.length} contact(s) from ${from}${r.contacts.length - fresh.length ? `, ${r.contacts.length - fresh.length} already present (same UID)` : ""}${r.warnings.length ? `, ${r.warnings.length} warning(s)` : ""}${d ? ` · ${d} possible duplicate group(s)` : ""}`, fresh.length ? "ok" : "info");
+    shell.toast(`Imported ${fresh.length} contact(s) from ${from}${alreadyPresent ? `, ${alreadyPresent} already present (same UID)` : ""}${repeated ? `, ${repeated} repeated UID(s) skipped from this file` : ""}${r.warnings.length ? `, ${r.warnings.length} warning(s)` : ""}${d ? ` · ${d} possible duplicate group(s)` : ""}`, fresh.length ? "ok" : "info");
   };
   const fromDevice = async () => {
     try {
@@ -176,11 +178,11 @@ export default function ContactsModule({ win }: ModuleProps) {
     else if (e.key.toLowerCase() === "e" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setSel(c.uid); startEdit(c); }
   };
 
-  if (loadErr) return <div style={{ padding: 16 }}><Badge tone="bad">Could not open {path}: {loadErr}</Badge></div>;
+  if (loadErr) return <div role="alert" style={{ padding: 16 }}><Badge tone="bad">Could not open {path}: {loadErr}</Badge></div>;
 
   return (
     <div data-testid="contacts" style={{ display: "grid", gridTemplateRows: "auto minmax(0,1fr) auto", height: "100%", minHeight: 0 }}>
-      <div className="fs-toolbar fs-row" style={{ gap: 6, flexWrap: "wrap", padding: "8px 10px", borderBottom: "1px solid var(--fs-border)" }}>
+      <div className="fs-row" data-testid="contacts-toolbar" style={{ gap: 6, flexWrap: "wrap", padding: "8px 10px", borderBottom: "1px solid var(--fs-border)" }}>
         <Btn variant="primary" onClick={startNew} data-testid="ct-new">New contact</Btn>
         <label className="fs-btn" style={{ cursor: "pointer" }}>
           Import .vcf
@@ -196,8 +198,10 @@ export default function ContactsModule({ win }: ModuleProps) {
         <Btn onClick={() => list && download("contacts.vcf", C.serializeVcf(sorted), "text/vcard")} disabled={!list?.length} data-testid="ct-download-vcf">Download .vcf</Btn>
         <Btn data-testid="ct-export-csv" disabled={!list?.length} onClick={async () => {
           const csv = C.toCsv(sorted); const dst = path.replace(/[^/]+$/, "contacts-export.csv");
-          await post("/api/fs", { op: "write", path: dst, content: csv, mime: "text/csv", reason: "contacts-export" });
-          download("contacts.csv", csv, "text/csv"); shell.bumpRefresh(); shell.toast(`Exported ${sorted.length} contact(s) to ${dst}`, "ok");
+          try {
+            await post("/api/fs", { op: "write", path: dst, content: csv, mime: "text/csv", reason: "contacts-export" });
+            download("contacts.csv", csv, "text/csv"); shell.bumpRefresh(); shell.toast(`Exported ${sorted.length} contact(s) to ${dst}`, "ok");
+          } catch (error) { shell.toast(`CSV export failed: ${error instanceof Error ? error.message : String(error)}`, "bad"); }
         }}>Export CSV</Btn>
         <Btn data-testid="ct-dupes" onClick={() => { setView(view === "dupes" ? "card" : "dupes"); setDraft(null); }} variant={view === "dupes" ? "primary" : "default"}>
           Duplicates{dupes.length ? ` (${dupes.length})` : ""}

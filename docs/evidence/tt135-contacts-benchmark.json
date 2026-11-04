@@ -1,0 +1,154 @@
+{
+  "baselineCommit": "b31a078e1b42cd3271955a706bb0ef0a6a3be394",
+  "baselineSha256": "6e27f9275f19e60185bbe81e9ade291374b564173ac5117825dad124e93d3dbb",
+  "differentialCases": 500,
+  "foldingDifferentialCases": 1000,
+  "node": "v22.22.3",
+  "results": [
+    {
+      "label": "pairs",
+      "count": 6000,
+      "samples": [
+        {
+          "implementation": "before",
+          "wallMs": 121.69480699999997,
+          "cpuMs": 138.662,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 10.961521999999945,
+          "cpuMs": 19.522,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 10.366640999999959,
+          "cpuMs": 18.693,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 137.02329499999996,
+          "cpuMs": 163.781,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 127.92174899999998,
+          "cpuMs": 158.451,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 17.194804999999974,
+          "cpuMs": 30.196,
+          "hash": "915ddb4bc0469a279391770f2932656e919549299f2c2be0de2c6b311e42dd4a"
+        }
+      ],
+      "medians": {
+        "beforeWallMs": 127.92174899999998,
+        "afterWallMs": 10.961521999999945,
+        "beforeCpuMs": 158.451,
+        "afterCpuMs": 19.522
+      }
+    },
+    {
+      "label": "giant",
+      "count": 12000,
+      "samples": [
+        {
+          "implementation": "before",
+          "wallMs": 201.868111,
+          "cpuMs": 200.701,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 13.383227999999917,
+          "cpuMs": 24.505,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 11.999157999999852,
+          "cpuMs": 24.672,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 247.45265099999983,
+          "cpuMs": 246.23,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 222.31977100000017,
+          "cpuMs": 221.437,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 8.610953000000109,
+          "cpuMs": 8.496,
+          "hash": "9faa6e09a3542aabcc9fd16aef5e7dc7c14ab8e522e8b8c612945e2460113e70"
+        }
+      ],
+      "medians": {
+        "beforeWallMs": 222.31977100000017,
+        "afterWallMs": 11.999157999999852,
+        "beforeCpuMs": 221.437,
+        "afterCpuMs": 24.505
+      }
+    },
+    {
+      "label": "fold",
+      "codeUnits": 325000,
+      "samples": [
+        {
+          "implementation": "before",
+          "wallMs": 210.6099630000001,
+          "cpuMs": 299.42,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 10.151366999999937,
+          "cpuMs": 10.175,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 14.401083000000199,
+          "cpuMs": 22.679,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 194.62808300000006,
+          "cpuMs": 251.558,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        },
+        {
+          "implementation": "before",
+          "wallMs": 212.76304900000014,
+          "cpuMs": 320.066,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        },
+        {
+          "implementation": "after",
+          "wallMs": 20.09272800000008,
+          "cpuMs": 29.704,
+          "hash": "81a8c952bff5c8e8ed7c2ea48d27df3c4e3e2dd41ce5298a2a8cd0d6ab009e0a"
+        }
+      ],
+      "medians": {
+        "beforeWallMs": 210.6099630000001,
+        "afterWallMs": 14.401083000000199,
+        "beforeCpuMs": 299.42,
+        "afterCpuMs": 22.679
+      }
+    }
+  ],
+  "limits": "Local single-process observations, no peak memory measurement; synthetic input, not universal Pareto or full suite speed."
+}

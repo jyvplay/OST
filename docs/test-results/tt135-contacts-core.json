@@ -1,0 +1,52 @@
+{
+  "suite": "tt135-contacts-core",
+  "at": "2026-11-04T03:41:02.209Z",
+  "results": [
+    {
+      "suite": "tt135-contacts-core",
+      "name": "import keeps first new identity and skips both old and repeated incoming IDs",
+      "covers": {
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt135-contacts-core",
+      "name": "book refuses duplicate identities and non-card data, but permits an empty book",
+      "covers": {
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt135-contacts-core",
+      "name": "parse limits mark truncated results explicitly without treating exact limits as truncated",
+      "covers": {
+        "CN-01": "partial",
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 323
+    },
+    {
+      "suite": "tt135-contacts-core",
+      "name": "import capacity refuses an oversized combined book instead of producing an unreadable one",
+      "covers": {
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 3534
+    },
+    {
+      "suite": "tt135-contacts-core",
+      "name": "duplicate graph joins transitive reasons and preserves input order",
+      "covers": {
+        "CN-03": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}
