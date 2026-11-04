@@ -1,6 +1,6 @@
 {
   "suite": "e2e-contacts",
-  "at": "2026-10-25T22:20:01.143Z",
+  "at": "2026-11-04T03:46:31.344Z",
   "results": [
     {
       "suite": "e2e-contacts",
@@ -10,7 +10,7 @@
         "PR-05": "partial"
       },
       "pass": true,
-      "ms": 2905
+      "ms": 5339
     },
     {
       "suite": "e2e-contacts",
@@ -19,7 +19,7 @@
         "CN-02": "full"
       },
       "pass": true,
-      "ms": 1619
+      "ms": 2719
     },
     {
       "suite": "e2e-contacts",
@@ -28,7 +28,7 @@
         "CN-02": "partial"
       },
       "pass": true,
-      "ms": 1775
+      "ms": 2442
     },
     {
       "suite": "e2e-contacts",
@@ -39,7 +39,7 @@
         "CN-01": "partial"
       },
       "pass": true,
-      "ms": 2441
+      "ms": 3121
     },
     {
       "suite": "e2e-contacts",
@@ -48,7 +48,7 @@
         "CN-02": "full"
       },
       "pass": true,
-      "ms": 2623
+      "ms": 3104
     },
     {
       "suite": "e2e-contacts",
@@ -57,7 +57,7 @@
         "CN-03": "full"
       },
       "pass": true,
-      "ms": 1908
+      "ms": 2355
     },
     {
       "suite": "e2e-contacts",
@@ -66,7 +66,7 @@
         "CN-04": "full"
       },
       "pass": true,
-      "ms": 1318
+      "ms": 1959
     },
     {
       "suite": "e2e-contacts",
@@ -77,7 +77,7 @@
         "FM-01": "partial"
       },
       "pass": true,
-      "ms": 1857
+      "ms": 2642
     },
     {
       "suite": "e2e-contacts",
@@ -87,7 +87,61 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 4271
+      "ms": 5113
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "CSV export reports a real trashed destination refusal without changing the book",
+      "covers": {
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 1475
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "compact toolbar wraps and keeps each control inside its visible bounds",
+      "covers": {
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 2248
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "import repeated new UID skips the second card and persists only the first",
+      "covers": {
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 2448
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "truncated import is refused as a whole without changing the saved book",
+      "covers": {
+        "CN-04": "partial"
+      },
+      "pass": true,
+      "ms": 2217
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "truncated source book is not editable and its bytes survive",
+      "covers": {
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 1873
+    },
+    {
+      "suite": "e2e-contacts",
+      "name": "unsafe repeated UID book cannot be edited or overwritten",
+      "covers": {
+        "CN-02": "partial"
+      },
+      "pass": true,
+      "ms": 1555
     }
   ]
 }

@@ -9,6 +9,9 @@
   "include": [
     "tt133*.mts",
     "tt134*.mts",
+    "tt135-contacts-core.mts",
+    "tt135-contacts-benchmark.mts",
+    "e2e-contacts.mts",
     "e2e-tt133*.mts",
     "e2e-tt134*.mts",
     "banner-click.mts",

@@ -36,7 +36,7 @@ export interface Contact {
   /** unmodelled properties as unfolded content lines, written back verbatim */
   extra: string[];
 }
-export interface ParseResult { contacts: Contact[]; warnings: string[]; versions: Record<string, number> }
+export interface ParseResult { contacts: Contact[]; warnings: string[]; versions: Record<string, number>; truncated: boolean }
 
 export const MAX_INPUT = 20 * 1024 * 1024;
 export const MAX_CONTACTS = 20_000;
@@ -164,15 +164,16 @@ const defaultUid = () => `urn:uuid:${globalThis.crypto?.randomUUID?.() ?? Math.r
 export function parseVcf(input: string, opts: ParseOptions = {}): ParseResult {
   const warnings: string[] = []; const versions: Record<string, number> = {};
   const contacts: Contact[] = [];
-  if (input.length > MAX_INPUT) return { contacts, warnings: [`input is ${input.length} characters; the limit is ${MAX_INPUT}`], versions };
+  if (input.length > MAX_INPUT) return { contacts, warnings: [`input is ${input.length} characters; the limit is ${MAX_INPUT}`], versions, truncated: true };
   const newUid = opts.newUid ?? defaultUid;
+  let truncated = false;
   let cur: { c: Contact; version: string; start: number; hadFn: boolean; depth: number } | null = null;
   for (const { line, text } of unfold(input)) {
     const p = parseLine(text, line);
     if (!p) { if (cur) warnings.push(`line ${line}: not a property, ignored`); continue; }
     if (p.name === "BEGIN" && p.value.trim().toUpperCase() === "VCARD") {
       if (cur) { cur.depth++; warnings.push(`line ${line}: nested vCard (AGENT) skipped`); continue; }
-      if (contacts.length >= MAX_CONTACTS) { warnings.push(`stopped after ${MAX_CONTACTS} contacts`); break; }
+      if (contacts.length >= MAX_CONTACTS) { warnings.push(`stopped after ${MAX_CONTACTS} contacts`); truncated = true; break; }
       cur = { c: emptyContact(""), version: "", start: line, hadFn: false, depth: 0 };
       continue;
     }
@@ -191,7 +192,7 @@ export function parseVcf(input: string, opts: ParseOptions = {}): ParseResult {
     contacts.push(finish(cur.c, cur.hadFn, newUid, warnings, cur.start));
     versions[cur.version || "unknown"] = (versions[cur.version || "unknown"] ?? 0) + 1;
   }
-  return { contacts, warnings, versions };
+  return { contacts, warnings, versions, truncated };
 }
 
 function apply(cur: { c: Contact; version: string; hadFn: boolean }, p: Prop, warnings: string[]) {
@@ -257,10 +258,12 @@ function finish(c: Contact, hadFn: boolean, newUid: () => string, warnings: stri
 
 /** Fold at 75 octets (RFC 6350 §3.2) without splitting a UTF-8 sequence; continuation lines start with one space. */
 export function foldLine(line: string): string {
-  const enc = new TextEncoder();
   const out: string[] = []; let cur = ""; let bytes = 0;
   for (const ch of line) {
-    const n = enc.encode(ch).length;
+    // for...of yields either one BMP code unit (including lone surrogates,
+    // which TextEncoder replaces with a three-byte U+FFFD) or a surrogate pair.
+    const code = ch.charCodeAt(0);
+    const n = ch.length === 2 ? 4 : code < 0x80 ? 1 : code < 0x800 ? 2 : 3;
     const limit = out.length === 0 ? 75 : 74; // continuation lines carry the leading space
     if (bytes + n > limit) { out.push(cur); cur = ""; bytes = 0; }
     cur += ch; bytes += n;
@@ -333,7 +336,12 @@ export interface DupGroup { uids: string[]; reasons: string[] }
 /** Union-find over shared normalised e-mail, phone (last 10 digits, ≥ 7 digits) or identical folded display name. */
 export function findDuplicates(list: Contact[]): DupGroup[] {
   const parent = list.map((_, i) => i);
-  const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+  const find = (i: number): number => {
+    let root = i;
+    while (parent[root] !== root) root = parent[root];
+    while (parent[i] !== i) { const next = parent[i]; parent[i] = root; i = next; }
+    return root;
+  };
   const reasons = new Map<number, Set<string>>();
   const seen = new Map<string, number>();
   const link = (key: string, i: number, why: string) => {
@@ -349,12 +357,16 @@ export function findDuplicates(list: Contact[]): DupGroup[] {
     const nm = fold(c.fn); if (nm && nm !== "unnamed") link(`n:${nm}`, i, `same name ${c.fn}`);
   });
   const groups = new Map<number, number[]>();
-  list.forEach((_, i) => { const r = find(i); groups.set(r, [...(groups.get(r) ?? []), i]); });
+  list.forEach((_, i) => { const r = find(i); const group = groups.get(r); if (group) group.push(i); else groups.set(r, [i]); });
+  const rootReasons = new Map<number, Set<string>>();
+  for (const [r, values] of reasons) {
+    const root = find(r), set = rootReasons.get(root) ?? new Set<string>();
+    values.forEach(value => set.add(value)); rootReasons.set(root, set);
+  }
   const out: DupGroup[] = [];
   for (const [root, idx] of groups) {
     if (idx.length < 2) continue;
-    const why = new Set<string>();
-    for (const [r, s] of reasons) if (find(r) === root) s.forEach((x) => why.add(x));
+    const why = rootReasons.get(root) ?? new Set<string>();
     out.push({ uids: idx.map((i) => list[i].uid), reasons: [...why].sort() });
   }
   return out;
