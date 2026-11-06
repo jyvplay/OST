@@ -1,6 +1,6 @@
 {
   "suite": "tt141-gamepad-pointer",
-  "at": "2026-11-06T21:47:08.088Z",
+  "at": "2026-11-06T21:52:22.107Z",
   "results": [
     {
       "suite": "tt141-gamepad-pointer",
@@ -27,7 +27,7 @@
         "IN-07": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt141-gamepad-pointer",
@@ -36,7 +36,7 @@
         "IN-07": "full"
       },
       "pass": true,
-      "ms": 4
+      "ms": 3
     },
     {
       "suite": "tt141-gamepad-pointer",

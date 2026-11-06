@@ -1,129 +1,129 @@
 {
   "suite": "tt135-text-encoding",
-  "at": "2026-11-06T21:46:53.335Z",
+  "at": "2026-11-06T21:49:16.614Z",
   "results": [
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · valid UTF-8 decodes with strict confidence",
+      "name": "PR-14 · valid UTF-8 decodes with strict confidence",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · UTF-8 BOM is detected",
+      "name": "PR-14 · UTF-8 BOM is detected",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · invalid UTF-8 falls back to Latin-1, flagged lossy",
+      "name": "PR-14 · invalid UTF-8 falls back to Latin-1, flagged lossy",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · UTF-16LE without BOM is detected by NUL pattern",
+      "name": "PR-14 · UTF-16LE without BOM is detected by NUL pattern",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · empty input returns empty text",
+      "name": "PR-14 · empty input returns empty text",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · binary-looking data is refused, not decoded",
+      "name": "PR-14 · binary-looking data is refused, not decoded",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · file larger than 8 MiB is refused",
+      "name": "PR-14 · file larger than 8 MiB is refused",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · sizeClass classifies warn/refuse correctly",
+      "name": "PR-14 · sizeClass classifies warn/refuse correctly",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · encodeText round-trips UTF-8",
+      "name": "PR-14 · encodeText round-trips UTF-8",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · encodeText with BOM round-trips",
+      "name": "PR-14 · encodeText with BOM round-trips",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · encodeText rejects characters > 255 in Latin-1",
+      "name": "PR-14 · encodeText rejects characters > 255 in Latin-1",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · lineEndings detects dominant ending",
+      "name": "PR-14 · lineEndings detects dominant ending",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · describeDecode mentions encoding and how",
+      "name": "PR-14 · describeDecode mentions encoding and how",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
-      "name": "PR-01 · corrupt BOM is refused, not guessed",
+      "name": "PR-14 · corrupt BOM is refused, not guessed",
       "covers": {
-        "PR-01": "full"
+        "PR-14": "full"
       },
       "pass": true,
       "ms": 0

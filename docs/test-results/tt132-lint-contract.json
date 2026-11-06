@@ -1,13 +1,13 @@
 {
   "suite": "tt132-lint-contract",
-  "at": "2026-11-06T21:38:25.874Z",
+  "at": "2026-11-06T21:52:08.917Z",
   "results": [
     {
       "suite": "tt132-lint-contract",
       "name": "every root config, declared lock and installed metadata change invalidates the cache namespace",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 17
     },
     {
       "suite": "tt132-lint-contract",

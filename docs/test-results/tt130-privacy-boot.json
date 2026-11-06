@@ -1,6 +1,6 @@
 {
   "suite": "tt130-privacy-boot",
-  "at": "2026-11-06T21:38:38.448Z",
+  "at": "2026-11-06T21:52:21.168Z",
   "results": [
     {
       "suite": "tt130-privacy-boot",
@@ -9,7 +9,7 @@
         "SC-11": "partial"
       },
       "pass": true,
-      "ms": 46
+      "ms": 41
     }
   ]
 }

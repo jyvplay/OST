@@ -2,6 +2,7 @@ import { searchIndexText } from "@/lib/search-index-text";
 import { tt135Features } from "./seed-data/features-tt135";
 import { patchTT137 } from "./seed-data/features-tt137";
 import { patchTT139 } from "./seed-data/features-tt139";
+import { patchTT141 } from "./seed-data/features-tt141";
 import type { SpecRow } from "./seed-data/row";
 import { tt134Features } from "./seed-data/features-tt134";
 import { tt133Features } from "./seed-data/features-tt133";
@@ -198,7 +199,8 @@ export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features
   // The UPDATES_* tables type `status` as string, so the spread widens SpecRow's
   // Status union; a final assertion restores it. The alternative was editing
   // twenty legacy tables, which is more churn for the same result.
-  .map((f) => patchTT139(f as SpecRow)) as SpecRow[];
+  .map((f) => patchTT139(f as SpecRow))
+  .map((f) => patchTT141(f)) as SpecRow[];
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

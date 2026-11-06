@@ -1,13 +1,13 @@
 {
   "suite": "tt133-projections",
-  "at": "2026-11-06T21:38:25.705Z",
+  "at": "2026-11-06T21:52:08.745Z",
   "results": [
     {
       "suite": "tt133-projections",
       "name": "Document projection owns its page, tracking, style rows and counts; model mutation cannot rewrite an older render",
       "covers": {},
       "pass": true,
-      "ms": 39
+      "ms": 40
     },
     {
       "suite": "tt133-projections",
@@ -21,7 +21,7 @@
       "name": "Comment projection whitelists scalars: comment blocks/XML must not leak through a shallow spread",
       "covers": {},
       "pass": true,
-      "ms": 21
+      "ms": 24
     },
     {
       "suite": "tt133-projections",

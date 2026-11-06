@@ -11,29 +11,29 @@ import { parsePlaylist, advanceIndex, streamStat, describePlaylist } from "../sr
 const { test, finish } = makeHarness("tt135-files-engines");
 
 // ── Batch rename (FM-03) ──────────────────────────────────────────────────────
-await test("FM-03 · simple pattern replaces {name}", { "FM-03": "full" }, () => {
+await test("FM-21 · simple pattern replaces {name}", { "FM-21": "full" }, () => {
   const out = expandPattern("doc-{name}.{ext}", "report.pdf", 0, new Date("2026-01-01T00:00:00Z"));
   if (out !== "doc-report.pdf") throw new Error(`expected doc-report.pdf, got ${out}`);
 });
 
-await test("FM-03 · {n} pads to two digits", { "FM-03": "full" }, () => {
+await test("FM-21 · {n} pads to two digits", { "FM-21": "full" }, () => {
   const out = expandPattern("{nn}-{name}.{ext}", "file.txt", 0, new Date("2026-01-01"));
   if (out !== "01-file.txt") throw new Error(`expected 01-file.txt, got ${out}`);
 });
 
-await test("FM-03 · {upper} applies to everything to its right", { "FM-03": "full" }, () => {
+await test("FM-21 · {upper} applies to everything to its right", { "FM-21": "full" }, () => {
   const out = expandPattern("{upper}{name}", "report", 0, new Date("2026-01-01"));
   if (out !== "REPORT") throw new Error(`expected REPORT, got ${out}`);
 });
 
-await test("FM-03 · {date} and {time} produce ISO-like strings", { "FM-03": "full" }, () => {
+await test("FM-21 · {date} and {time} produce ISO-like strings", { "FM-21": "full" }, () => {
   const d = new Date("2026-06-15T14:30:00");
   const out = expandPattern("{date}-{time}", "x.txt", 0, d);
   if (!out.includes("2026-06-15")) throw new Error(`date wrong: ${out}`);
   if (!out.includes("1430")) throw new Error(`time wrong: ${out}`);
 });
 
-await test("FM-03 · invalid token throws", { "FM-03": "full" }, () => {
+await test("FM-21 · invalid token throws", { "FM-21": "full" }, () => {
   try {
     expandPattern("{bogus}", "file.txt", 0, new Date());
     throw new Error("should have thrown on unknown token");
@@ -42,7 +42,7 @@ await test("FM-03 · invalid token throws", { "FM-03": "full" }, () => {
   }
 });
 
-await test("FM-03 · pattern producing reserved name is refused", { "FM-03": "full" }, () => {
+await test("FM-21 · pattern producing reserved name is refused", { "FM-21": "full" }, () => {
   try {
     expandPattern("..", "file.txt", 0, new Date());
     throw new Error("should have thrown on reserved name");
@@ -51,7 +51,7 @@ await test("FM-03 · pattern producing reserved name is refused", { "FM-03": "fu
   }
 });
 
-await test("FM-03 · planBatchRename detects collisions", { "FM-03": "full" }, () => {
+await test("FM-21 · planBatchRename detects collisions", { "FM-21": "full" }, () => {
   const entries = [
     { path: "/Documents/a.txt", name: "a.txt", kind: "file" as const },
     { path: "/Documents/b.txt", name: "b.txt", kind: "file" as const },
@@ -62,7 +62,7 @@ await test("FM-03 · planBatchRename detects collisions", { "FM-03": "full" }, (
   if (plan.conflicts.length === 0) throw new Error("should list conflicts");
 });
 
-await test("FM-03 · planBatchRename with unique names succeeds", { "FM-03": "full" }, () => {
+await test("FM-21 · planBatchRename with unique names succeeds", { "FM-21": "full" }, () => {
   const entries = [
     { path: "/Documents/a.txt", name: "a.txt", kind: "file" as const },
     { path: "/Documents/b.txt", name: "b.txt", kind: "file" as const },
@@ -72,7 +72,7 @@ await test("FM-03 · planBatchRename with unique names succeeds", { "FM-03": "fu
   if (plan.rows.length !== 2) throw new Error(`expected 2 rows, got ${plan.rows.length}`);
 });
 
-await test("FM-03 · applyOrder produces two phases with temp names", { "FM-03": "full" }, () => {
+await test("FM-21 · applyOrder produces two phases with temp names", { "FM-21": "full" }, () => {
   const entries = [
     { path: "/Documents/a.txt", name: "a.txt", kind: "file" as const },
   ];
@@ -84,7 +84,7 @@ await test("FM-03 · applyOrder produces two phases with temp names", { "FM-03":
   if (order.phase2[0].to !== "/Documents/renamed.txt") throw new Error(`phase2 target wrong: ${order.phase2[0].to}`);
 });
 
-await test("FM-03 · applyOrder rejects invalid token", { "FM-03": "full" }, () => {
+await test("FM-21 · applyOrder rejects invalid token", { "FM-21": "full" }, () => {
   const entries = [{ path: "/Documents/a.txt", name: "a.txt", kind: "file" as const }];
   const plan = planBatchRename(entries, "renamed.txt", new Date());
   try {
@@ -96,7 +96,7 @@ await test("FM-03 · applyOrder rejects invalid token", { "FM-03": "full" }, () 
 });
 
 // ── Trash retention (FM-11) ───────────────────────────────────────────────────
-await test("FM-11 · items older than retention are purged", { "FM-11": "full" }, () => {
+await test("FM-22 · items older than retention are purged", { "FM-22": "full" }, () => {
   const now = Date.now();
   const items = [
     { path: "/Trash/old.txt", bytes: 100, deletedAt: now - 30 * 86400000 }, // 30 days old
@@ -107,7 +107,7 @@ await test("FM-11 · items older than retention are purged", { "FM-11": "full" }
   if (plan.purge[0].path !== "/Trash/old.txt") throw new Error(`wrong purge: ${plan.purge[0].path}`);
 });
 
-await test("FM-11 · pinned items are never purged", { "FM-11": "full" }, () => {
+await test("FM-22 · pinned items are never purged", { "FM-22": "full" }, () => {
   const now = Date.now();
   const items = [
     { path: "/Trash/old.txt", bytes: 100, deletedAt: now - 30 * 86400000, pinned: true },
@@ -117,7 +117,7 @@ await test("FM-11 · pinned items are never purged", { "FM-11": "full" }, () => 
   if (plan.kept.length !== 1) throw new Error("pinned item should be kept");
 });
 
-await test("FM-11 · unknown timestamps are never purged", { "FM-11": "full" }, () => {
+await test("FM-22 · unknown timestamps are never purged", { "FM-22": "full" }, () => {
   const now = Date.now();
   const items = [
     { path: "/Trash/unknown.txt", bytes: 100, deletedAt: null },
@@ -127,7 +127,7 @@ await test("FM-11 · unknown timestamps are never purged", { "FM-11": "full" }, 
   if (plan.unknown.length !== 1) throw new Error("should report unknown");
 });
 
-await test("FM-11 · size rule purges oldest unpinned when over budget", { "FM-11": "full" }, () => {
+await test("FM-22 · size rule purges oldest unpinned when over budget", { "FM-22": "full" }, () => {
   const now = Date.now();
   const items = [
     { path: "/Trash/a.txt", bytes: 500, deletedAt: now - 10 * 86400000 },
@@ -139,26 +139,26 @@ await test("FM-11 · size rule purges oldest unpinned when over budget", { "FM-1
   if (plan.reclaimedBytes < 500) throw new Error("should reclaim at least 500 bytes");
 });
 
-await test("FM-11 · describePurge gives a compact summary", { "FM-11": "full" }, () => {
+await test("FM-22 · describePurge gives a compact summary", { "FM-22": "full" }, () => {
   const now = Date.now();
   const plan = planTrashPurge([{ path: "/Trash/a.txt", bytes: 100, deletedAt: now - 30 * 86400000 }], { days: 7, maxBytes: 0 }, now);
   const s = describePurge(plan);
   if (!s.includes("Purge")) throw new Error(`should mention purge: ${s}`);
 });
 
-await test("FM-11 · empty trash produces empty plan", { "FM-11": "full" }, () => {
+await test("FM-22 · empty trash produces empty plan", { "FM-22": "full" }, () => {
   const plan = planTrashPurge([], { days: 7, maxBytes: 0 }, Date.now());
   if (plan.purge.length !== 0) throw new Error("empty trash should have no purge");
   if (plan.kept.length !== 0) throw new Error("empty trash should have no kept");
 });
 
 // ── Downloads (PR-07m) ────────────────────────────────────────────────────────
-await test("PR-07m · nameFromUrl extracts filename from URL path", { "PR-07m": "full" }, () => {
+await test("PR-15 · nameFromUrl extracts filename from URL path", { "PR-15": "full" }, () => {
   const n = nameFromUrl("https://example.com/path/to/file.pdf");
   if (n !== "file.pdf") throw new Error(`expected file.pdf, got ${n}`);
 });
 
-await test("PR-07m · nameFromUrl rejects non-http URLs", { "PR-07m": "full" }, () => {
+await test("PR-15 · nameFromUrl rejects non-http URLs", { "PR-15": "full" }, () => {
   try {
     nameFromUrl("ftp://example.com/file.txt");
     throw new Error("should reject FTP");
@@ -167,25 +167,25 @@ await test("PR-07m · nameFromUrl rejects non-http URLs", { "PR-07m": "full" }, 
   }
 });
 
-await test("PR-07m · createEntry produces a queued download", { "PR-07m": "full" }, () => {
+await test("PR-15 · createEntry produces a queued download", { "PR-15": "full" }, () => {
   const e = createEntry("dl1", "https://example.com/file.pdf", []);
   if (e.state !== "queued") throw new Error(`expected queued, got ${e.state}`);
   if (e.name !== "file.pdf") throw new Error(`expected file.pdf, got ${e.name}`);
 });
 
-await test("PR-07m · uniqueName appends (2) when name exists", { "PR-07m": "full" }, () => {
+await test("PR-15 · uniqueName appends (2) when name exists", { "PR-15": "full" }, () => {
   const n = uniqueName(["file.pdf"], "file.pdf");
   if (n !== "file (2).pdf") throw new Error(`expected file (2).pdf, got ${n}`);
 });
 
-await test("PR-07m · start transitions queued → running", { "PR-07m": "full" }, () => {
+await test("PR-15 · start transitions queued → running", { "PR-15": "full" }, () => {
   const e = createEntry("dl1", "https://example.com/f.pdf", []);
   const running = start(e);
   if (running.state !== "running") throw new Error(`expected running, got ${running.state}`);
   if (running.attempts !== 1) throw new Error(`expected attempts=1, got ${running.attempts}`);
 });
 
-await test("PR-07m · progress is monotonic and bounded", { "PR-07m": "full" }, () => {
+await test("PR-15 · progress is monotonic and bounded", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", []));
   e = progress(e, 1024);
   if (e.received !== 1024) throw new Error(`expected 1024, got ${e.received}`);
@@ -197,14 +197,14 @@ await test("PR-07m · progress is monotonic and bounded", { "PR-07m": "full" }, 
   }
 });
 
-await test("PR-07m · fail transitions running → failed with reason", { "PR-07m": "full" }, () => {
+await test("PR-15 · fail transitions running → failed with reason", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", []));
   e = fail(e, Date.now(), "Connection reset");
   if (e.state !== "failed") throw new Error(`expected failed, got ${e.state}`);
   if (e.error !== "Connection reset") throw new Error(`expected error message, got ${e.error}`);
 });
 
-await test("PR-07m · complete requires matching size", { "PR-07m": "full" }, () => {
+await test("PR-15 · complete requires matching size", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", [], 2048));
   e = progress(e, 1024);
   try {
@@ -215,20 +215,20 @@ await test("PR-07m · complete requires matching size", { "PR-07m": "full" }, ()
   }
 });
 
-await test("PR-07m · complete accepts when size matches", { "PR-07m": "full" }, () => {
+await test("PR-15 · complete accepts when size matches", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", [], 1024));
   e = progress(e, 1024);
   const done = complete(e);
   if (done.state !== "done") throw new Error(`expected done, got ${done.state}`);
 });
 
-await test("PR-07m · cancel stops a running download", { "PR-07m": "full" }, () => {
+await test("PR-15 · cancel stops a running download", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", []));
   e = cancel(e);
   if (e.state !== "cancelled") throw new Error(`expected cancelled, got ${e.state}`);
 });
 
-await test("PR-07m · retry plan gives exponential backoff", { "PR-07m": "full" }, () => {
+await test("PR-15 · retry plan gives exponential backoff", { "PR-15": "full" }, () => {
   let e = start(createEntry("dl1", "https://example.com/f.pdf", []));
   e = fail(e, Date.now(), "timeout");
   const r1 = planRetry(e, Date.now());
@@ -236,7 +236,7 @@ await test("PR-07m · retry plan gives exponential backoff", { "PR-07m": "full" 
   if (r1.delayMs !== 2000) throw new Error(`expected 2000ms backoff, got ${r1.delayMs}`);
 });
 
-await test("PR-07m · retry exhausted after 3 attempts", { "PR-07m": "full" }, () => {
+await test("PR-15 · retry exhausted after 3 attempts", { "PR-15": "full" }, () => {
   let e = createEntry("dl1", "https://example.com/f.pdf", []);
   for (let i = 0; i < 3; i++) {
     e = start(e);
@@ -246,14 +246,14 @@ await test("PR-07m · retry exhausted after 3 attempts", { "PR-07m": "full" }, (
   if (r.retry) throw new Error("should not retry after 3 attempts");
 });
 
-await test("PR-07m · sortQueue puts running first", { "PR-07m": "full" }, () => {
+await test("PR-15 · sortQueue puts running first", { "PR-15": "full" }, () => {
   const q = createEntry("q1", "https://example.com/1.pdf", []);
   const r = start(createEntry("r1", "https://example.com/2.pdf", []));
   const sorted = sortQueue([q, r]);
   if (sorted[0].state !== "running") throw new Error("running should be first");
 });
 
-await test("PR-07m · summary reports counts", { "PR-07m": "full" }, () => {
+await test("PR-15 · summary reports counts", { "PR-15": "full" }, () => {
   const e = complete(progress(start(createEntry("d1", "https://example.com/f.pdf", [])), 100));
   const s = summary([e]);
   if (!s.includes("1 saved")) throw new Error(`expected '1 saved': ${s}`);
@@ -261,85 +261,85 @@ await test("PR-07m · summary reports counts", { "PR-07m": "full" }, () => {
 
 
 // ── Extension permissions (FM-14) ──────────────────────────────────────────
-await test("FM-14 · check grants read inside folder", { "FM-14": "full" }, () => {
+await test("FM-23 · check grants read inside folder", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = check(g, "/Documents/a.txt", "read");
   if (!r.granted) throw new Error("should grant read inside folder");
   if (r.resolved !== "/Documents/a.txt") throw new Error(`wrong resolved: ${r.resolved}`);
 });
 
-await test("FM-14 · check denies read outside folder", { "FM-14": "full" }, () => {
+await test("FM-23 · check denies read outside folder", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = check(g, "/System/secret.txt", "read");
   if (r.granted) throw new Error("should deny outside folder");
   if (!r.reason.includes("outside")) throw new Error(`reason should say outside: ${r.reason}`);
 });
 
-await test("FM-14 · check denies missing permission", { "FM-14": "full" }, () => {
+await test("FM-23 · check denies missing permission", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = check(g, "/Documents/a.txt", "write");
   if (r.granted) throw new Error("should deny write without permission");
 });
 
-await test("FM-14 · path traversal is normalised away", { "FM-14": "full" }, () => {
+await test("FM-23 · path traversal is normalised away", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = check(g, "/Documents/../System/secret.txt", "read");
   if (r.granted) throw new Error("should deny traversal escape");
 });
 
-await test("FM-14 · boundedRead caps at maxBytes", { "FM-14": "full" }, () => {
+await test("FM-23 · boundedRead caps at maxBytes", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = boundedRead(g, "/Documents/a.txt", 4096);
   if (!r.ok) throw new Error("should allow read");
   if (r.bytes !== 4096) throw new Error(`expected 4096, got ${r.bytes}`);
 });
 
-await test("FM-14 · stream requires separate permission", { "FM-14": "full" }, () => {
+await test("FM-23 · stream requires separate permission", { "FM-23": "full" }, () => {
   const g = { folder: "/Documents/", permissions: ["read"] as const };
   const r = stream(g, "/Documents/a.txt", 1024);
   if (r.ok) throw new Error("should deny stream without stream permission");
 });
 
-await test("FM-14 · app metadata is never exposed", { "FM-14": "full" }, () => {
+await test("FM-23 · app metadata is never exposed", { "FM-23": "full" }, () => {
   const g = { folder: "/", permissions: ["read", "stream", "list", "write", "execute"] as const };
   const r = check(g, "/.fusion/config.json", "read");
   if (r.granted) throw new Error("should deny access to .fusion metadata");
 });
 
 // ── Streaming playlists (ST-04) ─────────────────────────────────────────────
-await test("ST-04 · parsePlaylist parses basic M3U8", { "ST-04": "full" }, () => {
+await test("ST-17 · parsePlaylist parses basic M3U8", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXTINF:10.0,\nseg1.ts\n#EXTINF:20.0,\nseg2.ts";
   const p = parsePlaylist(text, "https://example.com/");
   if (p.entries.length !== 2) throw new Error(`expected 2 entries, got ${p.entries.length}`);
   if (p.totalSeconds !== 30) throw new Error(`expected 30s, got ${p.totalSeconds}`);
 });
 
-await test("ST-04 · parsePlaylist detects byte ranges", { "ST-04": "full" }, () => {
+await test("ST-17 · parsePlaylist detects byte ranges", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-BYTERANGE:1024@0\n#EXTINF:10.0,\nseg1.ts";
   const p = parsePlaylist(text);
   if (p.entries[0].byteLength !== 1024) throw new Error(`expected 1024 bytes, got ${p.entries[0].byteLength}`);
 });
 
-await test("ST-04 · parsePlaylist detects live playlists", { "ST-04": "full" }, () => {
+await test("ST-17 · parsePlaylist detects live playlists", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-PLAYLIST-TYPE:live\n#EXTINF:10.0,\nseg1.ts";
   const p = parsePlaylist(text);
   if (!p.isLive) throw new Error("should detect live playlist");
 });
 
-await test("ST-04 · byte ranges require version 3+", { "ST-04": "full" }, () => {
+await test("ST-17 · byte ranges require version 3+", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:1\n#EXT-X-BYTERANGE:1024@0\n#EXTINF:10.0,\nseg1.ts";
   const p = parsePlaylist(text);
   if (!p.invalid) throw new Error("should flag byte range with version 1");
 });
 
-await test("ST-04 · advanceIndex moves to next for live playlists", { "ST-04": "full" }, () => {
+await test("ST-17 · advanceIndex moves to next for live playlists", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-PLAYLIST-TYPE:live\n#EXTINF:10.0,\nseg1.ts\n#EXTINF:10.0,\nseg2.ts";
   const p = parsePlaylist(text);
   const next = advanceIndex(p, 0, 10);
   if (next !== 1) throw new Error(`expected index 1, got ${next}`);
 });
 
-await test("ST-04 · streamStat reports counts and bytes", { "ST-04": "full" }, () => {
+await test("ST-17 · streamStat reports counts and bytes", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-BYTERANGE:2048@0\n#EXTINF:10.0,\nseg1.ts";
   const p = parsePlaylist(text);
   const s = streamStat(p);
@@ -347,7 +347,7 @@ await test("ST-04 · streamStat reports counts and bytes", { "ST-04": "full" }, 
   if (s.totalBytes !== 2048) throw new Error(`expected 2048 bytes, got ${s.totalBytes}`);
 });
 
-await test("ST-04 · describePlaylist gives a one-line summary", { "ST-04": "full" }, () => {
+await test("ST-17 · describePlaylist gives a one-line summary", { "ST-17": "full" }, () => {
   const text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXTINF:10.0,\nseg1.ts";
   const p = parsePlaylist(text);
   const d = describePlaylist(p);
