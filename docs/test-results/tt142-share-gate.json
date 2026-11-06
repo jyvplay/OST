@@ -1,0 +1,123 @@
+{
+  "suite": "tt142-share-gate",
+  "at": "2026-11-06T21:59:54.220Z",
+  "results": [
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · only http(s) links leave the app",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · credentials in a shared link are stripped, not forwarded",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · oversized fields are trimmed and the trim is reported",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · files are dropped when the browser cannot share them",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · the file count and byte budget are both enforced",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · cancellation is not an error, and refusal is not cancellation",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · the pre-share text does not promise what is missing",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · a shared filename cannot traverse into the VFS",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · received text is bounded and stripped of controls",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · a hostile link is dropped from a received share",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · an oversized received file is refused by name",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · a share lands somewhere sensible or nowhere",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-share-gate",
+      "name": "CT-01 · receive is total: no malformed form can throw",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
