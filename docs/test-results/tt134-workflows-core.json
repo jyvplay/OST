@@ -1,6 +1,6 @@
 {
   "suite": "tt134-workflows-core",
-  "at": "2026-11-06T21:19:15.576Z",
+  "at": "2026-11-06T21:20:20.128Z",
   "results": [
     {
       "suite": "tt134-workflows-core",
@@ -11,7 +11,7 @@
         "NT-21": "partial"
       },
       "pass": true,
-      "ms": 60
+      "ms": 54
     },
     {
       "suite": "tt134-workflows-core",
@@ -20,7 +20,7 @@
         "NT-19": "partial"
       },
       "pass": true,
-      "ms": 5
+      "ms": 7
     },
     {
       "suite": "tt134-workflows-core",
@@ -29,7 +29,7 @@
         "NT-20": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt134-workflows-core",
@@ -47,7 +47,7 @@
         "NT-22": "partial"
       },
       "pass": true,
-      "ms": 31
+      "ms": 32
     },
     {
       "suite": "tt134-workflows-core",
@@ -65,7 +65,7 @@
         "NT-24": "partial"
       },
       "pass": true,
-      "ms": 4
+      "ms": 7
     },
     {
       "suite": "tt134-workflows-core",
@@ -106,7 +106,7 @@
         "NT-25": "partial"
       },
       "pass": true,
-      "ms": 90
+      "ms": 81
     },
     {
       "suite": "tt134-workflows-core",
@@ -126,7 +126,7 @@
         "CB-04": "partial"
       },
       "pass": true,
-      "ms": 9
+      "ms": 6
     },
     {
       "suite": "tt134-workflows-core",
@@ -135,7 +135,7 @@
         "CB-07": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 4
     },
     {
       "suite": "tt134-workflows-core",
@@ -153,7 +153,7 @@
         "CB-08": "partial"
       },
       "pass": true,
-      "ms": 149
+      "ms": 110
     },
     {
       "suite": "tt134-workflows-core",
@@ -203,7 +203,7 @@
         "SR-23": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 23
     },
     {
       "suite": "tt134-workflows-core",

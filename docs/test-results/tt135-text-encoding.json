@@ -1,6 +1,6 @@
 {
   "suite": "tt135-text-encoding",
-  "at": "2026-11-06T21:19:14.654Z",
+  "at": "2026-11-06T21:20:19.274Z",
   "results": [
     {
       "suite": "tt135-text-encoding",
@@ -9,7 +9,7 @@
         "CODE": "PR-01"
       },
       "pass": true,
-      "ms": 5
+      "ms": 0
     },
     {
       "suite": "tt135-text-encoding",
