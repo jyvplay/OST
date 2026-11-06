@@ -45,7 +45,11 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
   pulse: (p) => <path d="M9.5 26h7.2l3.3-8.6 5.4 15 4-10.4 2.1 4h7" {...S} stroke={p.fg} strokeWidth="3.8" />,
   keypad: (p) => <><rect x="13.5" y="10" width="21" height="28" rx="4.5" fill={p.fg} /><rect x="17" y="13.5" width="14" height="6.2" rx="1.8" fill={p.detail} />{[19, 24, 29].flatMap((x) => [25.4, 31.6].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r="2" fill={p.detail} />))}</>,
   gear: (p) => <><circle cx="24" cy="24" r="7.6" {...S} stroke={p.fg} strokeWidth="4.4" />{[0, 45, 90, 135, 180, 225, 270, 315].map((a) => { const r = (a * Math.PI) / 180; return <path key={a} d={`M${24 + Math.cos(r) * 10.6} ${24 + Math.sin(r) * 10.6}L${24 + Math.cos(r) * 13.4} ${24 + Math.sin(r) * 13.4}`} {...S} stroke={p.fg} strokeWidth="4.6" />; })}</>,
-  checklist: (p) => <><rect x="12.5" y="12" width="23" height="26" rx="4.5" fill={p.fg} /><rect x="18.5" y="9" width="11" height="6" rx="2.6" fill={p.fg} stroke={p.detail} strokeWidth="1.8" /><path d="M16.8 22.4l2.2 2.2 3.6-3.8M25.8 23h5.4M16.8 30.4l2.2 2.2 3.6-3.8M25.8 31h5.4" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
+  checklist: (p) => <><rect x="12.5" y="12" width="23" height="26" rx="4.5" fill={p.fg} /><rect x="18.5" y="9" width="11" height="6" rx="2.6" fill={p.fg} stroke={p.detail} strokeWidth="1.8" /><path d="M16.6 21.4l2.6 2.6 4.2-4.4M26.6 22.2h5.2M16.6 28.2l2.6 2.6 4.2-4.4M26.6 29h5.2M16.6 34.4l2.6 2.6 4.2-4.4M26.6 35.2h5.2" {...S} stroke={p.detail} strokeWidth="3.2" /></>,
+  // TT140: the tick marks were 2.6 px hairlines that merged into the tile at
+  // dock size, leaving checklist and clipboard 136 vs 192 grey pixels apart —
+  // visually the same slip of paper. Three 3.2 px rows widen that gap.
+
   clock: (p) => <><circle cx="24" cy="24" r="12.5" fill={p.fg} /><path d="M24 16.5V24l5.2 3.2" {...S} stroke={p.detail} strokeWidth="3.4" /></>,
   calendar: (p) => <><rect x="11" y="14" width="26" height="23.5" rx="4.5" fill={p.fg} /><path d="M18 10.5v6M30 10.5v6" {...S} stroke={p.fg} strokeWidth="3.4" /><path d="M11.5 20.5h25" stroke={p.detail} strokeWidth="2.4" />{[18, 24, 30].flatMap((x) => [26, 31.6].map((y) => <rect key={`${x}-${y}`} x={x - 2} y={y - 2} width="4" height="4" rx="1.2" fill={p.detail} />))}</>,
   plug: (p) => <><path d="M20 11v6.5M28 11v6.5" {...S} stroke={p.fg} strokeWidth="3.4" /><path d="M15.5 17.5h17v5a8.5 8.5 0 0 1-17 0z" fill={p.fg} /><path d="M24 31v3a3.5 3.5 0 0 0 3.5 3.5H33" {...S} stroke={p.fg} strokeWidth="3.4" /></>,
@@ -56,7 +60,13 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
   drive: (p) => <><rect x="9.5" y="16.5" width="29" height="16" rx="4.5" fill={p.fg} /><path d="M14.5 24.5h10" {...S} stroke={p.detail} strokeWidth="2.8" /><circle cx="32.5" cy="24.5" r="2.4" fill="#4ade80" /></>,
   picture: (p) => <><rect x="10" y="12" width="28" height="24" rx="4.5" fill={p.fg} /><path d="M13 33l7.6-8.6 5 5.2 4-4.2L35.4 33z" fill={p.detail} /><circle cx="30.5" cy="19.5" r="3.4" fill="#ffd23f" /></>,
   pen: (p) => <><path d="M24 9.5l8.8 11.8-4.7 13.2h-8.2l-4.7-13.2z" fill={p.fg} /><circle cx="24" cy="22.5" r="2.4" fill={p.detail} /><path d="M24 25v7" {...S} stroke={p.detail} strokeWidth="2" /><rect x="19.2" y="34.8" width="9.6" height="3.6" rx="1.4" fill={p.fg} /></>,
-  doc: (p) => <><path d="M15 10h12.2l8.3 8.3V36a2.5 2.5 0 0 1-2.5 2.5H15a2.5 2.5 0 0 1-2.5-2.5V12.5A2.5 2.5 0 0 1 15 10z" fill={p.fg} /><path d="M27 10.4v6.4a1.6 1.6 0 0 0 1.6 1.6H35" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M17.5 24.5h13M17.5 29.5h13M17.5 34h7.5" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
+  doc: (p) => <><path d="M15 10h12.2l8.3 8.3V36a2.5 2.5 0 0 1-2.5 2.5H15a2.5 2.5 0 0 1-2.5-2.5V12.5A2.5 2.5 0 0 1 15 10z" fill={p.fg} /><path d="M27 10.4v6.4a1.6 1.6 0 0 0 1.6 1.6H35" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M17.5 23h13M17.5 27.5h13M17.5 32h8.5" {...S} stroke={p.detail} strokeWidth="3.4" /></>,
+  // blank: same page, no text and a folded corner drawn hollow. TT140 found that
+  // "a page with no lines" and "a page with lines" were 653 lit pixels each at
+  // 48 px — the lines vanished and the two tiles were indistinguishable. The
+  // difference is now structural: doc carries three heavy rules, blank carries a
+  // hollow corner instead of a filled one.
+
   book: (p) => <><path d="M24 15.2C20.6 12.4 15.8 11.6 10.5 12.3v22.4c5.3-.7 10.1.1 13.5 2.9 3.4-2.8 8.2-3.6 13.5-2.9V12.3c-5.3-.7-10.1.1-13.5 2.9z" fill={p.fg} /><path d="M24 15.6v21.6" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M14.5 19.5c2.6-.2 4.8.2 6.4 1.2M14.5 25c2.6-.2 4.8.2 6.4 1.2M27.1 20.7c1.6-1 3.8-1.4 6.4-1.2M27.1 26.2c1.6-1 3.8-1.4 6.4-1.2" {...S} stroke={p.detail} strokeWidth="2.2" /></>,
   easel: (p) => <><rect x="10" y="10.5" width="28" height="20" rx="3.6" fill={p.fg} /><path d="M19.5 37.5l3-7M28.5 37.5l-3-7" {...S} stroke={p.fg} strokeWidth="3.2" /><rect x="15" y="21" width="4.4" height="6" rx="1.2" fill={p.detail} /><rect x="21.8" y="17" width="4.4" height="10" rx="1.2" fill={p.detail} /><rect x="28.6" y="14" width="4.4" height="13" rx="1.2" fill={p.detail} /></>,
   // TT23 Whiteboard: a sticky square bound to a circle by an arrow — the connector model in one picture
@@ -73,7 +83,19 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
   map: (p) => <><path d="M9.5 15.5l9-3.5 11 3.5 9-3.5v20.5l-9 3.5-11-3.5-9 3.5z" fill={p.fg} /><path d="M18.5 12v20.5M29.5 15.5V36" stroke={p.detail} strokeWidth="1.6" opacity=".7" /><path d="M24 30.5s-5.2-5.4-5.2-9a5.2 5.2 0 0 1 10.4 0c0 3.6-5.2 9-5.2 9z" fill={p.detail} /><circle cx="24" cy="21.4" r="2" fill={p.fg} /></>,
   trash: (p) => <><rect x="13.5" y="17" width="21" height="21.5" rx="3.5" fill={p.fg} /><rect x="11" y="12.5" width="26" height="4.6" rx="2.3" fill={p.fg} /><rect x="20" y="9.5" width="8" height="4" rx="1.8" fill={p.fg} /><path d="M19.5 22v11.5M24 22v11.5M28.5 22v11.5" {...S} stroke={p.detail} strokeWidth="2.4" /></>,
   box: (p) => <><path d="M11 17.5L24 11l13 6.5v13L24 37l-13-6.5z" fill={p.fg} /><path d="M11.5 17.8L24 24l12.5-6.2M24 24v12.6" {...S} stroke={p.detail} strokeWidth="2.6" /></>,
-  blank: (p) => <><path d="M15 10h12.2l8.3 8.3V36a2.5 2.5 0 0 1-2.5 2.5H15a2.5 2.5 0 0 1-2.5-2.5V12.5A2.5 2.5 0 0 1 15 10z" fill={p.fg} /><path d="M27 10.4v6.4a1.6 1.6 0 0 0 1.6 1.6H35" {...S} stroke={p.detail} strokeWidth="2.4" /></>,
+  blank: (p) => <><path d="M13.5 10h13.2l8.3 8.3V33a5 5 0 0 1-5 5H18.5a5 5 0 0 1-5-5V10z" fill={p.fg} /><path d="M20 18.5h8M20 22.5h8M20 26.5h8M20 30.5h4" {...S} stroke={p.detail} strokeWidth="2" strokeDasharray="0.1 4.4" /></>,
+  // TT140 original marks. Same contract as every glyph above: 48-grid, inside
+  // the 12..36 safe area, stroke-only via S, colour from the palette.
+  // waveform: a level trace. Deliberately not a microphone — that is `record`.
+  waveform: (p) => <><path d="M10 24h3.4M17 15v18M22 20v8M27 12.4v23.2M32 18v12M37 22v4" {...S} stroke={p.fg} strokeWidth="3.2" /></>,
+  // trim: in/out brackets over a strip of frames, the two handles a trimmer drags.
+  trim: (p) => <><path d="M10 17v14M38 17v14" {...S} stroke={p.fg} strokeWidth="3.6" /><path d="M16 14.5v19M24 14.5v19M32 14.5v19" {...S} stroke={p.detail} strokeWidth="2.2" /><path d="M10 24h4M34 24h4" {...S} stroke={p.fg} strokeWidth="3" /></>,
+  // ruler: a scale with one longer tick. Reads as "how much", not as a pie chart.
+  ruler: (p) => <><rect x="11" y="18.5" width="26" height="11" rx="2.2" {...S} stroke={p.fg} strokeWidth="2.8" /><path d="M16 18.5v4.5M21 18.5v7M26 18.5v4.5M31 18.5v7" {...S} stroke={p.fg} strokeWidth="2.4" /></>,
+  // signal: four ascending bars, the shape of a bitrate ladder.
+  signal: (p) => <><path d="M12 32v4M20 26v10M28 20v16M36 14v22" {...S} stroke={p.fg} strokeWidth="4" /><circle cx="36" cy="11" r="2.2" fill={p.fg} /></>,
+  // funnel: a narrowing throat, i.e. a query being reduced to matches.
+  funnel: (p) => <><path d="M9 12.5h30L27.5 25v9.5l-7-3.6V25Z" fill={p.fg} /><path d="M9 12.5h30" {...S} stroke={p.detail} strokeWidth="2.4" /></>,
 };
 
 /** Module id → [palette, glyph]. Every id in the module registry must appear here (scripts/a11y-unit.mts). */
