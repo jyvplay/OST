@@ -1,6 +1,6 @@
 {
   "suite": "tt133-projections",
-  "at": "2026-11-06T21:30:43.975Z",
+  "at": "2026-11-06T21:38:25.705Z",
   "results": [
     {
       "suite": "tt133-projections",
@@ -21,7 +21,7 @@
       "name": "Comment projection whitelists scalars: comment blocks/XML must not leak through a shallow spread",
       "covers": {},
       "pass": true,
-      "ms": 23
+      "ms": 21
     },
     {
       "suite": "tt133-projections",
@@ -42,7 +42,7 @@
       "name": "Inactive panes remain empty; stale selections do not alias the replacement document",
       "covers": {},
       "pass": true,
-      "ms": 10
+      "ms": 12
     }
   ]
 }

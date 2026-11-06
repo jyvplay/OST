@@ -18,7 +18,7 @@
  * If the canvas oracle is absent the script exits 2 with a REFUSED line rather
  * than skipping, because a silent skip is how a geometry regression ships.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const TOOLS = process.env.TOOLS_DIR ?? "/home/user/tools";
@@ -246,6 +246,28 @@ console.log(JSON.stringify({
   toneDuplicates: toneDupes.slice(0, 8),
   warnings: warnings.length,
 }, null, 0));
+
+// Emit the same receipts shape the harness writes, so the ledger can join this
+// suite like any other. A standalone oracle that skips the receipt disappears
+// from the coverage table, which is how a check quietly stops counting.
+const receipt = {
+  suite: "tt140-glyph-geometry",
+  at: new Date().toISOString(),
+  results: [{
+    suite: "tt140-glyph-geometry",
+    name: `every glyph renders, stays on the tile and is distinguishable (${results.length} checked, ${skipped.length} skipped)`,
+    covers: { "AX-10": "partial" as const },
+    pass: failures.length === 0,
+    ...(failures.length ? { error: failures.slice(0, 5).join(" | ") } : {}),
+    ms: 0,
+  }],
+};
+try {
+  mkdirSync("docs/test-results", { recursive: true });
+  writeFileSync("docs/test-results/tt140-glyph-geometry.json", JSON.stringify(receipt, null, 2));
+} catch {
+  // A read-only checkout is not a test failure.
+}
 
 if (failures.length) {
   console.log(`\nFAILED: ${failures.length} glyph problem(s)`);

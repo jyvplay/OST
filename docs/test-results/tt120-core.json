@@ -1,6 +1,6 @@
 {
   "suite": "tt120-core",
-  "at": "2026-11-06T21:30:55.088Z",
+  "at": "2026-11-06T21:38:36.520Z",
   "results": [
     {
       "suite": "tt120-core",
@@ -9,7 +9,7 @@
         "ED-04": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt120-core",
@@ -27,7 +27,7 @@
         "PL-05": "full"
       },
       "pass": true,
-      "ms": 23
+      "ms": 16
     },
     {
       "suite": "tt120-core",
@@ -36,7 +36,7 @@
         "WD-04": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 1
     },
     {
       "suite": "tt120-core",
@@ -45,7 +45,7 @@
         "TM-04": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt120-core",
@@ -63,7 +63,7 @@
         "SR-10": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt120-core",
