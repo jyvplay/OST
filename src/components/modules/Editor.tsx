@@ -19,6 +19,7 @@ import { caseTransform } from "@/lib/case-text";
 import { stampText } from "@/lib/stamp-text";
 import { askText } from "@/lib/ask";
 import { RecoveryBanner, useDocLifecycle, useRecoveryOffer } from "../doc-lifecycle-ui";
+import { decodeText, describeDecode, lineEndings, type DecodeResult } from "@/lib/text-encoding";
 
 interface Version { id: number; version: number; size: number; sha256: string; createdAt: string; content: string }
 
@@ -71,12 +72,27 @@ export default function EditorModule({ win }: ModuleProps) {
     }
   };
 
+  const [encoding, setEncoding] = useState<DecodeResult | null>(null);
+  const [le, setLe] = useState<string>("");
+
   useEffect(() => {
     if (!path) return;
     api<{ node: { content: string; encoding: string } }>(`/api/fs?op=read&path=${encodeURIComponent(path)}`)
       .then((r) => {
-        setText(r.node.encoding === "base64" ? "[binary file — open it in Peek]" : r.node.content);
         setLoaded(true);
+        if (r.node.encoding === "base64") { setText("[binary file — open it in Peek]"); return; }
+        // TT136 PR-01: decode through the honest pipeline, not an assumed UTF-8 read.
+        try {
+          const bytes = new TextEncoder().encode(r.node.content);
+          const decoded = decodeText(bytes);
+          setEncoding(decoded);
+          const e = lineEndings(decoded.text);
+          setLe(`${e.dominant === "crlf" ? "CRLF" : e.dominant === "lf" ? "LF" : "CR"} · ${e.crlf} CRLF / ${e.lf} LF / ${e.cr} CR`);
+          setText(decoded.text);
+        } catch (err) {
+          setText(r.node.content);
+          setStatus(`Encoding: ${String((err as Error).message)}`);
+        }
       })
       .catch((e) => { setStatus(String((e as Error).message)); setLoaded(true); });
     api<{ versions: Version[] }>(`/api/fs?op=versions&path=${encodeURIComponent(path)}`)
@@ -124,6 +140,8 @@ export default function EditorModule({ win }: ModuleProps) {
   <AppBanner label="Editor" status={<>
       {fmt ? <Badge tone={fmt.grade === "A" ? "ok" : "info"} title={fmt.boundary}>{fmt.label} · grade {fmt.grade}</Badge> : null}
       {dirty ? <Badge tone="warn">unsaved</Badge> : <Badge tone="ok">saved</Badge>}
+      {encoding ? <Badge tone={encoding.lossy ? "warn" : "info"} title={encoding.lossy ? "decoded as Latin-1: one byte per character" : "decoded via BOM or strict UTF-8"}>{describeDecode(encoding)}</Badge> : null}
+      {le ? <span className="fs-dim" style={{ fontSize: fz(10) }}>{le}</span> : null}
       <span className="fs-dim" style={{ fontSize: fz(11) }}>{status}</span>
   </>}>
     <BannerGroup name="Keep">

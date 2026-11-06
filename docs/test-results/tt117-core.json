@@ -1,6 +1,6 @@
 {
   "suite": "tt117-core",
-  "at": "2026-11-02T16:21:14.607Z",
+  "at": "2026-11-06T04:57:52.340Z",
   "results": [
     {
       "suite": "tt117-core",
@@ -75,7 +75,7 @@
         "RC-42": "full"
       },
       "pass": true,
-      "ms": 7
+      "ms": 8
     },
     {
       "suite": "tt117-core",
@@ -111,7 +111,7 @@
         "PL-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 14
     }
   ]
 }

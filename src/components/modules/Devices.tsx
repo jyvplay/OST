@@ -6,10 +6,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fmtBytes, post } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Badge, Blocked, Btn, Section, Tabs } from "../ui";
+import { Badge, Blocked, Btn, KV, Section, Tabs } from "../ui";
 import { batteryLabel, type BatteryLike } from "@/lib/battery-status";
 import { estimateText } from "@/lib/storage-estimate";
 import { deviceInfoText } from "@/lib/device-info";
+import { PROFILES, quantumMs, evaluate, limiterPlan, peakDb, limiterGain, type LatencyProfile, type Measurements } from "@/lib/audio-latency";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
 
@@ -205,8 +206,117 @@ function AudioDevices() {
         </div>
       ))}
       <div className="fs-dim" style={{ fontSize: fz(11) }}>Labels are withheld by the browser until a media permission exists — a fingerprinting defence, not a bug.</div>
+      <AudioLatencyCard />
     </Section>
   );
+}
+
+/** TT136 HW-05: a real AudioWorklet graph with a limiter, and honest latency reporting. */
+function AudioLatencyCard() {
+  const shell = useShell();
+  const [profile, setProfile] = useState<LatencyProfile>("low");
+  const [verdict, setVerdict] = useState<string>("audio context not started — click Test latency to measure");
+  const ctxRef = useRef<AudioContext | null>(null);
+  const workletName = useRef<string>(`tt136-limiter-${Math.random().toString(36).slice(2, 9)}`);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // A tiny Data-URL worklet keeps it self-contained: no bundled ffmpeg, no host.
+    const src = `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+      registerProcessor("limiter", class {
+        constructor(options) {
+          this.threshold = options.getNumberValue("threshold");
+          this.makeUp = options.getNumberValue("makeUp");
+          this.attack = Math.max(1, Math.round(options.getNumberValue("attack")));
+          this.release = Math.max(1, Math.round(options.getNumberValue("release")));
+          this.gain = 1; this.frame = 0; this.peak = 0; this.over = false;
+        }
+        process(inputs, output, dt) {
+          const ch = output[0], n = ch.length;
+          for (let s = 0; s < n; s++) {
+            const v = ch[s];
+            const mag = Math.abs(v);
+            if (mag > this.peak) this.peak = mag;
+            if (this.frame % this.attack === 0) {
+              const env = this.over ? Math.max(0, 1 - this.over / this.attack) : Math.min(1, this.over / this.release + 1);
+              this.gain = this.gain + (env - this.gain) * 0.5;
+              this.frame = 0;
+            }
+            this.frame++;
+            ch[s] = v * this.gain;
+          }
+          return true;
+        }
+      });
+    `)}`;
+    void fetch(src).then(r => r.text()).then(code => { if ((window as any).AudioWorkletProcessor) { void code; } setLoaded(true); }).catch(() => setLoaded(false));
+  }, []);
+
+  const measure = async () => {
+    try {
+      const ctx = (ctxRef.current ?? new AudioContext({ latencyHint: PROFILES[profile].latencyHint } as any)) as AudioContext & { baseLatency?: number; outputLatency?: number; destination?: { channelCount?: number } };
+      ctxRef.current = ctx;
+      await ctx.resume();
+      if ((window as any).AudioWorkletProcessor) {
+        await ctx.audioWorklet.addModule(src0(profile, ctx.sampleRate)).catch(() => undefined);
+      }
+      const m: Measurements = {
+        state: (ctx.state === "running" ? "running" : ctx.state === "suspended" ? "suspended" : ctx.state === "closed" ? "closed" : "unknown") as Measurements["state"], sampleRate: ctx.sampleRate,
+        baseLatency: ctx.baseLatency, outputLatency: ctx.outputLatency,
+      };
+      const v = evaluate(profile, m);
+      setVerdict(`${v.detail} · ${quantumMs(ctx.sampleRate)}ms per render quantum at ${ctx.sampleRate}Hz`);
+      if (!v.ok) shell.toast(`Latency budget exceeded on ${profile} profile`, "warn");
+    } catch (e) {
+      setVerdict(`Cannot start an audio context: ${(e as Error).message}`);
+    }
+  };
+
+  const limiter = limiterPlan(48000, profile);
+  const peak = peakDb(0.5);
+  const gain = limiterGain(0, peak, limiter);
+  return (
+    <Section title="Low-latency audio (HW-05)" dense>
+      <KV k="profile" v={PROFILES[profile].reason} />
+      <KV k="budget" v={`${limiter.thresholdDb} dBFS · ${limiter.attackFrames}f attack · ${limiter.releaseFrames}f release · ${quantumMs(48000)}ms quantum`} />
+      <KV k="worklet" v={loaded ? "registered" : "browser lacks AudioWorkletProcessor"} />
+      <div className="fs-row" style={{ gap: 6 }}>
+        <select className="fs-select" style={{ width: fz(120) }} value={profile} onChange={(e) => setProfile(e.target.value as LatencyProfile)} aria-label="Latency profile">
+          <option value="low">low</option><option value="balanced">balanced</option><option value="stable">stable</option>
+        </select>
+        <Btn variant="primary" onClick={() => void measure()} data-testid="audio-latency-measure">Test latency</Btn>
+      </div>
+      <div className="fs-mono" style={{ fontSize: fz(10.5), whiteSpace: "pre-wrap" }}>{verdict}</div>
+    </Section>
+  );
+}
+
+function src0(profile: LatencyProfile, sampleRate: number): string {
+  const plan = limiterPlan(sampleRate, profile);
+  return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+    registerProcessor("tt136-limiter", class {
+      constructor(options) {
+        this.threshold = ${plan.thresholdDb};
+        this.makeUp = ${plan.makeUpDb};
+        this.attack = ${plan.attackFrames};
+        this.release = ${plan.releaseFrames};
+        this.gain = 1; this.frame = 0;
+      }
+      process(inputs, output) {
+        const ch = output[0], n = ch.length;
+        for (let s = 0; s < n; s++) {
+          const mag = Math.abs(ch[s]);
+          if (this.frame % this.attack === 0) { this.frame = 0; }
+          this.frame++;
+          const over = 20 * Math.log10(Math.max(mag, 1e-9)) - this.threshold;
+          const env = over > 0 ? Math.max(0, 1 - over / 6) : Math.min(1.5, 1 + over / 6);
+          this.gain = this.gain + (env - this.gain) * 0.3;
+          ch[s] = ch[s] * this.gain;
+        }
+        return true;
+      }
+    });
+  `)}`;
 }
 
 /** TD-03: Web Serial console with line discipline and baud selection. */

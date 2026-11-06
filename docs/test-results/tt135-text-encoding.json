@@ -1,0 +1,132 @@
+{
+  "suite": "tt135-text-encoding",
+  "at": "2026-11-06T04:54:32.676Z",
+  "results": [
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · valid UTF-8 decodes with strict confidence",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · UTF-8 BOM is detected",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · invalid UTF-8 falls back to Latin-1, flagged lossy",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · UTF-16LE without BOM is detected by NUL pattern",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · empty input returns empty text",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · binary-looking data is refused, not decoded",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · file larger than 8 MiB is refused",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · sizeClass classifies warn/refuse correctly",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · encodeText round-trips UTF-8",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · encodeText with BOM round-trips",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · encodeText rejects characters > 255 in Latin-1",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · lineEndings detects dominant ending",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · describeDecode mentions encoding and how",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt135-text-encoding",
+      "name": "PR-01 · corrupt BOM is refused, not guessed",
+      "covers": {
+        "CODE": "PR-01"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
