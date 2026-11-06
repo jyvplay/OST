@@ -1,0 +1,384 @@
+{
+  "suite": "tt139-media",
+  "at": "2026-11-06T21:20:04.771Z",
+  "results": [
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · detection prefers content over extension",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · RFC 4180 CSV: quotes, embedded commas and newlines",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · CSV ⇄ JSON keeps column order and stringifies objects",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · INI and a flat YAML subset",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · log parsing separates structured from free-form lines",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-09 · analysis reports encoding and line endings honestly",
+      "covers": {
+        "FF-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-11 · docx → txt names every specific loss",
+      "covers": {
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-11 · same format is byte-lossless; a capable target is lossless",
+      "covers": {
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-11 · severity is the max, and losslessTargets is consistent",
+      "covers": {
+        "FF-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "PR-08 · zoom keeps the anchor point fixed",
+      "covers": {
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "PR-08 · rotation swaps axes and a fit stays a fit",
+      "covers": {
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "PR-08 · rotation rejects non-multiples of 90",
+      "covers": {
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "PR-08 · pan is clamped so the page cannot leave the screen",
+      "covers": {
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "PR-08 · paging, fits and the content rect are consistent",
+      "covers": {
+        "PR-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24 · crop and rotate produce exact pixels",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24 · flip is its own inverse",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24 · brightness and contrast are exactly reversible",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24 · saturation 0 equals Rec.601 luma",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24/LN-04 · gamma LUT is exact at the endpoints",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "LN-04 · temperature is neutral at 0 and clamps its input",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "LN-04 · vignette darkens corners only, and is exact at strength 0",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "LN-04 · denoise reduces noise and preserves a flat field exactly",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "LN-04 · identity LUT is the identity, trilinear in between",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-media",
+      "name": "LN-04 · enhance runs the documented order and changes nothing at defaults",
+      "covers": {
+        "LN-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FF-24 · malformed buffers are refused, not read out of bounds",
+      "covers": {
+        "FF-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "MD-08 · trim aligns to a keyframe and reports the lead-in cost",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "MD-08 · trim boundaries are enforced",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "MD-08 · export presets never upscale the source",
+      "covers": {
+        "MD-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-07 · categories, totals and percentages",
+      "covers": {
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-07 · duplicates are tiered and unconfirmed ones free nothing",
+      "covers": {
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-07 · empty files and zero-byte sets are handled",
+      "covers": {
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-07 · formatBytes rounds the way a person reads it",
+      "covers": {
+        "FM-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-13 · built-ins, user templates and de-duplication",
+      "covers": {
+        "FM-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "FM-13 · the New menu groups by category, built-ins first",
+      "covers": {
+        "FM-13": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt139-media",
+      "name": "BK-03 · export is a versioned bundle with a checksum",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "BK-03 · import is a dry run that classifies every change",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "BK-03 · broken bundles are refused with a reason",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "BK-03 · applyImport refuses an invalid plan",
+      "covers": {
+        "BK-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "CT-01 · payloads are validated before any target sees them",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt139-media",
+      "name": "CT-01 · targets are matched by kind with a reason for each",
+      "covers": {
+        "CT-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "CT-03 · a superseded handoff cannot be accepted (the race)",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-media",
+      "name": "CT-03 · expire clears the item; an invalid offer is refused",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

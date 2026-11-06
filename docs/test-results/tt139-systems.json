@@ -1,0 +1,411 @@
+{
+  "suite": "tt139-systems",
+  "at": "2026-11-06T21:19:28.398Z",
+  "results": [
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · literal mode is case-insensitive and wraps",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · whole-word uses Unicode boundaries, not \\b",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · regex mode; an invalid pattern is reported, not thrown",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · cycleMode rotates through all four modes",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · matches never overlap and stay ordered",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · an over-long query is refused with a reason",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · replaceAll is literal: $& is not special",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-07n · highlight segments reconstruct the original text exactly",
+      "covers": {
+        "PR-07n": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-10 · timer runs to completion and latches alarm",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-10 · a resumed tab catches up exactly (no drift)",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-10 · pause freezes; lap splits are exact",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-10 · duration bounds and extend",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "PR-10 · formatTime is exact at boundaries",
+      "covers": {
+        "PR-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "CK-01 · daily alarm computes the next local wall-clock occurrence",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "CK-01 · weekly alarm respects the day set",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "CK-01 · a slept-through schedule fires once, not N times",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "CK-01 · once alarms finish; snooze re-arms; disable clears",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "CK-01 · adversarial: duplicate id, bad label, bad snooze",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-05 · ledger records modules with real reasons",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-05 · global opt-out is reversible and non-destructive",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-05 · audit finds sole holders and blocked capabilities",
+      "covers": {
+        "SC-05": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-07 · lifecycle: sealed → unlocked → locked → sealed",
+      "covers": {
+        "SC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-07 · rate limiting counts failures, not successes",
+      "covers": {
+        "SC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-07 · a throwing verifier is a failed attempt, not a crash",
+      "covers": {
+        "SC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "SC-07 · destroyed is terminal; auto-lock respects idle",
+      "covers": {
+        "SC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-01 · composite pressure is bounded and monotone",
+      "covers": {
+        "RG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-01 · hysteresis prevents oscillation at a fixed load",
+      "covers": {
+        "RG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-01 · sustained pressure rises; unloading falls",
+      "covers": {
+        "RG-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-01 · a single spike does not act (dwell time)",
+      "covers": {
+        "RG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-01 · throttle policy is monotone across levels",
+      "covers": {
+        "RG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-02 · scheduling hints defer heavy work under pressure",
+      "covers": {
+        "RG-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-04 · resource report distinguishes spiky from steady",
+      "covers": {
+        "RG-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "RG-06 · low-memory mode degrades explicitly",
+      "covers": {
+        "RG-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-02 · CPU-bound pool leaves a core for the main thread",
+      "covers": {
+        "HW-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-02 · memory budget and load level can veto the plan",
+      "covers": {
+        "HW-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-02 · realistic throughput is below the ideal (Amdahl honesty)",
+      "covers": {
+        "HW-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-02 · measured stats compute exact mean, not an average of means",
+      "covers": {
+        "HW-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-05 · latency budget adds up and classifies honestly",
+      "covers": {
+        "HW-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "HW-05 · voice count shrinks with convolvers",
+      "covers": {
+        "HW-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · cue model enforces the floor and no overlaps",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · wrapping respects the two-line rule",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · audit flags unreadable reading rate",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · audit catches flicker gaps and past-the-end cues",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · WebVTT round-trip, including a voice span",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-systems",
+      "name": "AX-07 · autoTime weights by length, not by count",
+      "covers": {
+        "AX-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

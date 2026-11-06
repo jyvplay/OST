@@ -1,6 +1,6 @@
 {
   "suite": "a11y-unit",
-  "at": "2026-11-06T04:57:42.548Z",
+  "at": "2026-11-06T21:19:16.660Z",
   "results": [
     {
       "suite": "a11y-unit",
@@ -9,7 +9,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 6
     },
     {
       "suite": "a11y-unit",
@@ -36,7 +36,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 21
     },
     {
       "suite": "a11y-unit",
@@ -65,7 +65,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 32
+      "ms": 23
     },
     {
       "suite": "a11y-unit",
@@ -75,7 +75,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 25
+      "ms": 13
     }
   ]
 }

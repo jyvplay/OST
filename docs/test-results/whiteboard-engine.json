@@ -1,6 +1,6 @@
 {
   "suite": "whiteboard-engine",
-  "at": "2026-11-06T04:57:51.738Z",
+  "at": "2026-11-06T21:19:24.748Z",
   "results": [
     {
       "suite": "whiteboard-engine",
@@ -37,7 +37,7 @@
         "WB-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "whiteboard-engine",
@@ -55,7 +55,7 @@
         "WB-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "whiteboard-engine",
@@ -64,7 +64,7 @@
         "WB-04": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "whiteboard-engine",
