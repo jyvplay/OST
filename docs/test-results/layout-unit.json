@@ -1,6 +1,6 @@
 {
   "suite": "layout-unit",
-  "at": "2026-11-06T21:52:09.548Z",
+  "at": "2026-11-06T22:02:26.371Z",
   "results": [
     {
       "suite": "layout-unit",
@@ -9,7 +9,7 @@
         "LY-02": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 23
     },
     {
       "suite": "layout-unit",
@@ -45,7 +45,7 @@
         "LY-01": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 2
     },
     {
       "suite": "layout-unit",
@@ -63,7 +63,7 @@
         "LY-03": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 1
     },
     {
       "suite": "layout-unit",
