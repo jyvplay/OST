@@ -9,7 +9,30 @@
  * Results are written to docs/test-results/<suite>.json; scripts/ledger.mjs joins
  * them with the live register. A row counts as tested only if the test PASSED.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+
+/**
+ * Write the results file only when it would actually change.
+ *
+ * Every suite rewrote its JSON on every run even when nothing had changed, and
+ * the gate runs ~40 suites: that is 40 sync writes plus 40 dirtied files in a
+ * git working tree, for bytes that were already on disk. Comparing the new
+ * serialisation against the existing one turns a no-op run into a no-op write,
+ * which is both faster and stops `git status` filling with timestamp-only
+ * diffs. `at` is deliberately excluded from the comparison so a run that
+ * changed no result is still reported as unchanged.
+ */
+function writeIfChanged(path: string, body: string): boolean {
+  try {
+    const prev = readFileSync(path, "utf8");
+    const strip = (t: string) => t.replace(/"at": "[^"]*",\n?/, "");
+    if (strip(prev) === strip(body)) return false;
+  } catch {
+    // No previous file: fall through to the write.
+  }
+  writeFileSync(path, body);
+  return true;
+}
 
 export type Level = "full" | "partial";
 export type Covers = Record<string, Level>;
@@ -34,9 +57,16 @@ export function makeHarness(suite: string) {
   };
   const finish = () => {
     mkdirSync("docs/test-results", { recursive: true });
-    if (!only) writeFileSync(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
+    if (!only) writeIfChanged(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
     const failed = results.filter((r) => !r.pass);
     console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
+    // Where the wall time went. Printed only when it is worth reading, so a
+    // 40-assertion suite that finishes in 5 ms stays quiet.
+    const wall = results.reduce((a, r) => a + r.ms, 0);
+    if (wall >= 30) {
+      const slowest = [...results].sort((a, b) => b.ms - a.ms).slice(0, 3).filter((r) => r.ms >= 5);
+      if (slowest.length) console.log(`slowest: ${slowest.map((r) => `${r.ms}ms ${r.name.slice(0, 46)}`).join(" | ")} (total ${wall}ms)`);
+    }
     if (!results.length) { console.log("FAILED: no tests selected"); process.exitCode = 1; }
     if (failed.length) { console.log("FAILED:", failed.map((f) => f.name).join(" | ")); process.exitCode = 1; }
   };
