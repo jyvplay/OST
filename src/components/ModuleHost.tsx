@@ -51,6 +51,9 @@ import BooksModule from "./modules/Books";
 import ImageEditorModule from "./modules/ImageEditor";
 import ArchiveModule from "./modules/Archive";
 import VectorModule from "./modules/Vector";
+import WindowGroupsPanel from "./modules/WindowGroupsPanel";
+import CrossTabLocksPanel from "./modules/CrossTabLocksPanel";
+import InputProfilesPanel from "./modules/InputProfilesPanel";
 
 /** The registry's id → component map. Adding a module means adding it here and
  *  in src/lib/registry.ts; nothing else in the shell needs to change. */
@@ -104,6 +107,9 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "imageedit": return <ImageEditorModule win={win} />;
     case "archive": return <ArchiveModule win={win} />;
     case "vector": return <VectorModule win={win} />;
+    case "windowgroups": return <WindowGroupsPanel win={win} />;
+    case "locks": return <CrossTabLocksPanel win={win} />;
+    case "inputprofiles": return <InputProfilesPanel win={win} />;
     default:
       return <div style={{ padding: 16, fontSize: fz(12) }}>Unknown module: {win.module}</div>;
   }

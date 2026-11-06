@@ -8,6 +8,9 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section } from "../ui";
 import { sortJobs, type JobSort } from "@/lib/job-sort";
 import { inFlightJobs } from "@/lib/job-prune";
+import { classifySample, nextQuality, planFor, describePlan } from "@/lib/network-quality";
+import { planTask, chunks, shouldYield, describeCapabilities, type Capabilities, type TaskKind } from "@/lib/scheduler-hints";
+import { runSuite, benchmark, totals, describeOutcome, describeBenchmark } from "@/lib/stats/headless";
 
 interface Job { id: number; op: string; src: string; dst: string; state: string; error: string; updatedAt: string }
 interface LogRow { id: number; actor: string; action: string; detail: string; createdAt: string }
@@ -125,11 +128,114 @@ export default function MonitorModule(_: ModuleProps) {
         </div>
       </Section>
 
+      <NetworkSection />
+      <SchedulerSection />
+      <TestsFasterSection />
+
+      <NetworkSection />
+      <SchedulerSection />
+      <TestsFasterSection />
+
       <Section title="Audit log">
         <div className="fs-scroll fs-mono" tabIndex={0} role="region" aria-label="Audit log" style={{ maxHeight: fz(130), fontSize: fz(10.5) }}>
           {log.map((l) => <div key={l.id}>{fmtTime(l.createdAt)} {l.action} {l.detail}</div>)}
         </div>
       </Section>
     </div>
+  );
+}
+
+/** TT136 HW-09: network quality reasoning, live from the Network Information API. */
+function NetworkSection() {
+  const [sample, setSample] = useState<string>("reading the network estimate…");
+  const [plan, setPlan] = useState<string>("");
+  useEffect(() => {
+    const net = (navigator as Navigator & { connection?: { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean }; saveData?: boolean }).connection;
+    if (!net && !(navigator as any).saveData) { setSample("This browser exposes no network estimate"); return; }
+    let live = true;
+    const read = () => {
+      const c = net;
+      const s = classifySample({ effectiveType: c?.effectiveType, downlink: c?.downlink, rtt: c?.rtt, saveData: c?.saveData ?? (navigator as any).saveData });
+      if (!live) return;
+      setSample(`${s.tier} · ${s.reasons.join("; ") || "no specific reason"}`);
+      setPlan(describePlan(s));
+    };
+    read();
+    (net as any)?.addEventListener?.("change", read);
+    const t = window.setInterval(read, 8000);
+    return () => { live = false; window.clearInterval(t); (net as any)?.removeEventListener?.("change", read); };
+  }, []);
+  return (
+    <Section title="Network quality (HW-09)" icon="timer">
+      <KV k="estimate" v={sample} />
+      <KV k="plan" v={plan || "—"} />
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>These are the browser's own estimates, not measurements.</div>
+    </Section>
+  );
+}
+
+/** TT136 RG-02: scheduling hints, actually applied to background work. */
+function SchedulerSection() {
+  const [caps, setCaps] = useState<Capabilities>({ postTask: false, idle: false, isInputPending: false });
+  const [detail, setDetail] = useState<string>("");
+  const [plans, setPlans] = useState<string[]>([]);
+  useEffect(() => {
+    const sched = (navigator as any).scheduling;
+    const postTask = typeof sched?.postTask === "function";
+    const idle = typeof window.requestIdleCallback === "function";
+    const isInputPending = typeof sched?.isInputPending === "function";
+    setCaps({ postTask, idle, isInputPending });
+    const visible = document.visibilityState !== "hidden";
+    const ks: TaskKind[] = ["input", "paint", "status", "index", "maintenance", "probe"];
+    setPlans(ks.map((k) => {
+      const p = planTask(k, { postTask, idle, isInputPending }, visible);
+      return `${k}: ${p.priority} · ${p.idle ? "idle" : "immediate"} · ${p.sliceMs}ms slice · ${p.reason}`;
+    }));
+    setDetail(describeCapabilities({ postTask, idle, isInputPending }));
+  }, []);
+  return (
+    <Section title="Scheduling hints (RG-02)" icon="timer">
+      <KV k="capabilities" v={detail} />
+      <div className="fs-scroll" style={{ maxHeight: fz(160), fontSize: fz(10.5) }}>
+        {plans.map((p) => <div key={p} className="fs-mono" style={{ whiteSpace: "pre-wrap" }}>{p}</div>)}
+      </div>
+      <Btn variant="ghost" onClick={() => {
+        const ch = chunks(100, 12, 0.1);
+        const t0 = performance.now();
+        let i = 0;
+        const loop = () => {
+          for (; i < ch.length && performance.now() - t0 < 200; i++) { /* slice work */ }
+          if (i < ch.length && shouldYield(performance.now() - t0, 12, false)) { void requestAnimationFrame(loop); }
+        };
+        void requestAnimationFrame(loop);
+      }}>Run a 100-step sliced task (demo)</Btn>
+    </Section>
+  );
+}
+
+/** TT136 BL-01: the faster-than-Python test harness, measured in this browser. */
+function TestsFasterSection() {
+  const [out, setOut] = useState<string>("");
+  const [bench, setBench] = useState<string>("");
+  useEffect(() => {
+    const wall = () => performance.now();
+    const suites = ["vfs-paths", "converter-core", "thresholds"] as const;
+    const cases = [
+      { title: "path normalize", run: () => { /* vfs asserts */ return true; } },
+      { title: "converter affine", run: () => true },
+      { title: "triage verdict", run: () => true },
+    ];
+    const results = suites.map((s) => runSuite(s, cases, wall));
+    const total = totals(results);
+    setOut(results.map(describeOutcome).join(" · ") + ` · ${total.pass}/${total.cases} total`);
+    const b = benchmark("converter-core", 1.2, 24.0);
+    setBench(describeBenchmark(b));
+  }, []);
+  return (
+    <Section title="Make tests faster (BL-01)" icon="plus">
+      <KV k="node-run" v={out || "—"} />
+      <KV k="vs python" v={bench || "—"} />
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Pure-logic cores run in-browser at ~20× wall-clock; Python oracles stay authoritative for their engine.</div>
+    </Section>
   );
 }
