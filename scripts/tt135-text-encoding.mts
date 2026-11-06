@@ -7,7 +7,7 @@ import { decodeText, encodeText, lineEndings, describeDecode, sizeClass, DECODE_
 const { test, finish } = makeHarness("tt135-text-encoding");
 
 // ── UTF-8 ──────────────────────────────────────────────────────────────────────
-await test("PR-01 · valid UTF-8 decodes with strict confidence", { CODE: "PR-01" }, () => {
+await test("PR-01 · valid UTF-8 decodes with strict confidence", { "PR-01": "full" }, () => {
   const bytes = new TextEncoder().encode("Hello, world!");
   const r = decodeText(bytes);
   if (r.encoding !== "utf-8") throw new Error(`expected utf-8, got ${r.encoding}`);
@@ -16,7 +16,7 @@ await test("PR-01 · valid UTF-8 decodes with strict confidence", { CODE: "PR-01
   if (r.text !== "Hello, world!") throw new Error(`wrong text: ${r.text}`);
 });
 
-await test("PR-01 · UTF-8 BOM is detected", { CODE: "PR-01" }, () => {
+await test("PR-01 · UTF-8 BOM is detected", { "PR-01": "full" }, () => {
   const body = new TextEncoder().encode("hi");
   const bytes = new Uint8Array([0xef, 0xbb, 0xbf, ...body]);
   const r = decodeText(bytes);
@@ -25,7 +25,7 @@ await test("PR-01 · UTF-8 BOM is detected", { CODE: "PR-01" }, () => {
   if (r.confidence !== "bom") throw new Error(`expected bom confidence, got ${r.confidence}`);
 });
 
-await test("PR-01 · invalid UTF-8 falls back to Latin-1, flagged lossy", { CODE: "PR-01" }, () => {
+await test("PR-01 · invalid UTF-8 falls back to Latin-1, flagged lossy", { "PR-01": "full" }, () => {
   // 0xff is not valid UTF-8, but is valid Latin-1
   const bytes = new Uint8Array([0xff, 0xfd]);
   const r = decodeText(bytes);
@@ -34,7 +34,7 @@ await test("PR-01 · invalid UTF-8 falls back to Latin-1, flagged lossy", { CODE
   if (r.confidence !== "heuristic") throw new Error(`expected heuristic, got ${r.confidence}`);
 });
 
-await test("PR-01 · UTF-16LE without BOM is detected by NUL pattern", { CODE: "PR-01" }, () => {
+await test("PR-01 · UTF-16LE without BOM is detected by NUL pattern", { "PR-01": "full" }, () => {
   // "AB" in UTF-16LE: 0x41 0x00 0x42 0x00
   const bytes = new Uint8Array([0x41, 0x00, 0x42, 0x00, 0x43, 0x00, 0x44, 0x00, 0x45, 0x00, 0x46, 0x00, 0x47, 0x00, 0x48, 0x00]);
   const r = decodeText(bytes);
@@ -42,13 +42,13 @@ await test("PR-01 · UTF-16LE without BOM is detected by NUL pattern", { CODE: "
   if (r.lossy) throw new Error("UTF-16LE decode should not be lossy");
 });
 
-await test("PR-01 · empty input returns empty text", { CODE: "PR-01" }, () => {
+await test("PR-01 · empty input returns empty text", { "PR-01": "full" }, () => {
   const r = decodeText(new Uint8Array(0));
   if (r.text !== "") throw new Error("empty should give empty text");
   if (r.encoding !== "utf-8") throw new Error(`expected utf-8 for empty, got ${r.encoding}`);
 });
 
-await test("PR-01 · binary-looking data is refused, not decoded", { CODE: "PR-01" }, () => {
+await test("PR-01 · binary-looking data is refused, not decoded", { "PR-01": "full" }, () => {
   // Many control bytes in the first 8 KiB
   const bad = new Uint8Array(100);
   for (let i = 0; i < 100; i++) bad[i] = i % 30 + 1; // 0x01–0x1E (mostly control)
@@ -60,7 +60,7 @@ await test("PR-01 · binary-looking data is refused, not decoded", { CODE: "PR-0
   }
 });
 
-await test("PR-01 · file larger than 8 MiB is refused", { CODE: "PR-01" }, () => {
+await test("PR-01 · file larger than 8 MiB is refused", { "PR-01": "full" }, () => {
   const big = new Uint8Array(DECODE_LIMIT + 1);
   try {
     decodeText(big);
@@ -70,20 +70,20 @@ await test("PR-01 · file larger than 8 MiB is refused", { CODE: "PR-01" }, () =
   }
 });
 
-await test("PR-01 · sizeClass classifies warn/refuse correctly", { CODE: "PR-01" }, () => {
+await test("PR-01 · sizeClass classifies warn/refuse correctly", { "PR-01": "full" }, () => {
   if (sizeClass(1024) !== "ok") throw new Error("1KB should be ok");
   if (sizeClass(3 * 1024 * 1024) !== "warn") throw new Error("3MB should be warn");
   if (sizeClass(DECODE_LIMIT + 1) !== "refuse") throw new Error("over limit should refuse");
 });
 
-await test("PR-01 · encodeText round-trips UTF-8", { CODE: "PR-01" }, () => {
+await test("PR-01 · encodeText round-trips UTF-8", { "PR-01": "full" }, () => {
   const text = "Hello, world!";
   const bytes = encodeText(text, "utf-8");
   const r = decodeText(bytes);
   if (r.text !== text) throw new Error(`round-trip failed: ${r.text}`);
 });
 
-await test("PR-01 · encodeText with BOM round-trips", { CODE: "PR-01" }, () => {
+await test("PR-01 · encodeText with BOM round-trips", { "PR-01": "full" }, () => {
   const text = "Hello";
   const bytes = encodeText(text, "utf-8", true);
   const r = decodeText(bytes);
@@ -91,7 +91,7 @@ await test("PR-01 · encodeText with BOM round-trips", { CODE: "PR-01" }, () => 
   if (!r.bom) throw new Error("should detect BOM");
 });
 
-await test("PR-01 · encodeText rejects characters > 255 in Latin-1", { CODE: "PR-01" }, () => {
+await test("PR-01 · encodeText rejects characters > 255 in Latin-1", { "PR-01": "full" }, () => {
   try {
     encodeText("café", "latin1");
     throw new Error("should have thrown on non-Latin-1 characters");
@@ -100,21 +100,21 @@ await test("PR-01 · encodeText rejects characters > 255 in Latin-1", { CODE: "P
   }
 });
 
-await test("PR-01 · lineEndings detects dominant ending", { CODE: "PR-01" }, () => {
+await test("PR-01 · lineEndings detects dominant ending", { "PR-01": "full" }, () => {
   const crlf = lineEndings("a\r\nb\r\nc");
   if (crlf.dominant !== "crlf") throw new Error(`expected crlf, got ${crlf.dominant}`);
   const lf = lineEndings("a\nb\nc");
   if (lf.dominant !== "lf") throw new Error(`expected lf, got ${lf.dominant}`);
 });
 
-await test("PR-01 · describeDecode mentions encoding and how", { CODE: "PR-01" }, () => {
+await test("PR-01 · describeDecode mentions encoding and how", { "PR-01": "full" }, () => {
   const r = decodeText(new TextEncoder().encode("hi"));
   const d = describeDecode(r);
   if (!d.includes("UTF-8")) throw new Error(`should mention UTF-8: ${d}`);
   if (!d.includes("strict")) throw new Error(`should mention strict: ${d}`);
 });
 
-await test("PR-01 · corrupt BOM is refused, not guessed", { CODE: "PR-01" }, () => {
+await test("PR-01 · corrupt BOM is refused, not guessed", { "PR-01": "full" }, () => {
   // UTF-8 BOM followed by invalid UTF-8
   const bytes = new Uint8Array([0xef, 0xbb, 0xbf, 0xff, 0xfe]);
   try {

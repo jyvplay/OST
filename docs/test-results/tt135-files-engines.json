@@ -1,12 +1,12 @@
 {
   "suite": "tt135-files-engines",
-  "at": "2026-11-06T21:38:24.699Z",
+  "at": "2026-11-06T21:46:53.019Z",
   "results": [
     {
       "suite": "tt135-files-engines",
       "name": "FM-03 · simple pattern replaces {name}",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 1
@@ -15,7 +15,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · {n} pads to two digits",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -24,7 +24,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · {upper} applies to everything to its right",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -33,7 +33,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · {date} and {time} produce ISO-like strings",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -42,7 +42,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · invalid token throws",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -51,7 +51,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · pattern producing reserved name is refused",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -60,16 +60,16 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · planBatchRename detects collisions",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt135-files-engines",
       "name": "FM-03 · planBatchRename with unique names succeeds",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -78,7 +78,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · applyOrder produces two phases with temp names",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -87,7 +87,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-03 · applyOrder rejects invalid token",
       "covers": {
-        "CODE": "FM-03"
+        "FM-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -96,7 +96,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · items older than retention are purged",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -105,7 +105,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · pinned items are never purged",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -114,7 +114,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · unknown timestamps are never purged",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -123,7 +123,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · size rule purges oldest unpinned when over budget",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -132,7 +132,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · describePurge gives a compact summary",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -141,7 +141,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-11 · empty trash produces empty plan",
       "covers": {
-        "CODE": "FM-11"
+        "FM-11": "full"
       },
       "pass": true,
       "ms": 0
@@ -150,7 +150,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · nameFromUrl extracts filename from URL path",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -159,7 +159,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · nameFromUrl rejects non-http URLs",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -168,7 +168,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · createEntry produces a queued download",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -177,7 +177,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · uniqueName appends (2) when name exists",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -186,7 +186,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · start transitions queued → running",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -195,7 +195,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · progress is monotonic and bounded",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -204,7 +204,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · fail transitions running → failed with reason",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -213,7 +213,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · complete requires matching size",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -222,7 +222,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · complete accepts when size matches",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -231,7 +231,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · cancel stops a running download",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -240,7 +240,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · retry plan gives exponential backoff",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -249,7 +249,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · retry exhausted after 3 attempts",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -258,7 +258,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · sortQueue puts running first",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -267,7 +267,7 @@
       "suite": "tt135-files-engines",
       "name": "PR-07m · summary reports counts",
       "covers": {
-        "CODE": "PR-07m"
+        "PR-07m": "full"
       },
       "pass": true,
       "ms": 0
@@ -276,7 +276,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · check grants read inside folder",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -285,7 +285,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · check denies read outside folder",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -294,16 +294,16 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · check denies missing permission",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt135-files-engines",
       "name": "FM-14 · path traversal is normalised away",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -312,7 +312,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · boundedRead caps at maxBytes",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -321,7 +321,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · stream requires separate permission",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -330,7 +330,7 @@
       "suite": "tt135-files-engines",
       "name": "FM-14 · app metadata is never exposed",
       "covers": {
-        "CODE": "FM-14"
+        "FM-14": "full"
       },
       "pass": true,
       "ms": 0
@@ -339,16 +339,16 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · parsePlaylist parses basic M3U8",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt135-files-engines",
       "name": "ST-04 · parsePlaylist detects byte ranges",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -357,7 +357,7 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · parsePlaylist detects live playlists",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -366,7 +366,7 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · byte ranges require version 3+",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -375,7 +375,7 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · advanceIndex moves to next for live playlists",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -384,7 +384,7 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · streamStat reports counts and bytes",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -393,7 +393,7 @@
       "suite": "tt135-files-engines",
       "name": "ST-04 · describePlaylist gives a one-line summary",
       "covers": {
-        "CODE": "ST-04"
+        "ST-04": "full"
       },
       "pass": true,
       "ms": 0
