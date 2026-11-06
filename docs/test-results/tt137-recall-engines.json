@@ -1,0 +1,285 @@
+{
+  "suite": "tt137-recall-engines",
+  "at": "2026-11-06T05:42:39.128Z",
+  "results": [
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-22 · publish creates memory and receipt together",
+      "covers": {
+        "RC-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-22 · publish rejects duplicate id",
+      "covers": {
+        "RC-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-22 · publish rejects sensitive in Public",
+      "covers": {
+        "RC-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-22 · publish rejects invalid sha",
+      "covers": {
+        "RC-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-24 · identical memories report identical",
+      "covers": {
+        "RC-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-24 · different size reports sizeDelta",
+      "covers": {
+        "RC-24": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-25 · trash pairs two memories",
+      "covers": {
+        "RC-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-25 · undo restores trashed memory",
+      "covers": {
+        "RC-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-25 · cannot trash already-trashed",
+      "covers": {
+        "RC-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-31 · batch save splits saved and to-save",
+      "covers": {
+        "RC-31": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-31 · batch save skips trashed",
+      "covers": {
+        "RC-31": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-32 · groupByDay groups by ISO date",
+      "covers": {
+        "RC-32": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-33 · applyCrop sets valid crop",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-33 · applyCrop rejects out-of-bounds",
+      "covers": {
+        "RC-33": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-19 · integrity all-pass",
+      "covers": {
+        "RC-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-19 · integrity detects mismatch",
+      "covers": {
+        "RC-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-20 · exportMemory returns payload",
+      "covers": {
+        "RC-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-20 · exportMemory rejects missing",
+      "covers": {
+        "RC-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-21 · discoverSurfaces lists non-trashed",
+      "covers": {
+        "RC-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-07 · timeline is chronological",
+      "covers": {
+        "RC-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-08 · replay returns timeline",
+      "covers": {
+        "RC-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-02 · clipboard memory is published",
+      "covers": {
+        "RC-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-03 · recall by visual properties",
+      "covers": {
+        "RC-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-15 · exclusions hide sensitive by default",
+      "covers": {
+        "RC-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-15 · showSensitive reveals all",
+      "covers": {
+        "RC-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-16 · paste media creates memory",
+      "covers": {
+        "RC-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-16 · paste rejects oversized",
+      "covers": {
+        "RC-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-17 · drop media creates memory",
+      "covers": {
+        "RC-17": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-29 · no half pairs after normal operations",
+      "covers": {
+        "RC-29": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-30 · durability check passes with receipt",
+      "covers": {
+        "RC-30": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-recall-engines",
+      "name": "RC-30 · durability check fails without receipt",
+      "covers": {
+        "RC-30": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -1,0 +1,357 @@
+{
+  "suite": "tt137-system-engines",
+  "at": "2026-11-06T05:42:39.202Z",
+  "results": [
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · safe-save creates idle state",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · safe-save rejects same path",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · writeChunk tracks progress",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · writeChunk rejects overflow",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · validate requires matching size and sha",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · publish only after validated",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "FM-18 · original is safe until published",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · registry has system extensions",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · getExtension finds md",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · override shadows system default",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · clearOverride restores system default",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · protocol handlers exist",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "ST-03 · describeApp gives one-liner",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "AP-05 · register entry",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "AP-05 · report counts by kind and module",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "AP-05 · consistency check flags missing startup on SW",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "AP-05 · unregister removes entry",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "BK-05 · fresh backup is healthy",
+      "covers": {
+        "BK-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "BK-05 · stale backup reports issues",
+      "covers": {
+        "BK-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "BK-05 · drill plan is safe for dry run",
+      "covers": {
+        "BK-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "BK-05 · drill rejects incomplete set",
+      "covers": {
+        "BK-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "MD-06 · routeAudio uses defaults",
+      "covers": {
+        "MD-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "MD-06 · reroute changes output device",
+      "covers": {
+        "MD-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "MD-09 · addWindow registers audio state",
+      "covers": {
+        "MD-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "MD-09 · setVolume and toggleMute work",
+      "covers": {
+        "MD-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "MD-09 · reportDashboard gives summary",
+      "covers": {
+        "MD-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "CA-15 · add and set leader",
+      "covers": {
+        "CA-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "CA-15 · advance keeps receivers in sync",
+      "covers": {
+        "CA-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "CA-15 · nudge corrects drift",
+      "covers": {
+        "CA-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "CA-15 · reportSync counts in-sync receivers",
+      "covers": {
+        "CA-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-05 · planUpscale validates inputs",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-05 · planUpscale rejects overscale",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-05 · bilinear interpolation is correct",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-05 · estimateUpscale gives output dims",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-06 · planRelight validates sources",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-06 · planRelight rejects too many sources",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-06 · computeLighting gives intensity at source",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-06 · applyRelightPixel shifts channels",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt137-system-engines",
+      "name": "LN-06 · relightReport gives coverage stats",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}
