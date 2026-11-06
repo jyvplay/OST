@@ -9,6 +9,7 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
 import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
 import { resConstraint, RES_OPTIONS, type ResPick } from "@/lib/res-constraint";
+import { initialTracker, track, subjectFromFaces, describeAutoframe, type Tracker } from "@/lib/lens/auto-frame";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -56,7 +57,11 @@ export default function LensModule(_: ModuleProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  // LN-02: a track of detections is smoothed, not drawn raw. The raw box is what
+  // the detector saw this tick; the tracker is where the crop should be.
   const faceRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const trackerRef = useRef<Tracker>(initialTracker());
+  const [faceCount, setFaceCount] = useState(0);
   const detectorRef = useRef<{ detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } | null>(null);
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -279,13 +284,23 @@ export default function LensModule(_: ModuleProps) {
 
   // face detection at 4 Hz, never per frame
   useEffect(() => {
-    if (!stream || !detectorRef.current || !fx.autoframe) return;
+    // A new stream starts from centre and snaps to the first detection; carrying
+    // the old tracker over would glide the crop in from wherever the last camera left it.
+    if (!fx.autoframe) { trackerRef.current = initialTracker(); faceRef.current = null; setFaceCount(0); return; }
+    if (!stream || !detectorRef.current) return;
     const t = window.setInterval(async () => {
       try {
         const faces = await detectorRef.current!.detect(videoRef.current!);
-        const b = faces[0]?.boundingBox;
-        faceRef.current = b ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
-      } catch { faceRef.current = null; }
+        // LN-02: follow the UNION, not the first box. Taking faces[0] makes the
+        // crop lurch whenever a second person leans in.
+        const boxes = faces.map((f) => ({ x: f.boundingBox.x, y: f.boundingBox.y, w: f.boundingBox.width, h: f.boundingBox.height }));
+        const subject = subjectFromFaces(boxes);
+        setFaceCount(boxes.length);
+        trackerRef.current = track(trackerRef.current, subject, 0.25);
+        faceRef.current = subject
+          ? { x: subject.cx - subject.rx, y: subject.cy - subject.ry, w: subject.rx * 2, h: subject.ry * 2 }
+          : null;
+      } catch { trackerRef.current = track(trackerRef.current, null, 0.25); setFaceCount(0); }
     }, 250);
     return () => window.clearInterval(t);
   }, [stream, fx.autoframe]);
@@ -313,8 +328,9 @@ export default function LensModule(_: ModuleProps) {
         }}>Presenter: add screen</Btn>
         <Badge tone={fps >= 24 ? "ok" : "warn"}>{fps} fps · {Math.min(height, shell.gov.maxCastHeight)}p</Badge>
         <Badge tone="warn" title="No segmentation model is bundled; the matte is heuristic.">matte grade C</Badge>
-        <Badge tone={capAvailable(shell.caps, "faceDetector") ? "ok" : "warn"}>
-          {capAvailable(shell.caps, "faceDetector") ? "FaceDetector present" : "no FaceDetector — centred matte"}
+        <Badge tone={capAvailable(shell.caps, "faceDetector") ? "ok" : "warn"}
+          title={describeAutoframe(capAvailable(shell.caps, "faceDetector"), fx.autoframe, faceCount)}>
+          {describeAutoframe(capAvailable(shell.caps, "faceDetector"), fx.autoframe, faceCount)}
         </Badge>
       </div>
 
@@ -350,8 +366,8 @@ export default function LensModule(_: ModuleProps) {
           </label>
           <Toggle label="Vignette" on={fx.vignette} onChange={(v) => setFx({ ...fx, vignette: v })} />
           <Toggle label="Mirror" on={fx.mirror} onChange={(v) => setFx({ ...fx, mirror: v })} />
-          <Toggle label="Auto-frame (FaceDetector)" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
-            reason="This browser has no FaceDetector" onChange={(v) => setFx({ ...fx, autoframe: v })} />
+          <Toggle label="Auto-frame — follows the people in shot" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
+            reason="No FaceDetector here, so the crop would not actually follow you" onChange={(v) => setFx({ ...fx, autoframe: v })} />
           <label style={{ display: "grid", gap: 2 }}>
             <span className="fs-dim" style={{ fontSize: fz(11) }}>output height</span>
             <select className="fs-select" value={height} onChange={(e) => setHeight(Number(e.target.value))}>

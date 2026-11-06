@@ -80,6 +80,53 @@ export function patchTT141(row: SpecRow): SpecRow {
           "The shell precaches, API reads go network-first, and API writes are queued and replayed with the same journal semantics as FileOps — so an offline rename is still a journaled, reversible operation instead of an intent that evaporates. The queue is mirrored outside service-worker memory, because a worker is terminated between events and an in-memory queue would silently lose everything it held. Limits: replay is at-most-once in the presence of a crash between the server commit and the queue acknowledgement, and the queue is bounded; there is no conflict resolution beyond refusing a replay whose base snapshot no longer matches.",
         test: "tt129-worker-unit.mts + tt92-ledger-audit.mts" };
 
+
+    // ── TT140 rows that shipped engines but were never promoted ──────────
+    // The engines and suites landed in TT140; this patch was never written, so
+    // the register still said "partial" for features that were finished.
+    case "CA-08":
+      return { ...row, status: BUILT, route: "src/lib/cast/second-screen.ts + Beam / QuickPanel",
+        nuance:
+          "Uses the Window Management API's getScreenDetails, which is the only web surface that can place a window on a specific display. Placement is verified after the window opens by comparing its actual screen coordinates with the target's, at 8 px tolerance, because a window manager may silently ignore the requested position — the common failure is a cast window that appears on the laptop screen while the UI reports success. A duplicate of an already-presented display is refused rather than mirroring the desktop onto itself. A mirrored pair of screens is not offered as a target, since placement is meaningless when both drives show the same pixels. Where the API is absent the UI degrades to a plain window and says which one you got instead of implying extended-desktop placement. Not claimed: any control over where the OS actually puts the window beyond the requested position.",
+        test: "tt140-cast-privacy.mts" };
+
+    case "LN-12":
+      return { ...row, status: BUILT, route: "src/lib/cast/second-screen.ts presenterLayout + Beam",
+        nuance:
+          "The camera layer keeps its own aspect ratio inside the composite, so the presenter is never stretched to fill a 16:9 canvas that the camera did not shoot. The four corner placements are actually distinct, and the layout reserves a 70/30 split so the person never covers the slide edge that the audience is reading. A green-screened camera produces no cutout rect at all, rather than a rectangle that would blank the slide it was supposed to sit beside. Moving the camera is a pure function of the layout, so the position can be restored deterministically. Limits: no face tracking, no automatic framing, and no keying of the person out of their real background — those would need a segmentation model the size budget does not allow.",
+        test: "tt140-cast-privacy.mts" };
+
+    case "SC-06":
+      return { ...row, status: BUILT, route: "src/lib/privacy/capture-guard.ts + capture watch",
+        nuance:
+          "protectionFor always returns a doesNotProtectAgainst list alongside whatever it claims, because the honest part of capture protection is the gap. The capture allow-list is a single exported array that the compositor reads and the tests assert against, so a source cannot be added to the picker without also being a source the guard knows. Capture watches count begins and ends per track and tolerate an end arriving without a begin. Lock and blank are separate operations with separate reasons, because hiding a window and locking it are different promises. Limits this cannot close: a screen recording started outside the browser, a photograph of the display, and any OS-level capture that does not consult the page are all invisible here. DRM-grade exclusion does not exist on the web and is not claimed.",
+        test: "tt140-cast-privacy.mts" };
+
+    case "PR-07p":
+      return { ...row, status: BUILT, route: "src/lib/browser/content-filter.ts + Browser",
+        nuance:
+          "The rule engine is host-exact: a rule for ads.example blocks ads.example and not notads.example, which is the mistake suffix matching makes. Rules are first-match-wins, so an explicit allow placed before an unscoped block legitimately wins, and the tests assert that ordering rather than assuming the block wins. javascript: and data: URLs never become a navigation at all — they are refused before any rule is consulted. The CSP builder only ever narrows what the page could otherwise load. Limits: this filters navigations our own browser surface makes. It is not a system-wide blocker, it cannot see a request made by an extension, and it cannot stop a page that is already loaded from phoning home through a channel the CSP does not cover.",
+        test: "tt140-cast-privacy.mts" };
+
+    case "PR-07s":
+      return { ...row, status: BUILT, route: "src/lib/browser/content-filter.ts castSummary + Remote Playback",
+        nuance:
+          "A foreign-origin document cannot be cast, and the refusal names the specific blocker rather than failing silently: no Remote Playback handle, a codec the receiver rejects, or a cross-origin media element the browser will not hand to the remote device. Castability is a summary over several independent conditions, so the UI can say which one failed instead of a generic 'cannot cast'. Limits: this only reports what the browser's Remote Playback API will accept; it does not transcode, does not proxy the media, and cannot make a receiver accept a format it does not support.",
+        test: "tt140-cast-privacy.mts" };
+
+
+    case "LN-02":
+      return { ...row, status: BUILT, route: "src/lib/lens/auto-frame.ts + Lens auto-frame toggle",
+        nuance:
+          "Tracking is critically damped (zeta = 1), which is a property of the maths rather than a tuned constant: the crop approaches the subject without ever crossing it, so it cannot oscillate, and it holds for any frame rate or jump size. Generation is the interesting bug: the first version clamped the TARGET to within a quarter-frame of the current position, so the tracker converged smoothly and confidently to a point a quarter-frame away from the person and stayed there — a permanent offset that looked like a working filter from the outside, caught only because a test asserted the tracker actually arrives. The cap is now on how far the crop moves per frame. Every detection in the frame is unioned rather than taking the first box, so a second person leaning in widens the crop instead of making it lurch. Losing the subject holds the last framing and bleeds off velocity, rather than snapping back to centre and forth again when a face turns away for a moment. A 5-second frame delta is clamped to 100 ms so a returning background tab does not integrate seconds of velocity and fling the crop across the room. The crop rectangle is always inside the source, so an edge subject cannot leave a black bar. Limits: the detector runs at 4 Hz and never per frame; there is no segmentation, so this positions a feathered matte rather than keying the person out of their background; and where FaceDetector is absent the UI says the matte is centred rather than implying it follows anyone.",
+        test: "tt141-auto-frame.mts" };
+
+    case "HW-06":
+      return { ...row, status: BUILT, route: "src/lib/cast/second-screen.ts chooseTargetScreen + verifyPlacement",
+        nuance:
+          "Placement is requested through the Window Management API and then VERIFIED against the target screen's actual coordinates at 8 px tolerance, because a window manager may accept the request and put the window somewhere else — the failure mode being a cast window that opens on the laptop while the UI says it is on the TV. A screen already presenting is refused rather than being mirrored onto itself. Where the API is missing or the permission is declined, the caller degrades to a plain window and reports which screen it landed on instead of claiming placement. Limits: the browser exposes screen geometry, not a guarantee of where the OS will honour a request; a user can always drag the window elsewhere afterwards, and nothing here can prevent that.",
+        test: "tt140-cast-privacy.mts" };
+
     default:
       return row;
   }
