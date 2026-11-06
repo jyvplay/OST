@@ -10,6 +10,7 @@ import { Badge, Blocked, Btn, KV, Section, Tabs } from "../ui";
 import { batteryLabel, type BatteryLike } from "@/lib/battery-status";
 import { estimateText } from "@/lib/storage-estimate";
 import { deviceInfoText } from "@/lib/device-info";
+import { classifyScan, type ScanResult } from "@/lib/scan/barcode";
 import { PROFILES, quantumMs, evaluate, limiterPlan, peakDb, limiterGain, type LatencyProfile, type Measurements } from "@/lib/audio-latency";
 
 type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
@@ -116,6 +117,7 @@ function Scanner() {
   const shell = useShell();
   const video = useRef<HTMLVideoElement | null>(null);
   const [result, setResult] = useState("");
+  const [scan, setScan] = useState<ScanResult | null>(null);
   const [running, setRunning] = useState(false);
   const has = capAvailable(shell.caps, "barcode");
 
@@ -129,7 +131,14 @@ function Scanner() {
       while (!stop) {
         try {
           const codes = await det.detect(video.current);
-          if (codes[0]) { setResult(codes[0].rawValue); break; }
+          if (codes[0]) {
+            // MD-05: classify before showing or acting. The raw string is
+            // attacker-supplied; only the classifier decides what is navigable.
+            const payload = String(codes[0].rawValue ?? "");
+            setResult(payload);
+            setScan(classifyScan(payload));
+            break;
+          }
         } catch { /* frame not ready */ }
         await new Promise((r) => setTimeout(r, 250));
       }
@@ -142,11 +151,19 @@ function Scanner() {
     <Section title="QR / barcode (MD-05)">
       <Btn variant={running ? "danger" : "primary"} onClick={() => { setResult(""); setRunning((r) => !r); }}>{running ? "Stop" : "Scan"}</Btn>
       <video ref={video} muted playsInline style={{ width: "100%", maxHeight: 240, background: "#000", borderRadius: 8 }} />
-      {result ? (
-        <div className="fs-row" style={{ gap: 6 }}>
-          <span className="fs-mono" style={{ fontSize: fz(12), wordBreak: "break-all" }}>{result}</span>
-          <Btn variant="ghost" onClick={() => void shell.copy(result, "scanner")}>Copy</Btn>
-          {/^https?:\/\//.test(result) ? <Btn variant="ghost" onClick={() => shell.open("browser", { url: result })}>Open</Btn> : null}
+      {scan ? (
+        <div style={{ display: "grid", gap: 6 }}>
+          <div className="fs-row" style={{ gap: 6, alignItems: "center" }}>
+            <Badge tone={scan.url ? "ok" : scan.warned ? "warn" : "info"}>{scan.kind}</Badge>
+            <span style={{ fontSize: fz(12), wordBreak: "break-all" }}>{scan.text}</span>
+          </div>
+          {scan.warned ? <span className="fs-dim" style={{ fontSize: fz(11) }}>{scan.warned}</span> : null}
+          <div className="fs-row" style={{ gap: 6 }}>
+            <Btn variant="ghost" onClick={() => void shell.copy(result, "scanner")}>Copy</Btn>
+            {/* Only a URL the classifier produced is navigable: javascript: and
+                intent: payloads never reach this button. */}
+            {scan.url ? <Btn variant="primary" onClick={() => shell.open("browser", { url: scan.url })}>Open link</Btn> : null}
+          </div>
         </div>
       ) : null}
     </Section>

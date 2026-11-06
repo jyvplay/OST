@@ -127,6 +127,26 @@ export function patchTT141(row: SpecRow): SpecRow {
           "Placement is requested through the Window Management API and then VERIFIED against the target screen's actual coordinates at 8 px tolerance, because a window manager may accept the request and put the window somewhere else — the failure mode being a cast window that opens on the laptop while the UI says it is on the TV. A screen already presenting is refused rather than being mirrored onto itself. Where the API is missing or the permission is declined, the caller degrades to a plain window and reports which screen it landed on instead of claiming placement. Limits: the browser exposes screen geometry, not a guarantee of where the OS will honour a request; a user can always drag the window elsewhere afterwards, and nothing here can prevent that.",
         test: "tt140-cast-privacy.mts" };
 
+
+    case "LN-08":
+      return { ...row, status: BUILT, route: "src/lib/lens/voice-gate.ts + Lens AudioWorklet",
+        nuance:
+          "The envelope is peak-following with decay rather than a running average, so one door slam raises it for a sample and it falls away instead of pinning the mic open for a second. Attack is about 2 ms (a slow attack clips the first consonant of every word), hold is 100 ms (longer than the pause inside a sentence, shorter than a breath), and release is about 200 ms so a word's tail is not amputated. The hold is derived from the AudioContext's own sampleRate: the original worklet hardcoded 4800 samples, which is 100 ms at 48 kHz and 600 ms at 8 kHz — correct on the developer's machine and wrong on a phone, caught by a test that runs the same code at both rates. A non-finite sample becomes silence rather than propagating NaN into the gain, which would silence the mic permanently and look like a hardware fault. Limits: this isolates a voice from a QUIET room. It cannot remove music, an echo, a fan, or another speaker at the same level — that needs a separation model the size budget does not allow, and the UI says so rather than implying otherwise.",
+        test: "tt142-voice-gate.mts" };
+
+
+    case "IN-06":
+      return { ...row, status: BUILT, route: "src/lib/input/keyboard-inset.ts + Shell reserved band",
+        nuance:
+          "Three surfaces disagree and are used in order of reliability. The VirtualKeyboard API is exact and wins whenever it exists: when it says the keyboard is closed, that is a real zero even though visualViewport still differs from innerHeight by the URL bar — treating that difference as a keyboard reserves ~60 px of dead space forever. The visual-viewport delta is the fallback, is only believed while a text field actually has focus, ignores anything under 120 px as browser chrome, and always carries a caveat that it may include chrome so the reserved band can be slightly too tall. iOS's visualViewport offsetTop is subtracted, or the inset is overstated by the scroll offset. A measurement larger than any real keyboard is clamped and the clamp is reported rather than silently applied. Where nothing is measurable the answer is 'unknown' and nothing is reserved, because guessing from a window resize is what makes a desktop layout jump when a field is focused. Revealing a focused field scrolls by the overhang against the visible band, not by scrollIntoView, which does nothing when the element is technically visible underneath a floating keyboard. Limits: a browser that reports no geometry gets no reserve, only scroll-into-view; IME composition panes are the OS's business and are not measured.",
+        test: "tt142-input-scan.mts" };
+
+    case "MD-05":
+      return { ...row, status: BUILT, route: "src/lib/scan/barcode.ts + Devices scanner",
+        nuance:
+          "Decoding uses the platform's BarcodeDetector and nothing is bundled, so this works on Chromium and says so elsewhere instead of shipping a 50 KB decoder with no corpus behind it. The part that is ours is the classification of the payload, which arrives by camera and is therefore attacker-supplied. javascript:, data:, vbscript:, file:, blob:, about:, intent:, market: and itms-apps: are refused before any navigability check, because a handset that registers an intent: handler would otherwise launch an app from a printed sticker; the refusal is shown, not silent. A schemeless hostname is promoted to https, but a single word is not treated as one and a hostless http:// is never navigable. Wi-Fi codes are summarised and never put the PSK in the visible text, since this string is displayed and routinely screenshotted; backslash escapes are honoured so the SSID shown is the real one. vCard and otpauth payloads are summarised and the TOTP secret is never displayed. A non-string, empty or oversized payload produces a stated result rather than an exception, because a decoder returning junk must not take down the camera pipeline. Limits: no decoding without BarcodeDetector; EAN/UPC checksums are the detector's job, not re-verified here; and the classifier cannot tell a malicious URL from a legitimate one, only a dangerous scheme from a safe one.",
+        test: "tt142-input-scan.mts" };
+
     default:
       return row;
   }

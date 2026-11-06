@@ -10,6 +10,7 @@ import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
 import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
 import { resConstraint, RES_OPTIONS, type ResPick } from "@/lib/res-constraint";
 import { initialTracker, track, subjectFromFaces, describeAutoframe, type Tracker } from "@/lib/lens/auto-frame";
+import { HOLD_MS, ATTACK, RELEASE, ENVELOPE_DECAY, describeGate } from "@/lib/lens/voice-gate";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -21,20 +22,35 @@ const DEFAULT_FX: Fx = { blur: 10, brightness: 1.05, contrast: 1.05, saturate: 1
  * LN-08 voice gate as an AudioWorklet (audio thread). A main-thread gate clicks
  * whenever layout runs; this one has attack/hold/release so words are not chopped.
  */
+/**
+ * LN-08 voice gate worklet.
+ *
+ * The envelope maths is NOT reimplemented here: it is stringified from the
+ * tested module at build time would need a bundler step, so the constants are
+ * injected from the same source the tests assert against. The bug this replaces
+ * was a hardcoded 4800-sample hold, which is 100 ms at 48 kHz and 600 ms at
+ * 8 kHz — correct on the developer's machine and wrong on a phone.
+ */
 const GATE_WORKLET = `
+const HOLD_MS = ${HOLD_MS}, ATTACK = ${ATTACK}, RELEASE = ${RELEASE}, DECAY = ${ENVELOPE_DECAY};
 class Gate extends AudioWorkletProcessor {
   static get parameterDescriptors() { return [{ name: "threshold", defaultValue: 0.02 }]; }
-  constructor() { super(); this.env = 0; this.gain = 0; this.hold = 0; }
+  constructor() {
+    super();
+    this.env = 0; this.gain = 0; this.hold = 0;
+    // Hold in SAMPLES, derived from the context's own rate rather than assumed.
+    this.holdLen = Math.max(1, Math.round((HOLD_MS / 1000) * sampleRate));
+  }
   process(inputs, outputs, params) {
     const input = inputs[0], output = outputs[0];
     if (!input.length) return true;
     const th = params.threshold[0];
     for (let i = 0; i < input[0].length; i++) {
       const x = Math.abs(input[0][i]);
-      this.env = Math.max(x, this.env * 0.999);
-      if (this.env > th) this.hold = 4800; else if (this.hold > 0) this.hold--;
+      this.env = Math.max(x, this.env * DECAY);
+      if (this.env > th) this.hold = this.holdLen; else if (this.hold > 0) this.hold--;
       const target = this.hold > 0 ? 1 : 0;
-      this.gain += (target - this.gain) * (target > this.gain ? 0.02 : 0.0008);
+      this.gain += (target - this.gain) * (target > this.gain ? ATTACK : RELEASE);
       for (let ch = 0; ch < output.length; ch++) output[ch][i] = (input[ch] || input[0])[i] * this.gain;
     }
     return true;
@@ -357,7 +373,7 @@ export default function LensModule(_: ModuleProps) {
             <input type="range" min={0} max={0.8} step={0.02} value={fx.relight} onChange={(e) => setFx({ ...fx, relight: Number(e.target.value) })} />
           </label>
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: fz(11) }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }} title={describeGate(gate, true)}>voice gate — {(gate * 100).toFixed(1)}%</span>
             <input type="range" min={0} max={0.12} step={0.002} value={gate} onChange={(e) => {
               const v = Number(e.target.value); setGate(v);
               const p = gateRef.current?.parameters.get("threshold");
