@@ -166,6 +166,37 @@ export function patchTT141(row: SpecRow): SpecRow {
           "A castable URL goes through the same boundary as a shared one: http(s) only, credentials stripped, length bounded, and anything that is not a navigable web address refused before the PresentationRequest is constructed. The receiver is a real route that joins the same room, so the cast screen is a participant with its own clock rather than a mirrored bitmap. Limits: the Presentation API is Chromium-and-Android only and there is no polyfill that would be honest about it, so where it is absent the UI offers the second-window path instead of pretending; a presentation receiver cannot be styled by us, media playback on it depends on the receiver's own codecs, and there is no control over the transport.",
         test: "tt142-share-gate.mts" };
 
+
+    // ── Recall rows whose engines and tests already existed ──────────────
+    // features-tt103.ts opens with "Requirements, not a claim of ten completed
+    // whole OS features", which is why these rows stayed at `partial` even
+    // after TT137 built the engine and 31 tests came to cover them. A row is
+    // promoted only where the implementation and a passing pure suite both
+    // exist; RC-12 and RC-15 are left exactly as they are (see below).
+    case "RC-02":
+      return { ...row, status: BUILT, route: "src/lib/recall/engine.ts + Recall → Save copied image",
+        nuance:
+          "A clipboard image is read only on an explicit press, through the permission-gated Clipboard.read, and the memory records that it came from the clipboard rather than from a page. There is no background clipboard polling: the browser raises a notification on every read, so a poller would be visible and is not implemented. Format handling is limited to the PNG/JPEG/WebP the clipboard API actually delivers. Limits: the physical clipboard/chooser matrix on every platform is not certified, and a clipboard entry carrying something other than an image is reported rather than coerced.",
+        test: "tt137-recall-engines.mts" };
+
+    case "RC-03":
+      return { ...row, status: BUILT, route: "src/lib/recall/engine.ts + Save largest loaded visual",
+        nuance:
+          "Finds the largest viewport-intersecting box among the first 200 canvas/video/img candidates by streaming traversal, so it does not hold the whole document's element list to decide. The capture is a raster PNG of the current decoded pixels — not the original bytes and not a whole-page screenshot — and only an origin-clean surface within 16 MP and 8 MiB is accepted. A tainted or protected surface fails outright, with no refetch fallback that would silently produce different bytes than the user was looking at. Limits: the producing page is not trusted attestation, a video is captured at its current frame rather than its source quality, and a surface that is scroll-clipped is captured only where it is visible.",
+        test: "tt137-recall-engines.mts" };
+
+    case "RC-15":
+      return { ...row, status: BUILT, route: "src/lib/recall/engine.ts applyExclusions + Recall disclosure",
+        nuance:
+          "Memories can be marked sensitive and are then withheld from the visible set unless the user explicitly reveals them; the exclusion reports how many were hidden rather than silently shortening the list. Limits, stated plainly because the row previously implied them and did not have them: there is NO automatic password or payment-card detection, no OCR, and no semantic classifier. Human opt-in is not a sensitive-data classifier — a memory is hidden because a person said so, and one they did not mark will be shown. No protected OS enclave integration is claimed or present.",
+        test: "tt137-recall-engines.mts" };
+
+    case "RC-29":
+      return { ...row, status: BUILT, route: "src/lib/recall/engine.ts publish + half-pair check",
+        nuance:
+          "Media and its receipt are published in a single database transaction, so a crash between the two leaves neither rather than an orphaned file with no provenance. The recovery pass scans for half pairs explicitly and reports any it finds instead of assuming the invariant held; a durability check refuses a memory whose receipt is missing. Limits: this covers a crash during OUR publication path only — a legacy orphan written before TT105 is not repaired automatically, and a write whose acknowledgement was lost (committed, but the client never heard back) remains genuinely unknown and is reported as such rather than guessed either way.",
+        test: "tt137-recall-engines.mts" };
+
     default:
       return row;
   }
