@@ -5,6 +5,10 @@ import { fz } from "@/lib/uiscale";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, clientId, post } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
+import {
+  applySample, createGovernor, governorHud,
+  type QualitySample as Sample,
+} from "@/lib/cast/quality-governor";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, KV, Section } from "../ui";
 
@@ -43,6 +47,8 @@ export default function ShareModule(_: ModuleProps) {
   const pc = useRef<RTCPeerConnection | null>(null);
   const dc = useRef<RTCDataChannel | null>(null);
   const local = useRef<MediaStream | null>(null);
+  const lastRecv = useRef(0);
+  const lastDropped = useRef(0);
   const [capture] = useState(() => new ShareCapture());
   useEffect(() => { capture.activate(); return () => capture.dispose(); }, [capture]);
   const cursor = useRef(0);
@@ -143,43 +149,73 @@ export default function ShareModule(_: ModuleProps) {
     return () => { alive = false; window.clearInterval(t); };
   }, [joined, room, me, handle]);
 
-  // CA-13 quality governor from live stats
+  // CA-13 quality governor from live stats. The policy lives in
+  // src/lib/cast/quality-governor.ts so it is testable without a peer
+  // connection; this effect only extracts a sample and applies the decision.
+  // The sample state is a ref, not React state: a governor move must not
+  // trigger a re-render of the whole module mid-call.
+  const govRef = useRef(createGovernor());
   useEffect(() => {
     if (!joined) return;
+    if (role === "share") govRef.current = createGovernor({ maxHeight: Math.min(1080, shell.gov.maxCastHeight) });
+    let alive = true;
     const t = window.setInterval(async () => {
       const conn = pc.current;
       if (!conn) return;
       const report = await conn.getStats();
-      let fps = 0, bytes = 0, rtt = 0, height = 0, avail = 0;
+      let fps = 0, height = 0, dropped = 0, received = 0, rtt = 0, avail = 0, loss = 0;
       report.forEach((r) => {
         const x = r as Record<string, number | string>;
         if ((x.type === "outbound-rtp" || x.type === "inbound-rtp") && x.kind === "video") {
-          fps = Number(x.framesPerSecond ?? 0); bytes = Number(x.bytesSent ?? x.bytesReceived ?? 0); height = Number(x.frameHeight ?? 0);
+          fps = Number(x.framesPerSecond ?? 0);
+          height = Number(x.frameHeight ?? 0);
+          dropped = Number(x.framesDropped ?? 0);
+          received = Number(x.framesReceived ?? x.framesEncoded ?? 0);
+          if (x.type === "inbound-rtp") loss = Number(x.fractionLost ?? 0);
         }
         if (x.type === "candidate-pair" && x.state === "succeeded") {
-          rtt = Number(x.currentRoundTripTime ?? 0) * 1000; avail = Number(x.availableOutgoingBitrate ?? 0);
+          rtt = Number(x.currentRoundTripTime ?? 0) * 1000;
+          avail = Number(x.availableOutgoingBitrate ?? 0);
         }
       });
-      const prev = (conn as unknown as { _b?: number })._b ?? bytes;
-      (conn as unknown as { _b?: number })._b = bytes;
-      const kbps = Math.max(0, Math.round(((bytes - prev) * 8) / 2000));
-      let limitedBy = "none";
-      const sender = conn.getSenders().find((s) => s.track?.kind === "video");
-      if (sender && local.current) {
+      const prev = lastRecv.current;
+      const delta = Math.max(1, received - prev);
+      lastRecv.current = received;
+      const sample: Sample = {
+        dropRate: received > 0 ? Math.min(1, (dropped - lastDropped.current) / delta) : 0,
+        rttMs: rtt,
+        availableBitrate: avail,
+        encodedHeight: height,
+        fps,
+        contentChangeRate: 1, // the compositor supplies a real figure when it can
+        packetLossRate: loss,
+      };
+      lastDropped.current = dropped;
+
+      const src = local.current?.getVideoTracks()[0]?.getSettings();
+      const next = applySample(govRef.current, sample, { width: src?.width ?? 1920, height: src?.height ?? 1080 });
+      govRef.current = { state: next.state, policy: next.policy };
+      for (const sender of conn.getSenders()) {
+        if (sender.track?.kind !== "video") continue;
         const p = sender.getParameters();
-        if (p.encodings?.length) {
-          const srcH = local.current.getVideoTracks()[0]?.getSettings().height ?? 1080;
-          const cap = shell.gov.maxCastHeight;
-          p.encodings[0].scaleResolutionDownBy = Math.max(1, srcH / cap);
-          p.encodings[0].maxBitrate = avail ? Math.min(6_000_000, Math.round(avail * 0.85)) : 2_500_000;
-          limitedBy = cap < srcH ? `governor ${shell.gov.state} → ${cap}p` : avail ? "measured bandwidth" : "default 2.5 Mbps";
+        if (!p.encodings?.length) continue;
+        if (next.application) {
+          p.encodings[0].scaleResolutionDownBy = next.application.scaleResolutionDownBy;
+          p.encodings[0].maxBitrate = next.application.maxBitrate;
+          p.encodings[0].maxFramerate = next.application.maxFps;
           await sender.setParameters(p).catch(() => undefined);
         }
       }
-      setStats({ fps, kbps, rttMs: Math.round(rtt), height, limitedBy });
+      setStats({
+        fps: Math.round(fps),
+        kbps: Math.round((next.application?.maxBitrate ?? next.rung.maxBitrate) / 1000),
+        rttMs: Math.round(rtt),
+        height: Math.round((src?.height ?? 1080) / (next.application?.scaleResolutionDownBy ?? 1)),
+        limitedBy: `${governorHud(next, sample)} · ${next.reason}`,
+      });
     }, 2000);
-    return () => window.clearInterval(t);
-  }, [joined, shell.gov.maxCastHeight, shell.gov.state]);
+    return () => { alive = false; window.clearInterval(t); void alive; };
+  }, [joined, role, shell.gov.maxCastHeight]);
 
   const join = async () => {
     try {

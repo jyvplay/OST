@@ -9,6 +9,8 @@ import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Blocked, Btn, Section, Toggle } from "../ui";
 import { facingConstraint, facingLabel, type Facing } from "@/lib/camera-facing";
 import { resConstraint, RES_OPTIONS, type ResPick } from "@/lib/res-constraint";
+import { initialTracker, track, subjectFromFaces, describeAutoframe, type Tracker } from "@/lib/lens/auto-frame";
+import { HOLD_MS, ATTACK, RELEASE, ENVELOPE_DECAY, describeGate } from "@/lib/lens/voice-gate";
 
 interface Fx {
   blur: number; brightness: number; contrast: number; saturate: number; relight: number;
@@ -20,20 +22,35 @@ const DEFAULT_FX: Fx = { blur: 10, brightness: 1.05, contrast: 1.05, saturate: 1
  * LN-08 voice gate as an AudioWorklet (audio thread). A main-thread gate clicks
  * whenever layout runs; this one has attack/hold/release so words are not chopped.
  */
+/**
+ * LN-08 voice gate worklet.
+ *
+ * The envelope maths is NOT reimplemented here: it is stringified from the
+ * tested module at build time would need a bundler step, so the constants are
+ * injected from the same source the tests assert against. The bug this replaces
+ * was a hardcoded 4800-sample hold, which is 100 ms at 48 kHz and 600 ms at
+ * 8 kHz — correct on the developer's machine and wrong on a phone.
+ */
 const GATE_WORKLET = `
+const HOLD_MS = ${HOLD_MS}, ATTACK = ${ATTACK}, RELEASE = ${RELEASE}, DECAY = ${ENVELOPE_DECAY};
 class Gate extends AudioWorkletProcessor {
   static get parameterDescriptors() { return [{ name: "threshold", defaultValue: 0.02 }]; }
-  constructor() { super(); this.env = 0; this.gain = 0; this.hold = 0; }
+  constructor() {
+    super();
+    this.env = 0; this.gain = 0; this.hold = 0;
+    // Hold in SAMPLES, derived from the context's own rate rather than assumed.
+    this.holdLen = Math.max(1, Math.round((HOLD_MS / 1000) * sampleRate));
+  }
   process(inputs, outputs, params) {
     const input = inputs[0], output = outputs[0];
     if (!input.length) return true;
     const th = params.threshold[0];
     for (let i = 0; i < input[0].length; i++) {
       const x = Math.abs(input[0][i]);
-      this.env = Math.max(x, this.env * 0.999);
-      if (this.env > th) this.hold = 4800; else if (this.hold > 0) this.hold--;
+      this.env = Math.max(x, this.env * DECAY);
+      if (this.env > th) this.hold = this.holdLen; else if (this.hold > 0) this.hold--;
       const target = this.hold > 0 ? 1 : 0;
-      this.gain += (target - this.gain) * (target > this.gain ? 0.02 : 0.0008);
+      this.gain += (target - this.gain) * (target > this.gain ? ATTACK : RELEASE);
       for (let ch = 0; ch < output.length; ch++) output[ch][i] = (input[ch] || input[0])[i] * this.gain;
     }
     return true;
@@ -56,7 +73,11 @@ export default function LensModule(_: ModuleProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  // LN-02: a track of detections is smoothed, not drawn raw. The raw box is what
+  // the detector saw this tick; the tracker is where the crop should be.
   const faceRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const trackerRef = useRef<Tracker>(initialTracker());
+  const [faceCount, setFaceCount] = useState(0);
   const detectorRef = useRef<{ detect: (s: CanvasImageSource) => Promise<{ boundingBox: DOMRectReadOnly }[]> } | null>(null);
   const frameCost = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -279,13 +300,23 @@ export default function LensModule(_: ModuleProps) {
 
   // face detection at 4 Hz, never per frame
   useEffect(() => {
-    if (!stream || !detectorRef.current || !fx.autoframe) return;
+    // A new stream starts from centre and snaps to the first detection; carrying
+    // the old tracker over would glide the crop in from wherever the last camera left it.
+    if (!fx.autoframe) { trackerRef.current = initialTracker(); faceRef.current = null; setFaceCount(0); return; }
+    if (!stream || !detectorRef.current) return;
     const t = window.setInterval(async () => {
       try {
         const faces = await detectorRef.current!.detect(videoRef.current!);
-        const b = faces[0]?.boundingBox;
-        faceRef.current = b ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
-      } catch { faceRef.current = null; }
+        // LN-02: follow the UNION, not the first box. Taking faces[0] makes the
+        // crop lurch whenever a second person leans in.
+        const boxes = faces.map((f) => ({ x: f.boundingBox.x, y: f.boundingBox.y, w: f.boundingBox.width, h: f.boundingBox.height }));
+        const subject = subjectFromFaces(boxes);
+        setFaceCount(boxes.length);
+        trackerRef.current = track(trackerRef.current, subject, 0.25);
+        faceRef.current = subject
+          ? { x: subject.cx - subject.rx, y: subject.cy - subject.ry, w: subject.rx * 2, h: subject.ry * 2 }
+          : null;
+      } catch { trackerRef.current = track(trackerRef.current, null, 0.25); setFaceCount(0); }
     }, 250);
     return () => window.clearInterval(t);
   }, [stream, fx.autoframe]);
@@ -313,8 +344,9 @@ export default function LensModule(_: ModuleProps) {
         }}>Presenter: add screen</Btn>
         <Badge tone={fps >= 24 ? "ok" : "warn"}>{fps} fps · {Math.min(height, shell.gov.maxCastHeight)}p</Badge>
         <Badge tone="warn" title="No segmentation model is bundled; the matte is heuristic.">matte grade C</Badge>
-        <Badge tone={capAvailable(shell.caps, "faceDetector") ? "ok" : "warn"}>
-          {capAvailable(shell.caps, "faceDetector") ? "FaceDetector present" : "no FaceDetector — centred matte"}
+        <Badge tone={capAvailable(shell.caps, "faceDetector") ? "ok" : "warn"}
+          title={describeAutoframe(capAvailable(shell.caps, "faceDetector"), fx.autoframe, faceCount)}>
+          {describeAutoframe(capAvailable(shell.caps, "faceDetector"), fx.autoframe, faceCount)}
         </Badge>
       </div>
 
@@ -341,7 +373,7 @@ export default function LensModule(_: ModuleProps) {
             <input type="range" min={0} max={0.8} step={0.02} value={fx.relight} onChange={(e) => setFx({ ...fx, relight: Number(e.target.value) })} />
           </label>
           <label style={{ display: "grid", gap: 2 }}>
-            <span className="fs-dim" style={{ fontSize: fz(11) }}>voice gate threshold (LN-08) — {gate.toFixed(3)}</span>
+            <span className="fs-dim" style={{ fontSize: fz(11) }} title={describeGate(gate, true)}>voice gate — {(gate * 100).toFixed(1)}%</span>
             <input type="range" min={0} max={0.12} step={0.002} value={gate} onChange={(e) => {
               const v = Number(e.target.value); setGate(v);
               const p = gateRef.current?.parameters.get("threshold");
@@ -350,8 +382,8 @@ export default function LensModule(_: ModuleProps) {
           </label>
           <Toggle label="Vignette" on={fx.vignette} onChange={(v) => setFx({ ...fx, vignette: v })} />
           <Toggle label="Mirror" on={fx.mirror} onChange={(v) => setFx({ ...fx, mirror: v })} />
-          <Toggle label="Auto-frame (FaceDetector)" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
-            reason="This browser has no FaceDetector" onChange={(v) => setFx({ ...fx, autoframe: v })} />
+          <Toggle label="Auto-frame — follows the people in shot" on={fx.autoframe} disabled={!capAvailable(shell.caps, "faceDetector")}
+            reason="No FaceDetector here, so the crop would not actually follow you" onChange={(v) => setFx({ ...fx, autoframe: v })} />
           <label style={{ display: "grid", gap: 2 }}>
             <span className="fs-dim" style={{ fontSize: fz(11) }}>output height</span>
             <select className="fs-select" value={height} onChange={(e) => setHeight(Number(e.target.value))}>

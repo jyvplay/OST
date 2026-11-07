@@ -1,0 +1,222 @@
+{
+  "suite": "tt140-cast-privacy",
+  "at": "2026-11-07T02:23:43.087Z",
+  "results": [
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · the target is a screen that is NOT the current one",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · a mirrored desk is refused, not mislabelled",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · among several candidates the largest usable area wins",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · the window request uses usable area and absolute coordinates",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · placement is verified, and a mismatch is reported not hidden",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "CA-08 · caveats name the things that actually go wrong",
+      "covers": {
+        "CA-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · picture-in-picture keeps the camera ratio and stays on screen",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · invalid presenter settings are refused, not clamped silently",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · camera-only, green-screen and off are three distinct states",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · side-by-side gives the presenter a usable column or says it will not",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · the cutout can be moved and its overlap with content is measured",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "LN-12 · the presenter monitor is four separate rects that do not overlap",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "SC-06 · the protection statement never claims more than the platform allows",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "SC-06 · our own capture excludes private windows, always",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "SC-06 · locks and blanks fire on a live capture and clear when it ends",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "SC-06 · an unreported surface is unknown, not assumed safe",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "SC-06 · the summary sentence states the limit in the same breath",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07p · rules match hosts exactly, never substrings",
+      "covers": {
+        "PR-07p": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07p · allow wins, invalid input is refused, non-http never navigates",
+      "covers": {
+        "PR-07p": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07p · rules are validated at construction",
+      "covers": {
+        "PR-07p": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07p · the capability report distinguishes enforced from impossible",
+      "covers": {
+        "PR-07p": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07s · media in another document is never offered as castable",
+      "covers": {
+        "PR-07s": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07s · each blocker produces its own honest reason",
+      "covers": {
+        "PR-07s": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt140-cast-privacy",
+      "name": "PR-07s · the per-tab summary counts and explains",
+      "covers": {
+        "PR-07s": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

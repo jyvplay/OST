@@ -45,7 +45,13 @@ include_oracle=0
 for s in $SUITES; do
   f="scripts/$s.mts"
   [ -f "$f" ] || { echo "REFUSED $s: no such suite file" >&2; exit 2; }
-  if grep -qE "process\.env\.BASE|launchChromium|DATABASE_URL|fetch\(" "$f"; then
+  # TT142: strip string literals and comments before looking for a real
+  # network call. A suite that CLASSIFIES a `javascript:fetch(...)` payload is
+  # not itself fetching, and failing it for the word inside a test fixture
+  # forced either a weaker suite or a noisier fixture. Only executable code is
+  # matched, so the refusal keeps its meaning.
+  code=$(sed -E "s/\`[^\`]*\`//g; s/\"[^\"]*\"//g; s/'[^']*'//g; s:^[[:space:]]*//.*::; s:/\*[^*]*\*/::g" "$f")
+  if printf '%s' "$code" | grep -qE "process\.env\.BASE|launchChromium|DATABASE_URL|fetch\(|XMLHttpRequest|WebSocket\("; then
     echo "REFUSED $s: it reaches a server, browser, database or network — run it via scripts/run-all.sh" >&2
     exit 2
   fi

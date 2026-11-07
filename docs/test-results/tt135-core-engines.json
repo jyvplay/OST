@@ -1,183 +1,183 @@
 {
   "suite": "tt135-core-engines",
-  "at": "2026-11-06T04:54:32.706Z",
+  "at": "2026-11-06T21:49:16.129Z",
   "results": [
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · slow-2g sample classifies as minimal",
+      "name": "HW-13 · slow-2g sample classifies as minimal",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · 4g with good downlink classifies as high",
+      "name": "HW-13 · 4g with good downlink classifies as high",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · saveData forces minimal even on 4g",
+      "name": "HW-13 · saveData forces minimal even on 4g",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · unknown effectiveType defaults to high",
+      "name": "HW-13 · unknown effectiveType defaults to high",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · two agreeing samples needed before tier change",
+      "name": "HW-13 · two agreeing samples needed before tier change",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · pickSource returns null when plan is poster-only",
+      "name": "HW-13 · pickSource returns null when plan is poster-only",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-09 · pickSource picks the highest fitting source",
+      "name": "HW-13 · pickSource picks the highest fitting source",
       "covers": {
-        "CODE": "HW-09"
+        "HW-13": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · input kind maps to user-blocking",
+      "name": "RG-08 · input kind maps to user-blocking",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · background work uses idle when hidden",
+      "name": "RG-08 · background work uses idle when hidden",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · postTask unavailable downgrades with reason",
+      "name": "RG-08 · postTask unavailable downgrades with reason",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · chunks splits into bounded pieces",
+      "name": "RG-08 · chunks splits into bounded pieces",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · shouldYield after slice budget",
+      "name": "RG-08 · shouldYield after slice budget",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "RG-02 · capabilities string mentions all three",
+      "name": "RG-08 · capabilities string mentions all three",
       "covers": {
-        "CODE": "RG-02"
+        "RG-08": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · quantum at 48kHz is 2.67ms",
+      "name": "HW-12 · quantum at 48kHz is 2.67ms",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · suspended context reports not ok",
+      "name": "HW-12 · suspended context reports not ok",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · running context with good latency grades excellent",
+      "name": "HW-12 · running context with good latency grades excellent",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · limiter plan has attack and release frames",
+      "name": "HW-12 · limiter plan has attack and release frames",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · peakDb converts linear to dB",
+      "name": "HW-12 · peakDb converts linear to dB",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · limiterGain reduces when input exceeds threshold",
+      "name": "HW-12 · limiterGain reduces when input exceeds threshold",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-core-engines",
-      "name": "HW-05 · PROFILES cover all three profiles",
+      "name": "HW-12 · PROFILES cover all three profiles",
       "covers": {
-        "CODE": "HW-05"
+        "HW-12": "full"
       },
       "pass": true,
       "ms": 0
