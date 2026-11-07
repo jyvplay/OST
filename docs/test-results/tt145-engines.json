@@ -1,6 +1,6 @@
 {
   "suite": "tt145-engines",
-  "at": "2026-11-07T05:39:43.525Z",
+  "at": "2026-11-07T05:41:25.453Z",
   "results": [
     {
       "suite": "tt145-engines",
@@ -36,7 +36,7 @@
         "PR-01": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 24
     },
     {
       "suite": "tt145-engines",
@@ -81,7 +81,7 @@
         "HW-05": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt145-engines",
@@ -171,7 +171,7 @@
         "RG-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt145-engines",
