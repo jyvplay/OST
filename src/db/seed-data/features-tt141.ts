@@ -197,6 +197,14 @@ export function patchTT141(row: SpecRow): SpecRow {
           "Media and its receipt are published in a single database transaction, so a crash between the two leaves neither rather than an orphaned file with no provenance. The recovery pass scans for half pairs explicitly and reports any it finds instead of assuming the invariant held; a durability check refuses a memory whose receipt is missing. Limits: this covers a crash during OUR publication path only — a legacy orphan written before TT105 is not repaired automatically, and a write whose acknowledgement was lost (committed, but the client never heard back) remains genuinely unknown and is reported as such rather than guessed either way.",
         test: "tt137-recall-engines.mts" };
 
+
+    // ── Files ────────────────────────────────────────────────────────────
+    case "FM-18":
+      return { ...row, status: BUILT, route: "src/lib/files/safe-save.ts + FilesPane writes",
+        nuance:
+          "Session copy → temp beside the target → validate → atomic replace. The temp file is created in the SAME directory as the target, which is what makes the final rename atomic: a cross-filesystem temp would degrade the replace into a copy that can be interrupted half-written. The temp keeps the original extension so a validator keyed on suffix still applies. Nothing can be published before it is validated, and validation is the only gate that can fail: a size or digest mismatch stops at the temp and leaves the original untouched, which is the entire promise of the feature. A failed step is terminal — the state cannot be advanced from `failed` back into publishing, because a half-understood state that can still publish is worse than a clean abort. The temp write cannot exceed or fall short of the declared size; a complete-but-short temp is refused rather than promoted, since that push would replace a good file with a truncated one. Constructing a save whose session path equals the target is refused outright: that configuration would truncate the original before any validation could run. Phase text states that the original is still safe until publish, because the user's real question during a save is not which byte is being copied but whether their old file still exists. Limits: this is the contract and its state machine, not a filesystem journal — the atomicity of the final rename is the server filesystem's guarantee, and a crash between publish and any subsequent fsync is outside what this state machine can observe.",
+        test: "tt143-safe-save.mts" };
+
     default:
       return row;
   }

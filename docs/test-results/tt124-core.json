@@ -1,6 +1,6 @@
 {
   "suite": "tt124-core",
-  "at": "2026-11-06T22:02:37.071Z",
+  "at": "2026-11-07T02:23:41.152Z",
   "results": [
     {
       "suite": "tt124-core",
@@ -36,7 +36,7 @@
         "PK-02": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt124-core",
@@ -91,7 +91,7 @@
         "CN-10": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt124-core",

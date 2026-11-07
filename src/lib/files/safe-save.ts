@@ -83,10 +83,10 @@ export function isOriginalSafe(state: SafeSaveState): boolean {
 
 export function describePhase(state: SafeSaveState): string {
   const map: Record<SafeSavePhase, string> = {
-    idle: "ready to copy",
+    idle: "ready to copy — the original stays safe until the new bytes validate",
     copying: `copying (${state.written}/${state.total} bytes)`,
-    "temp-written": "temp written, awaiting validation",
-    validated: "validated, ready to publish",
+    "temp-written": "temp written, awaiting validation — original still safe",
+    validated: "validated, ready to publish — original still safe",
     published: "published — target replaced",
     failed: `failed: ${state.error}`,
   };
