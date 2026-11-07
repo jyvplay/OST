@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt134-workflows-notes",
-  "at": "2026-11-06T05:00:31.344Z",
+  "at": "2026-11-07T05:28:59.627Z",
   "results": [
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -8,9 +8,8 @@
       "covers": {
         "NT-19": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12434
+      "pass": true,
+      "ms": 6123
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -18,9 +17,8 @@
       "covers": {
         "NT-20": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12275
+      "pass": true,
+      "ms": 5538
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -28,9 +26,8 @@
       "covers": {
         "NT-21": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12383
+      "pass": true,
+      "ms": 7770
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -38,9 +35,8 @@
       "covers": {
         "NT-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12394
+      "pass": true,
+      "ms": 12562
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -48,9 +44,8 @@
       "covers": {
         "NT-23": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12363
+      "pass": true,
+      "ms": 7127
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -58,9 +53,8 @@
       "covers": {
         "NT-24": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12408
+      "pass": true,
+      "ms": 6135
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -68,9 +62,8 @@
       "covers": {
         "NT-25": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12321
+      "pass": true,
+      "ms": 6076
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -80,9 +73,8 @@
         "NT-08": "partial",
         "NT-10": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12228
+      "pass": true,
+      "ms": 9218
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -91,9 +83,8 @@
         "NT-22": "full",
         "NT-23": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12203
+      "pass": true,
+      "ms": 11314
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -101,9 +92,8 @@
       "covers": {
         "NT-27": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12280
+      "pass": true,
+      "ms": 7157
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -111,9 +101,8 @@
       "covers": {
         "NT-27": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12251
+      "pass": true,
+      "ms": 4432
     },
     {
       "suite": "e2e-tt134-workflows-notes",
@@ -122,17 +111,15 @@
         "AX-09": "partial",
         "NT-26": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"]') to be visible\n",
-      "ms": 12266
+      "pass": true,
+      "ms": 9702
     },
     {
       "suite": "e2e-tt134-workflows-notes",
       "name": "Native Notes workflow pages emitted no unhandled browser exceptions",
       "covers": {},
-      "pass": false,
-      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893',\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893',\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893',\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893',\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893',\n+   'Failed to load chunk /_next/static/chunks/3wwg8ngl2_3ae.js from module 64893'\n+ ]\n- []\n",
-      "ms": 2
+      "pass": true,
+      "ms": 0
     }
   ]
 }

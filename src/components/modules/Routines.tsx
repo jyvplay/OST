@@ -66,8 +66,8 @@ export default function RoutinesModule(_: ModuleProps) {
       </Section>
 
       <Section title="New routine (AU-01)">
-        <input className="fs-input" value={name} onChange={(e) => setName(e.target.value)} aria-label="Routine name" />
-        <textarea className="fs-textarea" rows={6} value={script} onChange={(e) => setScript(e.target.value)} aria-label="Routine script" />
+        <input className="fs-input" value={name} onChange={(e) => setName(e.target.value)} aria-label="Routine name" data-testid="routine-name" />
+        <textarea className="fs-textarea" rows={6} value={script} onChange={(e) => setScript(e.target.value)} aria-label="Routine script" data-testid="routine-script" />
         <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>commands: {ROUTINE_COMMANDS.join(" · ")} — one per line or separated by “;”</div>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <select className="fs-select" aria-label="Routine trigger" style={{ width: fz(180) }} value={trigger} onChange={(e) => setTrigger(e.target.value)}>
@@ -79,8 +79,8 @@ export default function RoutinesModule(_: ModuleProps) {
           {trigger === "interval" || trigger === "time-of-day" ? (
             <input className="fs-input" style={{ width: fz(110) }} placeholder={trigger === "interval" ? "minutes" : "08:30"} value={arg} onChange={(e) => setArg(e.target.value)} />
           ) : null}
-          <Btn variant="ghost" disabled={Boolean(parseErr)} onClick={() => setDry(parsed.map((a, i) => `${i + 1}. ${a.cmd}${a.arg ? ` ${a.arg}` : ""}`))}>Dry run</Btn>
-          <Btn variant="primary" disabled={Boolean(parseErr)} onClick={async () => {
+          <Btn variant="ghost" data-testid="routine-preview" disabled={Boolean(parseErr)} onClick={() => setDry(parsed.map((a, i) => `${i + 1}. ${a.cmd}${a.arg ? ` ${a.arg}` : ""}`))}>Preview</Btn>
+          <Btn variant="primary" data-testid="routine-save" disabled={Boolean(parseErr)} onClick={async () => {
             setErr("");
             try {
               await post("/api/routines", { name, trigger, triggerArg: arg, actions: parsed });
@@ -90,7 +90,7 @@ export default function RoutinesModule(_: ModuleProps) {
         </div>
         {parseErr ? <Badge tone="bad">{parseErr}</Badge> : <Badge tone="ok">{parsed.length} valid actions</Badge>}
         {err ? <Badge tone="bad">{err}</Badge> : null}
-        {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }}>{`Dry run — nothing executed:\n${dry.join("\n")}`}</pre> : null}
+        {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }} data-testid="routine-preview-text">{`Preview — nothing executed yet:\n${dry.join("\n")}`}</pre> : null}
       </Section>
 
       <Section title="Routines">
@@ -127,7 +127,16 @@ export default function RoutinesModule(_: ModuleProps) {
             <Badge tone={r.enabled ? "ok" : "default"}>{r.enabled ? "enabled" : "off"}</Badge>
             <Btn variant="ghost" onClick={async () => { await post("/api/routines", { name: duplicateName(r.name, rows.map((x) => x.name)), trigger: r.trigger, triggerArg: r.triggerArg ?? "", actions: r.actions }); await load(); }} data-testid="routine-dup">Duplicate</Btn>
             <Btn variant="ghost" onClick={async () => { await patch("/api/routines", { id: r.id, enabled: !r.enabled }); await load(); }}>{r.enabled ? "Disable" : "Enable"}</Btn>
-            <Btn variant="primary" onClick={async () => { await shell.runActions(r.actions); await post("/api/routines", { ranId: r.id }); await load(); }}>Run</Btn>
+            <Btn variant="ghost" data-testid="routine-rehearse" title="Rehearse: record the intent in the audit log and execute nothing"
+              onClick={async () => {
+                // AU-01: the rehearsal goes through the same server path as a run
+                // and is audited as routine.dryrun, so a person can tell later
+                // which of the two happened — the executor is simply not called.
+                await post("/api/routines", { ranId: r.id, dry: true });
+                shell.toast(`Rehearsed "${r.name}": ${r.actions.map((a) => a.cmd).join(", ")} — nothing was executed.`, "info");
+                await load();
+              }}>Rehearse</Btn>
+            <Btn variant="primary" data-testid="routine-run" onClick={async () => { await shell.runActions(r.actions); await post("/api/routines", { ranId: r.id }); await load(); }}>Run</Btn>
             <Btn variant="ghost" onClick={async () => { await fetch(`/api/routines?id=${r.id}`, { method: "DELETE" }); await load(); }}>✕</Btn>
           </div>
         ))}

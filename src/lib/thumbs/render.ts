@@ -12,6 +12,7 @@
  *  text       the first lines drawn on paper (code, markdown, CSV)
  *  video, SVG reported as needing the main thread (HTMLVideoElement / SVG-in-img are DOM-only)
  */
+import { sniffContainer } from "../image/foreign-container";
 import { readMetadata, inflateZlib, type FileMeta } from "../meta";
 import { decodeTiff } from "../image/tiff";
 import { renderRecipe, isIdentity, type PhotoRecipe } from "../photos/recipe";
@@ -29,6 +30,17 @@ const fit = (w: number, h: number, max: number) => { const k = Math.min(1, max /
 const blobOf = (b: Uint8Array, type: string) => new Blob([b.slice().buffer as ArrayBuffer], { type });
 
 const BROWSER_IMAGES = new Set(["jpeg", "png", "gif", "webp", "bmp", "avif", "ico"]);
+
+/**
+ * TT148 (FF-06): a file's *name* is a hint, its bytes are the fact.
+ *
+ * HEIC and AVIF are the same ISO-BMFF container, so `.heic` is routinely given
+ * to files that are actually AVIF (and several encoders emit .heif for both).
+ * The rule used here follows the bytes: an AVIF in a HEIC-named file decodes
+ * because this engine decodes AVIF, and a genuine HEIC gets a sentence saying
+ * the engine has no HEVC image decoder — instead of a single "cannot be
+ * decoded" that blames the wrong thing.
+ */
 
 /** draw an EXIF-orientation-less bitmap with orientation `o` applied (EXIF 1..8 semantics) */
 function drawOriented(bmp: ImageBitmap, o: number, max: number): Canv {
@@ -89,7 +101,19 @@ export async function renderThumbnail(bytes: Uint8Array, name: string, max = 256
         return { canvas: drawOriented(bmp, meta.orientation ?? 1, max), source: "TIFF (Fusion decoder)", meta };
       } finally { bmp.close(); }
     }
-    if (!canDecode) return { none: `${meta.format.toUpperCase()} cannot be decoded by this browser and has no embedded thumbnail`, meta };
+    if (!canDecode) {
+      const kind = sniffContainer(bytes);
+      if (kind === "avif") {
+        try {
+          const bmp = await createImageBitmap(blobOf(bytes, "image/avif"), { imageOrientation: "from-image" });
+          try { return { canvas: drawOriented(bmp, meta.orientation ?? 1, max), source: "AVIF inside a HEIF-named file", meta }; } finally { bmp.close(); }
+        } catch { /* fall through to the refusal below with the true reason */ }
+      }
+      if (kind === "heic") {
+        return { none: "this engine has no HEIC (HEVC image) decoder — convert the file to AVIF, PNG or JPEG", meta };
+      }
+      return { none: `${meta.format.toUpperCase()} cannot be decoded by this browser and has no embedded thumbnail`, meta };
+    }
     if (edited) {
       const bmp = await createImageBitmap(blobOf(bytes, meta.mime), { imageOrientation: "from-image" });
       try { return { canvas: await withRecipe(bmp, edited, max), source: "edited (recipe applied)", meta }; } finally { bmp.close(); }

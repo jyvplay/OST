@@ -185,8 +185,7 @@ def pillow(width, height, data, dst_w, dst_h):
     return list(resized.tobytes())
 
 
-def main():
-    payload = json.loads(sys.stdin.read())
+def run_one(payload):
     op = payload["op"]
     if op == "resample":
         out = resample(payload["width"], payload["height"], payload["data"],
@@ -198,8 +197,32 @@ def main():
     elif op == "pillow":
         out = pillow(payload["width"], payload["height"], payload["data"], payload["dstW"], payload["dstH"])
     else:
-        raise SystemExit(f"unknown op {op}")
-    sys.stdout.write(json.dumps({"data": out}))
+        raise ValueError(f"unknown op {op}")
+    return out
+
+
+def main():
+    """One request per line, one reply per line.
+
+    TT148: the suite used to start a fresh interpreter (and re-import numpy) for
+    every case — 13 processes for 13 questions, all doing the same import. A
+    long-lived process answers the same questions with the same code and the
+    same numbers; only the scheduling changed. A single JSON object on stdin is
+    still answered exactly once, so the old one-shot protocol keeps working.
+    """
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            return
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            out = run_one(json.loads(line))
+            sys.stdout.write(json.dumps({"data": out}) + "\n")
+        except Exception as exc:  # one bad case must not kill the oracle for the rest
+            sys.stdout.write(json.dumps({"error": str(exc)}) + "\n")
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":

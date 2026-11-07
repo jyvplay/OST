@@ -1,23 +1,233 @@
 {
- "generatedAt": "2026-11-02T16:51:42.862Z",
+ "generatedAt": "2026-11-07T06:03:12.173Z",
  "totals": {
   "built": {
-   "full": 539,
-   "partial": 84,
-   "blocked": 24,
+   "full": 611,
+   "partial": 31,
+   "blocked": 23,
    "none": 0
   },
   "tested": {
-   "full": 489,
-   "partial": 122,
-   "untested": 36
+   "full": 563,
+   "partial": 85,
+   "untested": 17
   },
   "tests": {
-   "total": 3742,
-   "passed": 3742
+   "total": 4280,
+   "passed": 4236
   }
  },
  "rows": {
+  "HW-13": {
+   "tested": "full",
+   "tests": [
+    "tt135-core-engines: HW-13 · slow-2g sample classifies as minimal",
+    "tt135-core-engines: HW-13 · 4g with good downlink classifies as high",
+    "tt135-core-engines: HW-13 · saveData forces minimal even on 4g",
+    "tt135-core-engines: HW-13 · unknown effectiveType defaults to high",
+    "tt135-core-engines: HW-13 · two agreeing samples needed before tier change",
+    "tt135-core-engines: HW-13 · pickSource returns null when plan is poster-only",
+    "tt135-core-engines: HW-13 · pickSource picks the highest fitting source"
+   ]
+  },
+  "RG-08": {
+   "tested": "full",
+   "tests": [
+    "tt135-core-engines: RG-08 · input kind maps to user-blocking",
+    "tt135-core-engines: RG-08 · background work uses idle when hidden",
+    "tt135-core-engines: RG-08 · postTask unavailable downgrades with reason",
+    "tt135-core-engines: RG-08 · chunks splits into bounded pieces",
+    "tt135-core-engines: RG-08 · shouldYield after slice budget",
+    "tt135-core-engines: RG-08 · capabilities string mentions all three"
+   ]
+  },
+  "HW-12": {
+   "tested": "full",
+   "tests": [
+    "tt135-core-engines: HW-12 · quantum at 48kHz is 2.67ms",
+    "tt135-core-engines: HW-12 · suspended context reports not ok",
+    "tt135-core-engines: HW-12 · running context with good latency grades excellent",
+    "tt135-core-engines: HW-12 · limiter plan has attack and release frames",
+    "tt135-core-engines: HW-12 · peakDb converts linear to dB",
+    "tt135-core-engines: HW-12 · limiterGain reduces when input exceeds threshold",
+    "tt135-core-engines: HW-12 · PROFILES cover all three profiles"
+   ]
+  },
+  "PR-14": {
+   "tested": "full",
+   "tests": [
+    "tt135-text-encoding: PR-14 · valid UTF-8 decodes with strict confidence",
+    "tt135-text-encoding: PR-14 · UTF-8 BOM is detected",
+    "tt135-text-encoding: PR-14 · invalid UTF-8 falls back to Latin-1, flagged lossy",
+    "tt135-text-encoding: PR-14 · UTF-16LE without BOM is detected by NUL pattern",
+    "tt135-text-encoding: PR-14 · empty input returns empty text",
+    "tt135-text-encoding: PR-14 · binary-looking data is refused, not decoded",
+    "tt135-text-encoding: PR-14 · file larger than 8 MiB is refused",
+    "tt135-text-encoding: PR-14 · sizeClass classifies warn/refuse correctly",
+    "tt135-text-encoding: PR-14 · encodeText round-trips UTF-8",
+    "tt135-text-encoding: PR-14 · encodeText with BOM round-trips",
+    "tt135-text-encoding: PR-14 · encodeText rejects characters > 255 in Latin-1",
+    "tt135-text-encoding: PR-14 · lineEndings detects dominant ending",
+    "tt135-text-encoding: PR-14 · describeDecode mentions encoding and how",
+    "tt135-text-encoding: PR-14 · corrupt BOM is refused, not guessed"
+   ]
+  },
+  "FM-21": {
+   "tested": "full",
+   "tests": [
+    "tt135-files-engines: FM-21 · simple pattern replaces {name}",
+    "tt135-files-engines: FM-21 · {n} pads to two digits",
+    "tt135-files-engines: FM-21 · {upper} applies to everything to its right",
+    "tt135-files-engines: FM-21 · {date} and {time} produce ISO-like strings",
+    "tt135-files-engines: FM-21 · invalid token throws",
+    "tt135-files-engines: FM-21 · pattern producing reserved name is refused",
+    "tt135-files-engines: FM-21 · planBatchRename detects collisions",
+    "tt135-files-engines: FM-21 · planBatchRename with unique names succeeds",
+    "tt135-files-engines: FM-21 · applyOrder produces two phases with temp names",
+    "tt135-files-engines: FM-21 · applyOrder rejects invalid token"
+   ]
+  },
+  "FM-22": {
+   "tested": "full",
+   "tests": [
+    "tt135-files-engines: FM-22 · items older than retention are purged",
+    "tt135-files-engines: FM-22 · pinned items are never purged",
+    "tt135-files-engines: FM-22 · unknown timestamps are never purged",
+    "tt135-files-engines: FM-22 · size rule purges oldest unpinned when over budget",
+    "tt135-files-engines: FM-22 · describePurge gives a compact summary",
+    "tt135-files-engines: FM-22 · empty trash produces empty plan"
+   ]
+  },
+  "PR-15": {
+   "tested": "full",
+   "tests": [
+    "tt135-files-engines: PR-15 · nameFromUrl extracts filename from URL path",
+    "tt135-files-engines: PR-15 · nameFromUrl rejects non-http URLs",
+    "tt135-files-engines: PR-15 · createEntry produces a queued download",
+    "tt135-files-engines: PR-15 · uniqueName appends (2) when name exists",
+    "tt135-files-engines: PR-15 · start transitions queued → running",
+    "tt135-files-engines: PR-15 · progress is monotonic and bounded",
+    "tt135-files-engines: PR-15 · fail transitions running → failed with reason",
+    "tt135-files-engines: PR-15 · complete requires matching size",
+    "tt135-files-engines: PR-15 · complete accepts when size matches",
+    "tt135-files-engines: PR-15 · cancel stops a running download",
+    "tt135-files-engines: PR-15 · retry plan gives exponential backoff",
+    "tt135-files-engines: PR-15 · retry exhausted after 3 attempts",
+    "tt135-files-engines: PR-15 · sortQueue puts running first",
+    "tt135-files-engines: PR-15 · summary reports counts"
+   ]
+  },
+  "CT-07": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: CT-07 · makePayload validates app id and title",
+    "tt135-system-engines: CT-07 · makePayload rejects invalid app id",
+    "tt135-system-engines: CT-07 · makePayload rejects oversized props",
+    "tt135-system-engines: CT-07 · encodeCode produces a 10-char code",
+    "tt135-system-engines: CT-07 · normalizeCode handles user typos",
+    "tt135-system-engines: CT-07 · issue and accept round-trip within TTL",
+    "tt135-system-engines: CT-07 · expired handoff is refused",
+    "tt135-system-engines: CT-07 · mismatched code is refused",
+    "tt135-system-engines: CT-07 · fromMessage rejects non-handoff messages"
+   ]
+  },
+  "BL-07": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: BL-07 · parseManifest validates digest formats",
+    "tt135-system-engines: BL-07 · parseManifest rejects mixed algorithms",
+    "tt135-system-engines: BL-07 · manifestBody is deterministic",
+    "tt135-system-engines: BL-07 · verifyManifest detects missing files",
+    "tt135-system-engines: BL-07 · verifyManifest detects size mismatch",
+    "tt135-system-engines: BL-07 · parseCertificate validates Ed25519 key and signature lengths",
+    "tt135-system-engines: BL-07 · digestFile produces correct hex length"
+   ]
+  },
+  "RH-04": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: RH-04 · validateRoutine checks step count",
+    "tt135-system-engines: RH-04 · planFire returns fire=true when due",
+    "tt135-system-engines: RH-04 · planFire returns fire=false when not due",
+    "tt135-system-engines: RH-04 · isSafeAction rejects payloads with shell metacharacters",
+    "tt135-system-engines: RH-04 · dryRun reports which steps would run",
+    "tt135-system-engines: RH-04 · planDay filters to due routines",
+    "tt135-system-engines: RH-04 · describeSchedule gives a compact summary"
+   ]
+  },
+  "CO-03": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: CO-03 · route allows same-origin direct fetch",
+    "tt135-system-engines: CO-03 · route blocks non-HTTP protocols",
+    "tt135-system-engines: CO-03 · route blocks URLs with credentials",
+    "tt135-system-engines: CO-03 · route proxies cross-origin HTTPS",
+    "tt135-system-engines: CO-03 · route rejects GET with body",
+    "tt135-system-engines: CO-03 · route rejects oversized POST body",
+    "tt135-system-engines: CO-03 · route rejects host not in manifest",
+    "tt135-system-engines: CO-03 · describeVerdict gives a one-line summary"
+   ]
+  },
+  "BL-06": {
+   "tested": "untested",
+   "tests": []
+  },
+  "WM-20": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: WM-20 · makeGroup validates member count",
+    "tt135-system-engines: WM-20 · makeGroup rejects duplicate members",
+    "tt135-system-engines: WM-20 · minimizeGroup sets minimised on all members",
+    "tt135-system-engines: WM-20 · closeGroup removes members",
+    "tt135-system-engines: WM-20 · layoutGroup positions members without moving others",
+    "tt135-system-engines: WM-20 · summarize groups members by app"
+   ]
+  },
+  "SH-16": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: SH-16 · leaseFor creates a valid lease",
+    "tt135-system-engines: SH-16 · claim succeeds when no lease exists",
+    "tt135-system-engines: SH-16 · claim fails when another tab holds the lease",
+    "tt135-system-engines: SH-16 · renew by non-holder is denied",
+    "tt135-system-engines: SH-16 · expired lease can be claimed",
+    "tt135-system-engines: SH-16 · checkHeartbeat rejects wrong identity"
+   ]
+  },
+  "ST-18": {
+   "tested": "full",
+   "tests": [
+    "tt135-system-engines: ST-18 · all four profiles exist with valid hit sizes",
+    "tt135-system-engines: ST-18 · touch profile does not apply on mouse pointer",
+    "tt135-system-engines: ST-18 · precision profile applies on mouse",
+    "tt135-system-engines: ST-18 · mismatchReason explains the refusal",
+    "tt135-system-engines: ST-18 · needsTimedGesture detects timed profiles"
+   ]
+  },
+  "FM-23": {
+   "tested": "full",
+   "tests": [
+    "tt135-files-engines: FM-23 · check grants read inside folder",
+    "tt135-files-engines: FM-23 · check denies read outside folder",
+    "tt135-files-engines: FM-23 · check denies missing permission",
+    "tt135-files-engines: FM-23 · path traversal is normalised away",
+    "tt135-files-engines: FM-23 · boundedRead caps at maxBytes",
+    "tt135-files-engines: FM-23 · stream requires separate permission",
+    "tt135-files-engines: FM-23 · app metadata is never exposed"
+   ]
+  },
+  "ST-17": {
+   "tested": "full",
+   "tests": [
+    "tt135-files-engines: ST-17 · parsePlaylist parses basic M3U8",
+    "tt135-files-engines: ST-17 · parsePlaylist detects byte ranges",
+    "tt135-files-engines: ST-17 · parsePlaylist detects live playlists",
+    "tt135-files-engines: ST-17 · byte ranges require version 3+",
+    "tt135-files-engines: ST-17 · advanceIndex moves to next for live playlists",
+    "tt135-files-engines: ST-17 · streamStat reports counts and bytes",
+    "tt135-files-engines: ST-17 · describePlaylist gives a one-line summary"
+   ]
+  },
   "NT-19": {
    "tested": "full",
    "tests": [
@@ -1471,6 +1681,12 @@
     "tt118-core: ST-10 settings import: unknown and locked keys reported, never applied by parsing"
    ]
   },
+  "BK-14": {
+   "tested": "full",
+   "tests": [
+    "tt118-core: BK-06 backup compare: added/removed/changed/unchanged and byte delta"
+   ]
+  },
   "TM-02": {
    "tested": "full",
    "tests": [
@@ -1504,7 +1720,7 @@
    ]
   },
   "CK-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator",
     "e2e-tt130-alarms: control: an open Clock window fires the same alarm",
@@ -1546,7 +1762,12 @@
     "tt132-core: snooze delivery has exact early/on-time/late boundaries and reports a missed wake",
     "tt132-core: delete, disable, schedule edits and expiry cancel pending activity; label edits do not",
     "tt132-core: clock rollback preserves occurrence identity while snoozing from the new wall time",
-    "tt132-core: one thousand adversarial activity schedules preserve isolation and finite bounds"
+    "tt132-core: one thousand adversarial activity schedules preserve isolation and finite bounds",
+    "tt139-systems: CK-01 · daily alarm computes the next local wall-clock occurrence",
+    "tt139-systems: CK-01 · weekly alarm respects the day set",
+    "tt139-systems: CK-01 · a slept-through schedule fires once, not N times",
+    "tt139-systems: CK-01 · once alarms finish; snooze re-arms; disable clears",
+    "tt139-systems: CK-01 · adversarial: duplicate id, bad label, bad snooze"
    ]
   },
   "CK-02": {
@@ -1836,7 +2057,7 @@
    ]
   },
   "RC-29": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: recall",
     "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
@@ -1844,11 +2065,12 @@
     "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
     "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored",
     "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
-    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one"
+    "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one",
+    "tt137-recall-engines: RC-29 · no half pairs after normal operations"
    ]
   },
   "RC-30": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: recall",
     "tt108-engine-crash: every acknowledged publication survived the engine crash, complete and intact",
@@ -1860,21 +2082,25 @@
     "tt108-engine-crash: negative control: with fsync and full_page_writes OFF nothing is lost, so this method cannot certify power loss",
     "tt108-engine-crash: the shipped cluster does not run the configuration that arm B showed to be lossy",
     "tt108-engine-crash: the suite states its own blind spot rather than claiming power-loss durability",
-    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn",
+    "tt137-recall-engines: RC-30 · durability check passes with receipt",
+    "tt137-recall-engines: RC-30 · durability check fails without receipt"
    ]
   },
   "RC-31": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: recall",
     "tt108-recall: the page agent encodes already-decoded visuals and never requests a URL again",
     "tt108-recall: every member of a batch is published as its own complete, independent pair",
     "tt108-recall: one bad member of a batch cannot take the others down with it",
-    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn",
+    "tt137-recall-engines: RC-31 · batch save splits saved and to-save",
+    "tt137-recall-engines: RC-31 · batch save skips trashed"
    ]
   },
   "RC-32": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt108-recall: the saving timeline shows the real days and filters the list to the chosen one",
     "e2e-tt108-recall: the timeline says plainly that it is not a background screenshot trail",
@@ -1885,11 +2111,12 @@
     "tt108-recall: the timeline refuses an injected time zone and a non-canonical folder",
     "tt108-recall: a receipt with an unreadable capture time is counted apart, never placed in a made-up day",
     "tt108-recall: an unreadable receipt cannot abort the timeline query",
-    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn",
+    "tt137-recall-engines: RC-32 · groupByDay groups by ISO date"
    ]
   },
   "RC-33": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt108-recall: dragging over a decoded preview reports the region without saving anything yet",
     "e2e-tt108-recall: a dragged region is saved as its own memory, cut from the decoded preview",
@@ -1904,24 +2131,31 @@
     "tt108-recall: a crop naming a parent this archive does not hold is refused",
     "tt108-recall: provenance and method cannot be separated in either direction",
     "tt108-recall: a refused crop leaves neither media nor receipt behind",
-    "tt108-recall: the Specs app carries every new Recall requirement of this turn"
+    "tt108-recall: the Specs app carries every new Recall requirement of this turn",
+    "tt137-recall-engines: RC-33 · applyCrop sets valid crop",
+    "tt137-recall-engines: RC-33 · applyCrop rejects out-of-bounds"
    ]
   },
   "RC-24": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt106-memory: single-snapshot receipt inspection works in actual UI",
     "e2e: mount: recall",
-    "tt106-lifecycle: single snapshot returns verified pair identity without media bodies"
+    "tt106-lifecycle: single snapshot returns verified pair identity without media bodies",
+    "tt137-recall-engines: RC-24 · identical memories report identical",
+    "tt137-recall-engines: RC-24 · different size reports sizeDelta"
    ]
   },
   "RC-25": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt106-memory: cancelled trash confirmation changes nothing",
     "e2e: mount: recall",
     "tt106-lifecycle: paired trash removes both active files and both search entries",
-    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed"
+    "tt107-crash: SIGKILL during a guarded paired trash leaves both files active and indexed",
+    "tt137-recall-engines: RC-25 · trash pairs two memories",
+    "tt137-recall-engines: RC-25 · undo restores trashed memory",
+    "tt137-recall-engines: RC-25 · cannot trash already-trashed"
    ]
   },
   "RC-26": {
@@ -1934,11 +2168,15 @@
    ]
   },
   "RC-22": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: recall",
     "tt105-atomic: one acknowledgement publishes both exact media and receipt",
-    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata"
+    "tt107-crash: SIGKILL between the two writes leaves no half pair and no orphan metadata",
+    "tt137-recall-engines: RC-22 · publish creates memory and receipt together",
+    "tt137-recall-engines: RC-22 · publish rejects duplicate id",
+    "tt137-recall-engines: RC-22 · publish rejects sensitive in Public",
+    "tt137-recall-engines: RC-22 · publish rejects invalid sha"
    ]
   },
   "RC-23": {
@@ -1950,19 +2188,22 @@
    ]
   },
   "RC-16": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: native clipboard image-transfer experiment records the real permission boundary",
     "e2e: mount: recall",
-    "tt104-memory-unit: single native File admitted without rewriting its bytes"
+    "tt104-memory-unit: single native File admitted without rewriting its bytes",
+    "tt137-recall-engines: RC-16 · paste media creates memory",
+    "tt137-recall-engines: RC-16 · paste rejects oversized"
    ]
   },
   "RC-17": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: native webpage-link drag is rejected, never refetched",
     "e2e: mount: recall",
-    "tt104-memory-unit: single native File admitted without rewriting its bytes"
+    "tt104-memory-unit: single native File admitted without rewriting its bytes",
+    "tt137-recall-engines: RC-17 · drop media creates memory"
    ]
   },
   "RC-18": {
@@ -1976,25 +2217,30 @@
    ]
   },
   "RC-19": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: UI receipt verification checks the stored pair",
     "e2e: mount: recall",
-    "tt104-memory-unit: valid stored-byte receipt matches exact SHA-256"
+    "tt104-memory-unit: valid stored-byte receipt matches exact SHA-256",
+    "tt137-recall-engines: RC-19 · integrity all-pass",
+    "tt137-recall-engines: RC-19 · integrity detects mismatch"
    ]
   },
   "RC-20": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: local Blob export downloads exact open bytes, no upstream request",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-20 · exportMemory returns payload",
+    "tt137-recall-engines: RC-20 · exportMemory rejects missing"
    ]
   },
   "RC-21": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt104-memory: streaming discovery preserves a late first-200 visual after 2005 nonvisual elements",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-21 · discoverSurfaces lists non-trashed"
    ]
   },
   "RC-01": {
@@ -2011,18 +2257,20 @@
    ]
   },
   "RC-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt109-shell: a copied image becomes a memory through the real paste handler, and a copied link does not",
     "e2e-tt111-recall: a page browsed inside Recall lists the media it loaded, with its type and size",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-02 · clipboard memory is published"
    ]
   },
   "RC-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt103-memory: saving loaded visual uses already rendered pixels and no asset request",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-03 · recall by visual properties"
    ]
   },
   "RC-04": {
@@ -2050,17 +2298,19 @@
    ]
   },
   "RC-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-07 · timeline is chronological"
    ]
   },
   "RC-08": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt103-memory: timeline actually lists saved file and replay decodes in native image element",
-    "e2e: mount: recall"
+    "e2e: mount: recall",
+    "tt137-recall-engines: RC-08 · replay returns timeline"
    ]
   },
   "RC-09": {
@@ -2131,11 +2381,13 @@
    ]
   },
   "RC-15": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: recall",
     "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly",
-    "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back"
+    "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back",
+    "tt137-recall-engines: RC-15 · exclusions hide sensitive by default",
+    "tt137-recall-engines: RC-15 · showSensitive reveals all"
    ]
   },
   "SH-01": {
@@ -2296,7 +2548,7 @@
    ]
   },
   "SH-14": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt128-worker: successful worker install and activation; API and query URLs never enter the cache",
     "e2e-tt128-worker: offline API reports 503 and non-desktop navigation shows the explicit fallback",
@@ -2435,8 +2687,11 @@
    ]
   },
   "WM-16": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: WM-16 the cursor is really confined by a real click, and really released",
+    "tt147-core: WM-16 confinement state machine: no API, no gesture, pending, and a raw-input refusal"
+   ]
   },
   "WM-17": {
    "tested": "partial",
@@ -2497,8 +2752,10 @@
    ]
   },
   "IN-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt148-core: IN-04 chords are physical keys in a fixed order, so a layout switch cannot move a shortcut"
+   ]
   },
   "IN-05": {
    "tested": "full",
@@ -2508,14 +2765,35 @@
    ]
   },
   "IN-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt142-input-scan: IN-06 · the real API wins over the estimate",
+    "tt142-input-scan: IN-06 · a closed keyboard through the real API is a real zero",
+    "tt142-input-scan: IN-06 · the estimate is labelled as one",
+    "tt142-input-scan: IN-06 · browser chrome is not mistaken for a keyboard",
+    "tt142-input-scan: IN-06 · an absurd measurement is clamped and said so",
+    "tt142-input-scan: IN-06 · iOS visual-viewport offset is accounted for",
+    "tt142-input-scan: IN-06 · revealing a field scrolls by the overhang, not to the top",
+    "tt142-input-scan: IN-06 · compact mode follows the inset, not the window",
+    "tt142-input-scan: IN-06 · the description never claims geometry it does not have"
+   ]
   },
   "IN-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt37: gamepad pointer (IN-07) with a scripted W3C-shape pad (no physical controller exists in this sandbox — the hardware is substituted, everything from navigator.getGamepads() on is real): appears on connect, the stick steers it onto the launcher button and A opens the launcher, B (Escape) closes it, X opens the desktop menu, the right stick scrolls the window under it, RB moves keyboard focus and the pointer follows, Start turns it off and on, disconnect removes it; no page errors",
     "e2e: mount: devices",
+    "tt141-gamepad-pointer: IN-07 · the deadzone is radial, so a diagonal inside it is still dead",
+    "tt141-gamepad-pointer: IN-07 · the response curve keeps direction and bounds magnitude",
+    "tt141-gamepad-pointer: IN-07 · a stalled tab cannot teleport the cursor",
+    "tt141-gamepad-pointer: IN-07 · the cursor never leaves the viewport",
+    "tt141-gamepad-pointer: IN-07 · a press is only released if its own down was sent",
+    "tt141-gamepad-pointer: IN-07 · disabling mid-press releases the page, never leaves it stuck",
+    "tt141-gamepad-pointer: IN-07 · d-pad nudges once, then repeats on its own schedule",
+    "tt141-gamepad-pointer: IN-07 · the other buttons map to the documented actions",
+    "tt141-gamepad-pointer: IN-07 · a non-standard pad still gets sticks, A and B only",
+    "tt141-gamepad-pointer: IN-07 · slow scrolling still moves (sub-pixel carry)",
+    "tt141-gamepad-pointer: IN-07 · every frame is a pure function of its inputs",
     "tt37-unit: gamepad stick shaping and motion (IN-07): radial deadzone 0.15, power curve that keeps the stick's angle, full deflection = 1400 px/s, the same distance at 30 / 60 / 144 Hz, a stalled frame cannot teleport the cursor (dt ≤ 100 ms), the cursor stays inside the viewport, NaN axes are inert",
     "tt37-unit: gamepad buttons (IN-07): A is edge-triggered (one down, one up, no repeat while held), B → Escape, X → context menu, LB / RB → focus back / forward, d-pad nudges 1 px and auto-repeats after 350 ms every 45 ms, Start toggles the mode — while off nothing moves or clicks, and turning it back on with A still held fires no stray 'up'; a non-standard pad gets stick, A and B only; slow scrolling is never lost (sub-pixel carry)"
    ]
@@ -2857,9 +3135,12 @@
   "FM-07": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
     "e2e: mount: storage",
     "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
+    "tt139-media: FM-07 · categories, totals and percentages",
+    "tt139-media: FM-07 · duplicates are tiered and unconfirmed ones free nothing",
+    "tt139-media: FM-07 · empty files and zero-byte sets are handled",
+    "tt139-media: FM-07 · formatBytes rounds the way a person reads it",
     "tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification"
    ]
   },
@@ -2969,12 +3250,16 @@
     "e2e-tt55-files: FM-13 New from template: the menu lists /System/Templates from the server; a new file is a byte copy of the template; a second one gets a free name",
     "e2e-tt98-orbit: New desktop folder is backed by a real directory",
     "e2e-tt98-orbit: New text file collision cannot truncate an existing document",
+    "tt139-media: FM-13 · built-ins, user templates and de-duplication",
+    "tt139-media: FM-13 · the New menu groups by category, built-ins first",
     "tt55-files-unit: FM-03 / FM-13 conflict-free names: never in use, the smallest free candidate, copies of copies do not grow, dirs and dotfiles keep their name"
    ]
   },
   "FM-14": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt146-core: FM-14 drag payloads: types we publish, drops we accept, keyboard alternative"
+   ]
   },
   "FM-15": {
    "tested": "full",
@@ -3010,7 +3295,7 @@
    ]
   },
   "FM-18": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: files",
@@ -3033,6 +3318,22 @@
     "tt116-safesave: a safe-saved text file becomes searchable, and a refused one does not",
     "tt116-safesave: the temporary output folder cannot be used as a target",
     "tt131-ledger: the VFS safe-save row does not claim the native SAF contract",
+    "tt137-system-engines: FM-18 · safe-save creates idle state",
+    "tt137-system-engines: FM-18 · safe-save rejects same path",
+    "tt137-system-engines: FM-18 · writeChunk tracks progress",
+    "tt137-system-engines: FM-18 · writeChunk rejects overflow",
+    "tt137-system-engines: FM-18 · validate requires matching size and sha",
+    "tt137-system-engines: FM-18 · publish only after validated",
+    "tt137-system-engines: FM-18 · original is safe until published",
+    "tt143-safe-save: FM-18 · a fresh save is idle and the original is untouched",
+    "tt143-safe-save: FM-18 · nothing can be published before it is validated",
+    "tt143-safe-save: FM-18 · a size or digest mismatch leaves the original safe",
+    "tt143-safe-save: FM-18 · the temp write cannot exceed the declared size",
+    "tt143-safe-save: FM-18 · the happy path publishes and the original becomes replaceable",
+    "tt143-safe-save: FM-18 · failure at any phase is terminal and safe",
+    "tt143-safe-save: FM-18 · bad inputs are refused at construction",
+    "tt143-safe-save: FM-18 · a chunk must really be bytes",
+    "tt143-safe-save: FM-18 · every transition is pure and the phase text is honest",
     "tt91-write-atomic: failed index update rolls back content, history and audit; the journal records failure",
     "tt91-write-atomic: two simultaneous overwrites preserve both serialized versions and the current search text",
     "tt91-write-mutants: publish without a data transaction",
@@ -3136,13 +3437,22 @@
    ]
   },
   "ST-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: ST-02 the settings index names real panels and offers only the ones this platform has",
+    "tt147-core: ST-02 settings index: every URI is well-formed, platform-scoped, and never guessed"
+   ]
   },
   "ST-03": {
    "tested": "partial",
    "tests": [
-    "e2e-tt89-launch: default-app guide changes platform, reports limits, and sends a real browser protocol request without claiming acceptance"
+    "e2e-tt89-launch: default-app guide changes platform, reports limits, and sends a real browser protocol request without claiming acceptance",
+    "tt137-system-engines: ST-03 · registry has system extensions",
+    "tt137-system-engines: ST-03 · getExtension finds md",
+    "tt137-system-engines: ST-03 · override shadows system default",
+    "tt137-system-engines: ST-03 · clearOverride restores system default",
+    "tt137-system-engines: ST-03 · protocol handlers exist",
+    "tt137-system-engines: ST-03 · describeApp gives one-liner"
    ]
   },
   "ST-04": {
@@ -3205,7 +3515,6 @@
   "AP-02": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
     "tt84-wordcount: U1 AP-02 bucket selection and purge validation refuse protected tables, duplicates, empty lists and missing DELETE confirmation",
     "tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification",
     "tt84-wordcount: U3 AP-02 browser storage inspection and clearing compute exact UTF-16 byte totals"
@@ -3231,10 +3540,14 @@
    ]
   },
   "AP-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts",
     "e2e: mount: apps",
+    "tt137-system-engines: AP-05 · register entry",
+    "tt137-system-engines: AP-05 · report counts by kind and module",
+    "tt137-system-engines: AP-05 · consistency check flags missing startup on SW",
+    "tt137-system-engines: AP-05 · unregister removes entry",
     "tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work",
     "tt85-inventory: AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached",
     "tt85-inventory: AP-05: observers receive bounded snapshots and unsubscribe prevents later notifications",
@@ -3340,12 +3653,13 @@
    ]
   },
   "PR-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt99-interactions: Editor Keep controls remain present after loading and Save persists content plus the previous version",
     "e2e: mount: editor",
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "tt116-safesave: replacing an existing file advances it by one version and keeps the previous one",
+    "tt146-core: PR-01 encodings: BOM, UTF-16 without BOM, invalid UTF-8, and large-file policy",
     "tt92-ledger-audit: the editor does not advertise its database version snapshots as native SAF safe-save"
    ]
   },
@@ -3493,8 +3807,14 @@
    ]
   },
   "PR-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt146: PR-06 the mail composer builds a link this browser accepts, and says what it cannot do",
+    "tt146-core: PR-06 RFC 6068: percent-encoding, CRLF bodies, literal plus, unicode",
+    "tt146-core: PR-06 refusals: header injection, whitespace, non-ASCII addresses, NUL",
+    "tt146-core: PR-06 truncation is visible, bounded, and loses nothing silently",
+    "tt146-core: PR-06 round-trips through parseMailto, and the channel plan is explicit"
+   ]
   },
   "PR-07": {
    "tested": "full",
@@ -3644,6 +3964,14 @@
    "tested": "full",
    "tests": [
     "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
+    "tt139-systems: PR-07n · literal mode is case-insensitive and wraps",
+    "tt139-systems: PR-07n · whole-word uses Unicode boundaries, not \\b",
+    "tt139-systems: PR-07n · regex mode; an invalid pattern is reported, not thrown",
+    "tt139-systems: PR-07n · cycleMode rotates through all four modes",
+    "tt139-systems: PR-07n · matches never overlap and stay ordered",
+    "tt139-systems: PR-07n · an over-long query is refused with a reason",
+    "tt139-systems: PR-07n · replaceAll is literal: $& is not special",
+    "tt139-systems: PR-07n · highlight segments reconstruct the original text exactly",
     "tt85-find: PR-07n: real Chromium DOM index crosses inline nodes, applies block whitespace, excludes hidden/non-text surfaces, wraps next/previous and selects the exact source Range",
     "tt85-find: PR-07n: collapsed multi-space source runs keep exact Range boundaries before the following word",
     "tt85-find: PR-07n: overlapping hits, query-reset reverse start, empty/no-match behavior, Unicode combining marks, and live mutation recount",
@@ -3651,16 +3979,22 @@
    ]
   },
   "PR-07o": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt35: per-tab private profiles (WP-04, PR-07o): a cookie a page sets lives in that tab's own jar — it survives a reload and a navigation inside the tab, a second tab on the SAME site never sees it, the Cookies counter shows it, and Clear cookies forgets it; closing the tab deletes the session on the server",
     "e2e-tt36: named profiles (PR-07o): two tabs in profile Work share one session and its cookies, a third tab on the same site (this tab only) does not; switching it to Work joins the jar, switching a Work tab to 'this tab only' leaves it; the profile is saved with the window; closing the last Work tab deletes the Work session",
+    "tt147-core: PR-07o profiles: one jar per profile, one jar per anonymous tab, and names that cannot escape",
     "tt36-unit: profile names and saved sessions (PR-07o): a named profile survives normalisation of a saved Browser session; unsafe or oversized names are dropped (the tab falls back to 'this tab only')"
    ]
   },
   "PR-07p": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt140-cast-privacy: PR-07p · rules match hosts exactly, never substrings",
+    "tt140-cast-privacy: PR-07p · allow wins, invalid input is refused, non-http never navigates",
+    "tt140-cast-privacy: PR-07p · rules are validated at construction",
+    "tt140-cast-privacy: PR-07p · the capability report distinguishes enforced from impossible"
+   ]
   },
   "PR-07q": {
    "tested": "full",
@@ -3682,8 +4016,12 @@
    ]
   },
   "PR-07s": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt140-cast-privacy: PR-07s · media in another document is never offered as castable",
+    "tt140-cast-privacy: PR-07s · each blocker produces its own honest reason",
+    "tt140-cast-privacy: PR-07s · the per-tab summary counts and explains"
+   ]
   },
   "PR-08": {
    "tested": "full",
@@ -3704,6 +4042,11 @@
     "e2e-tt77-pdfsig: S5 the identity survives a reload (IndexedDB) and the saved file re-validates in the UI",
     "e2e-tt77-pdfsig: S7 no page errors",
     "e2e: mount: pdf",
+    "tt139-media: PR-08 · zoom keeps the anchor point fixed",
+    "tt139-media: PR-08 · rotation swaps axes and a fit stays a fit",
+    "tt139-media: PR-08 · rotation rejects non-multiples of 90",
+    "tt139-media: PR-08 · pan is clamped so the page cannot leave the screen",
+    "tt139-media: PR-08 · paging, fits and the content rect are consistent",
     "tt52-pdf: open + text: hand-built PDF, three pages, page text in order",
     "tt52-pdf: incremental save keeps the original bytes as an exact prefix; Prev chains to the old xref",
     "tt52-pdf: page operations: reorder + delete + insert blank + move, verified by page text",
@@ -3887,7 +4230,12 @@
     "e2e-tt57-rows: PR-10 timer fires on time with requestAnimationFrame never running (hidden-tab emulation): 0 min 3 s → 'Timer finished' at 3 s, not before",
     "e2e-tt57-rows: no uncaught page errors during the TT57 rows session",
     "e2e: mount: clock",
-    "e2e: clock stopwatch advances from performance.now anchors"
+    "e2e: clock stopwatch advances from performance.now anchors",
+    "tt139-systems: PR-10 · timer runs to completion and latches alarm",
+    "tt139-systems: PR-10 · a resumed tab catches up exactly (no drift)",
+    "tt139-systems: PR-10 · pause freezes; lap splits are exact",
+    "tt139-systems: PR-10 · duration bounds and extend",
+    "tt139-systems: PR-10 · formatTime is exact at boundaries"
    ]
   },
   "PR-11": {
@@ -4109,7 +4457,6 @@
     "e2e-ai: PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
     "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
     "e2e-ai: Files routing: double-clicking an .ai in Files opens Peek with the Illustrator panel",
-    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
     "e2e: mount: vector",
     "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
     "oracle-ai: file-type 16.5.4 (independent rule) agrees on ai/pdf/eps for every real and constructed PDF/EPS input",
@@ -4130,8 +4477,11 @@
    ]
   },
   "FF-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "partial",
+   "tests": [
+    "tt148-core: FF-06 the container is identified by its brand, not its extension",
+    "tt148-core: FF-06 a real HEIC (libheif/HEVC) is refused as a missing decoder, not as a broken file"
+   ]
   },
   "FF-07": {
    "tested": "full",
@@ -4160,12 +4510,26 @@
     "oracle-psd: B/ZIP: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: B/groups: our reader on a psd-tools-written PSD — structure, exact pixels, composite vs psd-tools",
     "oracle-psd: forge row: PSD grade A, and every gap the codec reports is written into the boundary",
+    "tt139-documents: FF-08 · header, colour mode and dimensions parse exactly",
+    "tt139-documents: FF-08 · layer records: name, blend, opacity, flags, section",
+    "tt139-documents: FF-08 · Unicode layer names win over the ASCII name",
+    "tt139-documents: FF-08 · layer groups nest by section markers",
+    "tt139-documents: FF-08 · raw composite is exposed; RLE is reported, not guessed",
+    "tt139-documents: FF-08 · adversarial: wrong signature, version, reserved, and truncation",
+    "tt139-documents: FF-08 · adversarial: a lying layer-info length is caught",
+    "tt139-documents: FF-08 · a layer named with an over-long ASCII string is bounded",
     "unit: docx extraction; EPUB spine order; PSD header"
    ]
   },
   "FF-09": {
    "tested": "full",
    "tests": [
+    "tt139-media: FF-09 · detection prefers content over extension",
+    "tt139-media: FF-09 · RFC 4180 CSV: quotes, embedded commas and newlines",
+    "tt139-media: FF-09 · CSV ⇄ JSON keeps column order and stringifies objects",
+    "tt139-media: FF-09 · INI and a flat YAML subset",
+    "tt139-media: FF-09 · log parsing separates structured from free-form lines",
+    "tt139-media: FF-09 · analysis reports encoding and line endings honestly",
     "unit: CSV RFC-4180 round trip"
    ]
   },
@@ -4247,6 +4611,9 @@
     "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
     "e2e-tt48: no uncaught page errors during the TT48 sessions",
     "e2e: mount: peek",
+    "tt139-media: FF-11 · docx → txt names every specific loss",
+    "tt139-media: FF-11 · same format is byte-lossless; a capable target is lossless",
+    "tt139-media: FF-11 · severity is the max, and losslessTargets is consistent",
     "tt46-xlsx-patch: no-edit save of every readable corpus workbook returns the original bytes",
     "tt46-xlsx-patch: corpus edit session: change a number, add a bold text cell, re-style a cell — openpyxl sees exactly those edits and nothing else lost",
     "tt46-xlsx-patch: charts, comments, conditional formats, data validation, images and theme-coloured fonts survive an edit; only edited parts change",
@@ -4373,7 +4740,6 @@
   "FF-19": {
    "tested": "full",
    "tests": [
-    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e-tt76-sheet: modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it",
     "e2e-tt76-sheet: Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row",
     "e2e-tt76-sheet: Custom: contains \"e\" Or begins with \"z\" (wildcards) on the name column; And with a second column's Top 5",
@@ -4392,6 +4758,32 @@
     "oracle: oracle: grid — 21 cells match",
     "oracle: oracle: grid2 (range coercion) — 7 cells match",
     "oracle: oracle: circular — 2 cells match",
+    "tt139-formulas: FF-19 · lexer splits numbers, strings, refs, ranges, operators",
+    "tt139-formulas: FF-19 · lexer handles scientific notation and doubled quotes",
+    "tt139-formulas: FF-19 · lexer rejects junk instead of silently ignoring it",
+    "tt139-formulas: FF-19 · precedence: -2^2 is 4, and 0-2^2 is -4 (Excel rule)",
+    "tt139-formulas: FF-19 · precedence: * / before + -, & below arithmetic",
+    "tt139-formulas: FF-19 · comparison is lowest precedence and returns booleans",
+    "tt139-formulas: FF-19 · percent postfix and unary chains",
+    "tt139-formulas: FF-19 · every advertised function actually runs",
+    "tt139-formulas: FF-19 · aggregates skip text and blanks (spreadsheet rule)",
+    "tt139-formulas: FF-19 · aggregates over an all-empty range do not divide by zero",
+    "tt139-formulas: FF-19 · statistics are correct, not approximately correct",
+    "tt139-formulas: FF-19 · ROUND is half-away-from-zero on both signs",
+    "tt139-formulas: FF-19 · MOD follows the sign of the divisor",
+    "tt139-formulas: FF-19 · text functions respect 1-based indexes",
+    "tt139-formulas: FF-19 · errors propagate through every operator",
+    "tt139-formulas: FF-19 · IFERROR and IF short-circuit (unused branch is not evaluated)",
+    "tt139-formulas: FF-19 · lookup functions honour the declared orientation",
+    "tt139-formulas: FF-19 · date serials use the 1900 system (epoch 1899-12-30)",
+    "tt139-formulas: FF-19 · RAND is injected, never Math.random",
+    "tt139-formulas: FF-19 · extractRefs expands ranges and dedupes",
+    "tt139-formulas: FF-19 · topological order puts dependencies first",
+    "tt139-formulas: FF-19 · cycles are reported, not linearised",
+    "tt139-formulas: FF-19 · evaluateSheet gives cycle cells #REF!, never a stale number",
+    "tt139-formulas: FF-19 · evaluateSheet computes a real chain in one pass",
+    "tt139-formulas: FF-19 · column letters round-trip across the AA boundary",
+    "tt139-formulas: FF-19 · formatNumber is deterministic without trailing-float noise",
     "tt68-blank: blank vs empty text follows Microsoft's definitions (27 cases): ISBLANK only for empty cells, COUNTA counts \"\", ISTEXT/ISNONTEXT/TYPE of an empty cell, through OFFSET/INDEX/whole columns/array constants",
     "tt68-blank: error literals are error CONSTANTS (ECMA-376 ST_CellError), case-insensitive; '#N/A stays text; #bogus / #SPILL! typed stay text; textInput quotes an error-looking text so it round-trips as text",
     "tt68-blank: held-out: Excel's CACHED results for all 26 946 formula cells of the corpus — the TT68 engine agrees with Excel on every cell TT67 did, plus 7 more (ISBLANK/ISTEXT of empty text, error constants, COUNTIF of an error); 0 regressions",
@@ -4472,9 +4864,6 @@
   "FF-20": {
    "tested": "full",
    "tests": [
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
-    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "e2e-tt46: Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
     "e2e-tt46: Spreadsheet: no-edit Save of a chart workbook leaves it byte-identical; rename a sheet + Save keeps the chart part and openpyxl sees the new name",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
@@ -4503,6 +4892,13 @@
     "oracle-xlsx: A. our writer → openpyxl: values, formulas, _xlfn prefixes, array formula + cached children, styles, widths, freeze",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "privacy-layer: office on encrypted files: Export .xlsx into /Private (rewritten to export + encrypted write), import from /Private inlined; the bare server refuses the blob",
+    "tt139-formulas: FF-20 · writer emits valid SpreadsheetML (ss:Index integer, ss:Formula R1C1)",
+    "tt139-formulas: FF-20 · a formula cell carries its cached result",
+    "tt139-formulas: FF-20 · multi-sheet workbook writes every sheet in order",
+    "tt139-formulas: FF-20 · writer escapes XML metacharacters and rejects illegal sheet names",
+    "tt139-formulas: FF-20 · writer refuses out-of-order or duplicate-ref cells",
+    "tt139-formulas: FF-20/FF-21 · model helpers: set/get/clear/usedRange",
+    "tt139-formulas: FF-20/FF-21 · attacker: formula text cannot break out of an attribute",
     "tt46-xlsx-patch: no-edit save of every readable corpus workbook returns the original bytes",
     "tt46-xlsx-patch: corpus edit session: change a number, add a bold text cell, re-style a cell — openpyxl sees exactly those edits and nothing else lost",
     "tt46-xlsx-patch: charts, comments, conditional formats, data validation, images and theme-coloured fonts survive an edit; only edited parts change",
@@ -4550,8 +4946,6 @@
   "FF-21": {
    "tested": "full",
    "tests": [
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
@@ -4566,6 +4960,18 @@
     "names: openpyxl-authored workbook → our reader: workbook/sheet/formula/constant names evaluate to Python-computed values; hidden and _xlnm names skipped",
     "oracle-xlsx: B. openpyxl-authored file → our reader: styles, widths, freeze, shared formulas, _xlfn strip, array children don't block",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
+    "tt139-formulas: FF-21 · round-trip preserves sheets, values and formulas",
+    "tt139-formulas: FF-21 · round-trip is a fixed point (write∘read∘write is stable)",
+    "tt139-formulas: FF-21 · reader accepts a foreign file using ss:Index gaps",
+    "tt139-formulas: FF-21 · reader accepts A1 formulas from third-party writers",
+    "tt139-formulas: FF-21 · A1⇄R1C1 conversion is exact for relative and absolute refs",
+    "tt139-formulas: FF-21 · reader rejects junk instead of returning an empty workbook",
+    "tt139-formulas: FF-21 · recalculation chains and settles",
+    "tt139-formulas: FF-21 · recalculation resolves cross-sheet references",
+    "tt139-formulas: FF-21 · recalculation reports a real cycle instead of guessing",
+    "tt139-formulas: FF-21 · recalculation leaves the cached value's source untouched",
+    "tt139-formulas: FF-20/FF-21 · model helpers: set/get/clear/usedRange",
+    "tt139-formulas: FF-20/FF-21 · attacker: formula text cannot break out of an attribute",
     "tt46-xlsx-patch: conditional formats are imported for display: every constant cellIs rule (numeric or string operand; rgb, theme+tint or indexed colours) matches an independent reading (openpyxl rules + lxml dxfs + colorsys tint)",
     "tt47-crypto: SHA-1/256/384/512, HMAC and AES-128/192/256 (CBC, ECB) equal OpenSSL on 400 random vectors incl. padding boundaries",
     "tt47-crypto: corpus: Agile SHA-1 'pass' (HMAC verified, opens in Writer), Standard 'solrcell' and 'tika' byte-equal to msoffcrypto-tool",
@@ -4724,21 +5130,22 @@
     "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
     "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
     "e2e-tt48: no uncaught page errors during the TT48 sessions",
-    "e2e-tt49-writer: add a footer 'Page {PAGE} of {NUMPAGES}' and a header through the panel: every page box draws its own number; saved file → python-docx sees live PAGE/NUMPAGES fields",
-    "e2e-tt49-writer: edit a real Word header (POI bug57031.docx): the change shows on every page, Undo restores the original on the pages AND in the panel, the saved file keeps the other header lines",
-    "e2e-tt49-writer: different first page: the checkbox adds First-page tabs; page 1 draws the cover header, later pages the default header; python-docx agrees after save; unticking restores",
-    "e2e-tt49-writer: locked content: a header line holding a picture is shown 'kept as is' (no input); adding a line beside it saves with the picture intact; Remove unlinks the header",
-    "e2e-tt49-writer: Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced",
     "e2e-tt49-writer: no page errors; uploads cleaned up",
     "e2e-tt56: FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
     "e2e-tt57: FF-22 Writer format tracking in the UI: Ctrl+B with tracking on → 'Formatted: Bold' listed, saved as w:rPrChange; Reject restores plain text; Align centre → 'Paragraph: Centered' → w:pPrChange → Accept (lxml oracle)",
     "e2e-tt58: FF-22 Writer notes in the UI: Ctrl+Alt+F footnote → type in the Notes panel → numbered note on the page → saved footnotes.xml (lxml oracle) → reopen keeps it → endnote (roman) → delete footnote → no orphan, no dangling reference",
-    "e2e-tt73-writer: header picture through the panel: the typed line is applied first, the picture becomes a locked 'picture' line, every page draws it, Undo / Redo move it on every page, and the saved file has it in the header part's own rels (python-docx sees the exact bytes)",
-    "e2e-tt73-writer: refusals: an SVG and a PNG over 5 MB are refused with a visible reason; no picture is added and the document stays clean",
-    "e2e-tt73-writer: modal shortcut: while a header line input has focus, Ctrl+Z is the input's own undo — the document's header picture and body stay",
     "e2e-tt73-writer: cleanup + no page errors",
     "e2e-tt74-office: Writer: Export Markdown downloads heading / bold / list Markdown after the loss dialog; From Markdown opens a new document with the converted heading and list",
     "e2e: mount: writer",
+    "tt139-documents: FF-22 · paragraphs, runs and bold round-trip",
+    "tt139-documents: FF-22 · boldOff is distinct from 'no bold' and survives",
+    "tt139-documents: FF-22 · styles, alignment and lists serialize to real OOXML tokens",
+    "tt139-documents: FF-22 · tables survive a round-trip with their grid",
+    "tt139-documents: FF-22 · writer rejects styles outside the closed enum",
+    "tt139-documents: FF-22 · attacker: markup in a run cannot escape the element",
+    "tt139-documents: FF-22 · attacker: attribute-quote breakout via colour is blocked",
+    "tt139-documents: FF-22 · leading/trailing spaces are preserved with xml:space",
+    "tt139-documents: FF-22 · round-trip is a fixed point",
     "tt46-writer: xmltree: every well-formed XML part of the docx corpus re-serializes byte-identically",
     "tt46-writer: xmltree guards: nesting bomb refused, external/undeclared entities never resolved, numeric refs decoded",
     "tt46-writer: zipkit: CRC-32 vector, CFB/encrypted refusal, truncation, inflate-ratio bomb guard, write→read round trip",
@@ -4824,6 +5231,12 @@
     "e2e-tt76-slides: E7 presenter view (CA-02): the audience window gets the deck and follows the console; clicks on the audience advance the presenter; notes / next / timer on the console; End closes the audience",
     "e2e-tt76-slides: E6 no page errors during the Slides motion run",
     "e2e: mount: slides",
+    "tt139-documents: FF-23 · slides, shapes and order",
+    "tt139-documents: FF-23 · serialization carries size, background, geometry and notes",
+    "tt139-documents: FF-23 · parse restores shapes and typing",
+    "tt139-documents: FF-23 · remote image URLs are refused (privacy invariant)",
+    "tt139-documents: FF-23 · empty deck is legal; a broken deck is refused",
+    "tt139-documents: FF-23 · attacker: text cannot inject a second shape",
     "tt51-slides: reader vs python-pptx over every openable corpus deck: slide order, hidden flags, layout names, notes text, shape ids/names, geometry with placeholder inheritance, paragraph text, table cells and group members agree exactly",
     "tt51-slides: lossless identity: opening and saving every corpus deck without edits returns the original bytes (83/83); the view model renders every slide of every deck without throwing",
     "tt51-slides: text edits keep formatting: a word typed into the middle of a paragraph joins its run (rPr kept byte-for-byte), every other run and paragraph keeps its exact XML, untouched parts keep their bytes; python-pptx reads the new text and the validator finds no new problems in any deck",
@@ -4860,15 +5273,27 @@
     "e2e-image: classic Quick edit mode is still available (additive merge)",
     "e2e: mount: imageedit",
     "image: structural ops: rotate×4 = id, rotate matches raster.rotate90 of the composite, flips, crop keeps pixels",
-    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)"
+    "image: gradient endpoints/midpoint; eyedropper average; blur is premultiplied (no dark fringe)",
+    "tt139-media: FF-24 · crop and rotate produce exact pixels",
+    "tt139-media: FF-24 · flip is its own inverse",
+    "tt139-media: FF-24 · brightness and contrast are exactly reversible",
+    "tt139-media: FF-24 · saturation 0 equals Rec.601 luma",
+    "tt139-media: FF-24/LN-04 · gamma LUT is exact at the endpoints",
+    "tt139-media: FF-24 · malformed buffers are refused, not read out of bounds"
    ]
   },
   "FF-25": {
    "tested": "full",
    "tests": [
-    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
-    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
-    "e2e: mount: vector"
+    "e2e: mount: vector",
+    "tt139-documents: FF-25 · primitives, serialization and node addressing",
+    "tt139-documents: FF-25 · move and resize move exactly one node",
+    "tt139-documents: FF-25 · group nesting serializes and parses",
+    "tt139-documents: FF-25 · sanitizer removes every forbidden construct",
+    "tt139-documents: FF-25 · scanSvg reports every reason, not a bare boolean",
+    "tt139-documents: FF-25 · importer never trusts a numeric attribute",
+    "tt139-documents: FF-25 · validateSvg catches degenerate geometry",
+    "tt139-documents: FF-25 · builder refuses unsafe path and transform strings"
    ]
   },
   "MD-01": {
@@ -4884,7 +5309,7 @@
    ]
   },
   "MD-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-image: classic Quick edit mode is still available (additive merge)",
     "e2e-tt128-photos: a thumbnail completing between pointer down and up keeps its tile geometry and click",
@@ -4996,16 +5421,25 @@
    ]
   },
   "MD-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: devices"
+    "e2e: mount: devices",
+    "tt142-input-scan: MD-05 · a javascript: code is never navigable",
+    "tt142-input-scan: MD-05 · other install/launch schemes are refused too",
+    "tt142-input-scan: MD-05 · ordinary links are classified and kept",
+    "tt142-input-scan: MD-05 · a Wi-Fi code never echoes the password on screen",
+    "tt142-input-scan: MD-05 · vCard and OTP payloads are summarised, not dumped",
+    "tt142-input-scan: MD-05 · hostile and degenerate payloads do not throw",
+    "tt142-input-scan: MD-05 · the scanner text admits a missing detector"
    ]
   },
   "MD-06": {
    "tested": "partial",
    "tests": [
     "e2e-tt110-shell: audio outputs are enumerated and a tone can be routed to a chosen one",
-    "e2e: mount: devices"
+    "e2e: mount: devices",
+    "tt137-system-engines: MD-06 · routeAudio uses defaults",
+    "tt137-system-engines: MD-06 · reroute changes output device"
    ]
   },
   "MD-07": {
@@ -5024,6 +5458,9 @@
     "e2e-tt53-media: MOV keeps its .mov extension; audio-only MP4 is saved as .m4a",
     "e2e-tt53-media: a file that is not MP4/WebM gets a clear 'not possible' message instead of a broken file",
     "e2e-tt53-media: no page errors during the run",
+    "tt139-media: MD-08 · trim aligns to a keyframe and reports the lead-in cost",
+    "tt139-media: MD-08 · trim boundaries are enforced",
+    "tt139-media: MD-08 · export presets never upscale the source",
     "tt53-media: container detection by magic bytes routes MP4/MOV and WebM/MKV; anything else is refused",
     "tt53-media: MP4/MOV sweep (progressive, faststart, fragmented, MOV, video-only, audio-only) × exact + key-frame starts: FFmpeg decodes, frames hash-equal, packets byte-identical",
     "tt53-media: WebM/MKV sweep (VP8+Opus, VP9+Opus, H.264+AAC with B-frames in MKV, Opus-only): start snaps to the key frame, FFmpeg decodes, frames hash-equal, packets byte-identical",
@@ -5038,8 +5475,12 @@
    ]
   },
   "MD-09": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt137-system-engines: MD-09 · addWindow registers audio state",
+    "tt137-system-engines: MD-09 · setVolume and toggleMute work",
+    "tt137-system-engines: MD-09 · reportDashboard gives summary"
+   ]
   },
   "SC-01": {
    "tested": "partial",
@@ -5081,18 +5522,31 @@
     "e2e-tt72-access: Lens: camera + mic live, presenter screen live; the module's own Stop camera (no 'ended' event) ends both",
     "e2e-tt72-access: refusals and grants are logged with the module — no clipboard text or coordinates kept; Clear empties finished rows",
     "e2e-tt72-access: nothing about the log leaves the tab: no request body names a logged module label or device kind",
+    "tt139-systems: SC-05 · ledger records modules with real reasons",
+    "tt139-systems: SC-05 · global opt-out is reversible and non-destructive",
+    "tt139-systems: SC-05 · audit finds sole holders and blocked capabilities",
     "tt72-access: outcomes, order, cap",
     "tt72-access: live until every track ended — 'ended' event or code stop(); double stop once; stopLive; Clear keeps live",
     "tt72-access: wrappers: granted / denied / failed with the module; original errors rethrown; no content stored"
    ]
   },
   "SC-06": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt140-cast-privacy: SC-06 · the protection statement never claims more than the platform allows",
+    "tt140-cast-privacy: SC-06 · our own capture excludes private windows, always",
+    "tt140-cast-privacy: SC-06 · locks and blanks fire on a live capture and clear when it ends",
+    "tt140-cast-privacy: SC-06 · an unreported surface is unknown, not assumed safe",
+    "tt140-cast-privacy: SC-06 · the summary sentence states the limit in the same breath"
+   ]
   },
   "SC-07": {
    "tested": "full",
    "tests": [
+    "tt139-systems: SC-07 · lifecycle: sealed → unlocked → locked → sealed",
+    "tt139-systems: SC-07 · rate limiting counts failures, not successes",
+    "tt139-systems: SC-07 · a throwing verifier is a failed attempt, not a crash",
+    "tt139-systems: SC-07 · destroyed is terminal; auto-lock respects idle",
     "unit: seal/open round trip; wrong passphrase and ciphertext tamper fail",
     "unit: header downgrade (iterations) is detected via AAD; policy floor enforced"
    ]
@@ -5174,6 +5628,10 @@
     "integration: BK-01 tampered backup bundle is refused before anything is written",
     "tt128-writer-races: ordinary writer commits first: stale conditional writer rejects",
     "tt128-writer-races: conditional writer commits first: a later unconditional write can overwrite it",
+    "tt139-media: BK-03 · export is a versioned bundle with a checksum",
+    "tt139-media: BK-03 · import is a dry run that classifies every change",
+    "tt139-media: BK-03 · broken bundles are refused with a reason",
+    "tt139-media: BK-03 · applyImport refuses an invalid plan",
     "tt87-backup-http: BK-03 config export → preview → actual atomic restore, history, no document data, and idempotent replay",
     "tt87-backup-http: BK-03 stale preview, invalid known value, locked and unknown keys cannot cause unintended changes",
     "tt87-backup-http: BK-03 an actual database failure during the second setting update rolls back the first update and its history",
@@ -5209,6 +5667,10 @@
     "e2e-tt89-drill: drill UI has no serious or critical axe violations and no uncaught page errors",
     "e2e: mount: backup",
     "integration: BK-01 tampered backup bundle is refused before anything is written",
+    "tt137-system-engines: BK-05 · fresh backup is healthy",
+    "tt137-system-engines: BK-05 · stale backup reports issues",
+    "tt137-system-engines: BK-05 · drill plan is safe for dry run",
+    "tt137-system-engines: BK-05 · drill rejects incomplete set",
     "tt89-drill-db: scratch data drill restores Unicode, binary, empty folders, duplicate notes and private-index exclusion without touching production",
     "tt89-drill-db: config drill writes a sentinel then reads real values back; reports locked and unknown keys without changing settings or sequences",
     "tt89-drill-db: empty backup and all-unknown configuration cannot become a successful drill",
@@ -5268,7 +5730,6 @@
     "e2e: mount: backup",
     "privacy-crypto: volume life-cycle: create → unlock by passphrase or recovery key (any case/separators) → wrong secret refused",
     "privacy-crypto: change passphrase rewraps one slot only: old files still open, old passphrase refused, recovery still works; rotate recovery kills the old key",
-    "tt118-core: BK-06 backup compare: added/removed/changed/unchanged and byte delta",
     "tt88-recovery: BK-06 Web Crypto output opens with both credentials in independent Python cryptography",
     "tt88-recovery: BK-06 independently encrypted Python envelope opens with both Web Crypto slots",
     "tt88-recovery: BK-06 random 256-bit recovery keys have exact portable format and no repeats in a 100-key sample",
@@ -5284,7 +5745,6 @@
   "FF-26": {
    "tested": "full",
    "tests": [
-    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e: mount: sheet",
     "office: SEQUENCE(2,3) spills all six cells with correct values",
     "office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
@@ -5321,17 +5781,7 @@
    "tested": "full",
    "tests": [
     "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
-    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
-    "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
-    "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
-    "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
-    "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
-    "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
-    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
-    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
-    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
-    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
     "e2e-tt64: FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
     "e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF \"#N/A\" 1, COUNTA 3, \"=\" 1, \"<>\" 3, ISNA TRUE)",
@@ -5365,7 +5815,6 @@
   "FF-29": {
    "tested": "full",
    "tests": [
-    "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
     "e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated",
     "e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated",
     "e2e-tt49: modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
@@ -5480,12 +5929,6 @@
     "e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)",
     "e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal",
     "e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)",
-    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
-    "e2e-vector: UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10",
-    "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
-    "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
-    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
-    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
     "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
     "e2e-vector: no page errors during the vector session",
     "e2e: mount: vector",
@@ -5516,9 +5959,6 @@
   "FF-33": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
-    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: no page errors during the layout session",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
@@ -5532,8 +5972,6 @@
   "FF-34": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -5544,8 +5982,6 @@
   "FF-35": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
-    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -5794,7 +6230,6 @@
   "FF-36": {
    "tested": "full",
    "tests": [
-    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
     "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
     "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
@@ -5807,7 +6242,6 @@
   "FF-37": {
    "tested": "full",
    "tests": [
-    "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
     "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
     "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
     "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
@@ -5870,7 +6304,8 @@
     "a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)",
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "e2e-a11y: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
-    "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied"
+    "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied",
+    "tt140-glyph-geometry: every glyph renders, stays on the tile and is distinguishable (46 checked, 4 skipped)"
    ]
   },
   "AX-11": {
@@ -7346,7 +7781,6 @@
   "FF-78": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
     "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
     "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
     "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
@@ -7355,18 +7789,16 @@
    ]
   },
   "FF-79": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
     "tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes",
     "tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing",
     "tt81-core: P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations"
    ]
   },
   "FF-80": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
     "tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits",
     "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
     "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
@@ -7378,14 +7810,12 @@
   "FF-81": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
     "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
    ]
   },
   "FF-82": {
    "tested": "full",
    "tests": [
-    "e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
     "tt84-wordcount: W1 empty text has zero counts",
     "tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
     "tt84-wordcount: W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",
@@ -7401,9 +7831,24 @@
    ]
   },
   "CT-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux)"
+    "e2e-tt70-rows: CT-01 share target: manifest share_target → / ; ?url= opens a Browser tab on it and cleans the query; a javascript: URL never runs; Notes Share passes title + body to navigator.share (injected recorder — no OS share sheet in headless Linux)",
+    "tt139-media: CT-01 · payloads are validated before any target sees them",
+    "tt139-media: CT-01 · targets are matched by kind with a reason for each",
+    "tt142-share-gate: CT-01 · only http(s) links leave the app",
+    "tt142-share-gate: CT-01 · credentials in a shared link are stripped, not forwarded",
+    "tt142-share-gate: CT-01 · oversized fields are trimmed and the trim is reported",
+    "tt142-share-gate: CT-01 · files are dropped when the browser cannot share them",
+    "tt142-share-gate: CT-01 · the file count and byte budget are both enforced",
+    "tt142-share-gate: CT-01 · cancellation is not an error, and refusal is not cancellation",
+    "tt142-share-gate: CT-01 · the pre-share text does not promise what is missing",
+    "tt142-share-gate: CT-01 · a shared filename cannot traverse into the VFS",
+    "tt142-share-gate: CT-01 · received text is bounded and stripped of controls",
+    "tt142-share-gate: CT-01 · a hostile link is dropped from a received share",
+    "tt142-share-gate: CT-01 · an oversized received file is refused by name",
+    "tt142-share-gate: CT-01 · a share lands somewhere sensible or nowhere",
+    "tt142-share-gate: CT-01 · receive is total: no malformed form can throw"
    ]
   },
   "CT-02": {
@@ -7415,8 +7860,13 @@
    ]
   },
   "CT-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt146: CT-03 a link made here opens the same desktop there, and a tampered one is refused",
+    "tt139-media: CT-03 · a superseded handoff cannot be accepted (the race)",
+    "tt139-media: CT-03 · expire clears the item; an invalid offer is refused",
+    "tt146-core: CT-03 handoff links: round trip, secret-stripped, tamper-refused, size-capped"
+   ]
   },
   "CT-04": {
    "tested": "full",
@@ -7482,8 +7932,15 @@
    ]
   },
   "CA-08": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt140-cast-privacy: CA-08 · the target is a screen that is NOT the current one",
+    "tt140-cast-privacy: CA-08 · a mirrored desk is refused, not mislabelled",
+    "tt140-cast-privacy: CA-08 · among several candidates the largest usable area wins",
+    "tt140-cast-privacy: CA-08 · the window request uses usable area and absolute coordinates",
+    "tt140-cast-privacy: CA-08 · placement is verified, and a mismatch is reported not hidden",
+    "tt140-cast-privacy: CA-08 · caveats name the things that actually go wrong"
+   ]
   },
   "CA-09": {
    "tested": "partial",
@@ -7514,9 +7971,21 @@
    ]
   },
   "CA-13": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: share"
+    "e2e: mount: share",
+    "tt139-cast-governor: CA-13 · score is bounded, monotone in each input, and zero at perfection",
+    "tt139-cast-governor: CA-13 · a single bad sample never moves the ladder (the anti-flicker rule)",
+    "tt139-cast-governor: CA-13 · a sustained problem does move it, and catastrophic samples skip a rung",
+    "tt139-cast-governor: CA-13 · the ladder never oscillates on a constant link",
+    "tt139-cast-governor: CA-13 · scaleResolutionDownBy is a divisor of the source, not a height",
+    "tt139-cast-governor: CA-13 · bitrate keeps 15% headroom under the measured link",
+    "tt139-cast-governor: CA-13 · the height cap is a hard ceiling and never empties the ladder",
+    "tt139-cast-governor: CA-13 · static content trades frame rate for detail",
+    "tt139-cast-governor: CA-13 · nothing is re-applied for a rounding difference",
+    "tt139-cast-governor: CA-13 · invalid policy is refused at construction",
+    "tt139-cast-governor: CA-13 · HUD, limiting factor and report stay consistent",
+    "tt139-cast-governor: CA-13 · feeding a decision back is type- and value-stable"
    ]
   },
   "CA-14": {
@@ -7528,10 +7997,14 @@
    ]
   },
   "CA-15": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: together",
-    "integration: CA-11 Together anchor clock advances while playing and freezes on pause"
+    "integration: CA-11 Together anchor clock advances while playing and freezes on pause",
+    "tt137-system-engines: CA-15 · add and set leader",
+    "tt137-system-engines: CA-15 · advance keeps receivers in sync",
+    "tt137-system-engines: CA-15 · nudge corrects drift",
+    "tt137-system-engines: CA-15 · reportSync counts in-sync receivers"
    ]
   },
   "LN-01": {
@@ -7542,8 +8015,21 @@
    ]
   },
   "LN-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt141-auto-frame: LN-02 · one face gives a centred subject of its own size",
+    "tt141-auto-frame: LN-02 · several faces produce the union, so nobody is cropped out",
+    "tt141-auto-frame: LN-02 · a degenerate or non-finite box cannot poison the frame",
+    "tt141-auto-frame: LN-02 · the first detection snaps instead of gliding in",
+    "tt141-auto-frame: LN-02 · the tracking is critically damped, so it never overshoots",
+    "tt141-auto-frame: LN-02 · a stationary subject settles and stops moving",
+    "tt141-auto-frame: LN-02 · a backgrounded tab cannot integrate seconds of velocity",
+    "tt141-auto-frame: LN-02 · a wild detection cannot yank the crop to the frame edge",
+    "tt141-auto-frame: LN-02 · losing the subject holds the framing instead of snapping to centre",
+    "tt141-auto-frame: LN-02 · zoom fills the frame within its bounds",
+    "tt141-auto-frame: LN-02 · the crop rectangle always lies inside the source",
+    "tt141-auto-frame: LN-02 · every frame is pure, and the honesty text names what is missing"
+   ]
   },
   "LN-03": {
    "tested": "untested",
@@ -7552,19 +8038,38 @@
   "LN-04": {
    "tested": "full",
    "tests": [
-    "e2e-tt108-shell: the colour and light chain changes the rendered frame, not just a label"
+    "e2e-tt108-shell: the colour and light chain changes the rendered frame, not just a label",
+    "tt139-media: LN-04 · temperature is neutral at 0 and clamps its input",
+    "tt139-media: LN-04 · vignette darkens corners only, and is exact at strength 0",
+    "tt139-media: LN-04 · denoise reduces noise and preserves a flat field exactly",
+    "tt139-media: LN-04 · identity LUT is the identity, trilinear in between",
+    "tt139-media: LN-04 · enhance runs the documented order and changes nothing at defaults"
    ]
   },
   "LN-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt109-shell: output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model"
+    "e2e-tt109-shell: output height really rescales the pipeline, and the upscale is labelled as interpolation rather than a model",
+    "tt137-system-engines: LN-05 · planUpscale validates inputs",
+    "tt137-system-engines: LN-05 · planUpscale rejects overscale",
+    "tt137-system-engines: LN-05 · bilinear interpolation is correct",
+    "tt137-system-engines: LN-05 · estimateUpscale gives output dims",
+    "tt146-core: LN-05 windowed-sinc resampling: normalised weights, exact identity, no alpha halo",
+    "tt146-oracle: LN-05 agrees with the numpy float64 reference on upscale, downscale and odd sizes",
+    "tt146-oracle: LN-05 is in Pillow's band (an independent third-party Lanczos)"
    ]
   },
   "LN-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt109-shell: the virtual key light actually adds light to the rendered frame and can be taken away again"
+    "e2e-tt109-shell: the virtual key light actually adds light to the rendered frame and can be taken away again",
+    "tt137-system-engines: LN-06 · planRelight validates sources",
+    "tt137-system-engines: LN-06 · planRelight rejects too many sources",
+    "tt137-system-engines: LN-06 · computeLighting gives intensity at source",
+    "tt137-system-engines: LN-06 · applyRelightPixel shifts channels",
+    "tt137-system-engines: LN-06 · relightReport gives coverage stats",
+    "tt146-core: LN-06 the key light is a direction, not a brightness knob",
+    "tt146-oracle: LN-06 agrees with the numpy lighting reference across angles and intensities"
    ]
   },
   "LN-07": {
@@ -7576,7 +8081,16 @@
   "LN-08": {
    "tested": "full",
    "tests": [
-    "e2e-tt108-shell: the voice gate really runs on the audio thread and silences a signal below its threshold"
+    "e2e-tt108-shell: the voice gate really runs on the audio thread and silences a signal below its threshold",
+    "tt142-voice-gate: LN-08 · silence keeps the gate shut and never leaks gain",
+    "tt142-voice-gate: LN-08 · speech opens the gate in a couple of milliseconds",
+    "tt142-voice-gate: LN-08 · the hold bridges the gaps between words",
+    "tt142-voice-gate: LN-08 · release is slow enough not to amputate a word's tail",
+    "tt142-voice-gate: LN-08 · a single click cannot hold the gate open",
+    "tt142-voice-gate: LN-08 · non-finite samples are silence, not NaN gain",
+    "tt142-voice-gate: LN-08 · the threshold actually controls what opens the gate",
+    "tt142-voice-gate: LN-08 · sample rate changes the hold in time, not in samples",
+    "tt142-voice-gate: LN-08 · the gate is pure, and its own text tells the truth"
    ]
   },
   "LN-09": {
@@ -7604,8 +8118,15 @@
    "tests": []
   },
   "LN-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt140-cast-privacy: LN-12 · picture-in-picture keeps the camera ratio and stays on screen",
+    "tt140-cast-privacy: LN-12 · invalid presenter settings are refused, not clamped silently",
+    "tt140-cast-privacy: LN-12 · camera-only, green-screen and off are three distinct states",
+    "tt140-cast-privacy: LN-12 · side-by-side gives the presenter a usable column or says it will not",
+    "tt140-cast-privacy: LN-12 · the cutout can be moved and its overlap with content is measured",
+    "tt140-cast-privacy: LN-12 · the presenter monitor is four separate rects that do not overlap"
+   ]
   },
   "LN-13": {
    "tested": "partial",
@@ -7703,9 +8224,15 @@
    "tests": []
   },
   "AX-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "tt111-core: SRT becomes WebVTT the way a browser needs it, and WebVTT is left alone",
+    "tt139-systems: AX-07 · cue model enforces the floor and no overlaps",
+    "tt139-systems: AX-07 · wrapping respects the two-line rule",
+    "tt139-systems: AX-07 · audit flags unreadable reading rate",
+    "tt139-systems: AX-07 · audit catches flicker gaps and past-the-end cues",
+    "tt139-systems: AX-07 · WebVTT round-trip, including a voice span",
+    "tt139-systems: AX-07 · autoTime weights by length, not by count",
     "unit: SRT → WebVTT conversion"
    ]
   },
@@ -7749,7 +8276,7 @@
    ]
   },
   "AU-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
@@ -7778,12 +8305,21 @@
    ]
   },
   "AU-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt146: AU-03 the automation panel mints a token once and never shows it again",
     "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
     "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
     "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
     "tt108-refusal: every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
+    "tt146-core: AU-03 tokens: strict shape, hashed comparison, scopes",
+    "tt146-core: AU-03 the rate limiter is a fixed window with an honest retry time",
+    "tt146-core: AU-03 requests: whitelist only, one spelling of the payload, bounded length",
+    "tt146-core: AU-03 a settled run cannot be rewritten",
+    "tt146-http: AU-03 a token is minted once, stored hashed, and never listed",
+    "tt146-http: AU-03 an enqueued command is visible to the shell, settled once, and audited",
+    "tt146-http: AU-03 the door refuses: bad tokens, missing scopes, unknown commands, empty bodies",
+    "tt146-http: AU-03 revocation is immediate, and the limiter is the server's",
     "tt89-launch-unit: protocol accepts only the documented, known app intent",
     "tt89-launch-unit: existing-window URL is same-origin, root-only, one bounded module parameter"
    ]
@@ -7793,17 +8329,23 @@
    "tests": []
   },
   "RG-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt112-shell: SH-12: real long tasks drive the governor into a throttled state and the shell drops effects",
     "e2e: mount: monitor",
-    "e2e: governor reacts to injected long tasks"
+    "e2e: governor reacts to injected long tasks",
+    "tt139-systems: RG-01 · composite pressure is bounded and monotone",
+    "tt139-systems: RG-01 · hysteresis prevents oscillation at a fixed load",
+    "tt139-systems: RG-01 · sustained pressure rises; unloading falls",
+    "tt139-systems: RG-01 · a single spike does not act (dwell time)",
+    "tt139-systems: RG-01 · throttle policy is monotone across levels"
    ]
   },
   "RG-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
+    "tt139-systems: RG-02 · scheduling hints defer heavy work under pressure"
    ]
   },
   "RG-03": {
@@ -7813,10 +8355,11 @@
    ]
   },
   "RG-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: monitor",
-    "e2e: governor reacts to injected long tasks"
+    "e2e: governor reacts to injected long tasks",
+    "tt139-systems: RG-04 · resource report distinguishes spiky from steady"
    ]
   },
   "RG-05": {
@@ -7831,6 +8374,7 @@
    "tested": "full",
    "tests": [
     "tt111-core: the new-device checklist is a real diff of two measured reports, and absent memory data is not low memory",
+    "tt139-systems: RG-06 · low-memory mode degrades explicitly",
     "unit: RG-06 memory policy: absence is not low memory"
    ]
   },
@@ -7847,21 +8391,35 @@
    ]
   },
   "HW-02": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt139-systems: HW-02 · CPU-bound pool leaves a core for the main thread",
+    "tt139-systems: HW-02 · memory budget and load level can veto the plan",
+    "tt139-systems: HW-02 · realistic throughput is below the ideal (Amdahl honesty)",
+    "tt139-systems: HW-02 · measured stats compute exact mean, not an average of means"
+   ]
   },
   "HW-03": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
+    "tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon",
+    "tt146-core: HW-03 a probe that never answers cannot hang the matrix"
+   ]
   },
   "HW-04": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: HW-04 the accelerator card agrees with a direct WebGPU request in the same page",
+    "tt147-core: HW-04 an adapter that names SwiftShader is reported as software, not as a GPU"
+   ]
   },
   "HW-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
+    "tt139-systems: HW-05 · latency budget adds up and classifies honestly",
+    "tt139-systems: HW-05 · voice count shrinks with convolvers"
    ]
   },
   "HW-06": {
@@ -7869,8 +8427,11 @@
    "tests": []
   },
   "HW-07": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: HW-07 the peripheral card lists every bus this engine has, and counts only what is granted",
+    "tt147-core: HW-07 inventory: granted is not the device list, and a refusal is not an absence"
+   ]
   },
   "HW-08": {
    "tested": "partial",
@@ -7879,14 +8440,24 @@
    ]
   },
   "HW-09": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted"
+    "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted",
+    "e2e-tt146: HW-09 one probe re-plans every open surface: the painted gallery widens with the tier",
+    "tt146-core: HW-09 network facts are normalised, never invented, and bounded",
+    "tt146-core: HW-09 throughput estimator rejects timer noise and cache hits, then tracks an EWMA",
+    "tt146-core: HW-09 the ladder is monotone, and Save-Data/offline always win",
+    "tt146-core: HW-09 hysteresis: down at once, up only after evidence and dwell"
    ]
   },
   "HW-10": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
+    "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
+    "tt146-core: HW-10 absence is reported with its reason, and threads need isolation",
+    "tt146-core: HW-10 the chunk planner covers every item exactly once"
+   ]
   },
   "HW-11": {
    "tested": "full",
@@ -7983,11 +8554,20 @@
    ]
   },
   "DP-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: no non-resource console errors across all module mounts",
     "tt116-density: every control whose caption was removed still answers to its full name",
-    "tt116-density: no shortened word sits outside the name its control answers to"
+    "tt116-density: no shortened word sits outside the name its control answers to",
+    "tt142-a11y-gate: DP-07 · a skipped check is not a pass",
+    "tt142-a11y-gate: DP-07 · the verdict never claims the app is accessible",
+    "tt142-a11y-gate: DP-07 · failures are reported with enough detail to fix",
+    "tt142-a11y-gate: DP-07 · contrast maths matches the WCAG reference values",
+    "tt142-a11y-gate: DP-07 · large text is held to 3:1 and body text to 4.5:1",
+    "tt142-a11y-gate: DP-07 · a translucent colour is composited before it is measured",
+    "tt142-a11y-gate: DP-07 · colour parsing refuses what it cannot parse",
+    "tt142-a11y-gate: DP-07 · the audit reports each pair against its own requirement",
+    "tt142-a11y-gate: DP-07 · this repo's own text tokens actually pass"
    ]
   },
   "DP-08": {

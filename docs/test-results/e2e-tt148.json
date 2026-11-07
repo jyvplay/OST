@@ -1,0 +1,42 @@
+{
+  "suite": "e2e-tt148",
+  "at": "2026-11-07T07:13:35.703Z",
+  "results": [
+    {
+      "suite": "e2e-tt148",
+      "name": "FF-06 an AVIF named .heic becomes a real thumbnail in Files — and the decoder agrees it is decodable",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 6606
+    },
+    {
+      "suite": "e2e-tt148",
+      "name": "FF-06 a real HEIC is refused by the app and by the engine in the same page — the sentence is measured",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 5694
+    },
+    {
+      "suite": "e2e-tt148",
+      "name": "IN-04 the capture box reads the physical chord and separates browser-reserved from app-owned",
+      "covers": {
+        "IN-04": "full"
+      },
+      "pass": true,
+      "ms": 8384
+    },
+    {
+      "suite": "e2e-tt148",
+      "name": "IN-04 capturing a chord consumes it: the shell must not act on a key the panel is capturing",
+      "covers": {
+        "IN-04": "full"
+      },
+      "pass": true,
+      "ms": 6509
+    }
+  ]
+}

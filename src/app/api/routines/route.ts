@@ -18,9 +18,11 @@ export async function POST(req: NextRequest) {
   if (b instanceof Response) return b;
   try {
     if (b.ranId) {
-      await db.update(routines).set({ lastRun: new Date() }).where(eq(routines.id, b.ranId));
+      // AU-01: a rehearsal is an audit event, not an execution. It must not move
+      // `lastRun` — otherwise the list says a routine ran when it only rehearsed.
+      if (!b.dry) await db.update(routines).set({ lastRun: new Date() }).where(eq(routines.id, b.ranId));
       await db.insert(auditLog).values({ actor: "routine", action: b.dry ? "routine.dryrun" : "routine.run", detail: String(b.ranId) });
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, dry: Boolean(b.dry) });
     }
     const actions = validate(b.actions);
     const trigger = ["manual", "interval", "display-connected", "time-of-day"].includes(b.trigger ?? "") ? b.trigger! : "manual";

@@ -3,6 +3,8 @@ import { tt135Features } from "./seed-data/features-tt135";
 import { patchTT137 } from "./seed-data/features-tt137";
 import { patchTT139 } from "./seed-data/features-tt139";
 import { patchTT141 } from "./seed-data/features-tt141";
+import { patchTT147 } from "./seed-data/features-tt147";
+import { patchTT148 } from "./seed-data/features-tt148";
 import type { SpecRow } from "./seed-data/row";
 import { tt134Features } from "./seed-data/features-tt134";
 import { tt133Features } from "./seed-data/features-tt133";
@@ -126,7 +128,7 @@ import { tt125Features } from "./seed-data/features-tt125";
 import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.98.0";
+export const SEED_VERSION = "3.100.0";
 
 /** Codes withdrawn after shipping: the seeder deletes them on every boot so a
  * replaced feature can never linger in the register as if it were news. */
@@ -200,7 +202,9 @@ export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features
   // Status union; a final assertion restores it. The alternative was editing
   // twenty legacy tables, which is more churn for the same result.
   .map((f) => patchTT139(f as SpecRow))
-  .map((f) => patchTT141(f)) as SpecRow[];
+  .map((f) => patchTT141(f))
+  .map((f) => patchTT147(f))
+  .map((f) => patchTT148(f)) as SpecRow[];
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

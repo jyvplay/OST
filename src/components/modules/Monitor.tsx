@@ -81,7 +81,7 @@ export default function MonitorModule(_: ModuleProps) {
           const t0 = performance.now();
           while (performance.now() - t0 < 320) { /* deliberate 320 ms block to prove the detector works */ }
           shell.toast("Injected a 320 ms long task — watch the governor react.", "info");
-        }}>Inject a long task (falsification test)</Btn>
+        }}>Inject a 320 ms stall</Btn>
       </Section>
 
       <Section title="Memory and storage">
@@ -113,7 +113,7 @@ export default function MonitorModule(_: ModuleProps) {
 
       <Section title="Jobs — file operation journal (DP-14)" right={<span className="fs-row" style={{ gap: 4 }}><select className="fs-select" style={{ width: "auto" }} aria-label="Sort jobs" value={jobSort} onChange={(e) => setJobSort(e.target.value as JobSort)} data-testid="monitor-job-sort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="op">By operation</option></select><Btn variant={inflightOnly ? "primary" : "ghost"} aria-pressed={inflightOnly} onClick={() => setInflightOnly((v) => !v)} data-testid="monitor-inflight" title="Show only running and queued jobs">In flight</Btn></span>}>
         <div style={{ display: "grid", gap: 2 }}>
-          {sortJobs((inflightOnly ? inFlightJobs(jobs) : jobs).map((j) => ({ ...j, at: j.updatedAt })), jobSort).map((j) => (
+          {sortJobs((inflightOnly ? inFlightJobs(jobs) : jobs).map((j) => ({ ...j, at: j.updatedAt })), jobSort).slice(0, 8).map((j) => (
             <div key={j.id} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }}>
               <span className="fs-mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 #{j.id} {j.op} {j.src}{j.dst ? ` → ${j.dst}` : ""}
@@ -125,6 +125,7 @@ export default function MonitorModule(_: ModuleProps) {
             </div>
           ))}
           {jobs.length === 0 ? <span className="fs-dim" style={{ fontSize: fz(11.5) }}>No operations yet.</span> : null}
+          {jobs.length > 8 ? <span className="fs-dim" style={{ fontSize: fz(10.5) }} data-testid="monitor-jobs-cap">tail: 8 of {jobs.length}</span> : null}
         </div>
       </Section>
 
@@ -132,13 +133,10 @@ export default function MonitorModule(_: ModuleProps) {
       <SchedulerSection />
       <TestsFasterSection />
 
-      <NetworkSection />
-      <SchedulerSection />
-      <TestsFasterSection />
-
       <Section title="Audit log">
         <div className="fs-scroll fs-mono" tabIndex={0} role="region" aria-label="Audit log" style={{ maxHeight: fz(130), fontSize: fz(10.5) }}>
-          {log.map((l) => <div key={l.id}>{fmtTime(l.createdAt)} {l.action} {l.detail}</div>)}
+          {log.slice(0, 8).map((l) => <div key={l.id}>{fmtTime(l.createdAt)} {l.action} {l.detail}</div>)}
+          {log.length > 8 ? <div className="fs-dim" data-testid="monitor-log-cap">tail: 8 of {log.length}</div> : null}
         </div>
       </Section>
     </div>

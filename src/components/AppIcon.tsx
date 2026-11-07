@@ -266,7 +266,11 @@ export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "clos
   /* TT124: an indented block (lines stepping right), and two frames for before/after */
   | "indent" | "compare"
   /* Empty-state illustrations: a note, zip, vault dial and an open calendar. */
-  | "emptyNote" | "emptyZip" | "emptyVault" | "emptyPlan";
+  | "emptyNote" | "emptyZip" | "emptyVault" | "emptyPlan"
+  /* TT148: the three hardware ideas this turn reports on. A chip is a die with
+     legs, a plug is a connector with prongs and a lead, and confinement is an
+     arrow held inside a frame — each states its concept without a caption. */
+  | "chip" | "plug" | "cursor";
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     // Original compact empty-state drawings. The extra marks convey the
@@ -295,6 +299,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     gauge: <><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 16.5 4-5" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="16.5" r="1.4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
     // a session that comes back: an arrow returning into a frame
     session: <><rect x="4" y="5.5" width="16" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 12h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 9 3 3-3 3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT148: a die — an inner square on a carrier with legs on four sides
+    chip: <><rect x="7" y="7" width="10" height="10" rx="1.6" {...S} stroke="currentColor" strokeWidth="1.8" /><rect x="10" y="10" width="4" height="4" rx=".6" {...S} stroke="currentColor" strokeWidth="1.6" /><path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT148: a connector — body, two prongs, one lead
+    plug: <><rect x="5" y="10.5" width="6.5" height="6.5" rx="1.6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M11.5 13.8h4.5a2 2 0 0 0 2-2V5.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.8 10.5V7M9.7 10.5V7" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="18" cy="4.6" r="1.3" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT148: an arrow inside brackets — the pointer held to one region
+    cursor: <><path d="M8.5 4.5H5.5a1 1 0 0 0-1 1v3M15.5 4.5h3a1 1 0 0 1 1 1v3M8.5 19.5H5.5a1 1 0 0 1-1-1v-3M15.5 19.5h3a1 1 0 0 0 1-1v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m11 8.5 5 3.5-2.2.5 1.3 2.6-1.3.7-1.3-2.6-1.5 1.5Z" {...S} stroke="currentColor" strokeWidth="1.5" /></>,
     // an address: two links of a chain
     link: <><path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11.5 7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0L6 13a3.54 3.54 0 0 0 5 5l1.5-1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT117 manifest: a list whose last line is a tick — a checked inventory

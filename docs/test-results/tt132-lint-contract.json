@@ -1,20 +1,20 @@
 {
   "suite": "tt132-lint-contract",
-  "at": "2026-11-07T02:23:53.775Z",
+  "at": "2026-11-07T05:26:58.156Z",
   "results": [
     {
       "suite": "tt132-lint-contract",
       "name": "every root config, declared lock and installed metadata change invalidates the cache namespace",
       "covers": {},
       "pass": true,
-      "ms": 13
+      "ms": 14
     },
     {
       "suite": "tt132-lint-contract",
       "name": "an unchanged importer is invalidated by a same-length same-metadata dependency edit or a new route",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt132-lint-contract",

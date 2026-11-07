@@ -55,7 +55,11 @@ try {
       await test(`${mode} Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result`, {}, async () => {
         const features = await fx.api<{ rows: { code: string }[] }>("GET", "/api/features");
         const spikes = await fx.api<{ rows: { code: string; question: string; status: string; pass: string; fallback: string; result: string }[] }>("GET", "/api/spikes");
-        assert.equal(features.rows.length, 647); assert.ok(spikes.rows.length > 0);
+        // TT148: the register only ever grows, so a fixed 647 both rotted and hid the
+        // question. The floor is the count this check was written against; the real
+        // invariant (nothing paginated away) is the rendered-vs-API comparison below.
+        assert.ok(features.rows.length >= 647, `the register lost rows: ${features.rows.length} < 647`);
+        assert.ok(spikes.rows.length > 0);
         await fx.windows("spec", 1, width); const page = await context.newPage();
         try {
           await fx.ready(page, "spec"); const win = page.locator('[data-win-id="w1"]'), group = win.getByTestId("spec-spikes");

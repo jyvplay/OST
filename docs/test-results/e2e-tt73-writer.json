@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt73-writer",
-  "at": "2026-11-02T16:28:31.756Z",
+  "at": "2026-11-07T06:03:10.036Z",
   "results": [
     {
       "suite": "e2e-tt73-writer",
@@ -8,8 +8,9 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": true,
-      "ms": 7779
+      "pass": false,
+      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first().locator('[data-testid=\"writer-body\"] [data-pid]').first() to be visible\n",
+      "ms": 29357
     },
     {
       "suite": "e2e-tt73-writer",
@@ -17,8 +18,9 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": true,
-      "ms": 3258
+      "pass": false,
+      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first().locator('[data-testid=\"writer-body\"] [data-pid]').first() to be visible\n",
+      "ms": 28795
     },
     {
       "suite": "e2e-tt73-writer",
@@ -26,8 +28,9 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": true,
-      "ms": 4005
+      "pass": false,
+      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first().locator('[data-testid=\"writer-body\"] [data-pid]').first() to be visible\n",
+      "ms": 27856
     },
     {
       "suite": "e2e-tt73-writer",
@@ -36,7 +39,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 68
+      "ms": 118
     }
   ]
 }

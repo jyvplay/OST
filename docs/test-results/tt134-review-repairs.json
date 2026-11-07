@@ -1,62 +1,66 @@
 {
   "suite": "tt134-review-repairs",
-  "at": "2026-11-02T16:56:30.559Z",
+  "at": "2026-11-07T05:35:31.101Z",
   "results": [
     {
       "suite": "tt134-review-repairs",
       "name": "wide Browser: actual GitHub framing denial is not confused with network uncertainty",
       "covers": {},
-      "pass": true,
-      "ms": 4535
+      "pass": false,
+      "error": "this check depends on the real observed peer/DNS outcome; no fake fallback result\n\n'unknown' !== 'deny'\n",
+      "ms": 5030
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Browser: actual DNS failure is not confused with a measured framing policy",
       "covers": {},
       "pass": true,
-      "ms": 2875
+      "ms": 5909
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
       "covers": {},
-      "pass": true,
-      "ms": 5697
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n665 !== 647\n",
+      "ms": 438
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
       "covers": {},
       "pass": true,
-      "ms": 3506
+      "ms": 5172
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Browser: actual GitHub framing denial is not confused with network uncertainty",
       "covers": {},
-      "pass": true,
-      "ms": 2148
+      "pass": false,
+      "error": "this check depends on the real observed peer/DNS outcome; no fake fallback result\n\n'unknown' !== 'deny'\n",
+      "ms": 3138
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Browser: actual DNS failure is not confused with a measured framing policy",
       "covers": {},
       "pass": true,
-      "ms": 2310
+      "ms": 5008
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
       "covers": {},
-      "pass": true,
-      "ms": 4814
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n\n665 !== 647\n",
+      "ms": 72
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
       "covers": {},
       "pass": true,
-      "ms": 2693
+      "ms": 4224
     }
   ]
 }

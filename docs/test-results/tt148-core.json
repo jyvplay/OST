@@ -1,0 +1,61 @@
+{
+  "suite": "tt148-core",
+  "at": "2026-11-07T05:42:52.991Z",
+  "results": [
+    {
+      "suite": "tt148-core",
+      "name": "FF-06 the container is identified by its brand, not its extension",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt148-core",
+      "name": "FF-06 decode policy: an engine that refuses HEIC says so; a corrupt AVIF is not called unsupported",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt148-core",
+      "name": "FF-06 the committed AVIF fixture is real: the oracle's file sniffs as AVIF and carries its dimensions",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt148-core",
+      "name": "FF-06 a real HEIC (libheif/HEVC) is refused as a missing decoder, not as a broken file",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt148-core",
+      "name": "IN-04 chords are physical keys in a fixed order, so a layout switch cannot move a shortcut",
+      "covers": {
+        "IN-04": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt148-core",
+      "name": "IN-04 the reserved list is named with a reason, and an app binding is a separate clash",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt148-core",
+      "name": "IN-04 capture plans: no focus means no capture; Keyboard Lock is the only path to reserved keys",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -24,7 +24,7 @@ const MEASURE = `(sel) => {
   if (!root) return { error: 'no window' };
   const vis = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
-  let words = 0, glyphs = 0, controls = 0, emoji = false;
+  let words = 0, glyphs = 0, controls = 0, emoji = false; const marks = [];
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let n; while ((n = w.nextNode())) {
     const p = n.parentElement;
@@ -35,7 +35,8 @@ const MEASURE = `(sel) => {
   root.querySelectorAll('svg').forEach((el) => { if (vis(el)) glyphs++; });
   root.querySelectorAll('button, input, select, textarea').forEach((el) => { if (vis(el)) controls++; });
   root.querySelectorAll('button, label, [role="button"]').forEach((el) => {
-    if (/[\\u{1F300}-\\u{1FAFF}\\u{2190}-\\u{27BF}\\u{FE0F}]/u.test(el.textContent || '')) emoji = true; });
+    const t = (el.textContent || '').trim();
+    if (/[\\u{1F300}-\\u{1FAFF}\\u{2190}-\\u{27BF}\\u{FE0F}]/u.test(t)) { emoji = true; if (t) marks.push(t.slice(0, 24)); } });
   let contrast = [];
   if (sel.includes("w1")) {
     const bgFor = (el) => { let n = el; while (n && n !== document.body) { const b = getComputedStyle(n).backgroundColor; if (b && !/rgba\(0, 0, 0, 0\)|transparent/.test(b)) return b; n = n.parentElement; } return getComputedStyle(document.body).backgroundColor; };
@@ -64,7 +65,7 @@ const MEASURE = `(sel) => {
       }
     });
   }
-  return { words, glyphs, controls, emoji, contrast };
+  return { words, glyphs, controls, emoji, marks: [...new Set(marks)].slice(0, 6), contrast };
 }`;
 
 const browser = await launchChromium();
@@ -86,14 +87,14 @@ for (const m of MODULES) {
     // the same failure the sleep was papering over, now detected honestly.
     await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent?.trim().length ?? 0) > 30, null, { timeout: 8000 }).catch(() => undefined);
     await page.waitForTimeout(200);
-    const r = await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number; emoji: boolean; error?: string };
+    const r = await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number; emoji: boolean; marks?: string[]; error?: string };
     if (!r.error) results.set(m.id, r);
   } catch (e) { console.log(`    !! ${m.id}: ${String(e).split('\n')[0]}`); }
   await page.close();
 }
 await sharedContext.close();
 for (const [id, r] of [...results.entries()].sort((a, b) => b[1].words - a[1].words)) {
-  console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words  ${String(r.glyphs).padStart(3)} marks  ${String(r.controls).padStart(3)} controls${r.emoji ? "  EMOJI-IN-CONTROL" : ""}`);
+  console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words  ${String(r.glyphs).padStart(3)} marks  ${String(r.controls).padStart(3)} controls${r.emoji ? "  EMOJI-IN-CONTROL " + (r.marks ?? []).join(" | ") : ""}`);
 }
 for (const [id, r] of results) if (r.contrast?.length) console.log(`    ~contrast ${id}: ${r.contrast.slice(0, 3).join(" | ")}`);
 console.log(`    measured ${results.size}/${MODULES.length} modules`);

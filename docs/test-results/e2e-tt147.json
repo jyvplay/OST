@@ -1,0 +1,60 @@
+{
+  "suite": "e2e-tt147",
+  "at": "2026-11-07T06:33:46.390Z",
+  "results": [
+    {
+      "suite": "e2e-tt147",
+      "name": "ST-02 the settings index names real panels and offers only the ones this platform has",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 9249
+    },
+    {
+      "suite": "e2e-tt147",
+      "name": "HW-04 the accelerator card agrees with a direct WebGPU request in the same page",
+      "covers": {
+        "HW-04": "full"
+      },
+      "pass": true,
+      "ms": 5196
+    },
+    {
+      "suite": "e2e-tt147",
+      "name": "HW-07 the peripheral card lists every bus this engine has, and counts only what is granted",
+      "covers": {
+        "HW-07": "full"
+      },
+      "pass": true,
+      "ms": 4157
+    },
+    {
+      "suite": "e2e-tt147",
+      "name": "WM-16 the cursor is really confined by a real click, and really released",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 14387
+    },
+    {
+      "suite": "e2e-tt147",
+      "name": "AU-01 a routine is previewed, saved, rehearsed, then run — and the audit tells them apart",
+      "covers": {
+        "AU-01": "full"
+      },
+      "pass": true,
+      "ms": 9974
+    },
+    {
+      "suite": "e2e-tt147",
+      "name": "AP-05 the background inventory is the browser's own list, not a copy of it",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 5784
+    }
+  ]
+}

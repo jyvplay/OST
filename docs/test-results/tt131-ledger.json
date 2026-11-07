@@ -1,24 +1,24 @@
 {
   "suite": "tt131-ledger",
-  "at": "2026-11-02T16:55:47.924Z",
+  "at": "2026-11-07T06:16:38.258Z",
   "results": [
     {
       "suite": "tt131-ledger",
       "name": "the production ledger is the generated snapshot in the checked-out source",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 27
     },
     {
       "suite": "tt131-ledger",
       "name": "the recorded build counts and incomplete coverage caps agree with the live register",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 3
     },
     {
       "suite": "tt131-ledger",
-      "name": "the alarm row is partial and includes the real foreground regression evidence",
+      "name": "the alarm row keeps its closed-window regression evidence and its page-bound limit",
       "covers": {
         "CK-01": "partial"
       },
@@ -27,7 +27,7 @@
     },
     {
       "suite": "tt131-ledger",
-      "name": "the VFS safe-save row does not claim the native SAF contract",
+      "name": "the VFS safe-save row still refuses to claim the native SAF contract",
       "covers": {
         "FM-18": "partial"
       },
@@ -39,7 +39,7 @@
       "name": "saved test results refer only to registered feature codes",
       "covers": {},
       "pass": true,
-      "ms": 12
+      "ms": 53
     }
   ]
 }

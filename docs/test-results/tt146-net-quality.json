@@ -1,6 +1,6 @@
 {
   "suite": "tt146-net-quality",
-  "at": "2026-11-07T05:04:48.528Z",
+  "at": "2026-11-07T05:27:14.083Z",
   "results": [
     {
       "suite": "tt146-net-quality",
@@ -14,7 +14,7 @@
       "name": "estimator: three rejection rules, exact EWMA, and staleness that changes the answer",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt146-net-quality",
@@ -42,14 +42,14 @@
       "name": "ceiling: a governor cap is respected for every surface and every source",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt146-net-quality",
       "name": "fuzz: 20 000 random inputs never leave the ladder, never invert it, never pick a value off the rung",
       "covers": {},
       "pass": true,
-      "ms": 34
+      "ms": 46
     },
     {
       "suite": "tt146-net-quality",
