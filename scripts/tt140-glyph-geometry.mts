@@ -145,6 +145,27 @@ const failures: string[] = [];
 
 if (names.length < 40) failures.push(`only ${names.length} glyphs parsed out of AppIcon.tsx — the extractor has drifted`);
 
+// The drawing table and the exported name list must agree EXACTLY.
+//   • drawn in AppIcon.tsx but absent from GLYPH_NAMES → unreachable dead code
+//   • in GLYPH_NAMES but never drawn                   → a blank tile at runtime
+// Neither breaks a type check on its own (the record is keyed off the union and
+// the union is keyed off the array), so neither is caught without asking.
+{
+  const iconData = readFileSync("src/lib/icon-data.ts", "utf8");
+  const list = /export const GLYPH_NAMES = \[([\s\S]*?)\] as const/.exec(iconData);
+  if (!list) {
+    failures.push("GLYPH_NAMES not found in src/lib/icon-data.ts");
+  } else {
+    const declared = [...list[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+    const drawn = new Set(names);
+    const unreachable = [...drawn].filter((n) => !declared.includes(n));
+    const blank = declared.filter((n) => !drawn.has(n));
+    if (unreachable.length) failures.push(`drawn but not in GLYPH_NAMES (unreachable): ${unreachable.join(", ")}`);
+    if (blank.length) failures.push(`in GLYPH_NAMES but never drawn (blank tile): ${blank.join(", ")}`);
+    if (declared.length !== drawn.size) failures.push(`GLYPH_NAMES declares ${declared.length} but ${drawn.size} are drawn`);
+  }
+}
+
 // Glyphs whose source is a JSX expression rather than literal markup
 // (`.map()`, template strings) cannot be converted by attribute rewriting
 // alone. They are reported by name as SKIPPED, never silently passed: a skip
