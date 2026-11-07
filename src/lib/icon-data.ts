@@ -30,22 +30,29 @@ export type PaletteName = keyof typeof PALETTES;
 //   funnel     — find and filtering (a narrowing throat, no magnifier)
 // Each is drawn stroke-only on the same 48-grid contract as the rest, so the
 // palette contrast check in scripts/a11y-unit.mts covers them automatically.
-export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank", "film", "map", "book", "waveform", "trim", "ruler", "signal", "funnel"] as const;
+export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank", "film", "map", "book", "waveform", "trim", "ruler", "signal", "funnel", "plugBoard", "broadcaster", "ledger"] as const;
 export type GlyphName = (typeof GLYPH_NAMES)[number];
 
 export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
+  // `find` is TT143: a narrowing throat reads as filtering; `search` is the
+  // magnifier and belongs to the shell's search field, which is a different job.
   recall: ["teal", "record"], files: ["orange", "folder"], editor: ["sky", "pencil"], find: ["teal", "funnel"], terminal: ["slate", "terminal"], ssh: ["lagoon", "terminal"],
   notes: ["sun", "note"], browser: ["blue", "globe"], media: ["coral", "play"], capture: ["coral", "record"],
   lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"], mail: ["sky", "chat"],
   vault: ["indigo", "lock"], privacy: ["teal", "shield"], backup: ["sky", "cloud"], alerts: ["sun", "bell"],
-  monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
-  clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "signal"],
-  routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "ruler"], localdisk: ["slate", "drive"],
-  // TT140: marks for capabilities that had no icon of their own.
-  captions: ["sky", "waveform"],
+
   imageedit: ["lagoon", "picture"], photos: ["sun", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"], pdf: ["coral", "doc"],
   windowgroups: ["indigo", "folder"], locks: ["slate", "lock"], inputprofiles: ["green", "gear"],
   sheet: ["green", "grid"], tables: ["sky", "table"], whiteboard: ["indigo", "board"], contacts: ["green", "contact"], video: ["ember", "trim"], music: ["coral", "music"], maps: ["mint", "map"], peek: ["teal", "eye"], books: ["sun", "book"], archive: ["sun", "box"],
+  // TT140 marks (main): captions needed a concrete mark of its own.
+  captions: ["sky", "waveform"],
+  // TT143 marks: a device attached (three contacts), a source with outgoing
+  // arcs, and a verified record (ruled lines with a checked total). Each is
+  // drawn on the same 48-grid contract as every other glyph, so the palette
+  // contrast check in scripts/a11y-unit.mts covers them without new code.
+  monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"],
+  spec: ["blue", "ledger"], clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plugBoard"],
+  share: ["blue", "screenShare"], routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "ruler"], localdisk: ["slate", "drive"],
 };
 
 /** File extension → [palette, glyph] (folders use "dir"). */

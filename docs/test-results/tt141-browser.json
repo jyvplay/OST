@@ -1,0 +1,78 @@
+{
+  "suite": "tt141-browser",
+  "at": "2026-11-07T05:40:28.150Z",
+  "results": [
+    {
+      "suite": "tt141-browser",
+      "name": "Messages: the bridge address guard refuses a remote plain-http bridge in the real UI",
+      "covers": {
+        "MS-01": "full"
+      },
+      "pass": true,
+      "ms": 5556
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Spec: the browser-settings index copies an address a page cannot open",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 8625
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Monitor: WASM SIMD is decided by real module validation, not a user-agent string",
+      "covers": {
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 3397
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Monitor: a measured throughput probe either reports a number with its confidence or refuses",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 4745
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Editor: markdown preview escapes raw HTML and the outline lists the headings",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 6939
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Routines: the automation entry plans a real routine and refuses a bad request",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 4779
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Settings: the licence tab states the store mode and never shows a fake checkout",
+      "covers": {
+        "BL-04": "full"
+      },
+      "pass": true,
+      "ms": 4006
+    },
+    {
+      "suite": "tt141-browser",
+      "name": "Shell: no page error was thrown by any surface above",
+      "covers": {
+        "DP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

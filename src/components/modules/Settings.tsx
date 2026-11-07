@@ -18,6 +18,7 @@ import DisplaySettings from "../DisplaySettings";
 import MouseButtonsSettings from "../MouseButtonsSettings";
 import { layoutSource, useChordLabel } from "@/lib/keyboard-layout";
 import { auditPermissions, type PermRow } from "@/lib/permissions";
+import { decideStore, mayRenderPayButton, PRODUCTS, validateItemDetails, type StoreProbe } from "@/lib/store-gate";
 
 interface SettingRow { key: string; value: string; category: string; label: string; aliases: string; lockReason: string }
 interface HistRow { id: number; key: string; oldValue: string; newValue: string; createdAt: string }
@@ -225,6 +226,29 @@ export default function SettingsModule({ win }: ModuleProps) {
         <Section title="Entitlement (BL-01..05)">
           <KV k="Client id" v={clientId()} mono />
           <KV k="Current tier" v={<Badge tone={ent?.tier === "none" ? "warn" : "ok"}>{ent?.tier ?? "…"}</Badge>} />
+          {(() => {
+            // The gate decides what may be shown. A Pay button is impossible
+            // outside an installed store context, so this panel renders a link or
+            // an explanation and never a fake checkout.
+            const probe: StoreProbe = {
+              hasDigitalGoods: typeof window !== "undefined" && "getDigitalGoodsService" in window,
+              digitalGoodsService: false,
+              installed: typeof window !== "undefined" && (window.matchMedia?.("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true),
+              storeUrl: null,
+              sells: false,
+            };
+            const decision = decideStore(probe, (ent?.entitlements ?? []).map((e) => e.kind));
+            return (
+              <div style={{ display: "grid", gap: 4 }} data-testid="settings-store">
+                <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+                  <Badge tone={decision.mode === "unavailable" ? "default" : "info"}>{decision.mode}</Badge>
+                  {mayRenderPayButton(decision) ? <Badge tone="ok">store checkout available</Badge> : <Badge tone="warn">nothing purchasable in-app</Badge>}
+                </div>
+                <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>{decision.sentence}</div>
+                {PRODUCTS.map((prod) => <KV key={prod.sku} k={prod.label} v={ent?.entitlements?.some((e) => e.kind === prod.sku) ? "held" : decision.requestableSkus.includes(prod.sku) ? "available" : "not sold here"} />)}
+              </div>
+            );
+          })()}
           <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
             <Btn variant="primary" onClick={async () => {
               try {

@@ -6,10 +6,11 @@ import { api } from "@/lib/api";
 import { capAvailable } from "@/lib/capabilities";
 import { toB64 } from "@/lib/crypto";
 import { useShell, type ModuleProps } from "../shell-context";
-import { Badge, Blocked, Btn, Empty, Section } from "../ui";
+import { Badge, Blocked, Btn, Empty, KV, Section } from "../ui";
 import { reuseGroups, reuseReportText } from "@/lib/pwd-audit";
 import { strengthBits, strengthLabel, generatePassphrase } from "@/lib/passphrase";
 import { askText, askForm } from "@/lib/ask";
+import { makeKey, seal, open as unseal, canSeal, rotationPlan, describeBacking, LIMITS as SEAL_LIMITS, KEY_BITS, type KeySpec, type SealEnvelope } from "@/lib/vault-seal";
 
 interface Item { id: string; title: string; username: string; secret: string; note: string }
 interface VaultIdentity { id: number; version: number; sha256: string }
@@ -49,6 +50,18 @@ export default function VaultModule(_: ModuleProps) {
   const [err, setErr] = useState("");
   const [exists, setExists] = useState<boolean | null>(null);
   const [reveal, setReveal] = useState<string | null>(null);
+  /**
+   * HW-08 live seal. This is deliberately separate from the vault's own key: the
+   * vault's key is *derived* from a passphrase (so it is software-only by
+   * construction), while this is a *generated* key with `extractable:false`, which is
+   * the only key WebCrypto will refuse to hand back. The pane seals one record, then
+   * tries to open that same ciphertext under a different record id — a real GCM tag
+   * failure — so the AAD binding is demonstrated rather than described.
+   */
+  const [sealKey, setSealKey] = useState<{ key: CryptoKey; spec: KeySpec } | null>(null);
+  const [sealed, setSealed] = useState<{ env: SealEnvelope; body: string } | null>(null);
+  const [sealNote, setSealNote] = useState<string>("");
+  const [sealBad, setSealBad] = useState<boolean>(false);
 
   // A failed lookup is not proof that there is no vault. In particular, never
   // offer Create on a network error or while the lookup is still pending.
@@ -168,7 +181,7 @@ export default function VaultModule(_: ModuleProps) {
           </Btn>
           {err ? <Badge tone="bad">{err}</Badge> : null}
           <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
-            PBKDF2-HMAC-SHA256, 600 000 iterations → AES-GCM-256. The server receives ciphertext only; it never sees
+            PBKDF2-HMAC-SHA256, 600 000 iterations, then AES-GCM-256. The server receives ciphertext only; it never sees
             the passphrase or the key. There is no recovery path: if you lose the passphrase the data is gone, and we
             say so before you create it.
           </div>
@@ -225,13 +238,98 @@ export default function VaultModule(_: ModuleProps) {
         ))}
       </div>
 
+      <SealedRecords keyRef={sealKey} setKeyRef={setSealKey} sealed={sealed} setSealed={setSealed}
+        note={sealNote} setNote={setSealNote} bad={sealBad} setBad={setSealBad} />
+
       <Section title="Boundaries">
         <ul className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.7, margin: 0, paddingLeft: 18 }}>
           <li>Autofill into embedded third-party pages is refused: we cannot verify the real origin inside a frame.</li>
           <li>WebCrypto keys are not hardware-backed; a platform passkey is the only hardware binding the web offers.</li>
+          <li>Sealed records bind their record id into the GCM additional data, so a ciphertext cannot be moved to another record — the pane below proves that with a real tag failure.</li>
           <li>The window auto-locks when the shell is hidden, because no web API can exclude a window from screen capture.</li>
         </ul>
       </Section>
     </div>
+  );
+}
+
+
+/**
+ * HW-08, live. Three states, each one something the browser enforces rather than
+ * something this component claims:
+ *
+ *   1. no key → generate one; `extractable:false` is passed to WebCrypto, and the
+ *      badge reports what the browser will and will not say about backing;
+ *   2. a key → seal the text in the box under a named record;
+ *   3. sealed → open it, and then try to open the *same* ciphertext under a different
+ *      record id, which fails the tag because the id is in the additional data.
+ */
+function SealedRecords({ keyRef, setKeyRef, sealed, setSealed, note, setNote, bad, setBad }: {
+  keyRef: { key: CryptoKey; spec: KeySpec } | null;
+  setKeyRef: (v: { key: CryptoKey; spec: KeySpec } | null) => void;
+  sealed: { env: SealEnvelope; body: string } | null;
+  setSealed: (v: { env: SealEnvelope; body: string } | null) => void;
+  note: string; setNote: (v: string) => void;
+  bad: boolean; setBad: (v: boolean) => void;
+}) {
+  const [body, setBody] = useState("the launch codes are in the drawer");
+  const [record, setRecord] = useState("notes/launch");
+  const enc = new TextEncoder(), dec = new TextDecoder();
+
+  const generate = async () => {
+    try {
+      const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: KEY_BITS }, false, ["encrypt", "decrypt"]);
+      setKeyRef({ key, spec: makeKey("session-" + Date.now().toString(36), Date.now()) });
+      setSealed(null); setBad(false);
+      setNote("generated a non-extractable AES-GCM-256 key; crypto.subtle will not export it");
+    } catch (e) { setBad(true); setNote(`could not generate a key: ${(e as Error).message}`); }
+  };
+
+  const doSeal = async () => {
+    if (!keyRef) return;
+    try {
+      const r = await seal(keyRef.key, keyRef.spec, record, enc.encode(body));
+      setKeyRef({ ...keyRef, spec: r.spec });
+      setSealed({ env: r.env, body });
+      setBad(false);
+      setNote(`sealed ${body.length} bytes under ${r.env.keyId}/${r.env.record}; the IV is fresh (${r.env.iv})`);
+    } catch (e) { setBad(true); setNote((e as Error).message); }
+  };
+
+  const doOpen = async () => {
+    if (!keyRef || !sealed) return;
+    try {
+      const bytes = await unseal(keyRef.key, keyRef.spec, sealed.env, enc.encode(sealed.body).length);
+      setBad(false);
+      setNote(`opened: “${dec.decode(bytes)}”`);
+    } catch (e) { setBad(true); setNote((e as Error).message); }
+  };
+
+  const doSwap = async () => {
+    if (!keyRef || !sealed) return;
+    try {
+      await unseal(keyRef.key, keyRef.spec, { ...sealed.env, record: "notes/other" });
+      setBad(true);
+      setNote("the swapped record opened — the AAD binding is broken and this pane is wrong");
+    } catch (e) { setBad(false); setNote(`moved to another record: ${(e as Error).message}`); }
+  };
+
+  const backing = describeBacking({ extractable: false, sameOriginIsolated: typeof crossOriginIsolated === "boolean" && crossOriginIsolated });
+  return (
+    <Section title="Sealed records (HW-08)" right={<Badge tone={keyRef ? "ok" : "default"} data-testid="seal-state">{keyRef ? "key in memory" : "no key"}</Badge>}>
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <Btn variant="ghost" onClick={() => void generate()} data-testid="seal-generate">New key</Btn>
+        <input className="fs-input" style={{ width: fz(150) }} value={record} aria-label="Record id"
+          onChange={(e) => setRecord(e.target.value)} />
+        <Btn variant="primary" disabled={!keyRef} onClick={() => void doSeal()} data-testid="seal-do">Seal</Btn>
+        <Btn disabled={!sealed} onClick={() => void doOpen()} data-testid="seal-open">Open</Btn>
+        <Btn variant="danger" disabled={!sealed} onClick={() => void doSwap()} data-testid="seal-swap">Open as another record</Btn>
+        {keyRef ? <Badge tone={canSeal(keyRef.spec).ok ? "ok" : "warn"}>{canSeal(keyRef.spec).ok ? "sealing" : "retired"}</Badge> : null}
+      </div>
+      <input className="fs-input" value={body} aria-label="Record body" onChange={(e) => setBody(e.target.value)} />
+      {note ? <div className={bad ? "fs-mono" : "fs-mono"} style={{ fontSize: fz(10.5), color: bad ? "var(--fs-bad, #f88)" : undefined, wordBreak: "break-all" }} data-testid="seal-note">{note}</div> : null}
+      <KV k="backing" v={backing.verdict} />
+      <div className="fs-dim" style={{ fontSize: fz(10.5), lineHeight: 1.6 }}>{SEAL_LIMITS.join(" · ")}</div>
+    </Section>
   );
 }

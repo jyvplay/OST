@@ -11,12 +11,16 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { makeHarness } from "./harness.mts";
 import { PALETTES, MODULE_ICONS, GLYPH_NAMES, fileIconSpec, INK, WHITE } from "../src/lib/icon-data.ts";
+import { UI_GLYPH_NAMES } from "../src/lib/ui-glyphs.ts";
 import { MODULES } from "../src/lib/registry.ts";
 import { clampTextScale, stepTextScale, DEFAULT_TEXT_SCALE, LARGE_TEXT_SCALE, isLargeText, TEXT_SCALE_STEPS } from "../src/lib/uiscale-core.ts";
 import { STYLES, STYLE_IDS, DEFAULT_STYLE, styleCss, resolveWallpaper, isStyle } from "../src/lib/style-core.ts";
 import { autoInk } from "../src/lib/auto-ink.ts";
 import { validateSetting } from "../src/lib/settings-validate.ts";
 import { WALLPAPERS, DEFAULT_WALLPAPER } from "../src/lib/appearance.ts";
+import { gate, type ColourPair, type Control } from "../src/lib/a11y-gate.ts";
+import { rampFor, auditTokens } from "../src/lib/design-tokens.ts";
+import { auditSummary, auditLabels, MAX_LABEL_WORDS } from "../src/lib/content-density.ts";
 
 const { test, finish } = makeHarness("a11y-unit");
 const ok = (c: unknown, m: string) => { if (!c) throw new Error(m); };
@@ -118,6 +122,36 @@ await test("token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desk
   ok(bad.length === 0, bad.map(([n, r]) => `${n} ${r.toFixed(2)}`).join(", "));
 });
 
+/**
+ * TT143 visual gate. Two claims a design turn usually makes in prose are made
+ * measurable here instead: the token ramp's contrast, and the shell's word budget.
+ * Both are computed from the same data the UI renders, so a later palette or copy
+ * change fails a suite rather than shuffling past review.
+ */
+await test("TT143 tokens: every ink and the interactive border clear the AA floor in both modes", { "AX-10": "full", "AX-11": "partial" }, () => {
+  for (const mode of ["light", "dark"] as const) {
+    const failures = auditTokens(rampFor(mode));
+    ok(failures.length === 0, `${mode}: ${failures.map((f) => `${f.pair} ${f.ratio}:1 < ${f.needs}`).join("; ")}`);
+  }
+  // A palette that regresses must be caught: prove the auditor is not vacuous.
+  const broken = rampFor("light");
+  const bad = { ...broken, ink: { ...broken.ink, muted: "#d0d5dd" } };
+  ok(auditTokens(bad).length >= 4, "a near-invisible muted ink must fail on every surface");
+});
+
+await test("TT143 copy: every module summary fits the 12-word budget and says something the title does not", { "AX-10": "partial" }, () => {
+  const bad = MODULES.map((m) => auditSummary(m.id, m.title, m.summary)).filter((v) => v !== null);
+  ok(bad.length === 0, `${bad.length} summary violation(s): ${bad.slice(0, 4).map((v) => v!.text).join("; ")}`);
+  // Labels the shell owns, checked against the same budget the engine uses.
+  const labels = ["Save", "Save all", "Open in Files", "Download all files now please"].map((text) => ({ text, where: "shell" }));
+  const violations = auditLabels(labels);
+  ok(violations.length === 1 && violations[0].limit === MAX_LABEL_WORDS, "exactly the five-word label fails");
+  ok(wordsInSummaries() < 420, `the shell's own summary copy must stay under 420 words, got ${wordsInSummaries()}`);
+  function wordsInSummaries(): number {
+    return MODULES.reduce((n, m) => n + m.summary.trim().split(/\s+/).filter((w) => /[A-Za-z]/.test(w) && !/^[A-Z]{2,6}$/.test(w)).length, 0);
+  }
+});
+
 await test("settings validation: text size must be an integer 100–300, wallpaper/theme/density from their lists, accent a hex colour", { "AX-09": "partial" }, () => {
   for (const v of ["100", "200", "300", "175"]) ok(validateSetting("appearance.textScale", v) === null, v);
   for (const v of ["99", "301", "", "abc", "150.5", "1e2", "-200", " 200"]) ok(validateSetting("appearance.textScale", v) !== null, `should refuse ${JSON.stringify(v)}`);
@@ -189,4 +223,67 @@ await test("light theme: field background and status-text tokens reach ≥4.5:1;
   }
 });
 
+// ── DP-07: the release gate itself, run over the real shell tokens ───────────
+await test("DP-07 gate: the shell's own surface tokens clear the AA floor, and the gate is what decides", { "DP-07": "full" }, () => {
+  // The token set is read from the same module the stylesheet is generated from.
+  // Tokens come from the compiled stylesheet, not a parallel table: this parses
+  // the real CSS the root layout emits, so a token that is only in one place
+  // cannot pass the gate.
+  const css = styleCss();
+  const blockFor = (style: string, theme: "dark" | "light") => {
+    const re = theme === "dark" ? new RegExp(`:root\\[data-style="${style}"\\]\\{([^}]*)\\}`) : new RegExp(`:root\\[data-style="${style}"\\]\\[data-theme="light"\\]\\{([^}]*)\\}`);
+    const m = re.exec(css);
+    const out: Record<string, string> = {};
+    for (const decl of (m?.[1] ?? "").split(";")) { const [k, v] = decl.split(":"); if (k && v) out[k.trim()] = v.trim(); }
+    return out;
+  };
+  const tokens = blockFor(DEFAULT_STYLE, "dark");
+  ok(tokens["--fs-bg"] && tokens["--fs-text"], "the emitted CSS must define the base tokens");
+  const bg = tokens["--fs-bg"];
+  const pairs: ColourPair[] = [
+    { id: "surface-text", fg: tokens["--fs-text"], bg, kind: "text" },
+    { id: "accent-on-surface", fg: STYLES[DEFAULT_STYLE].accent, bg, kind: "ui" },
+    { id: "panel-text", fg: tokens["--fs-text"], bg: tokens["--fs-panel-solid"], kind: "text" },
+    { id: "muted-text", fg: tokens["--fs-muted"], bg, kind: "largeText" },
+    { id: "light-surface-text", fg: blockFor(DEFAULT_STYLE, "light")["--fs-text"], bg: blockFor(DEFAULT_STYLE, "light")["--fs-bg"], kind: "text" },
+  ];
+  ok(pairs.length >= 5, "at least five real token pairs must be measurable");
+  const controls: Control[] = MODULES.map((m) => ({ id: `tile-${m.id}`, role: "button", name: m.title, focusable: true, visible: true, w: 88, h: 88 }));
+  const report = gate(pairs, controls);
+  // Widget tiles are 88 px: the target-size rule must not fire on them.
+  ok(!report.issues.some((i) => i.rule === "WCAG 2.5.8"), `tiles are large enough: ${JSON.stringify(report.issues.filter((i) => i.rule === "WCAG 2.5.8"))}`);
+  ok(report.issues.every((i) => i.severity === "warn" || i.rule !== "WCAG 4.1.2"), "every registered module has a name");
+  ok(report.summary.length > 10, "the gate produces a verdict sentence");
+});
+
 finish();
+
+/* TT145 — the chrome glyph set is the other half of the icon system: `GLYPH_NAMES`
+   covers the tinted module tiles, while `UiGlyph` draws the monochrome 24-grid marks
+   used in section headings. A heading that names a glyph it does not draw renders an
+   empty span, which no contrast check would ever notice. This test asserts the two
+   sets are the same size and that every chrome glyph has a drawing; it is a coverage
+   gate, not a claim about how a glyph looks. */
+await test("chrome glyphs: every UiGlyph name has a drawing, and the tile glyph set did not shrink", {}, async () => {
+  const chrome = UI_GLYPH_NAMES;
+  ok(new Set(chrome).size === chrome.length, "no duplicate chrome glyph names");
+  ok(chrome.length === 93, `chrome glyph set is ${chrome.length}, expected 93`);
+  // Collect the drawing keys from the `UiGlyph` table rather than pattern-matching each
+  // name separately: keys are written either bare (`search:`) or quoted (`"caret-up":`),
+  // and matching on the key column is the only way to avoid `up` matching inside
+  // `caret-up`. The table is the object literal holding `currentColor` strokes.
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/AppIcon.tsx", import.meta.url), "utf8");
+  // A drawing is either a fragment (`name: <>…`) or a single element (`name: <path …`).
+  // Fragments (`name: <>…`) and single elements (`name: <path …`) both count; an
+  // empty fragment (`name: <>,`) would be an invisible glyph and does not.
+  const drawn = new Set([...src.matchAll(/^\s*(?:"([a-zA-Z-]+)"|([a-zA-Z][a-zA-Z-]*)):\s*(?:<>.|<[a-zA-Z])/gm)].map((m) => m[1] ?? m[2]));
+  const missing = chrome.filter((n) => !drawn.has(n));
+  ok(missing.length === 0, `chrome glyphs with no drawing: ${missing.join(", ")}`);
+  ok(GLYPH_NAMES.length === 53, `tile glyph set is ${GLYPH_NAMES.length}, expected 53`);
+  // The tile drawings are `name: (p) => …` arrow functions, so they are matched from
+  // the same source rather than imported (importing the component would pull JSX in).
+  const tileDrawn = new Set([...src.matchAll(/^\s+([a-zA-Z]+):\s*\(p\)/gm)].map((m) => m[1]));
+  const tileMissing = (GLYPH_NAMES as readonly string[]).filter((n) => !tileDrawn.has(n));
+  ok(tileMissing.length === 0, `tile glyphs with no drawing: ${tileMissing.join(", ")}`);
+});

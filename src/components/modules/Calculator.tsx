@@ -11,7 +11,9 @@ import { historyAsText } from "@/lib/calc-history-text";
 import { privacy } from "@/lib/privacy/session";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn } from "../ui";
+import { UiGlyph } from "../AppIcon";
 import { CONVERTER, convert, formatConverted } from "@/lib/converter";
+import { UNITS, convert as convertV2, formatQuantity, parseQuantity, compatibleUnits, findUnit, type UnitDef } from "@/lib/units";
 import { MEM_EMPTY, memAdd, memSub, memClear, memRecall, type MemState } from "@/lib/calc-memory";
 
 const KEYS = [
@@ -189,8 +191,9 @@ export default function CalculatorModule(_: ModuleProps) {
           : "Scientific mode and the palette share a no-eval Number parser. Non-integer results are rounded to 12 significant digits; integers use JavaScript's Number representation."}
         {" "}History starts in memory. Optional browser history is unencrypted, local to this browser and not in global Search or backups; amnesic sessions never save it.
       </div>
+      <DimensionConverter />
       <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6 }}>
-        <strong style={{ fontSize: fz(12) }}>Convert</strong>
+        <strong style={{ fontSize: fz(12) }}>Quick convert</strong>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
           <select className="fs-select" aria-label="Convert category" value={convCat} onChange={(e) => { const c = e.target.value; setConvCat(c); setConvFrom(CONVERTER[c].units[0].symbol); setConvTo(CONVERTER[c].units[1].symbol); }}>
             {Object.keys(CONVERTER).map((c) => <option key={c} value={c}>{c}</option>)}
@@ -207,6 +210,62 @@ export default function CalculatorModule(_: ModuleProps) {
         </div>
         <span className="fs-dim" style={{ fontSize: fz(11) }}>Exact defined factors (1 in = 0.0254 m). Data: KiB/MiB are 1024-based, kB/MB are 1000-based — both listed, never conflated.</span>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Dimensional converter (CV-04). Unlike the quick-convert row below it, this
+ * one refuses a physically meaningless conversion instead of printing a number:
+ * every unit carries a dimension vector, so "5 kg to metres" reports the
+ * mismatch rather than silently multiplying by a factor.
+ *
+ * Free-text input is parsed by the same function the calculator's `X to Y`
+ * grammar uses, and the result states the exactness honestly.
+ */
+function DimensionConverter() {
+  const [raw, setRaw] = useState("6 ft 2 in");
+  const [target, setTarget] = useState("cm");
+  const [picked, setPicked] = useState<UnitDef | null>(() => findUnit("ft") ?? UNITS[0]);
+
+  const parsed = parseQuantity(raw);
+  const source = parsed?.unit ?? picked ?? UNITS[0];
+  const targets = [source, ...compatibleUnits(source)];
+  const effectiveTarget = targets.find((u) => u.id === target) ?? targets[1] ?? source;
+  const result = parsed ? convertV2(parsed.value, source, effectiveTarget) : null;
+
+  return (
+    <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6 }} data-testid="calc-dimension-converter">
+      <div className="fs-row" style={{ justifyContent: "space-between" }}>
+        <strong style={{ fontSize: fz(12), display: "flex", alignItems: "center", gap: 6 }}>
+          <span aria-hidden style={{ display: "inline-flex", opacity: .85 }}><UiGlyph name="units" size={14} /></span>Units
+        </strong>
+        <span className="fs-dim" style={{ fontSize: fz(10.5) }}>{source.dimension.join("·")}</span>
+      </div>
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <input className="fs-input" style={{ flex: "1 1 9em", width: "auto" }} value={raw} aria-label="Quantity to convert"
+          onChange={(e) => { setRaw(e.target.value); const p = parseQuantity(e.target.value); if (p) { setPicked(p.unit); setTarget(compatibleUnits(p.unit)[0]?.id ?? p.unit.id); } }}
+          placeholder="6 ft 2 in · 1h30m · 3/4 cup" />
+        <span aria-hidden="true" className="fs-dim">→</span>
+        <select className="fs-select" style={{ width: "auto" }} aria-label="Target unit" value={effectiveTarget.id} onChange={(e) => setTarget(e.target.value)}>
+          {targets.map((u) => <option key={u.id} value={u.id}>{u.symbol} — {u.label}</option>)}
+        </select>
+      </div>
+      <div className="fs-mono" data-testid="calc-dimension-result" style={{ fontSize: fz(14) }}>
+        {!parsed ? <span style={{ color: "var(--fs-bad-text, #ff9b9b)" }}>no unit recognised in &ldquo;{raw}&rdquo;</span>
+          : result === null ? "—"
+          : result.ok ? <>{formatQuantity(result.value)} <span className="fs-dim">{effectiveTarget.symbol}</span>
+              {result.exact ? <Badge tone="ok" title="the factor is exactly 1">exact</Badge> : null}</>
+          : <span style={{ color: "var(--fs-bad-text, #ff9b9b)" }}>{result.error}{result.hint ? ` — ${result.hint}` : ""}</span>}
+      </div>
+      {parsed && result?.ok ? (
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+          {compatibleUnits(source).slice(0, 6).map((u) => {
+            const r = convertV2(parsed.value, source, u);
+            return r.ok ? <Badge key={u.id} title={u.label}>{formatQuantity(r.value)} {u.symbol}</Badge> : null;
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

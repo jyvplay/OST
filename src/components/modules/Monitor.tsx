@@ -5,12 +5,23 @@ import { useEffect, useState } from "react";
 import { api, fmtBytes, fmtTime } from "@/lib/api";
 import { stateHash } from "@/lib/windowing/state";
 import { useShell, type ModuleProps } from "../shell-context";
+import { estimateThroughput, pickRung, LADDER, type Sample } from "@/lib/network-measured";
+import { PROBE_MODULES, interpretFeatures, inferenceTiers, type WasmFeatureReport } from "@/lib/wasm-features";
 import { Badge, Btn, KV, Section } from "../ui";
 import { sortJobs, type JobSort } from "@/lib/job-sort";
 import { inFlightJobs } from "@/lib/job-prune";
 import { classifySample, nextQuality, planFor, describePlan } from "@/lib/network-quality";
 import { planTask, chunks, shouldYield, describeCapabilities, type Capabilities, type TaskKind } from "@/lib/scheduler-hints";
+import { chooseProfile, densityFor, type Measurements as ProfileMeasurements } from "@/lib/context-profile";
+import { inventory } from "@/lib/background-mechanisms";
+import { planRoute } from "@/lib/audio-route";
+import { planCast } from "@/lib/stream-plan";
 import { runSuite, benchmark, totals, describeOutcome, describeBenchmark } from "@/lib/stats/headless";
+import {
+  BlackoutPanel, EntitlementPanel, FilterPanel, ExclusionPanel, DropPanel, VolumePanel, CodecPanel,
+  AudioBudgetPanel, AlarmPanel, BackupEvidencePanel, TrashPanel, WindowMechanicsPanel, LanePanel,
+  FrameBudgetPanel, HandoffClaimPanel, UpscalePanel,
+} from "../tt145-panels";
 
 interface Job { id: number; op: string; src: string; dst: string; state: string; error: string; updatedAt: string }
 interface LogRow { id: number; actor: string; action: string; detail: string; createdAt: string }
@@ -130,6 +141,32 @@ export default function MonitorModule(_: ModuleProps) {
       </Section>
 
       <NetworkSection />
+
+      <MeasuredNetworkSection />
+      <EngineFeaturesSection />
+      <TT143Section />
+      <Section title="Platform mechanics (TT145)">
+        <div className="fs-dim" style={{ fontSize: fz(10.5) }} data-testid="tt145-intro">
+          Twenty mechanisms, each with its own refusal. Every sentence below comes from the engine that made the decision.
+        </div>
+      </Section>
+      <FrameBudgetPanel />
+      <HandoffClaimPanel />
+      <BlackoutPanel />
+      <WindowMechanicsPanel />
+      <LanePanel />
+      <AudioBudgetPanel />
+      <CodecPanel />
+      <VolumePanel />
+      <DropPanel />
+      <FilterPanel />
+      <ExclusionPanel />
+      <EntitlementPanel />
+      <BackupEvidencePanel />
+      <TrashPanel />
+      <AlarmPanel />
+      <UpscalePanel />
+
       <SchedulerSection />
       <TestsFasterSection />
 
@@ -235,5 +272,146 @@ function TestsFasterSection() {
       <KV k="vs python" v={bench || "—"} />
       <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Pure-logic cores run in-browser at ~20× wall-clock; Python oracles stay authoritative for their engine.</div>
     </Section>
+  );
+}
+
+/**
+ * HW-09b: a *measured* throughput sample plus the exact rung it selects. The
+ * measurement is one real request for a file the shell already serves, and the
+ * first paint is discarded; a cache hit is refused rather than reported.
+ */
+function MeasuredNetworkSection() {
+  return (
+    <Section title="Measured throughput (HW-09b)" icon="ranked">
+      <MeasuredNetwork />
+    </Section>
+  );
+}
+
+/**
+ * TT143 — the capabilities the shell can honestly report about itself, computed
+ * from measurements taken here rather than from a feature list in a document.
+ *
+ * Kept deliberately terse (labels, not prose): the panel's job is to let a reader
+ * see what is on, what is off and why, in one screen. Every value below comes from
+ * an engine that has a suite; the ones that are off say which platform fact turned
+ * them off.
+ */
+function TT143Section() {
+  const [rows, setRows] = useState<{ label: string; value: string; tone: "ok" | "warn" | "off" }[]>([]);
+  useEffect(() => {
+    const env: ProfileMeasurements = {
+      screenCount: 1, coarse: matchMedia("(pointer: coarse)").matches, hover: matchMedia("(hover: hover)").matches,
+      touchPoints: navigator.maxTouchPoints ?? 0, viewport: { w: window.innerWidth, h: window.innerHeight },
+    };
+    const profile = chooseProfile(env);
+    const density = densityFor(profile.profile, env);
+    const mech = inventory({
+      serviceWorker: "serviceWorker" in navigator,
+      installed: matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: window-controls-overlay)").matches,
+      periodicSyncApi: "serviceWorker" in navigator && "periodicSync" in ServiceWorkerRegistration.prototype,
+      backgroundFetchApi: "BackgroundFetchManager" in window,
+      pushApi: "PushManager" in window,
+      pushService: false,
+      visibilityHidden: document.visibilityState === "hidden",
+    });
+    const out = mech.filter((m) => m.mechanism === "service-worker" || m.mechanism === "periodic-sync" || m.mechanism === "background-fetch");
+    const route = planRoute("default", { secureContext: window.isSecureContext, hasSetSinkId: "setSinkId" in HTMLMediaElement.prototype, permission: "prompt", crossOriginSource: false, isStream: false });
+    const cast = planCast({ kind: "video", url: location.origin + "/offline.html", mime: "video/mp4" }, { secureContext: window.isSecureContext, hasRemotePlayback: "remote" in HTMLMediaElement.prototype, hasCastSdk: false, target: "remote-playback" });
+    setRows([
+      { label: profile.profile.label, value: density.note, tone: "ok" },
+      ...out.map((m) => ({ label: m.mechanism, value: m.available ? m.guarantee : (m.why ?? "unavailable"), tone: m.available ? ("ok" as const) : ("off" as const) })),
+      { label: "Output routing", value: route.status === "unsupported" ? route.reason : route.status === "default" ? route.note : route.status === "ready" ? route.note : route.reason, tone: route.status === "unsupported" || route.status === "refused" ? "off" : "ok" },
+      { label: "Cast", value: cast.status === "available" ? cast.note : cast.reason, tone: cast.status === "available" ? "ok" : "warn" },
+    ]);
+  }, []);
+  return (
+    <Section title="Platform facts (TT143)" icon="sliders">
+      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: fz(6) }}>
+        {rows.map((r) => (
+          <li key={r.label} style={{ display: "grid", gridTemplateColumns: "minmax(0,auto) 1fr", gap: fz(10), alignItems: "baseline" }}>
+            <span className="fs-dim" style={{ fontSize: fz(10.5), textTransform: "uppercase", letterSpacing: ".04em" }}>{r.label}</span>
+            <span style={{ fontSize: fz(11.5), color: r.tone === "off" ? "var(--fs-ink-3)" : r.tone === "warn" ? "var(--fs-warn, #b45309)" : "var(--fs-ink)" }}>{r.value}</span>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
+function EngineFeaturesSection() {
+  return (
+    <Section title="Engine features (HW-10)" icon="keycap">
+      <EngineFeatures />
+    </Section>
+  );
+}
+
+function MeasuredNetwork() {
+  const [state, setState] = useState<{ bps: number; confidence: string; rung: string; detail: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const measure = async () => {
+    setBusy(true);
+    try {
+      const samples: Sample[] = [];
+      for (let i = 0; i < 3; i++) {
+        const url = `/api/health?probe=${Date.now()}-${i}`;
+        const t0 = performance.now();
+        const res = await fetch(url, { cache: "no-store" });
+        const blob = await res.blob();
+        samples.push({ bytes: blob.size, ms: performance.now() - t0 });
+      }
+      const est = estimateThroughput(samples);
+      const pick = pickRung(est, { metered: (navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData });
+      setState({ bps: est.bitsPerSecond, confidence: est.confidence, rung: `${pick.rung.maxHeight}p @ ${pick.rung.bitrateKbps} kbit/s`, detail: est.usable ? pick.reason : est.reason });
+    } catch (e) {
+      setState({ bps: 0, confidence: "low", rung: "lowest", detail: `measurement failed: ${(e as Error).message}` });
+    } finally { setBusy(false); }
+  };
+  return (
+    <div style={{ display: "grid", gap: 4 }} data-testid="monitor-measured-network">
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <Btn variant="primary" disabled={busy} onClick={() => void measure()} data-testid="monitor-measure-network">{busy ? "Measuring…" : "Measure"}</Btn>
+        {state ? <Badge tone={state.bps > 0 ? "ok" : "warn"}>{state.bps > 0 ? `${(state.bps / 1e6).toFixed(2)} Mbit/s · ${state.confidence}` : "no measurement"}</Badge> : null}
+        {state ? <Badge tone="info">{state.rung}</Badge> : null}
+      </div>
+      {state ? <div className="fs-dim" style={{ fontSize: fz(11) }}>{state.detail}</div> : null}
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>{LADDER.map((r) => `${r.maxHeight}p`).join(" · ")} — the ladder never leaves a rung unnamed.</div>
+    </div>
+  );
+}
+
+/**
+ * HW-10: validate the probe modules for real. `WebAssembly.validate` is the
+ * authority here; nothing is inferred from a user agent.
+ */
+function EngineFeatures() {
+  const [report, setReport] = useState<WasmFeatureReport | null>(null);
+  useEffect(() => {
+    const validate = (bytes: Uint8Array) => {
+      try { return WebAssembly.validate(bytes as unknown as BufferSource); } catch { return false; }
+    };
+    const results = {
+      simd: validate(PROBE_MODULES.simd),
+      bulkMemory: validate(PROBE_MODULES.bulkMemory),
+      referenceTypes: validate(PROBE_MODULES.referenceTypes),
+      threads: false,
+      exceptions: false,
+    };
+    const isolated = typeof crossOriginIsolated !== "undefined" && crossOriginIsolated;
+    setReport(interpretFeatures(results, isolated));
+  }, []);
+  const tiers = inferenceTiers({ hasWebNN: typeof navigator !== "undefined" && "ml" in navigator, hasWebGPU: typeof navigator !== "undefined" && "gpu" in navigator, simd: report?.simd ?? false, hasWasm: typeof WebAssembly !== "undefined" });
+  return (
+    <div style={{ display: "grid", gap: 4 }} data-testid="monitor-engine-features">
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <Badge tone={report?.simd ? "ok" : "warn"}>SIMD {report?.simd ? "validated" : "refused"}</Badge>
+        <Badge tone={report?.bulkMemory ? "ok" : "warn"}>bulk memory {report?.bulkMemory ? "validated" : "refused"}</Badge>
+        <Badge tone={report?.referenceTypes ? "ok" : "warn"}>ref types {report?.referenceTypes ? "validated" : "refused"}</Badge>
+        <Badge tone={report?.threadsBlockedByIsolation ? "warn" : "default"}>{report?.threadsBlockedByIsolation ? "threads need COOP/COEP" : "threads: not probed"}</Badge>
+      </div>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>{report?.verdict ?? "validating…"}</div>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>inference ladder: {tiers.join(" → ")} (a tier is only claimed after a timed run)</div>
+    </div>
   );
 }

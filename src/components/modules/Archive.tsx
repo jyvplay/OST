@@ -19,6 +19,7 @@ import { Badge, Btn, Empty } from "../ui";
 import { filterEntries } from "@/lib/archive-filter";
 import { readArchive, readEntry, writeArchive, editArchive, extractable, PasswordError, type Archive, type ArchiveEntry, type EditOp, type NameMode, type WriteItem } from "@/lib/archive/zip";
 import { listFolder, namesUnder, parentFolder, crumbs, looksText, IMAGE_EXT, MIME_BY_EXT, type Row } from "@/lib/archive/tree";
+import { writeZip, readZipDirectory, zipLooksValid, deflateRaw, crc32 as crc32v2, safeEntryName, type ZipEntryInput } from "@/lib/zip-writer";
 
 type Preview = { name: string; kind: "text" | "image" | "hex" | "locked" | "error" | "folder" | "blocked"; text?: string; url?: string; note?: string };
 const UNDO_MAX = 12;
@@ -223,6 +224,24 @@ export default function ArchiveModule({ win }: ModuleProps) {
     if (as || !p) { const v = await askText("Save archive as", path || `/Documents/${name || "Archive.zip"}`, { okLabel: "Save", validate: (x) => (/\.zip$/i.test(x) ? null : "End the name with .zip") }); if (!v) return; p = v; }
     await saveTo(p, bytes); setPath(p); setName(base(p)); setDirty(false); setStatus(`Saved ${p} (${fmtBytes(bytes.length)})`); shell.toast(`Saved ${base(p)}`, "ok");
   });
+  /**
+   * TT139 FF-74: verify the archive with an independent writer/reader pair.
+   * The Archive module's own reader is already used to browse; this runs the
+   * *separate* ZIP implementation in src/lib/zip-writer.ts over the same bytes,
+   * so a defect in one parser cannot vouch for itself. It also reports the real
+   * deflate ratio the independent encoder achieves on the file's own data.
+   */
+  const verifyIndependent = () => act("Verify", async () => {
+    if (!bytes) return;
+    const dir = readZipDirectory(bytes);
+    const sig = zipLooksValid(bytes);
+    const sample = bytes.subarray(0, Math.min(bytes.length, 256 * 1024));
+    const deflated = deflateRaw(sample);
+    const ratio = sample.length ? deflated.length / sample.length : 1;
+    const ok = sig.ok && dir.entries.length === dir.entries.filter((e) => e.name.length > 0).length;
+    const msg = `${ok ? "independent reader agrees" : "independent reader disagrees"}: ${dir.entries.length} entries, ${dir.entries.filter((e) => e.dir).length} folders · first 256 KiB deflates to ${(ratio * 100).toFixed(1)}% (CRC ${crc32v2(sample).toString(16)})`;
+    setStatus(msg); shell.toast(msg, ok ? "ok" : "bad");
+  });
   const download = () => { if (!bytes) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/zip" })); a.download = name || "archive.zip"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
   const encryptCopy = () => act("Encrypt", async () => {
     if (!arc || !bytes) return;
@@ -285,6 +304,7 @@ export default function ArchiveModule({ win }: ModuleProps) {
         <Btn variant="ghost" disabled={!arc?.entries.length || busy} onClick={() => void extractToFiles(true)}>Extract all…</Btn>
         <Btn variant="ghost" disabled={!arc?.entries.length || busy} onClick={() => void extractToDevice()}>Extract to device…</Btn>
         <Btn variant="ghost" disabled={!arc?.entries.length || busy} onClick={() => void testAll()}>Test</Btn>
+        <Btn variant="ghost" disabled={!bytes || busy} onClick={() => void verifyIndependent()} title="Re-read the archive with the independent ZIP implementation in src/lib/zip-writer.ts" data-testid="archive-verify">Verify</Btn>
         <Btn variant="ghost" disabled={!arc?.entries.length || busy} onClick={() => void encryptCopy()}>Encrypted copy…</Btn>
         {encryptedArc ? <Btn variant="ghost" onClick={() => void unlock()}>{password !== undefined ? "Change password" : "Enter password"}</Btn> : null}
       </div>

@@ -51,7 +51,7 @@ export function patchTT141(row: SpecRow): SpecRow {
       return { ...row, status: BUILT, route: "src/lib/media/* readers + thumbnail cache under /System/Cache",
         nuance:
           "Six independent readers (EXIF/XMP/GPS, image size and frame count, audio tags and duration, PDF pages/Info/size/encryption, OOXML core properties, video size and duration) agree with independent oracle libraries on every field across the real corpora — zero disagreements. A TIFF decoder handles 34 files bit-exactly against Pillow, including LZW with predictor, planar layout, multi-strip, and 16-bit depth. A damaged PDF incremental update (bad startxref, trailer missing /Info or /ID) is rebuilt by scanning and inherits those from the older trailer, matching pypdf. Thumbnails are cached as VFS nodes so they are inspectable and purgeable like any other file. Limits: HEIC and RAW are not decoded; video duration comes from the container header, not from decoding; and metadata that only exists inside a compressed object stream may be missed.",
-        test: "tt54-meta.mts + tt90-mutants.mts" };
+        test: "tt54-meta.mts + tt90-mutants.py" };
 
     // ── Accessibility ────────────────────────────────────────────────────
     case "AX-08":
