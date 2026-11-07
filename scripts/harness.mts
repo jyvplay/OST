@@ -32,11 +32,24 @@ export function makeHarness(suite: string) {
       console.log(`  ✗ ${name}\n    ${error}`);
     }
   };
+  /**
+   * TT143: where the time actually goes.
+   *
+   * A suite's total wall time is not its test time: imports, the first reducer
+   * call and the process itself all cost, and a "faster" claim without a split
+   * cannot say which one changed. `finish` therefore reports the per-test sum,
+   * the largest test, and the process's own startup, so a speed change can be
+   * attributed instead of asserted.
+   */
   const finish = () => {
     mkdirSync("docs/test-results", { recursive: true });
     if (!only) writeFileSync(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
     const failed = results.filter((r) => !r.pass);
-    console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
+    const testMs = results.reduce((n, r) => n + r.ms, 0);
+    const slowest = results.slice().sort((a, b) => b.ms - a.ms)[0];
+    const startupMs = Math.round(performance.now() - testMs);
+    console.log(`\n TIMING tests=${testMs}ms startup+imports=${startupMs}ms total=${Math.round(performance.now())}ms slowest=${slowest ? `${slowest.name} (${slowest.ms}ms)` : "none"}`);
+    console.log(`${results.length - failed.length} passed, ${failed.length} failed`);
     if (!results.length) { console.log("FAILED: no tests selected"); process.exitCode = 1; }
     if (failed.length) { console.log("FAILED:", failed.map((f) => f.name).join(" | ")); process.exitCode = 1; }
   };

@@ -1,0 +1,189 @@
+{
+  "suite": "tt143-engines",
+  "at": "2026-11-07T03:42:50.087Z",
+  "results": [
+    {
+      "suite": "tt143-engines",
+      "name": "SC-04 egress: a deny rule blocks, an allow rule passes, and the more specific rule wins",
+      "covers": {
+        "SC-04": "full",
+        "CO-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "SH-14 offline queue: collapses per key, dedupes by content, and refuses past its cap",
+      "covers": {
+        "SH-14": "full"
+      },
+      "pass": true,
+      "ms": 4
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "FM-18 safe save: the four steps are ordered, and each failure has its own recovery",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "DP-04 merge: no window is lost, a newer close wins, and z-order is dense",
+      "covers": {
+        "DP-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "ST-09 profile: a touchscreen laptop is a laptop, an iPad is a tablet, two screens are a desk",
+      "covers": {
+        "ST-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "CT-05 remote: an unregistered scheme is copied, a registered one is a handoff, http is refused",
+      "covers": {
+        "CT-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "WM-15 capture: recording is ready, casting a live stream is refused, tab-audio is disclosed",
+      "covers": {
+        "WM-15": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "MD-06 audio: an output can be chosen when the platform allows it, and labels are explained",
+      "covers": {
+        "MD-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "MD-03 photo edit: the chain is non-destructive, refuses an impossible crop, and drops a no-op",
+      "covers": {
+        "MD-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "LN-06 key light: it fills from the dark side, discloses the clip, and never claims to remove a shadow",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "AP-05 background: each mechanism states its real guarantee; periodic sync is a floor, not a schedule",
+      "covers": {
+        "AP-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "WM-07 hotplug: park and restore are reversible, and a user move survives the round trip",
+      "covers": {
+        "WM-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "SH-13 virtual list: 100 000 rows index in milliseconds, mount ~0.03% of them, and never collapse",
+      "covers": {
+        "SH-13": "full"
+      },
+      "pass": true,
+      "ms": 22
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "SR-06 clusters: a bulk action never spans a section, and an unknown source is its own cluster",
+      "covers": {
+        "SR-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "visual: both token sets pass the contrast audit, and a failing ink is caught",
+      "covers": {
+        "DP-07": "full",
+        "AX-10": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "visual: the word budget is enforced on labels, notes and summaries",
+      "covers": {
+        "AX-10": "partial"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "PR-07m downloads: three streams at once, a short body is not a success, and cancel is final",
+      "covers": {
+        "PR-07m": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "RC-29 audit: a half pair is found, a young orphan is spared, and a dangling row is never reclaimed",
+      "covers": {
+        "RC-29": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "CA-08/CA-12 cast: a fetchable URL is available, a blob is refused, and the blocked protocols say why",
+      "covers": {
+        "CA-08": "full",
+        "CA-12": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt143-engines",
+      "name": "DP-03 named desks: a share link round-trips and an unusable name cannot be minted",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 11
+    }
+  ]
+}

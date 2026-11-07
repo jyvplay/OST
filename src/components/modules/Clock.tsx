@@ -2,6 +2,7 @@
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { resolveWallTime, describeDelta, callOverlap, isoWeek, civilDaysBetween } from "@/lib/calendar-time";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Section } from "../ui";
 import { ALARM_LIMIT, nextFire, upcomingAlarms, lapStats, daysBetween, addDays, businessDaysBetween, localDateInput, type Alarm } from "@/lib/clock-core";
@@ -186,6 +187,10 @@ export default function ClockModule(_: ModuleProps) {
         <div className="fs-dim" style={{ fontSize: fz(11) }}>No days selected = daily. Closing Clock is safe; frozen or closed pages may miss alarms.</div>
       </Section>
 
+      <Section title="Wall time checker" icon="meridian">
+        <WallTimeChecker />
+      </Section>
+
       <Section title="Meeting overlap">
         <div className="fs-dim" style={{ fontSize: fz(11) }}>Hours when 09:00–17:00 overlaps in all three cities today (real zone offsets, so DST weeks are exact):</div>
         {(() => { const runs = (() => { try { return commonWindows([{ zone: "America/New_York", startHour: 9, endHour: 17 }, { zone: "Europe/London", startHour: 9, endHour: 17 }, { zone: "Asia/Tokyo", startHour: 9, endHour: 17 }]); } catch { return []; } })();
@@ -278,6 +283,58 @@ function Countdowns() {
             <Btn variant="ghost" onClick={() => setList((l) => l.filter((x) => x.id !== c.id))}>Remove<span className="sr-only"> countdown {c.label}</span></Btn>
           </span>
         </div> ); })}
+    </div>
+  );
+}
+
+/**
+ * CK-09: ask whether a wall time actually happens in a zone. A gap (spring
+ * forward) and an overlap (fall back) are the two cases where "09:00 in
+ * Santiago" is not a single instant, and both are stated instead of being
+ * silently assumed. The civil-day count comes from integer day numbers, so it
+ * is DST-independent.
+ */
+function WallTimeChecker() {
+  const [zone, setZone] = useState("America/New_York");
+  const [date, setDate] = useState(() => localDateInput(new Date()));
+  const [time, setTime] = useState("09:00");
+  const zoneList = useMemo(() => { try { return allZoneNames(); } catch { return ["UTC"]; } }, []);
+  const analysed = useMemo(() => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+    const t = /^(\d{2}):(\d{2})$/.exec(time);
+    if (!m || !t) return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]), h = Number(t[1]), mi = Number(t[2]);
+    const r = resolveWallTime(y, mo, d, h, mi, zone);
+    const week = isoWeek(y, mo, d);
+    const today = new Date();
+    const days = civilDaysBetween({ y: today.getFullYear(), m: today.getMonth() + 1, d: today.getDate() }, { y, m: mo, d });
+    const overlap = callOverlap(zone, "Europe/London", Date.now());
+    return { r, week, days, overlap };
+  }, [zone, date, time]);
+
+  return (
+    <div style={{ display: "grid", gap: 6 }} data-testid="clock-walltime">
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <input className="fs-input" type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Wall date" />
+        <input className="fs-input" type="time" value={time} onChange={(e) => setTime(e.target.value)} aria-label="Wall time" />
+        <select className="fs-select" aria-label="Wall time zone" value={zone} onChange={(e) => setZone(e.target.value)} style={{ flex: "1 1 12em" }}>
+          {zoneList.map((z) => <option key={z} value={z}>{z.replace(/_/g, " ")}</option>)}
+        </select>
+      </div>
+      {!analysed ? <Badge tone="warn">pick a date and a time</Badge> : (
+        <>
+          <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }} data-testid="clock-walltime-status">
+            {analysed.r.kind === "unique" ? <Badge tone="ok">exists once · offset {analysed.r.offsetMinutes >= 0 ? "+" : ""}{(analysed.r.offsetMinutes / 60).toFixed(2)} h</Badge> : null}
+            {analysed.r.kind === "gap" ? <Badge tone="warn">does not exist — the clocks jump over it</Badge> : null}
+            {analysed.r.kind === "overlap" ? <Badge tone="info">happens twice — clocks went back</Badge> : null}
+            <Badge>ISO week {analysed.week.year}-W{String(analysed.week.week).padStart(2, "0")}</Badge>
+            <Badge>{analysed.days === 0 ? "today" : analysed.days > 0 ? `${analysed.days} days ahead` : `${-analysed.days} days ago`}</Badge>
+          </div>
+          {analysed.r.kind !== "unique" ? <div className="fs-dim" style={{ fontSize: fz(11) }}>{analysed.r.message}</div> : null}
+          {analysed.r.kind === "unique" ? <div className="fs-dim" style={{ fontSize: fz(11) }}>{describeDelta(analysed.r.instant, Date.now())} · UTC {new Date(analysed.r.instant).toISOString().slice(11, 16)}</div> : null}
+          {analysed.overlap ? <div className="fs-dim" style={{ fontSize: fz(11) }}>09:00–18:00 overlap with London today: {String(Math.floor(analysed.overlap.startHour)).padStart(2, "0")}:{String(Math.round((analysed.overlap.startHour % 1) * 60)).padStart(2, "0")}–{String(Math.floor(analysed.overlap.endHour)).padStart(2, "0")}:{String(Math.round((analysed.overlap.endHour % 1) * 60)).padStart(2, "0")} your time</div> : null}
+        </>
+      )}
     </div>
   );
 }

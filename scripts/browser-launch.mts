@@ -16,7 +16,44 @@ import { chromium, type Browser, type LaunchOptions } from "playwright";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 
+let sharedBrowser: Browser | null = null;
+
+/**
+ * Process-wide shared Chromium for suites that open several contexts.
+ *
+ * A context is a separate cookie jar, cache and permission set, so two contexts
+ * in one browser cannot observe each other — the isolation a browser suite needs
+ * is per context, not per process. Reusing the *same* binary removes ~1.5–2.5 s of
+ * launch per test file with zero change to what is asserted. Callers that need a
+ * private browser (or a special launch flag) must call `launchChromium` directly;
+ * this helper is opt-in and never silently downgrades a flag set.
+ */
+export async function sharedChromium(): Promise<Browser> {
+  if (sharedBrowser && sharedBrowser.isConnected()) return sharedBrowser;
+  sharedBrowser = await launchChromium();
+  return sharedBrowser;
+}
+
+/**
+ * Close and forget the shared browser.
+ *
+ * TT142 speed repair: this used to set the cache to null and leave a live browser
+ * behind, so a second `sharedChromium()` in the same process launched a *second*
+ * Chromium whose first call then had to shut down lazily. Each of those costs
+ * memory on a 2-CPU host, and a suite that opens several contexts paid it once
+ * per suite. Closing is awaited by callers that care; the return is a promise so
+ * the caller can wait for the process to actually exit rather than hope.
+ */
+export async function releaseSharedChromium(): Promise<void> {
+  const b = sharedBrowser;
+  sharedBrowser = null;
+  if (b && b.isConnected()) await b.close().catch(() => undefined);
+}
+
 export async function launchChromium(extraArgs: string[] = [], opts: LaunchOptions = {}): Promise<Browser> {
+  // TT142: a launch-time failure of the *bundled* binary is the common case here
+  // (the sandbox has no `playwright install`), so fall through on any error, not
+  // only a missing file. The sparticuz path below is the one that actually works.
   const explicit = process.env.PW_CHROMIUM;
   if (explicit) return chromium.launch({ ...opts, executablePath: explicit, args: extraArgs });
   try {

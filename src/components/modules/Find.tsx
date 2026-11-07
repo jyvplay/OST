@@ -3,11 +3,12 @@ import OrbitTarget from "../OrbitTarget";
 import { appForFile } from "@/lib/open-with";
 import { baseName, parentPath } from "@/lib/files/model";
 import { fz } from "@/lib/uiscale";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, post } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, Empty } from "../ui";
 import { buildQuery } from "@/lib/phrase-query";
+import { parseQuery, rankSearch, describeQuery, type SearchDoc } from "@/lib/search-rank";
 import { exportSavedSearches, importSavedSearches, loadSavedSearches, SEARCH_EXPORT_LIMIT, storeSavedSearches, validateSavedSearches, type SavedSearch } from "@/lib/saved-searches";
 import { clearRecents, loadRecents, purgePrivateRecents, storeRecents, pushRecent, type RecentSearch } from "@/lib/recent-searches";
 import { sourceSummary } from "@/lib/result-groups";
@@ -41,6 +42,26 @@ export default function FindModule(_: ModuleProps) {
   const [privInfo, setPrivInfo] = useState<{ hostQueried: boolean; indexed: number | null; locked: boolean; truncated: boolean } | null>(null);
   const filtered = useSearchFilter(hits, input.filter, input.regex, input.caseSensitive);
   const shownHits = orderSearchHits(filtered.hits, input.sort);
+  /**
+   * TT139 SR-26: a local re-rank over the hits the server already returned.
+   * This never widens the result set — retrieval, permissions and the index
+   * bound stay exactly where they were — it only reorders within it, using
+   * field weights, BM25 length normalisation and the documented query grammar.
+   * When the grammar selects nothing (e.g. the user is in phrase mode) the
+   * server's order is left untouched.
+   */
+  const rankedHits = useMemo(() => {
+    if (input.mode !== "text" || !shownHits.length) return shownHits;
+    const parsed = parseQuery(input.q);
+    if (parsed.error || (!parsed.terms.length && !parsed.phrases.length && !parsed.fields.length)) return shownHits;
+    const docs: SearchDoc[] = shownHits.map((h, i) => ({ id: String(i), title: h.title, body: h.snippet, type: h.source, path: h.ref }));
+    const order = rankSearch(docs, parsed);
+    if (!order.length) return shownHits;
+    const seen = new Set(order.map((o) => o.id));
+    const head = order.map((o) => shownHits[Number(o.id)]);
+    const tail = shownHits.filter((_, i) => !seen.has(String(i)));
+    return [...head, ...tail];
+  }, [shownHits, input.q, input.mode]);
   const [saved, setSaved] = useState<SavedSearch[]>(() => { try { return loadSavedSearches(localStorage); } catch { return []; } });
   const [recents, setRecents] = useState<RecentSearch[]>(() => { try { return loadRecents(localStorage); } catch { return []; } });
   const [amnesic] = useState(() => privacy.status().amnesic);
@@ -156,6 +177,12 @@ export default function FindModule(_: ModuleProps) {
       <svg aria-hidden="true" viewBox="0 0 24 24" style={{ width: fz(23), height: fz(23), flexShrink: 0 }}><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m15 15 6 6M7 10h6M10 7v6" fill="none" stroke="currentColor" strokeWidth="1.7" /></svg>
       <input className="fs-input" style={{ flex: 1, minWidth: fz(150) }} placeholder="Search" value={input.q} maxLength={512} aria-label="Search query" onChange={event => update({ q: event.target.value })} />
       <Btn type="submit" variant="primary" disabled={busy || !input.q.trim()}>Search</Btn>
+      {input.mode === "text" && input.q.trim() ? (() => {
+        const parsed = parseQuery(input.q);
+        return <span className="fs-dim" style={{ fontSize: fz(10.5), flexBasis: "100%" }} data-testid="find-query-reading">
+          {parsed.error ? <Badge tone="warn">{parsed.error}</Badge> : <>reads as: {describeQuery(parsed)}</>}
+        </span>;
+      })() : null}
       <Btn variant="ghost" disabled={!input.q.trim()} onClick={() => void saveSearch()}>Save<span className="sr-only"> this search</span></Btn>
       <select aria-label="Search mode" className="fs-input" style={{ width: fz(140) }} value={input.mode} onChange={event => update({ mode: event.target.value as SearchInput["mode"], source: "", phrase: false })}><option value="text">Fast text index</option><option value="metadata">Live metadata</option></select>
       <select aria-label="Search source" className="fs-input" style={{ width: fz(112) }} value={input.source} onChange={event => update({ source: event.target.value as SearchInput["source"], extension: event.target.value && event.target.value !== "file" ? "" : input.extension, ...(["spec", "setting"].includes(event.target.value) ? { modifiedAfter: "", modifiedBefore: "", minBytes: "", maxBytes: "" } : {}) })}><option value="">All sources</option><option value="file">Files</option>{input.mode === "text" ? <><option value="note">Notes</option><option value="spec">Spec</option><option value="setting">Settings</option></> : null}</select>
@@ -191,11 +218,11 @@ export default function FindModule(_: ModuleProps) {
       <select className="fs-input" aria-label="Result order" style={{ width: fz(130) }} value={input.sort} onChange={event => { const sort = event.currentTarget.value as SearchInput["sort"]; setInput(current => ({ ...current, sort })); }}><option value="relevance">Relevance</option><option value="title">Title A–Z</option><option value="reference">Reference A–Z</option></select>
     </div>
     {filtered.error ? <div role="alert">{filtered.error}</div> : filtered.busy ? <div role="status">Filtering…</div> : input.filter ? <span className="fs-dim" style={{ fontSize: fz(11) }}>{shownHits.length} of {hits.length} results match</span> : null}
-    {took !== null ? <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}><Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge><Badge>no cloud service</Badge>{hits.length ? <><span className="fs-dim" style={{ fontSize: fz(11) }} data-testid="find-source-summary">{sourceSummary(hits)}</span><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error} onClick={() => void shell.copy(resultsText(shownHits), "find")} data-testid="find-copy-results">Copy results list</Btn><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error || !shownHits.length || !resultInput} onClick={() => void exportVisible("json")}>Export results JSON</Btn><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error || !shownHits.length || !resultInput} onClick={() => void exportVisible("csv")}>Export results CSV</Btn></> : null}
+    {took !== null ? <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}><Badge tone="ok">{hits.length} hits</Badge><Badge tone="info">{took} ms</Badge>{rankedHits !== shownHits ? <Badge tone="info" data-testid="find-ranked">re-ranked locally</Badge> : null}<Badge>no cloud service</Badge>{hits.length ? <><span className="fs-dim" style={{ fontSize: fz(11) }} data-testid="find-source-summary">{sourceSummary(hits)}</span><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error} onClick={() => void shell.copy(resultsText(shownHits), "find")} data-testid="find-copy-results">Copy results list</Btn><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error || !shownHits.length || !resultInput} onClick={() => void exportVisible("json")}>Export results JSON</Btn><Btn variant="ghost" disabled={busy || filtered.busy || !!filtered.error || !shownHits.length || !resultInput} onClick={() => void exportVisible("csv")}>Export results CSV</Btn></> : null}
       {privInfo ? <span data-testid="private-search-info" style={{ display: "contents" }}>{privInfo.locked ? <Badge tone="warn">Persistent Storage locked</Badge> : privInfo.indexed !== null ? <Badge tone="ok">/Private: {privInfo.indexed} files indexed in this tab</Badge> : null}<Badge tone={privInfo.hostQueried ? "warn" : "ok"}>{privInfo.hostQueried ? "host saw the query text" : "query never left this tab"}</Badge>{privInfo.truncated ? <Badge tone="warn">Private index is bounded</Badge> : null}</span> : null}
     </div> : null}
     <div data-testid="find-results" style={{ display: "grid", gap: 2 }}>
-      {shownHits.map(hit => <OrbitTarget key={`${hit.source}:${hit.ref}`} label={`Search result: ${hit.title}`} actions={[{ label: "Open result", run: () => openHit(hit) }, ...(hit.source === "file" ? [{ label: "Open containing folder", run: () => shell.open("files", { path: parentPath(hit.ref) }) }] : []), { label: "Copy reference", run: () => shell.copy(hit.ref, "find") }, { label: "Copy excerpt", run: () => shell.copy(hit.snippet, "find") }]}>
+      {rankedHits.map(hit => <OrbitTarget key={`${hit.source}:${hit.ref}`} label={`Search result: ${hit.title}`} actions={[{ label: "Open result", run: () => openHit(hit) }, ...(hit.source === "file" ? [{ label: "Open containing folder", run: () => shell.open("files", { path: parentPath(hit.ref) }) }] : []), { label: "Copy reference", run: () => shell.copy(hit.ref, "find") }, { label: "Copy excerpt", run: () => shell.copy(hit.snippet, "find") }]}>
         <div data-source={hit.source} data-reference={hit.ref} style={{ display: "flex", alignItems: "center", minWidth: 0 }}><button className="fs-list-item" style={{ minWidth: 0, flex: 1, textAlign: "left", border: 0, background: "none", color: "inherit", width: "100%" }} onClick={() => void openHit(hit).catch(e => shell.toast(e instanceof Error ? e.message : String(e), "bad"))}>
           <span style={{ flex: 1, minWidth: 0 }}><span style={{ display: "block", fontSize: fz(12.5) }}>{hit.title}</span><span className="fs-dim fs-mono" style={{ display: "block", fontSize: fz(10.5), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hit.ref} — {hit.snippet}</span>{hit.matchedFields ? <span aria-label="Matched metadata fields">{hit.matchedFields.map((m, i) => <span key={i} style={{ display: "block" }}><strong>{m.field}</strong>: {m.value}</span>)}</span> : null}</span>
           <Badge tone={hit.how === "fts" || hit.how === "literal" || hit.how === "private-local" ? "ok" : "warn"}>{hit.how === "private-local" ? "encrypted · " : ""}{hit.source} · {hit.how}</Badge>

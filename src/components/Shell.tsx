@@ -72,7 +72,13 @@ function scaledRect(r: Partial<Rect> | undefined, vp: { w: number; h: number } |
   return out;
 }
 
-export default function Shell({ stateId, hostKind }: { stateId: string; hostKind: "tab" | "pip" | "screen" }) {
+export default function Shell({ stateId, hostKind, desktopNotice = null, desktopSource = "default" }: {
+  stateId: string;
+  hostKind: "tab" | "pip" | "screen";
+  /** TT142: set when a `?desk=` value was unusable — shown once, not swallowed. */
+  desktopNotice?: string | null;
+  desktopSource?: "default" | "named";
+}) {
   const [state, setState] = useState<DesktopState>(initialDesktop);
   const [caps, setCaps] = useState<CapabilityReport | null>(null);
   const [gov, setGov] = useState<GovernorSnapshot>(() => governor.snapshot());
@@ -313,6 +319,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
       }
       loaded.current = true;
       if (!cancelled) setBooted(true);
+      // TT142: a desktop link that could not be honoured says so, once, instead of
+      // silently showing a different desktop than the one the reader asked for.
+      if (!cancelled && desktopNotice) toast(desktopNotice, "warn");
 
       // SH-13: manifest shortcuts, protocol handler (web+fusion://) and the
       // share target all arrive as query parameters on the single instance.
@@ -335,7 +344,7 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stateId]);
+  }, [stateId, desktopNotice]);
 
   // Chromium queues installed-PWA launches until a consumer is registered. Register only after hydration,
   // so an incoming window is not overwritten by the restored desktop. Other browsers may not implement this API.
@@ -860,6 +869,9 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
 
         <div
           ref={deskRef}
+          // TT142: the desktop identity is observable (support, two-device debugging) without exposing windows
+          data-desktop-id={stateId}
+          data-desktop-source={desktopSource}
           className={layout === "fusion" ? `fs-wallpaper-${wallpaper}` : undefined}
           // "clip", not "hidden": an overflow:hidden box can still be scrolled by focus()/scrollIntoView, which
           // shifted the whole desktop up and hid window title bars when a module focused a low element (TT15, found by screenshot)

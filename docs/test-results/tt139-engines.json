@@ -1,0 +1,519 @@
+{
+  "suite": "tt139-engines",
+  "at": "2026-11-07T03:42:49.515Z",
+  "results": [
+    {
+      "suite": "tt139-engines",
+      "name": "MD-01 · raw HTML in the source is escaped, never parsed",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "MD-02 · javascript: and data: destinations are dropped, text kept",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "MD-03 · code fences keep their content byte-exact and their language",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "MD-04 · emphasis follows the CommonMark flanking rules (no intraword _em_)",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "MD-05 · nested blocks, tables, task lists and outline agree with the render",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "MD-06 · bounds are enforced, and the refusal is an error rather than truncation",
+      "covers": {
+        "FF-73": "full"
+      },
+      "pass": true,
+      "ms": 84
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-01 · CRC-32 matches the published IEEE 802.3 check value",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-02 · deflate round-trips exactly on adversarial byte patterns",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 53
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-03 · writer produces a directory an independent reader accepts, byte-identically twice",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-04 · zip-slip, duplicate names and over-long archives are refused",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-05 · a corrupted payload is detected, and a bomb's declared size is refused before inflating",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ZIP-06 · DOS timestamps round-trip and clamp the representable range",
+      "covers": {
+        "FF-74": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DIFF-01 · Myers distance equals an independent longest-common-subsequence count",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DIFF-02 · the budget reports truncation instead of pretending everything changed",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DIFF-03 · unified text and hunks are well formed and reversible",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DIFF-04 · three-way merge refuses to hide a conflict and merges disjoint edits",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DIFF-05 · word diff is finer than line diff and costs less than a full table",
+      "covers": {
+        "PR-13": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "SR-26 · the query grammar parses every operator and reports bad input",
+      "covers": {
+        "SR-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "SR-26 · ranking prefers a title match and length-normalises long bodies",
+      "covers": {
+        "SR-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "SR-26 · filters are conjunctive and negation scans every field",
+      "covers": {
+        "SR-26": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "SR-26 · highlight spans merge overlaps and never nest",
+      "covers": {
+        "SR-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "SR-26 · relative dates resolve against a supplied clock, never the wall clock",
+      "covers": {
+        "SR-26": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CSV-01 · quoted delimiters, doubled quotes and embedded newlines survive",
+      "covers": {
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CSV-02 · BOM, CR-only endings and an unbalanced quote are reported, not silently repaired",
+      "covers": {
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CSV-03 · delimiter detection scores consistency, not frequency",
+      "covers": {
+        "CSV-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CSV-04 · export guards formula injection and the guard is exactly reversible",
+      "covers": {
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CSV-05 · ragged rows are counted, not dropped; a field cap is enforced",
+      "covers": {
+        "FF-75": "full"
+      },
+      "pass": true,
+      "ms": 170
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CG-01 · WCAG contrast matches the published extremes and thresholds",
+      "covers": {
+        "CG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CG-01 · lightness behaves as perception, not as HSL: a red/blue swap is not 'equal brightness'",
+      "covers": {
+        "CG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CG-01 · colour-vision simulation is deterministic, monotone in severity and keeps greys grey",
+      "covers": {
+        "CG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CG-01 · CSS colour parsing accepts the syntaxes users paste and rejects the rest",
+      "covers": {
+        "CG-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CG-01 · theme helpers pick a readable foreground and keep generated palettes distinct",
+      "covers": {
+        "CG-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "IN-09 · chord normalisation is order-independent and platform-aware",
+      "covers": {
+        "IN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "IN-09 · scope precedence resolves a dialog Escape without closing the window",
+      "covers": {
+        "IN-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "IN-09 · reserved chords and conflicts are reported, never silently accepted",
+      "covers": {
+        "IN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "IN-09 · hints are generated from the same data the dispatcher matches",
+      "covers": {
+        "IN-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "HW-08 · Base64 matches RFC 4648 test vectors exactly",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "HW-08 · Base64 handles non-Latin-1 text and rejects invalid input",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "HW-08 · hex is strict, constant-time compare is length-safe, entropy is bounded",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "HW-08 · encoding detection distinguishes BOMs, UTF-16 and legacy bytes",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CK-09 · civil day numbers agree with Date.UTC across four centuries",
+      "covers": {
+        "CK-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CK-09 · weekday and ISO week match known calendar facts",
+      "covers": {
+        "CK-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CK-09 · a wall time that does not exist is a gap, and one that happens twice is an overlap",
+      "covers": {
+        "CK-09": "full"
+      },
+      "pass": true,
+      "ms": 14
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CK-09 · a conversion round-trips through the zone it reports",
+      "covers": {
+        "CK-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CK-09 · relative phrasing and overlap search are bounded and honest",
+      "covers": {
+        "CK-09": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CV-04 · defined factors are exact to double precision",
+      "covers": {
+        "CV-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CV-04 · a dimensionally impossible conversion is refused with the reason",
+      "covers": {
+        "CV-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "CV-04 · free-text quantities parse the forms people type",
+      "covers": {
+        "CV-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ED-11 · matching honours case, whole-word and Unicode boundaries",
+      "covers": {
+        "ED-11": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ED-11 · a pathological regex is refused or bounded rather than freezing",
+      "covers": {
+        "ED-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ED-11 · replace-all is literal in literal mode and expands groups in regex mode",
+      "covers": {
+        "ED-11": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "ED-11 · navigation wraps predictably and the status string is the single source of truth",
+      "covers": {
+        "ED-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "PR-14 · dead-key composition produces one Unicode character, not two",
+      "covers": {
+        "PR-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "PR-14 · a dead key followed by a non-composable key emits the standalone accent",
+      "covers": {
+        "PR-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "PR-14 · control bytes and special sequences follow the C0 table",
+      "covers": {
+        "PR-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DP-15 · plural categories follow the CLDR rules for every family",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-engines",
+      "name": "DP-15 · message formatting handles plural, select, number, date and a missing argument",
+      "covers": {
+        "DP-15": "full"
+      },
+      "pass": true,
+      "ms": 13
+    }
+  ]
+}

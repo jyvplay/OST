@@ -1,0 +1,69 @@
+{
+  "suite": "tt142-browser",
+  "at": "2026-11-07T04:19:23.830Z",
+  "results": [
+    {
+      "suite": "tt142-browser",
+      "name": "the shell labels the desktop row it is showing, before it paints",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 4729
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "the manifest is installable: name, start_url, display and at least one 192px maskable icon",
+      "covers": {
+        "SH-13": "full"
+      },
+      "pass": true,
+      "ms": 40
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "a real service-worker registration controls the origin after a reload",
+      "covers": {
+        "SH-14": "full"
+      },
+      "pass": true,
+      "ms": 6346
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "two tabs share one desktop through the server, and a stale revision cannot overwrite a newer one",
+      "covers": {
+        "DP-04": "full"
+      },
+      "pass": true,
+      "ms": 15016
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "private mode refuses a host write and says why, instead of pretending to save",
+      "covers": {
+        "DP-01": "full"
+      },
+      "pass": true,
+      "ms": 3320
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "the desktop re-flows at 1024×640 without losing a window off-screen",
+      "covers": {
+        "AX-03": "full"
+      },
+      "pass": true,
+      "ms": 1076
+    },
+    {
+      "suite": "tt142-browser",
+      "name": "no uncaught page error across every case above",
+      "covers": {
+        "DP-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

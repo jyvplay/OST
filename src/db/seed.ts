@@ -1,5 +1,7 @@
 import { searchIndexText } from "@/lib/search-index-text";
 import { tt135Features } from "./seed-data/features-tt135";
+import { tt139Features, patchTT139 } from "./seed-data/features-tt139";
+import { patchTT143 } from "./seed-data/features-tt143";
 import { patchTT137 } from "./seed-data/features-tt137";
 import { tt134Features } from "./seed-data/features-tt134";
 import { tt133Features } from "./seed-data/features-tt133";
@@ -123,13 +125,13 @@ import { tt125Features } from "./seed-data/features-tt125";
 import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.98.0";
+export const SEED_VERSION = "3.100.0";
 
 /** Codes withdrawn after shipping: the seeder deletes them on every boot so a
  * replaced feature can never linger in the register as if it were news. */
 export const RETIRED_FEATURE_CODES = ["FM-20"]; // TT125: Files already had a collision-free New folder flow; slot reassigned to ED-10
 
-export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt139Features, ...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => patchTT137(f))
@@ -188,7 +190,12 @@ export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features
   // TT114 is applied last, so its corrections win over every earlier patch map.
   .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f))
   // TT116 is applied last: this turn's measurements supersede every earlier map.
-  .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f));
+  .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f))
+  // TT139/141 is applied last: an earlier turn's downgrade patch must never
+  // silently revert a row whose engine, UI and suite now exist.
+  .map((f) => patchTT139(f as unknown as Parameters<typeof patchTT139>[0]))
+  // TT143 MUST stay the last mapper: an earlier slot is overwritten by later per-turn patches.
+  .map((f) => patchTT143(f as unknown as Parameters<typeof patchTT143>[0]));
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

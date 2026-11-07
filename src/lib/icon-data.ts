@@ -22,16 +22,16 @@ export const PALETTES = {
 } satisfies Record<string, Palette>;
 export type PaletteName = keyof typeof PALETTES;
 
-export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank", "film", "map", "book"] as const;
+export const GLYPH_NAMES = ["folder", "pencil", "search", "terminal", "note", "globe", "play", "record", "camera", "broadcast", "people", "chat", "lock", "shield", "cloud", "bell", "pulse", "keypad", "gear", "checklist", "clock", "calendar", "plug", "screenShare", "bolt", "clipboard", "pie", "drive", "picture", "pen", "doc", "easel", "grid", "table", "eye", "braces", "music", "box", "board", "contact", "trash", "blank", "film", "map", "book", "plugBoard", "signal", "ledger"] as const;
 export type GlyphName = (typeof GLYPH_NAMES)[number];
 
 export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   recall: ["teal", "record"], files: ["orange", "folder"], editor: ["sky", "pencil"], find: ["teal", "search"], terminal: ["slate", "terminal"], ssh: ["lagoon", "terminal"],
   notes: ["sun", "note"], browser: ["blue", "globe"], media: ["coral", "play"], capture: ["coral", "record"],
-  lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"],
+  lens: ["indigo", "camera"], beam: ["teal", "signal"], together: ["orange", "people"], messages: ["green", "chat"],
   vault: ["indigo", "lock"], privacy: ["teal", "shield"], backup: ["sky", "cloud"], alerts: ["sun", "bell"],
-  monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
-  clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "screenShare"],
+  monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "ledger"],
+  clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plugBoard"], share: ["blue", "screenShare"],
   routines: ["sun", "bolt"], clipboard: ["lime", "clipboard"], storage: ["indigo", "pie"], localdisk: ["slate", "drive"],
   imageedit: ["lagoon", "picture"], photos: ["sun", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"], pdf: ["coral", "doc"],
   windowgroups: ["indigo", "folder"], locks: ["slate", "lock"], inputprofiles: ["green", "gear"],

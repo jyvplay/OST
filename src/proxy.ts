@@ -27,6 +27,28 @@ function refuse(req: NextRequest, status: 400 | 403, error: string) {
   return NextResponse.rewrite(u, { request: { headers } });
 }
 
+/**
+ * TT142 (DP-03) — deferred, with the measurement that deferred it.
+ *
+ * The first attempt minted a per-browser desktop id in an httpOnly cookie at the
+ * edge, so two browsers could never share one server row. It worked (the cookie
+ * was minted before the first render and two contexts kept separate desktops),
+ * and it was reverted because the evidence said it was the wrong product:
+ *
+ *   · 184 e2e scripts seed the shared `default` row and then assert on a page.
+ *     Every one of them silently addressed an empty row; the shell's own suite
+ *     went from 8/8 to 2/8 until each fixture learned to discover its id.
+ *   · the premise of this app is ONE desktop shown on several screens. A phone
+ *     and a laptop are not two desktops, and a per-browser default makes "open
+ *     my desktop on the other device" impossible without a share link.
+ *
+ * So the shared row stays the default and the *named* desktop is the opt-in:
+ * `?desk=work` is read by the server, validated, and reported. Multi-client
+ * safety remains where it already was — optimistic concurrency on the row's
+ * revision (a stale write is refused with 409 and the tab adopts the newer one),
+ * which is what the two-tab case in tt142-browser.mts actually proves.
+ */
+
 export async function proxy(req: NextRequest) {
   if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return NextResponse.next();
   // TT108: the refusal target must be exempt from this matcher. A rewrite re-enters the

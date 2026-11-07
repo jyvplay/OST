@@ -1,6 +1,6 @@
 {
   "suite": "tt124-core",
-  "at": "2026-11-06T04:57:53.897Z",
+  "at": "2026-11-07T03:42:45.668Z",
   "results": [
     {
       "suite": "tt124-core",
@@ -91,7 +91,7 @@
         "CN-10": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 12
     },
     {
       "suite": "tt124-core",
@@ -100,7 +100,7 @@
         "MS-06": "full"
       },
       "pass": true,
-      "ms": 7
+      "ms": 11
     },
     {
       "suite": "tt124-core",
@@ -118,7 +118,7 @@
         "VT-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt124-core",
@@ -127,7 +127,7 @@
         "CP-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt124-core",
