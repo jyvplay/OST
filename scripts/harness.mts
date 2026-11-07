@@ -55,17 +55,35 @@ export function makeHarness(suite: string) {
       console.log(`  ✗ ${name}\n    ${error}`);
     }
   };
+  /**
+   * TT143: where the time actually goes.
+   *
+   * A suite's total wall time is not its test time: imports, the first reducer
+   * call and the process itself all cost, and a "faster" claim without a split
+   * cannot say which one changed. `finish` therefore reports the per-test sum,
+   * the largest test, and the process's own startup, so a speed change can be
+   * attributed instead of asserted.
+   */
   const finish = () => {
     mkdirSync("docs/test-results", { recursive: true });
     if (!only) writeIfChanged(`docs/test-results/${suite}.json`, JSON.stringify({ suite, at: new Date().toISOString(), results }, null, 2));
     const failed = results.filter((r) => !r.pass);
-    console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
-    // Where the wall time went. Printed only when it is worth reading, so a
-    // 40-assertion suite that finishes in 5 ms stays quiet.
-    const wall = results.reduce((a, r) => a + r.ms, 0);
-    if (wall >= 30) {
+    /**
+     * Where the wall time went — merged from both branches (TT143 + main).
+     *
+     * `tests` is the sum of the assertions, and `startup+imports` is everything
+     * else the process paid, which is the split that makes a speed claim
+     * attributable: a suite whose test time is flat but whose wall time moved is
+     * telling you the loader changed, not the code under test. The per-test
+     * breakdown prints only when it is worth reading, so a 5 ms suite stays quiet.
+     */
+    const testMs = results.reduce((n, r) => n + r.ms, 0);
+    const total = Math.round(performance.now());
+    console.log(`${results.length - failed.length} passed, ${failed.length} failed`);
+    console.log(` TIMING tests=${testMs}ms startup+imports=${total - testMs}ms total=${total}ms`);
+    if (testMs >= 30) {
       const slowest = [...results].sort((a, b) => b.ms - a.ms).slice(0, 3).filter((r) => r.ms >= 5);
-      if (slowest.length) console.log(`slowest: ${slowest.map((r) => `${r.ms}ms ${r.name.slice(0, 46)}`).join(" | ")} (total ${wall}ms)`);
+      if (slowest.length) console.log(`slowest: ${slowest.map((r) => `${r.ms}ms ${r.name.slice(0, 46)}`).join(" | ")}`);
     }
     if (!results.length) { console.log("FAILED: no tests selected"); process.exitCode = 1; }
     if (failed.length) { console.log("FAILED:", failed.map((f) => f.name).join(" | ")); process.exitCode = 1; }

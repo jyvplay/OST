@@ -1,5 +1,6 @@
 "use client";
 import { parseBackupManifest, compareManifests } from "@/lib/backup-compare";
+import { BackupEvidencePanel } from "../tt145-panels";
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -390,6 +391,8 @@ export default function BackupModule(_: ModuleProps) {
           </div>
         </div> : null}
       </Section>
+
+      <BackupEvidencePanel />
 
       <Section title="Backup health and restore drill">
         <div data-testid="backup-drill-health" role="status" className="fs-mono" style={{ fontSize: fz(12) }}>

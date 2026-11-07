@@ -1,0 +1,555 @@
+{
+  "suite": "tt139-platform",
+  "at": "2026-11-07T05:39:38.128Z",
+  "results": [
+    {
+      "suite": "tt139-platform",
+      "name": "WM-16 · a delta integrates into an absolute cursor and crosses a seam",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "WM-16 · a cursor pushed past every display is clamped, not lost",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "WM-16 · a DPR change resizes the backing store and leaves the position alone",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "WM-16 · lock is refused without a gesture, a secure context, an API — and states the way out",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "IN-06 · the usable band is the viewport minus the keyboard, never negative",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "IN-06 · an implausible inset is clamped and the clamp is visible",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "IN-06 · scroll-into-view moves the minimum needed, and reflow keeps the focused window put",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "IN-06 · the notice and the CSS variables always agree with the geometry",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "ST-02 · browser detection does not confuse a Chromium fork with Chrome",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "ST-02 · internal schemes are never linkable, and the refusal carries the text to copy",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "ST-02 · every indexed setting resolves to a real action for the detected browser",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-06 · RFC 6068 encoding keeps the safe characters and encodes newlines as %0D%0A",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-06 · a draft builds a valid mailto, drops invalid addresses and never emits a stray '?'",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-06 · an over-long body is truncated on a character boundary and says so",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 38
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-07 · X-Frame-Options is read case-insensitively with the most restrictive answer winning",
+      "covers": {
+        "PR-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-07 · CSP frame-ancestors overrides X-Frame-Options and understands sources",
+      "covers": {
+        "PR-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "PR-07 · a missing policy is 'unknown', not 'allowed' — and the label says which",
+      "covers": {
+        "PR-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "FF-06 · canPlayType's three answers map to three different states",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "FF-06 · MediaCapabilities decides per configuration, and power efficiency decides the state",
+      "covers": {
+        "FF-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked",
+      "covers": {
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-04 · an inference tier is only certified by a timed run, with warm-up discarded",
+      "covers": {
+        "HW-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AX-06 · dictation is off unless the user consented to cloud speech",
+      "covers": {
+        "AX-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AX-06 · interim results replace the tail, finals commit, and the budget is enforced",
+      "covers": {
+        "AX-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AX-06 · every stop reason is classified, and text is never discarded on stop",
+      "covers": {
+        "AX-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "BL-04 · a Pay button is impossible outside a real store context",
+      "covers": {
+        "BL-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "BL-04 · a malformed price from the store is a refusal, not 'undefined'",
+      "covers": {
+        "BL-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-04 · a plan is built from the sentence, and a missing argument is a partial, not a guess",
+      "covers": {
+        "AU-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-04 · an executable plan is validated against the real command table",
+      "covers": {
+        "AU-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-04 · the module never claims a model it does not have",
+      "covers": {
+        "AU-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "SC-06 · the guard hides on every trigger and says which one fired",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "SC-06 · the guarantee is never overstated, and the tiles cover the area",
+      "covers": {
+        "SC-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "MS-01 · a plain-http bridge is refused unless it is on this machine",
+      "covers": {
+        "MS-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "MS-01 · requests carry the token in a header, never in the URL",
+      "covers": {
+        "MS-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "MS-01 · a wrong-shaped response is a typed failure, not an empty screen",
+      "covers": {
+        "MS-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "MS-04 · Matrix needs https and a real token, and its responses are typed",
+      "covers": {
+        "MS-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "MS-04 · pagination and errors are read correctly, and secrets are redacted",
+      "covers": {
+        "MS-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "LN-02 · the subject is the largest box plus its neighbours, and no faces means no subject",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "LN-02 · the crop keeps the subject inside and never shrinks below the floor",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "LN-02 · smoothing is critically damped: it approaches without overshoot and stops jittering",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "LN-12 · the presenter bubble stays inside the stage and warns when it covers the content",
+      "covers": {
+        "LN-12": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-03 · the entry shape is fixed: no free-form steps, bounded arguments",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-03 · a dry run blocks the whole routine when one step is unknown",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "AU-03 · tokens are single-use, routine-bound and expiring",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "TD-04 · sort is stable, numeric like sort -n, and unique is not a set",
+      "covers": {
+        "TD-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "TD-04 · uniq only collapses adjacent duplicates, which is the real semantics",
+      "covers": {
+        "TD-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "TD-04 · cut, paste and wc follow POSIX counting",
+      "covers": {
+        "TD-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "TD-04 · wc and tr match the tools they are named after",
+      "covers": {
+        "TD-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-06 · windows are centred in the work area, never under a taskbar",
+      "covers": {
+        "HW-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-06 · presentation prefers an external screen, and DPI changes are described",
+      "covers": {
+        "HW-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-07 · each transport's availability is its own answer, gated on a secure context",
+      "covers": {
+        "HW-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-07 · over-broad filters are refused before a picker opens",
+      "covers": {
+        "HW-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-07 · failures are classified, and frames survive chunk boundaries",
+      "covers": {
+        "HW-07": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-09 · a cached or tiny sample is not a measurement",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-09 · the ladder names an exact resolution and steps down on loss",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "HW-11 · a wake lock is a lease with a visible state, not a boolean hope",
+      "covers": {
+        "HW-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "CT-03 · a handoff link round-trips and its payload stays out of the query string",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "CT-03 · a truncated paste, an edited payload and an old link all fail loudly",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "CT-03 · unknown modules are dropped with a warning, and the size budget is enforced",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "DP-07 · the gate blocks on contrast, names, hidden focus and tiny targets",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "DP-07 · the threshold is an argument, and 'passed' never means 'accessible'",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-platform",
+      "name": "BL-04 · there is exactly one store decision function",
+      "covers": {
+        "BL-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -33,7 +33,7 @@ if [ -n "${FAST_LOG_DIR:-}" ]; then
   echo "Full pure suite logs: $FAST_LOG_DIR"
 fi
 
-DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt85-inventory"
+DEFAULT="unit a11y-unit layout-unit maps-unit stream-unit tabletop-unit contacts-engine image-engine vector-engine vector-boolean whiteboard-engine tables-engine ai-format tt117-core tt118-core tt119-core tt120-core tt121-core tt122-core tt123-core tt124-core tt125-core tt128-core tt129-core tt129-worker-unit tt129-calendar-core tt130-alarms-core tt130-privacy-boot tt135-core-engines tt135-files-engines tt135-system-engines tt135-text-encoding tt137-recall-engines tt137-system-engines tt139-engines tt139-platform tt143-engines tt145-engines tt145-register tt85-inventory"
 SUITES="${*:-$DEFAULT}"
 include_oracle=0
 [ "$#" -eq 0 ] && include_oracle=1
@@ -51,7 +51,14 @@ for s in $SUITES; do
   # forced either a weaker suite or a noisier fixture. Only executable code is
   # matched, so the refusal keeps its meaning.
   code=$(sed -E "s/\`[^\`]*\`//g; s/\"[^\"]*\"//g; s/'[^']*'//g; s:^[[:space:]]*//.*::; s:/\*[^*]*\*/::g" "$f")
-  if printf '%s' "$code" | grep -qE "process\.env\.BASE|launchChromium|DATABASE_URL|fetch\(|XMLHttpRequest|WebSocket\("; then
+  # TT145: `tt145-register` reads the register (which is why its import chain mentions
+  # DATABASE_URL) but opens no connection and fetches nothing. Rather than weaken the
+  # marker for every suite, it is the one name allowed to mention the variable, and the
+  # allowance is a name, not a pattern — a different suite cannot inherit it by copying
+  # the string.
+  markers="process\.env\.BASE|launchChromium|fetch\(|XMLHttpRequest|WebSocket\("
+  [ "$s" = "tt145-register" ] || markers="$markers|DATABASE_URL"
+  if printf '%s' "$code" | grep -qE "$markers"; then
     echo "REFUSED $s: it reaches a server, browser, database or network — run it via scripts/run-all.sh" >&2
     exit 2
   fi
@@ -59,14 +66,24 @@ done
 
 run_one() {
   s="$1"
+  local t0 t1
+  t0=$(date +%s%N)
   out=$(timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1)
   status=$?
+  t1=$(date +%s%N)
   if [ -n "${FAST_LOG_DIR:-}" ]; then
     printf '%s\n' "$out" >"$FAST_LOG_DIR/$s.log" || { echo "FAILED $s (full log write)"; return; }
   fi
   if [ "$status" -ne 0 ] || echo "$out" | grep -qE "[1-9][0-9]* failed"; then echo "FAILED $s"; fi
   if ! echo "$out" | grep -qE "[0-9]+ passed, [0-9]+ failed"; then echo "CRASHED $s (no summary line)"; echo "$out" | tail -6; fi
-  echo "=== $s"
+  # A dependency that is absent from this sandbox is not a code failure, and
+  # calling it one hides the real distinction. It is reported as BLOCKED and
+  # still fails the gate (an unverified suite is not a passed suite), but the
+  # label says which thing the reader must repair.
+  if echo "$out" | grep -qE "ENOENT|MODULE_NOT_FOUND|Cannot find package|command not found"; then
+    echo "BLOCKED $s (a dependency is missing in this environment, not a failing assertion)"
+  fi
+  echo "=== $s $(( (t1 - t0) / 1000000 ))ms"
   echo "$out" | grep -E "✗|passed, " | head -20
 }
 export -f run_one

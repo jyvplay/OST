@@ -8,8 +8,19 @@ export interface RegisterRow { code: string; status: string; test: string }
 export interface ModuleClaim { id: string; implements: string[] }
 export interface HealthIssue { kind: "duplicate-code" | "built-without-module" | "missing-suite" | "module-claims-unknown-code" | "partial-without-module"; code: string; detail: string }
 
+/**
+ * Suite filenames cited by a row's `test` string.
+ *
+ * TT145: this used to match `.mts` only, so a row citing a Python mutant runner
+ * (`tt90-mutants.py`) or a `.cjs` probe was reported as citing a file that does not
+ * exist — which is the opposite of the truth and made the health check cry wolf. Every
+ * harness extension the tree actually uses is matched now, and the filename is still
+ * the only thing extracted, so a test string that merely mentions a word is not
+ * mistaken for a citation.
+ */
+const SUITE_FILE = /([a-z0-9][a-z0-9._-]*\.(?:mts|mjs|cjs|py|js))\b/gi;
 export function citedSuites(test: string): string[] {
-  return [...new Set([...String(test ?? "").matchAll(/([a-z0-9][a-z0-9-]*\.mts)\b/gi)].map((m) => m[1]))];
+  return [...new Set([...String(test ?? "").matchAll(SUITE_FILE)].map((m) => m[1]))];
 }
 export function checkRegister(rows: RegisterRow[], modules: ModuleClaim[], suites: ReadonlySet<string>): HealthIssue[] {
   const issues: HealthIssue[] = [];

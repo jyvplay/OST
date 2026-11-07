@@ -4,6 +4,7 @@ import { fz } from "@/lib/uiscale";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { useShell, type ModuleProps } from "../shell-context";
+import { detectBrowserFamily, SETTINGS_INDEX, resolveSetting } from "@/lib/settings-links";
 import { Badge, Btn, Section } from "../ui";
 import { familyProgress } from "@/lib/family-progress";
 import { familyProgressText } from "@/lib/family-progress-text";
@@ -110,6 +111,25 @@ export default function SpecModule({ win }: ModuleProps) {
           </div>
         ))}
       </div>
+
+      <Section title="Browser settings index (ST-02)" icon="outline" right={<Badge tone="info" data-testid="spec-browser-family">{detectBrowserFamily(typeof navigator === "undefined" ? "" : navigator.userAgent)}</Badge>}>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>A page cannot open these, so each one copies the exact address instead.</div>
+        <div style={{ display: "grid", gap: 2 }} data-testid="spec-settings-index">
+          {SETTINGS_INDEX.map((entry) => {
+            const resolved = resolveSetting(entry.id, typeof navigator === "undefined" ? "" : navigator.userAgent);
+            if (!resolved) return null;
+            const canOpen = resolved.action === "open" && resolved.url;
+            return (
+              <button key={entry.id} className="fs-navitem" data-testid={`spec-setting-${entry.id}`} title={resolved.instruction}
+                onClick={() => { if (canOpen) { window.open(resolved.url!, "_blank", "noopener,noreferrer"); return; } void shell.copy(resolved.url ?? entry.purpose, "spec").then(() => shell.toast(resolved.action === "copy" ? "Address copied — paste it in the address bar." : resolved.instruction)); }}
+                style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, textAlign: "left", padding: "3px 6px", background: "transparent", border: 0, color: "inherit", fontSize: fz(11.5) }}>
+                <span>{entry.label}</span>
+                <span className={`fs-dim fs-mono`} style={{ fontSize: fz(10) }}>{resolved.action === "open" ? "open" : resolved.action === "copy" ? "copy" : resolved.action === "manual" ? "menu" : "n/a"}</span>
+              </button>
+            );
+          })}
+        </div>
+      </Section>
 
       <Section title="Register health (SP-01)">
         {health ? (health.issues.length ? (

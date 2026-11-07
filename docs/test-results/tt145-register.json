@@ -1,0 +1,42 @@
+{
+  "suite": "tt145-register",
+  "at": "2026-11-07T05:39:39.800Z",
+  "results": [
+    {
+      "suite": "tt145-register",
+      "name": "TT145 register: no duplicate codes in the seed (a duplicate silently became one database row), and every cited suite exists on disk",
+      "covers": {
+        "SP-01": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt145-register",
+      "name": "TT145 register: no module claims a code the register lacks, and the built-without-module count is pinned rather than ignored",
+      "covers": {
+        "SP-01": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt145-register",
+      "name": "TT145 register: every row this turn promoted is built, tier A, reachable from a module, and states a boundary",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt145-register",
+      "name": "TT145 register: the duplicate merge cannot promote — a code present twice keeps the stricter status and tier",
+      "covers": {
+        "SP-01": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

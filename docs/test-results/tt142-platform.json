@@ -1,0 +1,60 @@
+{
+  "suite": "tt142-platform",
+  "at": "2026-11-07T05:25:36.877Z",
+  "results": [
+    {
+      "suite": "tt142-platform",
+      "name": "DP-03 · no name means the shared desktop, so every screen shows one desktop",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-platform",
+      "name": "DP-03 · a named desktop is opt-in, valid, and openly shared",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-platform",
+      "name": "DP-03 · an unusable name is reported, and the reserved rows cannot be taken",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-platform",
+      "name": "DP-03 · a share link is a real URL that refuses to be built for a bad name",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-platform",
+      "name": "DP-03 · live: ?desk= changes the row the server renders, before the first paint",
+      "covers": {
+        "DP-03": "full"
+      },
+      "pass": true,
+      "ms": 9261
+    },
+    {
+      "suite": "tt142-platform",
+      "name": "DP-04 · live: two named desktops are isolated, and a stale revision cannot win",
+      "covers": {
+        "DP-04": "full"
+      },
+      "pass": true,
+      "ms": 10272
+    }
+  ]
+}

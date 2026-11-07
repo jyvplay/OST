@@ -13,6 +13,7 @@ import { useId, type ReactNode } from "react";
 import { fz } from "@/lib/uiscale";
 
 import { MODULE_ICONS, fileIconSpec, type Palette, type PaletteName, type GlyphName } from "@/lib/icon-data";
+import { UI_GLYPH_NAMES } from "@/lib/ui-glyphs";
 import { STYLES, paletteFor, type Finish, type StyleId } from "@/lib/style-core";
 import { useStyleId } from "@/lib/style";
 export { INK, WHITE, PALETTES, MODULE_ICONS, fileIconSpec } from "@/lib/icon-data";
@@ -96,6 +97,13 @@ export const GLYPHS: Record<GlyphName, Glyph> = {
   signal: (p) => <><path d="M12 32v4M20 26v10M28 20v16M36 14v22" {...S} stroke={p.fg} strokeWidth="4" /><circle cx="36" cy="11" r="2.2" fill={p.fg} /></>,
   // funnel: a narrowing throat, i.e. a query being reduced to matches.
   funnel: (p) => <><path d="M9 12.5h30L27.5 25v9.5l-7-3.6V25Z" fill={p.fg} /><path d="M9 12.5h30" {...S} stroke={p.detail} strokeWidth="2.4" /></>,
+  // TT143 marks: three concepts that had no mark of their own.
+  // plugBoard: three contacts on a bar — a device is attached, not a cable.
+  // broadcaster: a source with two outgoing arcs — a stream, not a wifi fan.
+  // ledger: ruled lines with a checked total — a record that was verified.
+  plugBoard: (p) => <><rect x="11" y="13.5" width="26" height="21" rx="4.5" fill={p.fg} /><rect x="17.5" y="19" width="4" height="10" rx="1.6" fill={p.detail} /><rect x="24" y="19" width="4" height="10" rx="1.6" fill={p.detail} /><path d="M32.5 22.5v3" {...S} stroke={p.detail} strokeWidth="2.6" /><path d="M16 9.5v4M32 9.5v4" {...S} stroke={p.fg} strokeWidth="3" /></>,
+  broadcaster: (p) => <><circle cx="17" cy="31" r="4.2" fill={p.fg} /><path d="M22 14.5a13 13 0 0 1 0 19M26.5 10.5a19 19 0 0 1 0 27" {...S} stroke={p.fg} strokeWidth="3.6" /><path d="M11.5 31h4" {...S} stroke={p.detail} strokeWidth="2.8" /></>,
+  ledger: (p) => <><rect x="11.5" y="10.5" width="25" height="27" rx="3.5" fill={p.fg} /><path d="M17 17h14M17 22.5h14M17 28h8" {...S} stroke={p.detail} strokeWidth="2.4" /><path d="M27 30.5l2.6 2.6 4.4-5" {...S} stroke={p.detail} strokeWidth="2.8" /></>,
 };
 
 /** Module id → [palette, glyph]. Every id in the module registry must appear here (scripts/a11y-unit.mts). */
@@ -246,27 +254,20 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
-export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal" | "star" | "starFill" | "battery" | "timer"
-  // TT114: concept glyphs for Recall and the browser chrome. Each one is a plain geometric
-  // construction drawn here - a frame, a bracket, an arrow - chosen so the shape states the
-  // idea without a caption, which is what let the two modules drop another third of their words.
-  | "bytes" | "held" | "loaded" | "record" | "snapshot" | "queue" | "sidebar" | "tabstrip" | "splitH" | "splitV" | "tearout"
-  | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more" |
-  /* TT115 browser-chrome glyphs */
-  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download" |
-  /* TT116: the filter row, the device row and the retention control. Each is a
-     concept drawn as geometry - a funnel is narrowing, a calendar is a dated grid,
-     a broom is a swept edge - so the row can lose its captions without losing its
-     meaning. */
-  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link"
-  /* TT117: an archive manifest (a checked list), an alarm bell, a repeating cycle and rising bars */
-  | "manifest" | "alarm" | "repeat" | "stats"
-  /* TT123: crossed shuffle arrows, and a wrapped line turning back on itself */
-  | "shuffle" | "wrap" | "caret-up" | "caret-down"
-  /* TT124: an indented block (lines stepping right), and two frames for before/after */
-  | "indent" | "compare"
-  /* Empty-state illustrations: a note, zip, vault dial and an open calendar. */
-  | "emptyNote" | "emptyZip" | "emptyVault" | "emptyPlan";
+/**
+ * TT145: the chrome glyph names are plain data in `src/lib/ui-glyphs.ts` (mirroring
+ * `glyph-names` in icon-data.ts) so the accessibility suite can import the list without
+ * pulling JSX into Node. This alias keeps every existing `UiGlyphName` annotation valid.
+ */
+export type UiGlyphName = (typeof UI_GLYPH_NAMES)[number];
+export { UI_GLYPH_NAMES };
+/**
+ * The runtime list of chrome glyph names, for the coverage gate in `a11y-unit`.
+ * `UiGlyphName` is a type and erases, so without this a heading could name a glyph
+ * that has no drawing and nothing would fail. Kept beside the drawings so the two
+ * cannot drift far apart.
+ */
+
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     // Original compact empty-state drawings. The extra marks convey the
@@ -309,6 +310,22 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     indent: <><path d="M4 6h10M4 12h6M4 18h10" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M14 12h5M16.6 9.6 19 12l-2.4 2.4" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
     // TT124 compare: two overlapping frames — original behind, edit in front
     compare: <><rect x="4" y="4" width="11" height="11" rx="1.5" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="9" y="9" width="11" height="11" rx="1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT139 outline: a heading ladder — one short rule above three indented ones
+    outline: <><path d="M4 5h9" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M6 10h12M6 14.5h10M6 19h13" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
+    // TT139 diff: two columns, one pair offset — a changed line
+    diff: <><path d="M4 6h6M4 10.5h6M4 19h6" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M14 8.2h6M14 12.7h6M14 17.2h6" {...S} stroke="currentColor" strokeWidth="1.7" opacity=".55" /><path d="M14 6h6" {...S} stroke="currentColor" strokeWidth="2.4" /></>,
+    // TT139 units: a measure with arrows out of it to a second scale
+    units: <><path d="M3.5 14.5h5.5M3.5 14.5v-3M9 14.5v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12.5 9.5h5.5M18 9.5v-3M12.5 9.5v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8.5 12.5 15 6.5" {...S} stroke="currentColor" strokeWidth="1.6" strokeDasharray="2 2" /><path d="m13.4 6.5 1.8-.2-.2 1.8" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT139 keycap: a key with a chained pair of keys, i.e. a chord
+    keycap: <><rect x="2.5" y="8.5" width="9" height="7.5" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12.5 12h2.5" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="16" y="8.5" width="5.5" height="7.5" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT139 meridian: a globe with hands — a zone, not just a clock
+    meridian: <><circle cx="12" cy="12" r="8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 7.5V12l3 1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M4 12h1.6M18.4 12H20" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT139 ranked: results in descending bar length
+    ranked: <><path d="M4 6h13" {...S} stroke="currentColor" strokeWidth="2.4" /><path d="M4 11h9" {...S} stroke="currentColor" strokeWidth="2.2" opacity=".75" /><path d="M4 16h5" {...S} stroke="currentColor" strokeWidth="2" opacity=".55" /></>,
+    // TT139 deadkey: an accent floating above a letter, about to land
+    deadkey: <><path d="M8.5 6.5 12 3l3.5 3.5" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M5 20.5V10.5h6M5 15h5.5" {...S} stroke="currentColor" strokeWidth="1.9" /><circle cx="17.5" cy="15.5" r="2.6" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
+    // TT139 plural: one dot, then many — a count changing its word
+    plural: <><circle cx="5.5" cy="9" r="2.2" fill="currentColor" /><circle cx="14" cy="17.5" r="1.7" fill="currentColor" /><circle cx="18.5" cy="17.5" r="1.7" fill="currentColor" opacity=".7" /><circle cx="23" cy="17.5" r="1.7" fill="currentColor" opacity=".45" /><path d="M4 5h4" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT123 carets: a chevron stepping away from its baseline — match stepping
     "caret-up": <><path d="M6 14.5 12 8.5l6 6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 18.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
     "caret-down": <><path d="M6 9.5 12 15.5l6-6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 5.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
@@ -319,6 +336,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
     // verify a receipt: a seal with a tick inside it
     verify: <><path d="M12 3.5 19 6v6.2c0 3.9-2.7 7.1-7 8.3-4.3-1.2-7-4.4-7-8.3V6l7-2.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m8.8 12.2 2.2 2.2 4.2-4.6" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    claim: <><path d="M10 8.5H7.6A3.6 3.6 0 0 0 4 12.1v-.2a3.6 3.6 0 0 0 3.6 3.6H10" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M14 8.5h2.4A3.6 3.6 0 0 1 20 12.1v-.2a3.6 3.6 0 0 1-3.6 3.6H14" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.4 12h5.2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    tray: <><path d="M4.5 13h3.7l1.5 2.4h4.6l1.5-2.4h3.7" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.3 13V6.6A1.6 1.6 0 0 1 7.9 5h8.2a1.6 1.6 0 0 1 1.6 1.6V13" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.3 13v4.4A1.6 1.6 0 0 0 7.9 19h8.2a1.6 1.6 0 0 0 1.6-1.6V13" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 8v4m0 0-1.8-1.8M12 12l1.8-1.8" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    seal: <><rect x="4.2" y="4.2" width="15.6" height="15.6" rx="4.4" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="10.8" r="2.4" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 13.2v3.2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8.2 17.6h7.6" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".55" /></>,
+    lane: <><path d="M4 6.5h16M4 12h16M4 17.5h16" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="7.6" y="9.9" width="5.2" height="4.2" rx="1.4" fill="currentColor" /><path d="M16.4 9.9v4.2" {...S} stroke="currentColor" strokeWidth="2.2" opacity=".6" /></>,
+    budget: <><rect x="3.6" y="9.4" width="16.8" height="5.2" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.4 9.6v4.8M14.2 9.6v4.8" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".55" /><path d="M4.6 12h4" {...S} stroke="currentColor" strokeWidth="3" /></>,
+    bucket: <><path d="M6.6 5.4h10.8l-1.5 12.5a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M7.2 11.4h9.6" {...S} stroke="currentColor" strokeWidth="1.6" /><path d="M7.9 8.4h8.2" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".5" /></>,
     // copy: one sheet lifted off another
     copy: <><rect x="8.5" y="8.5" width="11" height="11" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M15.5 5.5H6a1.5 1.5 0 0 0-1.5 1.5v9.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // photos: a framed picture with a horizon and a sun
@@ -392,6 +415,11 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     battery: <><rect x="3" y="8" width="15" height="8" rx="2" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M21 11v2" {...S} stroke="currentColor" strokeWidth="1.9" /><rect x="5.5" y="10.5" width="6" height="3" rx="1" fill="currentColor" /></>,
     timer: <><circle cx="12" cy="13" r="7" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M12 9.5V13l2.5 1.5M9.5 3.5h5" {...S} stroke="currentColor" strokeWidth="1.9" /></>,
     terminal: <><rect x="3.5" y="5" width="17" height="14" rx="3" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M7.5 10l3 2.5-3 2.5M12.5 15.5h4" {...S} stroke="currentColor" strokeWidth="2.2" /></>,
+    // TT143 chrome marks. A chrome icon is 24×24 and inherits `currentColor`, so
+    // the same three concepts stay legible in the top bar, the palette and menus.
+    plugBoard: <><rect x="3.5" y="7" width="17" height="10" rx="2.6" {...S} stroke="currentColor" strokeWidth="2" /><rect x="7" y="9.5" width="2.4" height="5" rx="1" fill="currentColor" /><rect x="11" y="9.5" width="2.4" height="5" rx="1" fill="currentColor" /><path d="M16.5 11v2" {...S} stroke="currentColor" strokeWidth="2.2" /><path d="M8 4.5v2M16 4.5v2" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    broadcaster: <><circle cx="7" cy="17" r="2.6" fill="currentColor" /><path d="M11 8.5a8 8 0 0 1 0 11M15 5.5a12.5 12.5 0 0 1 0 17" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    ledger: <><rect x="4" y="3.5" width="16" height="17" rx="2.6" {...S} stroke="currentColor" strokeWidth="2" /><path d="M7.5 8h9M7.5 11.5h9M7.5 15h4.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M14 17.5l1.6 1.6 3-3.4" {...S} stroke="currentColor" strokeWidth="2" /></>,
   };
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ width: fz(size), height: fz(size), flex: "0 0 auto", display: "inline-block", verticalAlign: "middle" }}>{d[name]}</svg>;
 }

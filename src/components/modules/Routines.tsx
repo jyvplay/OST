@@ -10,6 +10,8 @@ import { Badge, Btn, Empty, Section } from "../ui";
 import { filterRoutines } from "@/lib/routine-filter";
 import { duplicateName } from "@/lib/routine-dup";
 import { askText } from "@/lib/ask";
+import { parseAutomationRequest, dryRun, issueToken, redeemToken } from "@/lib/automation-entry";
+import { RoutineGuardPanel } from "../tt145-panels";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
 interface Preset { id: string; name: string; windows: number; updatedAt: string }
@@ -29,6 +31,9 @@ export default function RoutinesModule(_: ModuleProps) {
   const [trigger, setTrigger] = useState("manual");
   const [arg, setArg] = useState("");
   const [dry, setDry] = useState<string[] | null>(null);
+  const [reqText, setReqText] = useState('{ "routineId": "morning", "args": {} }');
+  const [reqOut, setReqOut] = useState<string[]>([]);
+  const [token, setToken] = useState<{ value: string; routineId: string; expiresAt: number; used: boolean } | null>(null);
   const [err, setErr] = useState("");
 
   const load = useCallback(() => Promise.all([
@@ -91,6 +96,38 @@ export default function RoutinesModule(_: ModuleProps) {
         {parseErr ? <Badge tone="bad">{parseErr}</Badge> : <Badge tone="ok">{parsed.length} valid actions</Badge>}
         {err ? <Badge tone="bad">{err}</Badge> : null}
         {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }}>{`Dry run — nothing executed:\n${dry.join("\n")}`}</pre> : null}
+      </Section>
+
+      <RoutineGuardPanel />
+
+      <Section title="Automation entry (AU-03)" icon="keycap">
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>A request names a routine and typed arguments — never a step list. It is planned first, and only a planned request may run.</div>
+        <textarea className="fs-input fs-mono" rows={3} value={reqText} aria-label="Automation request JSON" data-testid="routines-request" onChange={(e) => setReqText(e.target.value)} style={{ resize: "vertical", fontSize: fz(11) }} />
+        <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+          <Btn variant="primary" data-testid="routines-validate" onClick={() => {
+            const parsedReq = parseAutomationRequest((() => { try { return JSON.parse(reqText); } catch { return null; } })());
+            if (!parsedReq.ok) { setReqOut([`refused: ${parsedReq.error}`]); return; }
+            const target = rows.find((r) => r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === parsedReq.request.routineId) ?? rows.find((r) => String(r.id) === parsedReq.request.routineId);
+            if (!target) { setReqOut([`refused: no routine named “${parsedReq.request.routineId}”`]); return; }
+            const schema: Record<string, { args: string[]; mutates: boolean; required?: string[] }> = {};
+            // Every routine command is a shell command taking one optional arg;
+            // `open` and `alert` need it, and every command changes shell state.
+            for (const cmd of ROUTINE_COMMANDS) {
+              const needsArg = cmd === "open" || cmd === "alert" || cmd === "workspace" || cmd === "preset";
+              schema[cmd] = { args: ["arg"], mutates: true, required: needsArg ? ["arg"] : [] };
+            }
+            const plan = dryRun({ id: target.name, name: target.name, trigger: "manual", enabled: target.enabled, actions: target.actions.map((a) => ({ command: a.cmd, args: a.arg ? { arg: a.arg } : {} })) }, schema);
+            const tokenCheck = parsedReq.request.origin && parsedReq.request.origin !== location.origin ? redeemToken(token ?? undefined, parsedReq.request.routineId, Date.now()) : { ok: true, error: null };
+            setReqOut([
+              plan.executable && tokenCheck.ok ? `executable: ${plan.steps.length} step(s)` : `refused: ${[...plan.problems, tokenCheck.error ?? ""].filter(Boolean).join("; ")}`,
+              ...plan.steps.map((st) => `${st.index + 1}. ${st.describe}${st.wouldChange.length ? " · writes" : ""}`),
+            ]);
+          }}>Plan</Btn>
+          <Btn variant="ghost" disabled={!token} onClick={() => setToken(null)}>Clear token</Btn>
+          <Btn variant="ghost" disabled={!rows.length} data-testid="routines-token" onClick={() => { const first = rows[0]; const t = issueToken(first.name, Date.now(), 60_000); setToken(t); setReqOut([`token issued for “${first.name}”, valid one minute, single use`]); }}>Issue token</Btn>
+        </div>
+        {token ? <div className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="routines-token-value">{token.value.slice(0, 8)}… · expires {new Date(token.expiresAt).toLocaleTimeString()}</div> : null}
+        {reqOut.map((line, i) => <div key={i} className={i === 0 ? "fs-mono" : "fs-dim"} style={{ fontSize: fz(11) }}>{line}</div>)}
       </Section>
 
       <Section title="Routines">

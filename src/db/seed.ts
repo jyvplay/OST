@@ -1,7 +1,9 @@
 import { searchIndexText } from "@/lib/search-index-text";
 import { tt135Features } from "./seed-data/features-tt135";
+import { tt139Features, patchTT139 } from "./seed-data/features-tt139";
+import { patchTT143 } from "./seed-data/features-tt143";
+import { patchTT145 } from "./seed-data/features-tt145";
 import { patchTT137 } from "./seed-data/features-tt137";
-import { patchTT139 } from "./seed-data/features-tt139";
 import { patchTT141 } from "./seed-data/features-tt141";
 import type { SpecRow } from "./seed-data/row";
 import { tt134Features } from "./seed-data/features-tt134";
@@ -126,13 +128,22 @@ import { tt125Features } from "./seed-data/features-tt125";
 import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.98.0";
+export const SEED_VERSION = "3.101.1";
+
+/**
+ * Orderings used when a code appears twice in the seed. Lower is a stronger claim;
+ * a merge takes the *higher* number, so a duplicate can only ever weaken a row.
+ * `built` outranks `partial` outranks `probe` outranks `skeleton` outranks `blocked`
+ * in strength, which is the reverse of this list on purpose.
+ */
+export const STRICTER_STATUS: Record<SpecRow["status"], number> = { built: 0, partial: 1, probe: 2, skeleton: 3, blocked: 4 };
+export const STRICTER_TIER: Record<SpecRow["tier"], number> = { A: 0, "A/B": 1, B: 2, C: 3, X: 4 };
 
 /** Codes withdrawn after shipping: the seeder deletes them on every boot so a
  * replaced feature can never linger in the register as if it were news. */
 export const RETIRED_FEATURE_CODES = ["FM-20"]; // TT125: Files already had a collision-free New folder flow; slot reassigned to ED-10
 
-export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt139Features, ...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => patchTT137(f))
@@ -192,15 +203,50 @@ export const allFeatures = [...tt135Features, ...tt134Features, ...tt133Features
   .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f))
   // TT116 is applied last: this turn's measurements supersede every earlier map.
   .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f))
-  // TT139 must be the very last patch map: TT75/TT117/TT132 and the UPDATES_*
-  // tables all write status for codes this turn promoted, and a status written
-  // before them is silently reverted. Verified by reading the applied result,
-  // not by reading the source order.
-  // The UPDATES_* tables type `status` as string, so the spread widens SpecRow's
-  // Status union; a final assertion restores it. The alternative was editing
-  // twenty legacy tables, which is more churn for the same result.
+  // Both TT139 generations run here, then TT141, then TT143.
+  //
+  // Order is load-bearing in three ways and each was verified by reading the
+  // resulting register, not the source: (1) the UPDATES_* tables all write
+  // `status` for codes these turns promoted, so any one of them placed after a
+  // promotion silently reverts it; (2) main's TT139 and this branch's TT139 cover
+  // different codes, so `patchTT139` is itself a union of a switch and a table;
+  // (3) TT143 must be the very last mapper, because a later slot would undo the
+  // twenty rows this turn's engines actually back.
   .map((f) => patchTT139(f as SpecRow))
-  .map((f) => patchTT141(f)) as SpecRow[];
+  .map((f) => patchTT141(f))
+  .map((f) => patchTT143(f as unknown as Parameters<typeof patchTT143>[0]))
+  // TT145 last, for the same reason as every mapper above it: a status written
+  // before a later per-turn patch is silently reverted.
+  .map((f) => patchTT145(f as unknown as Parameters<typeof patchTT145>[0]))
+  /**
+   * One row per code, and a duplicate may never *raise* a claim.
+   *
+   * There were 21 codes present twice (a TT139 addition landing beside its
+   * original). The database keys on `code`, so the second copy silently overwrote
+   * the first and 688 seed rows became 667 table rows. What that overwrite *did* was
+   * checked rather than assumed: the duplicate pairs' own seed data disagreed — most
+   * of them at tier A in one copy and C in the other, and SC-06 graded X in one
+   * (screen-capture exclusion for a window is something a page cannot do) — but the
+   * per-turn patch maps below run by code, so both copies received the same grade and
+   * the persisted result agreed. The 21 pairs therefore cost 21 rows of provenance,
+   * not 21 wrong grades, and this comment says that rather than the scarier thing it
+   * first claimed.
+   *
+   * The merge is still written to take the **stricter** status and tier of the pair,
+   * because the ordering must not be able to promote: a downgrade is a correction made
+   * with later knowledge, an upgrade is a claim that needs evidence, and a duplicate is
+   * not evidence. `scripts/tt145-register.mts` asserts the merge direction and that the
+   * merged array is one row per code.
+   */
+  .reduce<SpecRow[]>((rows, f) => {
+    const at = rows.findIndex((r) => r.code === f.code);
+    if (at === -1) { rows.push(f); return rows; }
+    const keep = rows[at];
+    const status = STRICTER_STATUS[keep.status] <= STRICTER_STATUS[f.status] ? keep.status : f.status;
+    const tier = STRICTER_TIER[keep.tier] <= STRICTER_TIER[f.tier] ? keep.tier : f.tier;
+    rows[at] = status === keep.status && tier === keep.tier ? keep : { ...keep, status, tier };
+    return rows;
+  }, []) as SpecRow[];
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },
