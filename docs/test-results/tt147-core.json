@@ -1,6 +1,6 @@
 {
   "suite": "tt147-core",
-  "at": "2026-11-07T05:27:14.657Z",
+  "at": "2026-11-07T09:11:54.115Z",
   "results": [
     {
       "suite": "tt147-core",
@@ -9,7 +9,7 @@
         "ST-02": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 8
     },
     {
       "suite": "tt147-core",
@@ -23,7 +23,7 @@
       "name": "ST-02 search: label beats keyword, every returned entry is usable, and a miss returns nothing",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt147-core",
@@ -39,7 +39,7 @@
       "name": "HW-04 WebNN: an NPU is claimed only when a context was really created",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -48,7 +48,7 @@
         "HW-07": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -64,7 +64,7 @@
         "WM-16": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -80,7 +80,7 @@
         "PR-07o": "full"
       },
       "pass": true,
-      "ms": 7
+      "ms": 32
     }
   ]
 }

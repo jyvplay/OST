@@ -1,0 +1,60 @@
+{
+  "suite": "tt149-calc",
+  "at": "2026-11-07T09:39:36.073Z",
+  "results": [
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 scientific functions agree with libm across the grid",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 integer-valued scientific expressions are exact, not merely close",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 unit conversions match exact rational definitions",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 programmer mode matches Python integers over 400 pairs and four word widths",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 refusals: eight impossible inputs are refused instead of answered with NaN",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt149-calc",
+      "name": "PR-09 the oracle fixture is the artefact this suite claims (and it says who made it)",
+      "covers": {
+        "PR-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

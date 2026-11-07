@@ -149,7 +149,7 @@ export default function ClockModule(_: ModuleProps) {
             const value: Alarm = { id, label: alarmLabel, time: alarmTime, days: alarmDays, enabled: editingAlarm?.enabled ?? true, snoozeMin: Number(alarmSnooze) };
             changeAlarms((previous) => {
               if (!editingAlarm) return [...previous, value];
-              if (JSON.stringify(previous.find((a) => a.id === id)) !== JSON.stringify(editingAlarm)) throw new Error("This alarm changed in another window. Cancel and reopen the editor.");
+              if (JSON.stringify(previous.find((a) => a.id === id)) !== JSON.stringify(editingAlarm)) throw new Error("Changed elsewhere — reopen the editor.");
               return previous.map((a) => a.id === id ? value : a);
             });
             resetAlarmEditor();
@@ -184,7 +184,7 @@ export default function ClockModule(_: ModuleProps) {
               <Btn variant="ghost" onClick={() => { changeAlarms((l) => l.filter((x) => x.id !== a.id)); if (editingAlarm?.id === a.id) resetAlarmEditor(); }}>Remove<span className="sr-only"> alarm {a.label || a.time}</span></Btn>
             </span>
           </div> ); })}
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>No days selected = daily. Closing Clock is safe; frozen or closed pages may miss alarms.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>No days = daily. A closed page can miss alarms.</div>
       </Section>
 
       <Section title="Wall time checker" icon="meridian">
@@ -192,7 +192,7 @@ export default function ClockModule(_: ModuleProps) {
       </Section>
 
       <Section title="Meeting overlap">
-        <div className="fs-dim" style={{ fontSize: fz(11) }}>Hours when 09:00–17:00 overlaps in all three cities today (real zone offsets, so DST weeks are exact):</div>
+        <div className="fs-dim" style={{ fontSize: fz(11) }}>09:00–17:00 overlap today (real DST offsets):</div>
         {(() => { const runs = (() => { try { return commonWindows([{ zone: "America/New_York", startHour: 9, endHour: 17 }, { zone: "Europe/London", startHour: 9, endHour: 17 }, { zone: "Asia/Tokyo", startHour: 9, endHour: 17 }]); } catch { return []; } })();
           return runs.length ? runs.map((r, i) => <Badge key={i} tone="info">{new Date(r.startUtc).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}–{new Date(r.endUtc).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} here · {r.minutes} min</Badge>) : <Badge tone="warn">no common working hour today</Badge>;
         })()}

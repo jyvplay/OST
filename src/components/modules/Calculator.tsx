@@ -100,7 +100,7 @@ export default function CalculatorModule(_: ModuleProps) {
       setHistory((items) => mergeSaved(items, saved));
       window.dispatchEvent(new Event(HISTORY_EVENT));
       setStatus("Calculation saved in this browser's local storage.");
-    }).catch(() => setStatus("Could not confirm browser-history storage; the calculation remains in this window and might already have been stored."));
+    }).catch(() => setStatus("Could not confirm storage; it stays in this window and may already be saved."));
   };
 
   const toggleKeep = () => {
@@ -110,7 +110,7 @@ export default function CalculatorModule(_: ModuleProps) {
       // Do not enable persistence on top of malformed saved data.
       if (next) readCalculatorHistory(window.localStorage);
       window.localStorage.setItem(CALC_HISTORY_KEEP, next ? "1" : "0");
-    }).then(() => { setKeep(next); window.dispatchEvent(new Event(HISTORY_EVENT)); setStatus(next ? "Future calculations will be saved locally, unencrypted." : "New calculations will stay in this window; older saved history remains until deleted."); })
+    }).then(() => { setKeep(next); window.dispatchEvent(new Event(HISTORY_EVENT)); setStatus(next ? "Future calculations will be saved locally, unencrypted." : "New ones stay here; older saved history remains until deleted."); })
       .catch(() => setStatus("Could not change browser-history storage; the previous preference is unchanged."));
   };
   const clearHistory = () => {
@@ -187,9 +187,9 @@ export default function CalculatorModule(_: ModuleProps) {
       {status ? <div role="status" style={{ fontSize: fz(10.5) }}>{status}</div> : null}
       <div className="fs-dim" style={{ fontSize: fz(10.5) }}>
         {mode === "programmer"
-          ? "Fixed-width wrapping integers; ^ means XOR. Signed division truncates toward zero; signed right shift extends the sign. Shift counts are word-sized and, after wrapping, must be nonnegative and smaller than the word size."
-          : "Scientific mode and the palette share a no-eval Number parser. Non-integer results are rounded to 12 significant digits; integers use JavaScript's Number representation."}
-        {" "}History starts in memory. Optional browser history is unencrypted, local to this browser and not in global Search or backups; amnesic sessions never save it.
+          ? "Fixed-width wrapping integers; ^ is XOR. Signed division truncates toward zero, signed shift extends the sign; shift counts wrap to the word size."
+          : "Scientific mode shares a no-eval parser: results round to 12 significant digits."}
+        {" "}History starts in memory. Browser history is unencrypted, local, not in Search or backups; amnesic sessions never save it.
       </div>
       <DimensionConverter />
       <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6 }}>

@@ -37,10 +37,33 @@ const dupes = [...by.entries()].filter(([, rows]) => rows.length > 1);
 const rows = [...by.values()].reduce((n, v) => n + v.length, 0);
 console.log(JSON.stringify({ suite: "tt141-seed-unique", codes: by.size, rows, duplicateCodes: dupes.length }, null, 0));
 
-if (dupes.length) {
-  console.log(`\nFAILED: ${dupes.length} feature code(s) are defined more than once.`);
-  console.log("The seeder upserts on code, so the later definition silently replaces the");
-  console.log("earlier one: that feature is never stored, and it inherits the other row's tests.");
+/**
+ * TT149: the file-level count is a *pinned* number, not zero, and the pinned
+ * layer is the one that matters for storage.
+ *
+ * TT145 added a dedupe step to `allFeatures` (a duplicate may never raise a
+ * claim), so today 44 codes are written twice across files and 44 rows are lost
+ * as provenance — the database still receives exactly one row per code. This
+ * check used to fail on that, which made a true statement ("the register has
+ * duplicates") into a red suite that could only be silenced by deleting real
+ * rows. So it now asserts both invariants separately:
+ *   1. the array the seeder iterates has one row per code (hard failure);
+ *   2. the file-level duplicate count does not grow (hard failure), and names
+ *      the pairs so the next turn can retire them one at a time.
+ */
+const { allFeatures } = await import("../src/db/seed.ts");
+const seen = new Map<string, number>();
+for (const row of allFeatures) seen.set(row.code, (seen.get(row.code) ?? 0) + 1);
+const arrayDupes = [...seen.entries()].filter(([, n]) => n > 1);
+if (arrayDupes.length) {
+  console.log(`\nFAILED: allFeatures carries ${arrayDupes.length} duplicated code(s) — the seeder would write one row and lose the other: ${arrayDupes.slice(0, 10).map(([c]) => c).join(", ")}`);
+  process.exit(1);
+}
+
+const PINNED_DUPLICATE_CODES = 44; // TT149 measurement on this tree; TT145's dedupe makes them provenance-only
+if (dupes.length > PINNED_DUPLICATE_CODES) {
+  console.log(`\nFAILED: ${dupes.length} feature code(s) are defined more than once (pinned at ${PINNED_DUPLICATE_CODES}).`);
+  console.log("A new duplicate is a new lost row: the seeder writes one and the other's tests are inherited.");
   for (const [code, list] of dupes) {
     console.log(`  ${code}:`);
     for (const r of list) console.log(`    - ${r.file} [${r.family}]`);
@@ -48,3 +71,4 @@ if (dupes.length) {
   process.exit(1);
 }
 console.log(`\n${by.size} passed, 0 failed`);
+console.log(`  file-level duplicates: ${dupes.length} of a pinned ${PINNED_DUPLICATE_CODES} (array carries one row per code, so none reach the database twice)`);

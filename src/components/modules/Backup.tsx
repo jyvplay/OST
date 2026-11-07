@@ -402,10 +402,9 @@ export default function BackupModule(_: ModuleProps) {
           {!healthStorage ? <div>Local status is unavailable or session-only; reminders may not survive closing this tab.</div> : null}
         </div>
         <p className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          Select a previously saved backup, using the decryption controls above. The complete bundle is checked, then a limited sample is
-          actually restored and read back in temporary PostgreSQL tables. The transaction is rolled back; your live files and settings are not replaced.
-          The decrypted bundle goes to this Fusion server; PostgreSQL temporary tables and indexes may put plaintext on its disk, and rollback is not secure erasure.
-          This does not test Private-volume unlocking, other devices or the continued health of the saved copy.
+          Choose a saved backup. The whole bundle is checked, then a sample is restored and read back in temporary PostgreSQL tables and rolled
+          back — live files are not replaced. Plaintext may reach this server's disk; rollback is not erasure. Private-volume unlock, other devices
+          and the saved copy's health are not tested.
         </p>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" disabled={busy} onClick={() => drillInput.current?.click()}>Choose backup to drill…</Btn>
@@ -418,19 +417,18 @@ export default function BackupModule(_: ModuleProps) {
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void runDrill(f); }} />
         {drillReport ? <div role="status" data-testid="backup-drill-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{drillReport}</div> : null}
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          The reminder is shown only when this Backup window is open; it is not an automatic monthly job or notification. Status is kept on this browser
-          without file names, contents or secrets. A pass describes only the selected copy and sampled restore at that time, not all backups.
+          The reminder shows only while this window is open — no monthly job, no notification. Status stays in this browser without names,
+          contents or secrets, and describes only the selected copy.
         </div>
       </Section>
 
       <Section title="Scope and key custody">
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          Config bundles contain editable settings only. Data bundles contain current, non-trashed Fusion files, folders and notes;
-          they do not include tasks, contacts, file history, trash, or every app database. This is not an incremental timeline or an automatic scheduled restore drill.
-          Plain backups are readable and their SHA-256 checksum detects corruption but does not authenticate the source.
-          Encrypted downloads use PBKDF2-SHA256 (600,000 iterations) and authenticated AES-GCM. The passphrase and optional recovery key stay in this browser;
-          decrypted contents are sent to this Fusion server when restoring. Passphrase-only downloads have no separate recovery key. There is no escrow;
-          for a recovery-key download either secret can decrypt it, and losing both makes it unreadable.
+          Config bundles carry editable settings; data bundles carry current, non-trashed files, folders and notes — not tasks, contacts,
+          history, trash or every app database. Not an incremental timeline, not a scheduled drill. Plain backups are readable; SHA-256 detects
+          corruption, it does not authenticate the source. Encrypted downloads use PBKDF2-SHA256 (600,000 iterations) and AES-GCM. Secrets stay in
+          this browser; decrypted contents go to this server when restoring. No escrow: with a recovery key either secret decrypts, and losing both
+          makes it unreadable.
         </div>
       </Section>
     </div>
