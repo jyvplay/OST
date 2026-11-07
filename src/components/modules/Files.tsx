@@ -17,6 +17,7 @@ import { useShell } from "../shell-context";
 import { UiGlyph } from "../AppIcon";
 import FilesPane from "./FilesPane";
 import TerminalModule from "./Terminal";
+import { TrashPanel, DropPanel, VolumePanel } from "../tt145-panels";
 
 interface Tab { id: string; start: string; trash: boolean }
 const MAX_TABS = 8;
@@ -117,6 +118,17 @@ export default function FilesModule({ win }: ModuleProps) {
             </div>
           ) : null}
         </div>
+        {!term ? (
+          // A fixed-height strip, not a squeezed one: the three panels measure the trash
+          // policy, the drop handshake and the volume quota, and all three were being cut
+          // off mid-sentence when the strip took whatever height was left.
+          <section aria-label="Files mechanics" data-testid="files-mechanics"
+            style={{ flex: "0 0 auto", maxHeight: "38%", overflowY: "auto", borderTop: "1px solid var(--fs-border)", padding: 8, display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", alignContent: "start" }}>
+            <TrashPanel />
+            <DropPanel />
+            <VolumePanel />
+          </section>
+        ) : null}
         {term ? (
           <section aria-label={`Terminal in ${activeCwd}`} data-testid="files-terminal" style={{ flex: "1 1 38%", minHeight: fz(140), borderTop: "1px solid var(--fs-border)", display: "flex", flexDirection: "column" }}>
             <TerminalModule win={termWin} />

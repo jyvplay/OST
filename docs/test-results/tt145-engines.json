@@ -1,0 +1,204 @@
+{
+  "suite": "tt145-engines",
+  "at": "2026-11-07T05:39:43.525Z",
+  "results": [
+    {
+      "suite": "tt145-engines",
+      "name": "HW-08 vault: AES-GCM round-trips, a swapped record fails the AAD, a retired key cannot seal, and backing is never called 'hardware'",
+      "covers": {
+        "HW-08": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "SH-10 blackout: a flat single layer draws 1 fps instead of 60, every other fill is refused with a reason, and touches coalesce no faster than the display",
+      "covers": {
+        "SH-10": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "BL-02 entitlement: a signed grant opens offline, tampering/rollback/expiry each refuse with their own verdict, and a stale refresh cannot shorten a grant",
+      "covers": {
+        "BL-02": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "PR-01 journal: a no-op save creates no revision, a second writer forks a conflict instead of overwriting, a pending save survives a crash, and body compression never drops the last distinct version",
+      "covers": {
+        "PR-01": "full"
+      },
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "PR-07p filter: a suffix rule cannot swallow a look-alike host, allow beats block at equal specificity, embeds are scoped separately, and malformed rules are reported not dropped",
+      "covers": {
+        "PR-07p": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "FM-14 drop: a real download wins, a browser without DownloadURL gets an explicit button, a hidden tab and a 51-file drop are refused, and a file drop never pretends to carry text",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "ST-03 handlers: two %s placeholders are refused, a scheme outside web+ needs to be browser-known, a resolved call is only 'offered', and no state ever prints 'default'",
+      "covers": {
+        "ST-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "IN-04 chords: a bare printable key and an OS-reserved chord are refused, a held chord latches and advances, Escape cancels, and focus loss cannot leave a modifier stuck",
+      "covers": {
+        "IN-04": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "HW-05 audio: a convolver overruns an interactive budget and is refused, a suspended context reports nothing measured, drift beyond a quantum is a failure, and 44.1→48 kHz is exact enough",
+      "covers": {
+        "HW-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "RC-15 exclusions: a bank host stops a capture, query tokens are redacted in the address, and redaction is closed under concatenation so a split token is still caught",
+      "covers": {
+        "RC-15": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "FM-08 volumes: an unplugged directory reads as partial, not empty; a lapsed grant is listed but marked; a snapshot is read-only; a quota is never called free disk",
+      "covers": {
+        "FM-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed",
+      "covers": {
+        "HW-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "CK-01 alarms: a weekly alarm with no days is refused, a closed window reports every missed occurrence, a backwards clock fires nothing, and a snooze cannot skip the next occurrence",
+      "covers": {
+        "CK-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "BK-05 health: a future-dated archive and an unknown status are unhealthy, a zero-file drill is vacuous, and the sampler is deterministic but spreads across the manifest",
+      "covers": {
+        "BK-05": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "BK-01 timeline: a broken ancestor chain fails verification, an edited manifest fails its root, and compaction keeps every ancestor of a retained snapshot",
+      "covers": {
+        "BK-01": "full"
+      },
+      "pass": true,
+      "ms": 6
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "FM-11 trash: the sweep never empties the only copy of a digest, a re-trashed item gets double the window, a taken origin restores beside it, and the summary reports bytes still on the volume",
+      "covers": {
+        "FM-11": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "WM-11 PiP: a request outside the usable range clamps to the content aspect, an oversized stylesheet clone is refused, an empty adoption produces nothing, and a hidden tab closes the window instead of keeping it",
+      "covers": {
+        "WM-11": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "SM-07 Amazon Music: all twelve storefronts resolve with their own marketplace id, affiliate and utm parameters never survive, and a non-Amazon host is refused rather than guessed",
+      "covers": {
+        "SM-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "RG-02 budget: user-blocking slices are admitted before background ones, a non-resumable slice that does not fit is deferred whole, an overrun changes the next estimate, and an absent isInputPending is labelled a downgrade",
+      "covers": {
+        "RG-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "WM-06 broker: a blocking origin is probed once then remembered, silence is treated as blocked, a handoff is chosen for a running app, and only S1/S2/S3 claim to bring the other app in",
+      "covers": {
+        "WM-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "CT-03 handoff: only a connected same-origin channel is called live, a fragment is a link the user carries, an over-budget fragment is impossible rather than truncated, and a fragment can never be presented as live",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt145-engines",
+      "name": "AU-01 routines: an action outside the closed vocabulary is refused at construction, a rehearsal and a run produce the same plan but only one is executable, and their audit entries differ",
+      "covers": {
+        "AU-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

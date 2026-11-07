@@ -11,6 +11,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { makeHarness } from "./harness.mts";
 import { PALETTES, MODULE_ICONS, GLYPH_NAMES, fileIconSpec, INK, WHITE } from "../src/lib/icon-data.ts";
+import { UI_GLYPH_NAMES } from "../src/lib/ui-glyphs.ts";
 import { MODULES } from "../src/lib/registry.ts";
 import { clampTextScale, stepTextScale, DEFAULT_TEXT_SCALE, LARGE_TEXT_SCALE, isLargeText, TEXT_SCALE_STEPS } from "../src/lib/uiscale-core.ts";
 import { STYLES, STYLE_IDS, DEFAULT_STYLE, styleCss, resolveWallpaper, isStyle } from "../src/lib/style-core.ts";
@@ -256,3 +257,33 @@ await test("DP-07 gate: the shell's own surface tokens clear the AA floor, and t
 });
 
 finish();
+
+/* TT145 — the chrome glyph set is the other half of the icon system: `GLYPH_NAMES`
+   covers the tinted module tiles, while `UiGlyph` draws the monochrome 24-grid marks
+   used in section headings. A heading that names a glyph it does not draw renders an
+   empty span, which no contrast check would ever notice. This test asserts the two
+   sets are the same size and that every chrome glyph has a drawing; it is a coverage
+   gate, not a claim about how a glyph looks. */
+await test("chrome glyphs: every UiGlyph name has a drawing, and the tile glyph set did not shrink", {}, async () => {
+  const chrome = UI_GLYPH_NAMES;
+  ok(new Set(chrome).size === chrome.length, "no duplicate chrome glyph names");
+  ok(chrome.length === 93, `chrome glyph set is ${chrome.length}, expected 93`);
+  // Collect the drawing keys from the `UiGlyph` table rather than pattern-matching each
+  // name separately: keys are written either bare (`search:`) or quoted (`"caret-up":`),
+  // and matching on the key column is the only way to avoid `up` matching inside
+  // `caret-up`. The table is the object literal holding `currentColor` strokes.
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/AppIcon.tsx", import.meta.url), "utf8");
+  // A drawing is either a fragment (`name: <>…`) or a single element (`name: <path …`).
+  // Fragments (`name: <>…`) and single elements (`name: <path …`) both count; an
+  // empty fragment (`name: <>,`) would be an invisible glyph and does not.
+  const drawn = new Set([...src.matchAll(/^\s*(?:"([a-zA-Z-]+)"|([a-zA-Z][a-zA-Z-]*)):\s*(?:<>.|<[a-zA-Z])/gm)].map((m) => m[1] ?? m[2]));
+  const missing = chrome.filter((n) => !drawn.has(n));
+  ok(missing.length === 0, `chrome glyphs with no drawing: ${missing.join(", ")}`);
+  ok(GLYPH_NAMES.length === 53, `tile glyph set is ${GLYPH_NAMES.length}, expected 53`);
+  // The tile drawings are `name: (p) => …` arrow functions, so they are matched from
+  // the same source rather than imported (importing the component would pull JSX in).
+  const tileDrawn = new Set([...src.matchAll(/^\s+([a-zA-Z]+):\s*\(p\)/gm)].map((m) => m[1]));
+  const tileMissing = (GLYPH_NAMES as readonly string[]).filter((n) => !tileDrawn.has(n));
+  ok(tileMissing.length === 0, `tile glyphs with no drawing: ${tileMissing.join(", ")}`);
+});

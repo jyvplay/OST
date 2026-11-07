@@ -17,6 +17,11 @@ import { inventory } from "@/lib/background-mechanisms";
 import { planRoute } from "@/lib/audio-route";
 import { planCast } from "@/lib/stream-plan";
 import { runSuite, benchmark, totals, describeOutcome, describeBenchmark } from "@/lib/stats/headless";
+import {
+  BlackoutPanel, EntitlementPanel, FilterPanel, ExclusionPanel, DropPanel, VolumePanel, CodecPanel,
+  AudioBudgetPanel, AlarmPanel, BackupEvidencePanel, TrashPanel, WindowMechanicsPanel, LanePanel,
+  FrameBudgetPanel, HandoffClaimPanel, UpscalePanel,
+} from "../tt145-panels";
 
 interface Job { id: number; op: string; src: string; dst: string; state: string; error: string; updatedAt: string }
 interface LogRow { id: number; actor: string; action: string; detail: string; createdAt: string }
@@ -138,6 +143,27 @@ export default function MonitorModule(_: ModuleProps) {
       <MeasuredNetworkSection />
       <EngineFeaturesSection />
       <TT143Section />
+      <Section title="Platform mechanics (TT145)">
+        <div className="fs-dim" style={{ fontSize: fz(10.5) }} data-testid="tt145-intro">
+          Twenty mechanisms, each with its own refusal. Every sentence below comes from the engine that made the decision.
+        </div>
+      </Section>
+      <FrameBudgetPanel />
+      <HandoffClaimPanel />
+      <BlackoutPanel />
+      <WindowMechanicsPanel />
+      <LanePanel />
+      <AudioBudgetPanel />
+      <CodecPanel />
+      <VolumePanel />
+      <DropPanel />
+      <FilterPanel />
+      <ExclusionPanel />
+      <EntitlementPanel />
+      <BackupEvidencePanel />
+      <TrashPanel />
+      <AlarmPanel />
+      <UpscalePanel />
       <SchedulerSection />
       <TestsFasterSection />
 

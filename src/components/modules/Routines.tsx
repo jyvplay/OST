@@ -11,6 +11,7 @@ import { filterRoutines } from "@/lib/routine-filter";
 import { duplicateName } from "@/lib/routine-dup";
 import { askText } from "@/lib/ask";
 import { parseAutomationRequest, dryRun, issueToken, redeemToken } from "@/lib/automation-entry";
+import { RoutineGuardPanel } from "../tt145-panels";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
 interface Preset { id: string; name: string; windows: number; updatedAt: string }
@@ -96,6 +97,8 @@ export default function RoutinesModule(_: ModuleProps) {
         {err ? <Badge tone="bad">{err}</Badge> : null}
         {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }}>{`Dry run — nothing executed:\n${dry.join("\n")}`}</pre> : null}
       </Section>
+
+      <RoutineGuardPanel />
 
       <Section title="Automation entry (AU-03)" icon="keycap">
         <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>A request names a routine and typed arguments — never a step list. It is planned first, and only a planned request may run.</div>

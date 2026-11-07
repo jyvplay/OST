@@ -9,6 +9,7 @@ import { cleanVfsFile, type CleanFileResult } from "@/lib/privacy/cleanfile";
 import { useShell, type ModuleProps } from "../shell-context";
 import { Badge, Btn, KV, Section, Tabs, Toggle } from "../ui";
 import { AccessLogPanel } from "./AccessLog";
+import { ExclusionPanel, FilterPanel, EntitlementPanel } from "../tt145-panels";
 
 type Tab = "storage" | "amnesia" | "metadata" | "check" | "access";
 type Audit = Awaited<ReturnType<typeof privacy.audit>>;

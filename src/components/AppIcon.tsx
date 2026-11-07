@@ -13,6 +13,7 @@ import { useId, type ReactNode } from "react";
 import { fz } from "@/lib/uiscale";
 
 import { MODULE_ICONS, fileIconSpec, type Palette, type PaletteName, type GlyphName } from "@/lib/icon-data";
+import { UI_GLYPH_NAMES } from "@/lib/ui-glyphs";
 import { STYLES, paletteFor, type Finish, type StyleId } from "@/lib/style-core";
 import { useStyleId } from "@/lib/style";
 export { INK, WHITE, PALETTES, MODULE_ICONS, fileIconSpec } from "@/lib/icon-data";
@@ -253,30 +254,20 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
-export type UiGlyphName = "search" | "overview" | "contrast" | "sliders" | "close" | "plus" | "spark" | "tileLeft" | "tileRight" | "popout" | "minimize" | "maximize" | "up" | "back" | "forward" | "chevron" | "tree" | "split" | "terminal" | "star" | "starFill" | "battery" | "timer" | "plugBoard" | "broadcaster" | "ledger"
-  // TT114: concept glyphs for Recall and the browser chrome. Each one is a plain geometric
-  // construction drawn here - a frame, a bracket, an arrow - chosen so the shape states the
-  // idea without a caption, which is what let the two modules drop another third of their words.
-  | "bytes" | "held" | "loaded" | "record" | "snapshot" | "queue" | "sidebar" | "tabstrip" | "splitH" | "splitV" | "tearout"
-  | "verify" | "copy" | "photos" | "folder" | "trash" | "export" | "crop" | "eraser" | "undo" | "refresh" | "clipin" | "more" |
-  /* TT115 browser-chrome glyphs */
-  "sleep" | "shield" | "cookie" | "closeset" | "auto" | "download" |
-  /* TT116: the filter row, the device row and the retention control. Each is a
-     concept drawn as geometry - a funnel is narrowing, a calendar is a dated grid,
-     a broom is a swept edge - so the row can lose its captions without losing its
-     meaning. */
-  "method" | "host" | "calendar" | "scope" | "device" | "dedupe" | "broom" | "gauge" | "session" | "link"
-  /* TT117: an archive manifest (a checked list), an alarm bell, a repeating cycle and rising bars */
-  | "manifest" | "alarm" | "repeat" | "stats"
-  /* TT123: crossed shuffle arrows, and a wrapped line turning back on itself */
-  | "shuffle" | "wrap" | "caret-up" | "caret-down"
-  /* TT124: an indented block (lines stepping right), and two frames for before/after */
-  | "indent" | "compare"
-  /* Empty-state illustrations: a note, zip, vault dial and an open calendar. */
-  | "emptyNote" | "emptyZip" | "emptyVault" | "emptyPlan"
-  /* TT139: outline (structure), diff (two rules), units (a converted measure),
-     keyboard (a key cap), globe-clock (a meridian dial), sparkline (ranked hits). */
-  | "outline" | "diff" | "units" | "keycap" | "meridian" | "ranked" | "deadkey" | "plural";
+/**
+ * TT145: the chrome glyph names are plain data in `src/lib/ui-glyphs.ts` (mirroring
+ * `glyph-names` in icon-data.ts) so the accessibility suite can import the list without
+ * pulling JSX into Node. This alias keeps every existing `UiGlyphName` annotation valid.
+ */
+export type UiGlyphName = (typeof UI_GLYPH_NAMES)[number];
+export { UI_GLYPH_NAMES };
+/**
+ * The runtime list of chrome glyph names, for the coverage gate in `a11y-unit`.
+ * `UiGlyphName` is a type and erases, so without this a heading could name a glyph
+ * that has no drawing and nothing would fail. Kept beside the drawings so the two
+ * cannot drift far apart.
+ */
+
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
     // Original compact empty-state drawings. The extra marks convey the
@@ -345,6 +336,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     /* TT114 concept glyphs. Stroke-only, 24x24, currentColor, so they inherit theme and contrast. */
     // verify a receipt: a seal with a tick inside it
     verify: <><path d="M12 3.5 19 6v6.2c0 3.9-2.7 7.1-7 8.3-4.3-1.2-7-4.4-7-8.3V6l7-2.5Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m8.8 12.2 2.2 2.2 4.2-4.6" {...S} stroke="currentColor" strokeWidth="2" /></>,
+    claim: <><path d="M10 8.5H7.6A3.6 3.6 0 0 0 4 12.1v-.2a3.6 3.6 0 0 0 3.6 3.6H10" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M14 8.5h2.4A3.6 3.6 0 0 1 20 12.1v-.2a3.6 3.6 0 0 1-3.6 3.6H14" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.4 12h5.2" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    tray: <><path d="M4.5 13h3.7l1.5 2.4h4.6l1.5-2.4h3.7" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.3 13V6.6A1.6 1.6 0 0 1 7.9 5h8.2a1.6 1.6 0 0 1 1.6 1.6V13" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.3 13v4.4A1.6 1.6 0 0 0 7.9 19h8.2a1.6 1.6 0 0 0 1.6-1.6V13" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 8v4m0 0-1.8-1.8M12 12l1.8-1.8" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    seal: <><rect x="4.2" y="4.2" width="15.6" height="15.6" rx="4.4" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="10.8" r="2.4" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M12 13.2v3.2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M8.2 17.6h7.6" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".55" /></>,
+    lane: <><path d="M4 6.5h16M4 12h16M4 17.5h16" {...S} stroke="currentColor" strokeWidth="1.6" /><rect x="7.6" y="9.9" width="5.2" height="4.2" rx="1.4" fill="currentColor" /><path d="M16.4 9.9v4.2" {...S} stroke="currentColor" strokeWidth="2.2" opacity=".6" /></>,
+    budget: <><rect x="3.6" y="9.4" width="16.8" height="5.2" rx="1.8" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9.4 9.6v4.8M14.2 9.6v4.8" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".55" /><path d="M4.6 12h4" {...S} stroke="currentColor" strokeWidth="3" /></>,
+    bucket: <><path d="M6.6 5.4h10.8l-1.5 12.5a2 2 0 0 1-2 1.7h-3.8a2 2 0 0 1-2-1.7Z" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M7.2 11.4h9.6" {...S} stroke="currentColor" strokeWidth="1.6" /><path d="M7.9 8.4h8.2" {...S} stroke="currentColor" strokeWidth="1.4" opacity=".5" /></>,
     // copy: one sheet lifted off another
     copy: <><rect x="8.5" y="8.5" width="11" height="11" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M15.5 5.5H6a1.5 1.5 0 0 0-1.5 1.5v9.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // photos: a framed picture with a horizon and a sun
