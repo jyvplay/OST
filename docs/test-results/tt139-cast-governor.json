@@ -1,0 +1,114 @@
+{
+  "suite": "tt139-cast-governor",
+  "at": "2026-11-06T21:29:36.642Z",
+  "results": [
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · score is bounded, monotone in each input, and zero at perfection",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · a single bad sample never moves the ladder (the anti-flicker rule)",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · a sustained problem does move it, and catastrophic samples skip a rung",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · the ladder never oscillates on a constant link",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · scaleResolutionDownBy is a divisor of the source, not a height",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · bitrate keeps 15% headroom under the measured link",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · the height cap is a hard ceiling and never empties the ladder",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · static content trades frame rate for detail",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · nothing is re-applied for a rounding difference",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · invalid policy is refused at construction",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · HUD, limiting factor and report stay consistent",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-cast-governor",
+      "name": "CA-13 · feeding a decision back is type- and value-stable",
+      "covers": {
+        "CA-13": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

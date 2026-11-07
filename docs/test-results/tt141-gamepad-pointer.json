@@ -1,0 +1,105 @@
+{
+  "suite": "tt141-gamepad-pointer",
+  "at": "2026-11-07T02:23:43.129Z",
+  "results": [
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · the deadzone is radial, so a diagonal inside it is still dead",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · the response curve keeps direction and bounds magnitude",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · a stalled tab cannot teleport the cursor",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · the cursor never leaves the viewport",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · a press is only released if its own down was sent",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · disabling mid-press releases the page, never leaves it stuck",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · d-pad nudges once, then repeats on its own schedule",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · the other buttons map to the documented actions",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · a non-standard pad still gets sticks, A and B only",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · slow scrolling still moves (sub-pixel carry)",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-gamepad-pointer",
+      "name": "IN-07 · every frame is a pure function of its inputs",
+      "covers": {
+        "IN-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

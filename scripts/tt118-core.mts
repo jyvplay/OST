@@ -108,7 +108,7 @@ await test("ST-10 settings import: unknown and locked keys reported, never appli
   assert.deepEqual(dirty.accepted, {});
 });
 
-await test("BK-06 backup compare: added/removed/changed/unchanged and byte delta", { "BK-06": "full" }, () => {
+await test("BK-06 backup compare: added/removed/changed/unchanged and byte delta", { "BK-14": "full" }, () => {
   const h = (c: string) => c.repeat(64);
   const before = parseBackupManifest(JSON.stringify({ entries: [
     { path: "/a.txt", bytes: 10, sha256: h("a") }, { path: "/b.txt", bytes: 20, sha256: h("b") }, { path: "/c.txt", bytes: 30, sha256: h("c") }] }));

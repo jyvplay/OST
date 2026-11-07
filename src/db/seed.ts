@@ -3,6 +3,8 @@ import { tt135Features } from "./seed-data/features-tt135";
 import { tt139Features, patchTT139 } from "./seed-data/features-tt139";
 import { patchTT143 } from "./seed-data/features-tt143";
 import { patchTT137 } from "./seed-data/features-tt137";
+import { patchTT141 } from "./seed-data/features-tt141";
+import type { SpecRow } from "./seed-data/row";
 import { tt134Features } from "./seed-data/features-tt134";
 import { tt133Features } from "./seed-data/features-tt133";
 import {UPDATES_TT107} from "./seed-data/updates-tt107";
@@ -191,11 +193,18 @@ export const allFeatures = [...tt139Features, ...tt135Features, ...tt134Features
   .map((f) => (UPDATES_TT114[f.code] ? { ...f, ...UPDATES_TT114[f.code] } : f))
   // TT116 is applied last: this turn's measurements supersede every earlier map.
   .map((f) => (UPDATES_TT116[f.code] ? { ...f, ...UPDATES_TT116[f.code] } : f))
-  // TT139/141 is applied last: an earlier turn's downgrade patch must never
-  // silently revert a row whose engine, UI and suite now exist.
-  .map((f) => patchTT139(f as unknown as Parameters<typeof patchTT139>[0]))
-  // TT143 MUST stay the last mapper: an earlier slot is overwritten by later per-turn patches.
-  .map((f) => patchTT143(f as unknown as Parameters<typeof patchTT143>[0]));
+  // Both TT139 generations run here, then TT141, then TT143.
+  //
+  // Order is load-bearing in three ways and each was verified by reading the
+  // resulting register, not the source: (1) the UPDATES_* tables all write
+  // `status` for codes these turns promoted, so any one of them placed after a
+  // promotion silently reverts it; (2) main's TT139 and this branch's TT139 cover
+  // different codes, so `patchTT139` is itself a union of a switch and a table;
+  // (3) TT143 must be the very last mapper, because a later slot would undo the
+  // twenty rows this turn's engines actually back.
+  .map((f) => patchTT139(f as SpecRow))
+  .map((f) => patchTT141(f))
+  .map((f) => patchTT143(f as unknown as Parameters<typeof patchTT143>[0])) as SpecRow[];
 
 const DEFAULT_SETTINGS: { key: string; value: string; category: string; label: string; aliases: string; lock?: string }[] = [
   { key: "appearance.theme", value: "dark", category: "appearance", label: "Theme", aliases: "dark mode,light mode,colors,personalization" },

@@ -1,0 +1,150 @@
+{
+  "suite": "tt142-input-scan",
+  "at": "2026-11-06T22:01:49.739Z",
+  "results": [
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · the real API wins over the estimate",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · a closed keyboard through the real API is a real zero",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · the estimate is labelled as one",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · browser chrome is not mistaken for a keyboard",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · an absurd measurement is clamped and said so",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · iOS visual-viewport offset is accounted for",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · revealing a field scrolls by the overhang, not to the top",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · compact mode follows the inset, not the window",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "IN-06 · the description never claims geometry it does not have",
+      "covers": {
+        "IN-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · a javascript: code is never navigable",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · other install/launch schemes are refused too",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · ordinary links are classified and kept",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · a Wi-Fi code never echoes the password on screen",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · vCard and OTP payloads are summarised, not dumped",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · hostile and degenerate payloads do not throw",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-input-scan",
+      "name": "MD-05 · the scanner text admits a missing detector",
+      "covers": {
+        "MD-05": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

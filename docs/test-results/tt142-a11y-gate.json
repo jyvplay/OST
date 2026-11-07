@@ -1,0 +1,87 @@
+{
+  "suite": "tt142-a11y-gate",
+  "at": "2026-11-06T22:02:15.642Z",
+  "results": [
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · a skipped check is not a pass",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · the verdict never claims the app is accessible",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · failures are reported with enough detail to fix",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · contrast maths matches the WCAG reference values",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · large text is held to 3:1 and body text to 4.5:1",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · a translucent colour is composited before it is measured",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · colour parsing refuses what it cannot parse",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · the audit reports each pair against its own requirement",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-a11y-gate",
+      "name": "DP-07 · this repo's own text tokens actually pass",
+      "covers": {
+        "DP-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { DEFAULT_WALLPAPER } from "@/lib/appearance";
 import { applyStyle, isStyle, resolveWallpaper, useStyleId } from "@/lib/style";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { planInset, type InsetPlan } from "@/lib/input/keyboard-inset";
 import { api, post, put } from "@/lib/api";
 import type { RoutineAction } from "@/lib/routines";
 import ShellDaemons from "./ShellDaemons";
@@ -89,6 +90,46 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
   useMouseNavGuard(mouseCfg);
   // TT67 IN-03: physical-key chords are labelled with the user's layout
   useEffect(() => startLayoutWatch(), []);
+  // TT142 IN-06: reserve space for the on-screen keyboard. The plan decides how
+  // much and how confident it is; `none` means this browser reports nothing and
+  // the layout must not guess, or a desktop jumps when a field is focused.
+  const [inset, setInset] = useState<InsetPlan>(() => planInset({}));
+  useEffect(() => {
+    const vk = (navigator as unknown as { virtualKeyboard?: { overlaysContent: boolean } }).virtualKeyboard;
+    if (vk) vk.overlaysContent = true;
+    const read = () => {
+      const vv = window.visualViewport;
+      const active = document.activeElement as HTMLElement | null;
+      const textFocused = !!active && (active.tagName === "TEXTAREA" || active.tagName === "INPUT" || active.isContentEditable);
+      let insetHeight = 0;
+      if (vk) {
+        // env(keyboard-inset-height) is only resolvable through a styled element.
+        insetHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--kb-inset") || "0") || 0;
+      }
+      const next = planInset({
+        overlaysContent: !!vk,
+        insetHeight,
+        innerHeight: window.innerHeight,
+        visualHeight: vv?.height,
+        visualOffsetTop: vv?.offsetTop,
+        textFocused,
+      });
+      setInset((prev) => (prev.bottom === next.bottom && prev.top === next.top && prev.source === next.source ? prev : next));
+    };
+    read();
+    window.addEventListener("resize", read);
+    window.visualViewport?.addEventListener("resize", read);
+    window.visualViewport?.addEventListener("scroll", read);
+    document.addEventListener("focusin", read);
+    document.addEventListener("focusout", read);
+    return () => {
+      window.removeEventListener("resize", read);
+      window.visualViewport?.removeEventListener("resize", read);
+      window.visualViewport?.removeEventListener("scroll", read);
+      document.removeEventListener("focusin", read);
+      document.removeEventListener("focusout", read);
+    };
+  }, []);
   const chordLabel = useChordLabel();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [palette, setPalette] = useState(false);
@@ -846,7 +887,12 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
           floating dock show it through; Fusion keeps it on the desk exactly as before */}
       <div ref={rootRef} className={layout === "fusion" ? undefined : `fs-wallpaper-${wallpaper}`} data-layout={layout}
         data-shell-ready={booted ? "true" : "false"} aria-busy={!booted}
-        style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        style={{
+          height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden",
+          // IN-06: the keyboard is a reserved band, not a guess from a resize.
+          paddingBottom: inset.bottom,
+          transition: "padding-bottom 120ms ease-out",
+        }}>
         {layout === "fusion" ? (
           <TopBar
             onLauncher={() => setLauncher((v) => !v)}

@@ -1,6 +1,6 @@
 {
   "suite": "tt41-unit",
-  "at": "2026-10-28T20:02:12.010Z",
+  "at": "2026-11-06T21:24:22.417Z",
   "results": [
     {
       "suite": "tt41-unit",
@@ -9,7 +9,7 @@
         "WP-17": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 21
     },
     {
       "suite": "tt41-unit",
@@ -18,7 +18,7 @@
         "WP-17": "full"
       },
       "pass": true,
-      "ms": 55
+      "ms": 61
     },
     {
       "suite": "tt41-unit",

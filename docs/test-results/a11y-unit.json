@@ -1,6 +1,6 @@
 {
   "suite": "a11y-unit",
-  "at": "2026-11-07T03:42:32.064Z",
+  "at": "2026-11-07T04:35:32.172Z",
   "results": [
     {
       "suite": "a11y-unit",
@@ -9,7 +9,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 10
     },
     {
       "suite": "a11y-unit",
@@ -18,7 +18,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "a11y-unit",
@@ -27,7 +27,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 11
+      "ms": 2
     },
     {
       "suite": "a11y-unit",
@@ -36,7 +36,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 75
+      "ms": 47
     },
     {
       "suite": "a11y-unit",
@@ -56,7 +56,7 @@
         "AX-11": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "a11y-unit",
@@ -65,7 +65,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "a11y-unit",
@@ -74,7 +74,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "a11y-unit",
@@ -84,7 +84,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 48
+      "ms": 33
     },
     {
       "suite": "a11y-unit",
@@ -94,7 +94,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 18
     },
     {
       "suite": "a11y-unit",
@@ -103,7 +103,7 @@
         "DP-07": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     }
   ]
 }

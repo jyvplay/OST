@@ -1,6 +1,6 @@
 {
   "suite": "tt143-engines",
-  "at": "2026-11-07T03:42:50.087Z",
+  "at": "2026-11-07T04:35:48.006Z",
   "results": [
     {
       "suite": "tt143-engines",
@@ -10,7 +10,7 @@
         "CO-03": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 3
     },
     {
       "suite": "tt143-engines",
@@ -55,7 +55,7 @@
         "CT-05": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt143-engines",
@@ -118,7 +118,7 @@
         "SH-13": "full"
       },
       "pass": true,
-      "ms": 22
+      "ms": 24
     },
     {
       "suite": "tt143-engines",
@@ -127,7 +127,7 @@
         "SR-06": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt143-engines",
@@ -137,7 +137,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt143-engines",
@@ -164,7 +164,7 @@
         "RC-29": "full"
       },
       "pass": true,
-      "ms": 6
+      "ms": 1
     },
     {
       "suite": "tt143-engines",
@@ -174,7 +174,7 @@
         "CA-12": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt143-engines",
@@ -183,7 +183,7 @@
         "DP-03": "full"
       },
       "pass": true,
-      "ms": 11
+      "ms": 8
     }
   ]
 }

@@ -1,0 +1,87 @@
+{
+  "suite": "tt143-safe-save",
+  "at": "2026-11-07T02:23:43.757Z",
+  "results": [
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · a fresh save is idle and the original is untouched",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · nothing can be published before it is validated",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · a size or digest mismatch leaves the original safe",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · the temp write cannot exceed the declared size",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · the happy path publishes and the original becomes replaceable",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · failure at any phase is terminal and safe",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · bad inputs are refused at construction",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · a chunk must really be bytes",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt143-safe-save",
+      "name": "FM-18 · every transition is pure and the phase text is honest",
+      "covers": {
+        "FM-18": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

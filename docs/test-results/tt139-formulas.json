@@ -1,0 +1,395 @@
+{
+  "suite": "tt139-formulas",
+  "at": "2026-11-07T02:24:05.873Z",
+  "results": [
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · lexer splits numbers, strings, refs, ranges, operators",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · lexer handles scientific notation and doubled quotes",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · lexer rejects junk instead of silently ignoring it",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · precedence: -2^2 is 4, and 0-2^2 is -4 (Excel rule)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · precedence: * / before + -, & below arithmetic",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · comparison is lowest precedence and returns booleans",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · percent postfix and unary chains",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · every advertised function actually runs",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · aggregates skip text and blanks (spreadsheet rule)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · aggregates over an all-empty range do not divide by zero",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · statistics are correct, not approximately correct",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · ROUND is half-away-from-zero on both signs",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · MOD follows the sign of the divisor",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · text functions respect 1-based indexes",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · errors propagate through every operator",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · IFERROR and IF short-circuit (unused branch is not evaluated)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · lookup functions honour the declared orientation",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · date serials use the 1900 system (epoch 1899-12-30)",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · RAND is injected, never Math.random",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · extractRefs expands ranges and dedupes",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · topological order puts dependencies first",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · cycles are reported, not linearised",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · evaluateSheet gives cycle cells #REF!, never a stale number",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · evaluateSheet computes a real chain in one pass",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · column letters round-trip across the AA boundary",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-19 · formatNumber is deterministic without trailing-float noise",
+      "covers": {
+        "FF-19": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20 · writer emits valid SpreadsheetML (ss:Index integer, ss:Formula R1C1)",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20 · a formula cell carries its cached result",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20 · multi-sheet workbook writes every sheet in order",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20 · writer escapes XML metacharacters and rejects illegal sheet names",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20 · writer refuses out-of-order or duplicate-ref cells",
+      "covers": {
+        "FF-20": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · round-trip preserves sheets, values and formulas",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · round-trip is a fixed point (write∘read∘write is stable)",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · reader accepts a foreign file using ss:Index gaps",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · reader accepts A1 formulas from third-party writers",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · A1⇄R1C1 conversion is exact for relative and absolute refs",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · reader rejects junk instead of returning an empty workbook",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · recalculation chains and settles",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · recalculation resolves cross-sheet references",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · recalculation reports a real cycle instead of guessing",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-21 · recalculation leaves the cached value's source untouched",
+      "covers": {
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20/FF-21 · model helpers: set/get/clear/usedRange",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-formulas",
+      "name": "FF-20/FF-21 · attacker: formula text cannot break out of an attribute",
+      "covers": {
+        "FF-20": "full",
+        "FF-21": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

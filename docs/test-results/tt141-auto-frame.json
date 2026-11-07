@@ -1,0 +1,114 @@
+{
+  "suite": "tt141-auto-frame",
+  "at": "2026-11-06T21:54:11.058Z",
+  "results": [
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · one face gives a centred subject of its own size",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · several faces produce the union, so nobody is cropped out",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · a degenerate or non-finite box cannot poison the frame",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · the first detection snaps instead of gliding in",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · the tracking is critically damped, so it never overshoots",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · a stationary subject settles and stops moving",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · a backgrounded tab cannot integrate seconds of velocity",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · a wild detection cannot yank the crop to the frame edge",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · losing the subject holds the framing instead of snapping to centre",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · zoom fills the frame within its bounds",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · the crop rectangle always lies inside the source",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt141-auto-frame",
+      "name": "LN-02 · every frame is pure, and the honesty text names what is missing",
+      "covers": {
+        "LN-02": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

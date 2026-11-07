@@ -1,156 +1,156 @@
 {
   "suite": "tt135-system-engines",
-  "at": "2026-11-07T03:42:48.108Z",
+  "at": "2026-11-07T04:35:46.488Z",
   "results": [
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · makePayload validates app id and title",
+      "name": "CT-07 · makePayload validates app id and title",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · makePayload rejects invalid app id",
+      "name": "CT-07 · makePayload rejects invalid app id",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · makePayload rejects oversized props",
+      "name": "CT-07 · makePayload rejects oversized props",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · encodeCode produces a 10-char code",
+      "name": "CT-07 · encodeCode produces a 10-char code",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt135-system-engines",
+      "name": "CT-07 · normalizeCode handles user typos",
+      "covers": {
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · normalizeCode handles user typos",
+      "name": "CT-07 · issue and accept round-trip within TTL",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · issue and accept round-trip within TTL",
+      "name": "CT-07 · expired handoff is refused",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · expired handoff is refused",
+      "name": "CT-07 · mismatched code is refused",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · mismatched code is refused",
+      "name": "CT-07 · fromMessage rejects non-handoff messages",
       "covers": {
-        "CODE": "CT-03"
+        "CT-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "CT-03 · fromMessage rejects non-handoff messages",
+      "name": "BL-07 · parseManifest validates digest formats",
       "covers": {
-        "CODE": "CT-03"
+        "BL-07": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt135-system-engines",
+      "name": "BL-07 · parseManifest rejects mixed algorithms",
+      "covers": {
+        "BL-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "BL-02 · parseManifest validates digest formats",
+      "name": "BL-07 · manifestBody is deterministic",
       "covers": {
-        "CODE": "BL-02"
+        "BL-07": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt135-system-engines",
+      "name": "BL-07 · verifyManifest detects missing files",
+      "covers": {
+        "BL-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "BL-02 · parseManifest rejects mixed algorithms",
+      "name": "BL-07 · verifyManifest detects size mismatch",
       "covers": {
-        "CODE": "BL-02"
+        "BL-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "BL-02 · manifestBody is deterministic",
+      "name": "BL-07 · parseCertificate validates Ed25519 key and signature lengths",
       "covers": {
-        "CODE": "BL-02"
+        "BL-07": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "BL-02 · verifyManifest detects missing files",
+      "name": "BL-07 · digestFile produces correct hex length",
       "covers": {
-        "CODE": "BL-02"
+        "BL-07": "full"
       },
       "pass": true,
-      "ms": 0
-    },
-    {
-      "suite": "tt135-system-engines",
-      "name": "BL-02 · verifyManifest detects size mismatch",
-      "covers": {
-        "CODE": "BL-02"
-      },
-      "pass": true,
-      "ms": 0
-    },
-    {
-      "suite": "tt135-system-engines",
-      "name": "BL-02 · parseCertificate validates Ed25519 key and signature lengths",
-      "covers": {
-        "CODE": "BL-02"
-      },
-      "pass": true,
-      "ms": 0
-    },
-    {
-      "suite": "tt135-system-engines",
-      "name": "BL-02 · digestFile produces correct hex length",
-      "covers": {
-        "CODE": "BL-02"
-      },
-      "pass": true,
-      "ms": 4
+      "ms": 6
     },
     {
       "suite": "tt135-system-engines",
       "name": "RH-04 · validateRoutine checks step count",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -159,7 +159,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · planFire returns fire=true when due",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -168,7 +168,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · planFire returns fire=false when not due",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -177,7 +177,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · isSafeAction rejects payloads with shell metacharacters",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -186,7 +186,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · dryRun reports which steps would run",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -195,7 +195,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · planDay filters to due routines",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -204,7 +204,7 @@
       "suite": "tt135-system-engines",
       "name": "RH-04 · describeSchedule gives a compact summary",
       "covers": {
-        "CODE": "RH-04"
+        "RH-04": "full"
       },
       "pass": true,
       "ms": 0
@@ -213,7 +213,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route allows same-origin direct fetch",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -222,7 +222,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route blocks non-HTTP protocols",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -231,7 +231,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route blocks URLs with credentials",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -240,7 +240,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route proxies cross-origin HTTPS",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -249,7 +249,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route rejects GET with body",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -258,7 +258,7 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route rejects oversized POST body",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
@@ -267,169 +267,169 @@
       "suite": "tt135-system-engines",
       "name": "CO-03 · route rejects host not in manifest",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt135-system-engines",
       "name": "CO-03 · describeVerdict gives a one-line summary",
       "covers": {
-        "CODE": "CO-03"
+        "CO-03": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · leaseFor creates a valid lease",
+      "name": "SH-16 · leaseFor creates a valid lease",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · claim succeeds when no lease exists",
+      "name": "SH-16 · claim succeeds when no lease exists",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · claim fails when another tab holds the lease",
+      "name": "SH-16 · claim fails when another tab holds the lease",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · renew by non-holder is denied",
+      "name": "SH-16 · renew by non-holder is denied",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · expired lease can be claimed",
+      "name": "SH-16 · expired lease can be claimed",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "SH-06 · checkHeartbeat rejects wrong identity",
+      "name": "SH-16 · checkHeartbeat rejects wrong identity",
       "covers": {
-        "CODE": "SH-06"
+        "SH-16": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · makeGroup validates member count",
+      "name": "WM-20 · makeGroup validates member count",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · makeGroup rejects duplicate members",
+      "name": "WM-20 · makeGroup rejects duplicate members",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · minimizeGroup sets minimised on all members",
+      "name": "WM-20 · minimizeGroup sets minimised on all members",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · closeGroup removes members",
+      "name": "WM-20 · closeGroup removes members",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · layoutGroup positions members without moving others",
+      "name": "WM-20 · layoutGroup positions members without moving others",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "WM-02 · summarize groups members by app",
+      "name": "WM-20 · summarize groups members by app",
       "covers": {
-        "CODE": "WM-02"
+        "WM-20": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "ST-09 · all four profiles exist with valid hit sizes",
+      "name": "ST-18 · all four profiles exist with valid hit sizes",
       "covers": {
-        "CODE": "ST-09"
+        "ST-18": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "ST-09 · touch profile does not apply on mouse pointer",
+      "name": "ST-18 · touch profile does not apply on mouse pointer",
       "covers": {
-        "CODE": "ST-09"
+        "ST-18": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "ST-09 · precision profile applies on mouse",
+      "name": "ST-18 · precision profile applies on mouse",
       "covers": {
-        "CODE": "ST-09"
+        "ST-18": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "ST-09 · mismatchReason explains the refusal",
+      "name": "ST-18 · mismatchReason explains the refusal",
       "covers": {
-        "CODE": "ST-09"
+        "ST-18": "full"
       },
       "pass": true,
       "ms": 0
     },
     {
       "suite": "tt135-system-engines",
-      "name": "ST-09 · needsTimedGesture detects timed profiles",
+      "name": "ST-18 · needsTimedGesture detects timed profiles",
       "covers": {
-        "CODE": "ST-09"
+        "ST-18": "full"
       },
       "pass": true,
       "ms": 0

@@ -1,0 +1,285 @@
+{
+  "suite": "tt139-documents",
+  "at": "2026-11-07T02:24:05.862Z",
+  "results": [
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · paragraphs, runs and bold round-trip",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · boldOff is distinct from 'no bold' and survives",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · styles, alignment and lists serialize to real OOXML tokens",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · tables survive a round-trip with their grid",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · writer rejects styles outside the closed enum",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · attacker: markup in a run cannot escape the element",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · attacker: attribute-quote breakout via colour is blocked",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · leading/trailing spaces are preserved with xml:space",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-22 · round-trip is a fixed point",
+      "covers": {
+        "FF-22": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · slides, shapes and order",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · serialization carries size, background, geometry and notes",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · parse restores shapes and typing",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · remote image URLs are refused (privacy invariant)",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · empty deck is legal; a broken deck is refused",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-23 · attacker: text cannot inject a second shape",
+      "covers": {
+        "FF-23": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · primitives, serialization and node addressing",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 5
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · move and resize move exactly one node",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · group nesting serializes and parses",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · sanitizer removes every forbidden construct",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · scanSvg reports every reason, not a bare boolean",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · importer never trusts a numeric attribute",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · validateSvg catches degenerate geometry",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-25 · builder refuses unsafe path and transform strings",
+      "covers": {
+        "FF-25": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · header, colour mode and dimensions parse exactly",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · layer records: name, blend, opacity, flags, section",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · Unicode layer names win over the ASCII name",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · layer groups nest by section markers",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · raw composite is exposed; RLE is reported, not guessed",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · adversarial: wrong signature, version, reserved, and truncation",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · adversarial: a lying layer-info length is caught",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt139-documents",
+      "name": "FF-08 · a layer named with an over-long ASCII string is bounded",
+      "covers": {
+        "FF-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}

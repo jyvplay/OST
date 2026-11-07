@@ -1,0 +1,87 @@
+{
+  "suite": "tt142-voice-gate",
+  "at": "2026-11-07T02:24:06.846Z",
+  "results": [
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · silence keeps the gate shut and never leaks gain",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 9
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · speech opens the gate in a couple of milliseconds",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · the hold bridges the gaps between words",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 10
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · release is slow enough not to amputate a word's tail",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · a single click cannot hold the gate open",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · non-finite samples are silence, not NaN gain",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · the threshold actually controls what opens the gate",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · sample rate changes the hold in time, not in samples",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt142-voice-gate",
+      "name": "LN-08 · the gate is pure, and its own text tells the truth",
+      "covers": {
+        "LN-08": "full"
+      },
+      "pass": true,
+      "ms": 0
+    }
+  ]
+}
