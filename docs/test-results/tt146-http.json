@@ -1,0 +1,42 @@
+{
+  "suite": "tt146-http",
+  "at": "2026-11-07T04:52:22.961Z",
+  "results": [
+    {
+      "suite": "tt146-http",
+      "name": "AU-03 a token is minted once, stored hashed, and never listed",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 85
+    },
+    {
+      "suite": "tt146-http",
+      "name": "AU-03 an enqueued command is visible to the shell, settled once, and audited",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 94
+    },
+    {
+      "suite": "tt146-http",
+      "name": "AU-03 the door refuses: bad tokens, missing scopes, unknown commands, empty bodies",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 145
+    },
+    {
+      "suite": "tt146-http",
+      "name": "AU-03 revocation is immediate, and the limiter is the server's",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 525
+    }
+  ]
+}

@@ -36,7 +36,7 @@ export type GlyphName = (typeof GLYPH_NAMES)[number];
 export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   recall: ["teal", "record"], files: ["orange", "folder"], editor: ["sky", "pencil"], find: ["teal", "funnel"], terminal: ["slate", "terminal"], ssh: ["lagoon", "terminal"],
   notes: ["sun", "note"], browser: ["blue", "globe"], media: ["coral", "play"], capture: ["coral", "record"],
-  lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"],
+  lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"], mail: ["sky", "chat"],
   vault: ["indigo", "lock"], privacy: ["teal", "shield"], backup: ["sky", "cloud"], alerts: ["sun", "bell"],
   monitor: ["green", "pulse"], apps: ["indigo", "grid"], calculator: ["orange", "keypad"], settings: ["slate", "gear"], spec: ["blue", "checklist"],
   clock: ["sky", "clock"], planner: ["coral", "calendar"], devices: ["teal", "plug"], share: ["blue", "signal"],

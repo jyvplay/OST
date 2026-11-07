@@ -132,9 +132,79 @@ export default function RoutinesModule(_: ModuleProps) {
           </div>
         ))}
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Automatic triggers are evaluated by the shell while it is open. Every run is written to the audit log (Monitor).
+          Triggers run while the shell is open; every run is written to the audit log (Monitor).
         </div>
       </Section>
+
+      <AutomationPanel />
     </div>
+  );
+}
+
+interface AutomationToken { id: string; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revoked: boolean }
+
+/**
+ * AU-03 external entry points. The token is shown once; the panel never offers
+ * to show it again because the server cannot — it stores only a hash.
+ */
+function AutomationPanel() {
+  const shell = useShell();
+  const [rows, setRows] = useState<AutomationToken[]>([]);
+  const [name, setName] = useState("Shortcut");
+  const [scopes, setScopes] = useState<{ run: boolean; read: boolean }>({ run: true, read: true });
+  const [fresh, setFresh] = useState<{ token: string; example: string } | null>(null);
+  const [err, setErr] = useState("");
+
+  const load = useCallback(() => api<{ rows: AutomationToken[] }>("/api/automation/tokens")
+    .then((r) => setRows(r.rows)).catch((e) => setErr(String((e as Error).message))), []);
+  useEffect(() => { void load(); }, [load]);
+
+  const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
+  return (
+    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={rows.some((r) => !r.revoked) ? "ok" : "default"}>{rows.filter((r) => !r.revoked).length} live</Badge>}>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>
+        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
+      </div>
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <input className="fs-input" style={{ width: fz(160) }} value={name} onChange={(e) => setName(e.target.value)} aria-label="Token name" />
+        <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
+          <input type="checkbox" checked={scopes.run} onChange={(e) => setScopes({ ...scopes, run: e.target.checked })} /> run
+        </label>
+        <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
+          <input type="checkbox" checked={scopes.read} onChange={(e) => setScopes({ ...scopes, read: e.target.checked })} /> read
+        </label>
+        <Btn variant="primary" disabled={!wanted.length} data-testid="automation-mint" onClick={async () => {
+          setErr(""); setFresh(null);
+          try {
+            const r = await post<{ token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            setFresh({ token: r.token, example: r.example });
+            await load();
+          } catch (e) { setErr(String((e as Error).message)); }
+        }}>Create token</Btn>
+      </div>
+      {fresh ? (
+        <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6, borderColor: "rgba(255,196,83,.4)" }}>
+          <div style={{ fontSize: fz(11.5) }}>Copy it now — only a hash is stored, so it cannot be shown again.</div>
+          <code className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="automation-token">{fresh.token}</code>
+          <div className="fs-row" style={{ gap: 6 }}>
+            <Btn variant="ghost" onClick={() => shell.copy(fresh.token, "Routines", true)}>Copy token</Btn>
+            <Btn variant="ghost" onClick={() => shell.copy(fresh.example, "Routines", false)}>Copy curl example</Btn>
+          </div>
+        </div>
+      ) : null}
+      {err ? <Badge tone="bad">{err}</Badge> : null}
+      {rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
+      {rows.map((t) => (
+        <div key={t.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: fz(11.5), minWidth: 0 }}>
+            <span className="fs-mono">{t.id}</span> {t.name} <span className="fs-dim">· {t.scopes.join(", ")}{t.lastUsedAt ? ` · used ${fmtTime(t.lastUsedAt)}` : ""}</span>
+          </span>
+          <Badge tone={t.revoked ? "bad" : "ok"}>{t.revoked ? "revoked" : "live"}</Badge>
+          {t.revoked ? null : (
+            <Btn variant="ghost" onClick={async () => { await fetch(`/api/automation/tokens?id=${t.id}`, { method: "DELETE" }); await load(); }}>Revoke</Btn>
+          )}
+        </div>
+      ))}
+    </Section>
   );
 }

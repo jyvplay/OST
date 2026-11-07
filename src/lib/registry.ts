@@ -66,6 +66,7 @@ export const MODULES: ModuleDef[] = [
   { id: "peek", title: "Peek", icon: "👁", group: "Core", summary: "Sandboxed previewer with watchdog and grades", rect: { w: 760, h: 560 }, implements: ["FM-04", "FF-01", "FF-11", "PK-01", "PK-02", "PK-04"] },
   { id: "video", title: "Video", icon: "▶", group: "Connect", summary: "Video player for YouTube, Vimeo, Dailymotion, Twitch, PeerTube and video links: official embed players behind a click-to-load privacy gate, a saved library and queue", rect: { w: 1000, h: 620 }, implements: ["SM-01", "SM-03"] },
   { id: "music", title: "Music", icon: "♪", group: "Connect", summary: "Stream Spotify and SoundCloud through their official players, or play audio links; saved library with filter, reorder and queue", rect: { w: 900, h: 600 }, implements: ["SM-02", "SM-03", "MU-02", "MU-03", "MU-04", "MU-05"] },
+  { id: "mail", title: "Mail", icon: "✉", group: "Connect", summary: "Compose and hand a message to a real mail client through an RFC 6068 mailto link — byte-counted, truncation-marked, or shared instead when a file is attached", rect: { w: 700, h: 620 }, implements: ["PR-06", "CT-03"] },
   { id: "maps", title: "Maps", icon: "◎", group: "Connect", summary: "Offline world map (Natural Earth) with optional OpenStreetMap street tiles: search countries and coordinates, saved places as GeoJSON, measure distances, locate me", rect: { w: 1100, h: 700 }, implements: ["MP-01", "MP-02", "MP-03", "MP-09"] },
 ];
 

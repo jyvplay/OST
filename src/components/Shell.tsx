@@ -20,6 +20,7 @@ import { probeCapabilities, refineCapabilities, type CapabilityReport } from "@/
 import { governor, type GovernorSnapshot } from "@/lib/governor";
 import { memoryPolicy } from "@/lib/policy";
 import { MODULES, moduleById } from "@/lib/registry";
+import { decodeHandoff, FRAGMENT_KEY } from "@/lib/handoff/continue-link";
 import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
 import { privacy } from "@/lib/privacy/session";
 import {
@@ -348,6 +349,53 @@ export default function Shell({ stateId, hostKind }: { stateId: string; hostKind
           dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured, revision } });
           // TT75: new window ids continue after the restored ones (the deep link below opens before the next render)
           for (const w of st.row.state.windows) { const n = Number(/^w(\d+)_/.exec(String(w.id))?.[1] ?? 0); if (n > counter.current) counter.current = n; }
+
+        // TT146 (CT-03): a continue-on link carries a whole layout in its
+        // fragment. It is adopted only after the stored desktop has loaded, so
+        // the fragment wins over whatever this device had open — that is what
+        // "continue where I left off on the other machine" means. The fragment
+        // is then dropped from the address bar: leaving it there would re-adopt
+        // the same layout on every reload and silently discard later edits.
+        if (!cancelled && window.location.hash.includes(`${FRAGMENT_KEY}=`)) {
+          const decoded = decodeHandoff(window.location.href, (m) => MODULES.some((x) => x.id === m));
+          if (decoded.ok && decoded.state) {
+            const desk = deskRef.current?.getBoundingClientRect();
+            const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
+            const base = Math.max(Number(st.row?.revision) || 0, 1);
+            let z = 10;
+            const windows = decoded.state.windows.map((w) => {
+              counter.current += 1;
+              return {
+                id: `w${counter.current}_${w.module}`,
+                module: w.module,
+                title: w.title,
+                x: w.x, y: w.y, w: w.w, h: w.h,
+                z: z++,
+                minimized: false,
+                maximized: false,
+                workspace: w.workspace,
+                host: "tab" as const,
+                props: w.props,
+              };
+            });
+            const activeWorkspace = windows[0]?.workspace ?? 1;
+            const workspaces = Array.from(new Set([1, ...windows.map((w) => w.workspace)])).sort((a, b) => a - b)
+              .map((id) => ({ id, name: id === 1 ? "Main" : `Workspace ${id}` }));
+            dispatch({
+              t: "hydrate",
+              state: {
+                ...initialDesktop(), ...measured, windows, workspaces, activeWorkspace,
+                focus: windows[decoded.state.focus ?? 0]?.id ?? windows[0].id, nextZ: z + 1, revision: base,
+              },
+            });
+            window.history.replaceState({}, "", window.location.pathname + window.location.search);
+            const left = decoded.ignored.length ? ` ${decoded.ignored.length} item(s) from that link could not be used here.` : "";
+            toast(`Continued from a link: ${windows.length} window(s).${left}`, decoded.ignored.length ? "warn" : "ok");
+          } else if (decoded.reason) {
+            window.history.replaceState({}, "", window.location.pathname + window.location.search);
+            toast(`That continue-on link was not used: ${decoded.reason}.`, "warn");
+          }
+        }
         }
       } catch (err) {
         toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");

@@ -1,0 +1,204 @@
+{
+  "suite": "tt146-core",
+  "at": "2026-11-07T05:06:26.898Z",
+  "results": [
+    {
+      "suite": "tt146-core",
+      "name": "HW-09 network facts are normalised, never invented, and bounded",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-09 throughput estimator rejects timer noise and cache hits, then tracks an EWMA",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-09 the ladder is monotone, and Save-Data/offline always win",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-09 hysteresis: down at once, up only after evidence and dwell",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-03 verdicts follow the probe's answers and never claim silicon",
+      "covers": {
+        "HW-03": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-03 a probe that never answers cannot hang the matrix",
+      "covers": {
+        "HW-03": "full"
+      },
+      "pass": true,
+      "ms": 60
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-10 the assembled module is real SIMD and reproduces its own constant",
+      "covers": {
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-10 absence is reported with its reason, and threads need isolation",
+      "covers": {
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "HW-10 the chunk planner covers every item exactly once",
+      "covers": {
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt146-core",
+      "name": "PR-06 RFC 6068: percent-encoding, CRLF bodies, literal plus, unicode",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "PR-06 refusals: header injection, whitespace, non-ASCII addresses, NUL",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "PR-06 truncation is visible, bounded, and loses nothing silently",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 3
+    },
+    {
+      "suite": "tt146-core",
+      "name": "PR-06 round-trips through parseMailto, and the channel plan is explicit",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt146-core",
+      "name": "AU-03 tokens: strict shape, hashed comparison, scopes",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "AU-03 the rate limiter is a fixed window with an honest retry time",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt146-core",
+      "name": "AU-03 requests: whitelist only, one spelling of the payload, bounded length",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "AU-03 a settled run cannot be rewritten",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt146-core",
+      "name": "LN-05 windowed-sinc resampling: normalised weights, exact identity, no alpha halo",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 7
+    },
+    {
+      "suite": "tt146-core",
+      "name": "LN-06 the key light is a direction, not a brightness knob",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 12
+    },
+    {
+      "suite": "tt146-core",
+      "name": "FM-14 drag payloads: types we publish, drops we accept, keyboard alternative",
+      "covers": {
+        "FM-14": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "PR-01 encodings: BOM, UTF-16 without BOM, invalid UTF-8, and large-file policy",
+      "covers": {
+        "PR-01": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt146-core",
+      "name": "CT-03 handoff links: round trip, secret-stripped, tamper-refused, size-capped",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 3
+    }
+  ]
+}
