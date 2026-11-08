@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T06:03:35.535Z",
+ "generatedAt": "2026-11-08T06:48:05.699Z",
  "totals": {
   "built": {
    "full": 649,
@@ -13,8 +13,8 @@
    "untested": 12
   },
   "tests": {
-   "total": 4497,
-   "passed": 4444
+   "total": 4498,
+   "passed": 4467
   }
  },
  "rows": {
@@ -61,6 +61,7 @@
   "PR-06": {
    "tested": "full",
    "tests": [
+    "e2e-tt146: PR-06 the mail composer builds a link this browser accepts, and says what it cannot do",
     "tt139-platform: PR-06 · RFC 6068 encoding keeps the safe characters and encodes newlines as %0D%0A",
     "tt139-platform: PR-06 · a draft builds a valid mailto, drops invalid addresses and never emits a stray '?'",
     "tt139-platform: PR-06 · an over-long body is truncated on a character boundary and says so",
@@ -244,6 +245,7 @@
   "HW-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked",
     "tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string",
     "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
@@ -2850,6 +2852,7 @@
   "SH-13": {
    "tested": "full",
    "tests": [
+    "e2e-tt152-boot: superseded bootstrap cannot consume a cold-start launch intent",
     "e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations",
     "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
     "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
@@ -2887,6 +2890,7 @@
    "tests": [
     "e2e-tt128-worker: successful worker install and activation; API and query URLs never enter the cache",
     "e2e-tt128-worker: offline API reports 503 and non-desktop navigation shows the explicit fallback",
+    "e2e-tt129-offline: first installation can boot a new offline desktop without an online reload",
     "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
     "e2e-tt94-offline-race: a later queued Files write is not lost while a photo replay is waiting on the database",
     "e2e-tt94-offline-race: a noncooperating queue change during replay is retained and reported",
@@ -3854,6 +3858,9 @@
     "e2e-tt108-shell: the shell never takes a service-worker update without being asked",
     "e2e-tt128-worker: failed upgrade preserves the previous activated worker and cache",
     "e2e-tt128-worker: successful upgrade waits for consent, then activates and reloads",
+    "e2e-tt129-offline: a failed required chunk prevents first worker installation",
+    "e2e-tt129-offline: a 200 HTML error page cannot install as a JavaScript dependency",
+    "e2e-tt129-offline: a failed chunk in an upgrade keeps the previously working offline shell",
     "tt129-worker-unit: worker installation rejects missing JS and missing CSS dependencies",
     "tt129-worker-unit: HTML masquerading as a chunk is rejected without poisoning the cache"
    ]
@@ -5037,6 +5044,7 @@
   "FF-19": {
    "tested": "full",
    "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e-tt76-sheet: modal shortcut: an untouched Condition dialog has OK disabled; Enter (in the empty value box) applies nothing; Escape closes it",
     "e2e-tt76-sheet: Top 2 shows only the two largest; reopening pre-fills Top 2; Below average; Clear shows every row",
     "e2e-tt76-sheet: Custom: contains \"e\" Or begins with \"z\" (wildcards) on the name column; And with a second column's Top 5",
@@ -5161,6 +5169,9 @@
   "FF-20": {
    "tested": "full",
    "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "e2e-tt46: Spreadsheet: real Excel file with a table + conditional formats — structured refs evaluate in the UI; keyboard edit + Save keeps the package (openpyxl-verified)",
     "e2e-tt46: Spreadsheet: no-edit Save of a chart workbook leaves it byte-identical; rename a sheet + Save keeps the chart part and openpyxl sees the new name",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
@@ -5243,6 +5254,8 @@
   "FF-21": {
    "tested": "full",
    "tests": [
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-tt47: Spreadsheet renders theme colours and imported conditional formats (cellIs on a theme-tinted dxf; 3-colour scale with percentile midpoint)",
     "e2e-tt47: Spreadsheet: add '≥ 1000' and a 3-colour scale through the panel → shown at once → Save writes them into the original .xlsx (independent CF oracle + openpyxl cell diff)",
     "e2e-tt47: Writer opens a password-protected .docx (Agile): masked prompt, wrong password keeps the dialog with an alert, shortcuts can't act behind the modal, right password opens it",
@@ -6037,6 +6050,7 @@
   "FF-26": {
    "tested": "full",
    "tests": [
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e: mount: sheet",
     "office: SEQUENCE(2,3) spills all six cells with correct values",
     "office: an obstruction blocks the WHOLE array with #SPILL!, and removing it recovers",
@@ -6073,7 +6087,17 @@
    "tested": "full",
    "tests": [
     "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
+    "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
+    "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
+    "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
+    "e2e-office: fill handle drag extends 'Item 1' as a series; Ctrl+D copies a formula down with shifted refs",
+    "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
+    "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
+    "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
+    "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
     "e2e-tt59: FF-39 Spreadsheet spelling + FF-28 Paste Link in the UI: F7 → 1 of 3 row-major → Change / typed Change / Delete repeated word → complete; formula untouched; Escape closes the panel only; Paste Link =$C$1 follows the source; openpyxl reads the save",
     "e2e-tt64: FF-28 (TT64) Paste Link of a range in the UI writes relative references, a single cell absolute — openpyxl reads the saved formulas; the links follow a source edit",
     "e2e-tt68-sheet: FF-52 in the UI: an opened workbook shows Excel's results for empty text and an error constant (ISBLANK FALSE / TRUE, COUNTIF \"#N/A\" 1, COUNTA 3, \"=\" 1, \"<>\" 3, ISNA TRUE)",
@@ -6107,6 +6131,7 @@
   "FF-29": {
    "tested": "full",
    "tests": [
+    "e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source",
     "e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated",
     "e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated",
     "e2e-tt49: modal-shortcut failure test: Delete, Backspace, typing, Ctrl+Z and Enter inside the CF panel never touch the selected grid cell",
@@ -6251,6 +6276,9 @@
   "FF-33": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: Merge & Center: upper-left-most data kept after the Excel warning, one spanning cell, selection/arrow keys treat it as one; Unmerge restores cells",
+    "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e-sheet-layout: no page errors during the layout session",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
@@ -6264,6 +6292,8 @@
   "FF-34": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: Borders: Outside (medium, colour) draws the four perimeter edges via the neighbours' shared edges; Inside dotted; No Border clears",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -6274,6 +6304,8 @@
   "FF-35": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: Data validation: list dropdown picks a value; Stop rejects (rolled back, Retry/Cancel); Warning lets you keep it; Circle invalid flags it",
+    "e2e-sheet-layout: Full stack: merges + borders + validation + frozen panes survive Export .xlsx → reopen the .xlsx from the VFS (server reader)",
     "e2e: mount: sheet",
     "oracle-xlsx: C. our writer → openpyxl: merges, per-edge borders (style+colour), vertical align, data validations (incl. inverted showDropDown), frozen rows+cols",
     "oracle-xlsx: D. openpyxl-authored layout → our reader: merges, borders (theme colour → resolved through theme1.xml (TT47), mediumDashed dropped), valign, 6 validation kinds, freeze B2; rules enforce",
@@ -6521,6 +6553,7 @@
   "FF-36": {
    "tested": "full",
    "tests": [
+    "e2e-sheet-layout: TT19 defined names: Name Box defines a name for the selection and jumps to it; formulas + autocomplete use it; Name Manager lists it; survives Export .xlsx → reopen",
     "names: name syntax follows Excel's rules (web-checked): letters/_ first, no spaces, not A1/R1C1-like, not C/R, ≤255",
     "names: names in formulas: ranges, constants, formula names, chains; case-insensitive; unknown → #NAME? until defined",
     "names: scope: a sheet-level name shadows the workbook name on its sheet only; self-reference terminates with #NAME?",
@@ -8663,6 +8696,7 @@
   "HW-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed",
     "tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon",
     "tt146-core: HW-03 a probe that never answers cannot hang the matrix"

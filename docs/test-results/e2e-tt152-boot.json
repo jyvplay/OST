@@ -1,0 +1,15 @@
+{
+  "suite": "e2e-tt152-boot",
+  "at": "2026-11-08T06:47:44.086Z",
+  "results": [
+    {
+      "suite": "e2e-tt152-boot",
+      "name": "superseded bootstrap cannot consume a cold-start launch intent",
+      "covers": {
+        "SH-13": "partial"
+      },
+      "pass": true,
+      "ms": 19047
+    }
+  ]
+}

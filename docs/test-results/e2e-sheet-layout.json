@@ -1,6 +1,6 @@
 {
   "suite": "e2e-sheet-layout",
-  "at": "2026-11-07T05:42:00.176Z",
+  "at": "2026-11-08T06:41:08.019Z",
   "results": [
     {
       "suite": "e2e-sheet-layout",
@@ -8,9 +8,8 @@
       "covers": {
         "FF-33": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"I10\"]')\n",
-      "ms": 33752
+      "pass": true,
+      "ms": 15511
     },
     {
       "suite": "e2e-sheet-layout",
@@ -18,9 +17,8 @@
       "covers": {
         "FF-34": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"H13\"]')\n",
-      "ms": 32736
+      "pass": true,
+      "ms": 7750
     },
     {
       "suite": "e2e-sheet-layout",
@@ -28,9 +26,8 @@
       "covers": {
         "FF-35": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"K10\"]')\n    - locator resolved to <td data-cell=\"K10\"></td>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n  - element was detached from the DOM, retrying\n",
-      "ms": 33070
+      "pass": true,
+      "ms": 16567
     },
     {
       "suite": "e2e-sheet-layout",
@@ -39,9 +36,8 @@
         "FF-33": "full",
         "FF-28": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().getByRole('button', { name: /^More/ }).first()\n",
-      "ms": 32804
+      "pass": true,
+      "ms": 10685
     },
     {
       "suite": "e2e-sheet-layout",
@@ -53,9 +49,8 @@
         "FF-20": "full",
         "FF-21": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 25214
+      "pass": true,
+      "ms": 16976
     },
     {
       "suite": "e2e-sheet-layout",
@@ -64,9 +59,8 @@
         "FF-36": "full",
         "FF-20": "partial"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-cell=\"B2\"]')\n",
-      "ms": 32740
+      "pass": true,
+      "ms": 25686
     },
     {
       "suite": "e2e-sheet-layout",

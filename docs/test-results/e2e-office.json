@@ -1,6 +1,6 @@
 {
   "suite": "e2e-office",
-  "at": "2026-11-07T05:38:49.128Z",
+  "at": "2026-11-08T06:33:25.848Z",
   "results": [
     {
       "suite": "e2e-office",
@@ -10,9 +10,8 @@
         "FF-26": "partial",
         "FF-19": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 23848
+      "pass": true,
+      "ms": 6938
     },
     {
       "suite": "e2e-office",
@@ -20,9 +19,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 22882
+      "pass": true,
+      "ms": 10180
     },
     {
       "suite": "e2e-office",
@@ -30,9 +28,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "one native Spreadsheet window after verified reset expected 1 got 0",
-      "ms": 2951
+      "pass": true,
+      "ms": 9700
     },
     {
       "suite": "e2e-office",
@@ -40,9 +37,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "one native Spreadsheet window after verified reset expected 1 got 0",
-      "ms": 4009
+      "pass": true,
+      "ms": 12797
     },
     {
       "suite": "e2e-office",
@@ -50,9 +46,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first() to be visible\n",
-      "ms": 20535
+      "pass": true,
+      "ms": 6734
     },
     {
       "suite": "e2e-office",
@@ -60,9 +55,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first() to be visible\n",
-      "ms": 20307
+      "pass": true,
+      "ms": 8612
     },
     {
       "suite": "e2e-office",
@@ -70,9 +64,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 23093
+      "pass": true,
+      "ms": 11373
     },
     {
       "suite": "e2e-office",
@@ -80,9 +73,8 @@
       "covers": {
         "FF-29": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 22566
+      "pass": true,
+      "ms": 7187
     },
     {
       "suite": "e2e-office",
@@ -90,9 +82,8 @@
       "covers": {
         "FF-28": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 23071
+      "pass": true,
+      "ms": 8111
     },
     {
       "suite": "e2e-office",
@@ -102,9 +93,8 @@
         "FF-20": "partial",
         "FF-21": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Spreadsheet\"]').first().locator('[data-testid=\"sheet-grid\"]') to be visible\n",
-      "ms": 23083
+      "pass": true,
+      "ms": 18251
     },
     {
       "suite": "e2e-office",

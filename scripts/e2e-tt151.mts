@@ -53,10 +53,20 @@ await test("Vault session codes reject malformed URIs and disappear on lock", {}
     await uri.fill("otpauth://totp/%FF?secret=JBSWY3DPEHPK3PXP");
     await win.getByTestId("otp-add").click();
     await win.getByText("invalid label encoding").waitFor();
+    await page.evaluate(() => { Date.now = () => 1700000000000; });
     await uri.fill("otpauth://totp/Test:alice?secret=JBSWY3DPEHPK3PXP&issuer=Test");
     await win.getByTestId("otp-add").click();
     const code = win.getByTestId("otp-code"); await code.waitFor();
     assert.match(await code.innerText(), /^\d{6}$/);
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: base });
+    await page.waitForTimeout(600); // wait for the component to sample the fixed test clock
+    const selected = await code.innerText();
+    await win.getByRole("button", { name: "Copy code" }).click();
+    assert.equal(await page.evaluate(() => navigator.clipboard.readText()), selected);
+    await page.getByText(/Copied \(sensitive/).waitFor();
+    await page.evaluate(() => { Object.defineProperty(navigator.clipboard, "writeText", { configurable: true, value: async () => { throw new Error("permission denied"); } }); });
+    await win.getByRole("button", { name: "Copy code" }).click();
+    await page.getByText(/System clipboard unavailable/).waitFor();
     assert.equal(await uri.inputValue(), "");
     await page.screenshot({ path: "/tmp/tt151-vault.png" });
     await win.getByRole("button", { name: "Lock", exact: true }).click();

@@ -77,7 +77,7 @@ interface OtpEntry { id: number; account: string; issuer?: string; secret: Uint8
  * *verifier* (paste a URI, read the code), and it says so instead of pretending to be
  * a password manager.
  */
-export function OtpCard() {
+export function OtpCard({ onCopy }: { onCopy: (code: string) => Promise<void> }) {
   const [uri, setUri] = useState("");
   const [entries, setEntries] = useState<OtpEntry[]>([]);
   const [error, setError] = useState("");
@@ -123,7 +123,7 @@ export function OtpCard() {
               <span style={{ width: fz(34), height: 4, background: "var(--line, #333)", borderRadius: 2, overflow: "hidden" }}>
                 <span style={{ display: "block", height: "100%", width: `${Math.round(code.remainingRatio * 100)}%`, background: "var(--accent, #4ea1ff)" }} />
               </span>
-              <Btn variant="ghost" onClick={() => { void navigator.clipboard?.writeText(code.code).catch(() => setError("Clipboard unavailable")); }} aria-label="Copy code">Copy</Btn>
+              <Btn variant="ghost" onClick={() => { void onCopy(code.code).catch(() => setError("Clipboard unavailable")); }} aria-label="Copy code">Copy</Btn>
               <Btn variant="ghost" onClick={() => setEntries((rows) => rows.filter((r) => r.id !== e.id))} aria-label="Remove">Remove</Btn>
             </span>
           </div>

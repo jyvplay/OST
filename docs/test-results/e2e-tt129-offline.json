@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt129-offline",
-  "at": "2026-11-07T06:09:54.742Z",
+  "at": "2026-11-08T06:45:08.346Z",
   "results": [
     {
       "suite": "e2e-tt129-offline",
@@ -8,9 +8,8 @@
       "covers": {
         "SH-14": "partial"
       },
-      "pass": false,
-      "error": "page.evaluate: Error: worker activation timed out\n    at eval (eval at evaluate (:370:30), <anonymous>:1:117)",
-      "ms": 20317
+      "pass": true,
+      "ms": 5474
     },
     {
       "suite": "e2e-tt129-offline",
@@ -18,9 +17,8 @@
       "covers": {
         "AP-04": "partial"
       },
-      "pass": false,
-      "error": "the proxy actually rejected a worker precache request",
-      "ms": 6320
+      "pass": true,
+      "ms": 7855
     },
     {
       "suite": "e2e-tt129-offline",
@@ -28,9 +26,8 @@
       "covers": {
         "AP-04": "partial"
       },
-      "pass": false,
-      "error": "the proxy returned an injected HTML page for a real chunk request",
-      "ms": 6308
+      "pass": true,
+      "ms": 7242
     },
     {
       "suite": "e2e-tt129-offline",
@@ -38,9 +35,8 @@
       "covers": {
         "AP-04": "partial"
       },
-      "pass": false,
-      "error": "page.evaluate: Error: old worker activation timed out\n    at eval (eval at evaluate (:370:30), <anonymous>:1:117)",
-      "ms": 20252
+      "pass": true,
+      "ms": 7962
     }
   ]
 }

@@ -277,7 +277,10 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
   const clipSeq = useRef(0);
   const copy = useCallback(async (text: string, from: string, sensitive = false) => {
     let wrote = false;
-    try { await navigator.clipboard?.writeText(text); wrote = true; } catch { /* clipboard write needs focus; the in-app history still records it */ }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(text); wrote = true;
+    } catch { /* clipboard write needs focus; the in-app history still records it */ }
     // unique, increasing ids even for two copies in the same millisecond (entries are addressed by `at`)
     const at = Math.max(Date.now(), clipSeq.current + 1); clipSeq.current = at;
     setClips((c) => addClip(c, { text: sensitive ? "•".repeat(Math.min(text.length, 12)) : text, at, sensitive, from }));
@@ -289,7 +292,7 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
         catch { if (clipSeq.current === at) { try { await navigator.clipboard.writeText(""); } catch { /* no focus: nothing more a web page can do */ } } }
       }, SENSITIVE_CLEAR_MS);
     }
-    toast(sensitive ? "Copied (sensitive — not stored, clipboard clears in 30 s)" : "Copied", "ok");
+    toast(wrote ? (sensitive ? "Copied (sensitive — not stored, clipboard clearing attempted in 30 s)" : "Copied") : "System clipboard unavailable; only the in-app history was updated.", wrote ? "ok" : "warn");
   }, [toast]);
   const editClips = useCallback((fn: (c: ClipEntry[]) => ClipEntry[]) => setClips(fn), []);
 
@@ -404,10 +407,13 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
         }
         }
       } catch (err) {
-        toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
+        if (!cancelled) toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
       }
+      // A superseded boot must not consume a launch URL or dispatch windows.
+      // In Strict Mode its cleanup can run while bootstrap is still in flight.
+      if (cancelled) return;
       loaded.current = true;
-      if (!cancelled) setBooted(true);
+      setBooted(true);
       // TT142: a desktop link that could not be honoured says so, once, instead of
       // silently showing a different desktop than the one the reader asked for.
       if (!cancelled && desktopNotice) toast(desktopNotice, "warn");
@@ -428,7 +434,14 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
           open("browser", { url: shared, title: "Shared link" });
           toast("Opened a shared link from the OS share sheet.", "ok");
         }
-        if (want || shared) window.history.replaceState({}, "", window.location.pathname);
+        if (want || shared) {
+          // A named desktop is part of the location, not a one-shot launch intent.
+          // Keeping it ensures a reload does not silently switch to the shared desktop.
+          const retained = new URLSearchParams();
+          if (params.has("desk")) retained.set("desk", params.get("desk") ?? "");
+          const query = retained.toString();
+          window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : ""));
+        }
       } catch { /* no query parameters is the normal case */ }
     })();
     return () => { cancelled = true; };
