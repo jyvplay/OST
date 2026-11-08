@@ -1,20 +1,20 @@
 {
   "suite": "e2e-tt151",
-  "at": "2026-11-08T18:07:27.591Z",
+  "at": "2026-11-08T18:32:51.882Z",
   "results": [
     {
       "suite": "e2e-tt151",
       "name": "Beam renders and bounds local QR data and refuses overflow",
       "covers": {},
       "pass": true,
-      "ms": 4762
+      "ms": 5246
     },
     {
       "suite": "e2e-tt151",
       "name": "Vault session codes reject malformed URIs and disappear on lock",
       "covers": {},
       "pass": true,
-      "ms": 4629
+      "ms": 5078
     }
   ]
 }

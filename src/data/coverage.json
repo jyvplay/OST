@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T18:05:56.948Z",
+ "generatedAt": "2026-11-08T18:39:09.728Z",
  "totals": {
   "built": {
    "full": 649,
@@ -13,8 +13,8 @@
    "untested": 13
   },
   "tests": {
-   "total": 4500,
-   "passed": 4485
+   "total": 4501,
+   "passed": 4488
   }
  },
  "rows": {
@@ -2052,6 +2052,7 @@
     "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
     "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
     "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
+    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
     "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
     "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
     "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
@@ -4512,6 +4513,7 @@
     "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
     "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
     "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
+    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
     "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
     "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
     "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
@@ -6091,6 +6093,7 @@
     "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
     "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
     "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
+    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
     "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",

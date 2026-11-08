@@ -1,6 +1,6 @@
 {
   "suite": "tt131-ledger",
-  "at": "2026-11-08T18:07:28.105Z",
+  "at": "2026-11-08T18:39:36.030Z",
   "results": [
     {
       "suite": "tt131-ledger",
@@ -39,7 +39,7 @@
       "name": "saved test results refer only to registered feature codes",
       "covers": {},
       "pass": true,
-      "ms": 235
+      "ms": 37
     }
   ]
 }

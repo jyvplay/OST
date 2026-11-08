@@ -1,3 +1,4 @@
+import { bannerTestId } from "./banner-click.mts";
 /**
  * TT69 FF-15 document lifecycle in the real UI (Chromium, production build): open → dirty → save → recover → close-confirm.
  *  1. Spreadsheet: closing a dirty window asks "Save changes?" — a MODAL test: Delete / typing / Ctrl+Z / Ctrl+S /
@@ -150,7 +151,7 @@ await test("Writer: typing writes a recovery draft (python-docx reads its bytes;
   eq(await versions(dp), 0, "draft writes keep no version history");
   await dlg.getByRole("button", { name: "Close window" }).first().click();
   await confirmBox(page).waitFor();
-  ok(/recovery draft is kept/.test(await confirmBox(page).innerText()), "the dialog says a draft is kept");
+  ok(/Don.t save first writes a recovery draft/.test(await confirmBox(page).innerText()), "the dialog says a draft is kept");
   await page.getByTestId("close-confirm-discard").click();
   await poll(async () => (await page.locator('[role=dialog][aria-label="Writer"]').count()) === 0, "closed without saving");
   ok(await readNode(dp), "the draft survives Don't save");
@@ -166,22 +167,22 @@ await test("Writer: typing writes a recovery draft (python-docx reads its bytes;
   ok(!/changed since/.test(await banner.innerText()), "not stale: the file is the one the draft was based on");
   await dlg.getByTestId("recover-restore").click();
   await poll(async () => (await body.innerText()).includes(mark.trim()), "restored text visible");
-  ok(/Save •/.test(await dlg.getByTestId("writer-save").innerText()), "restored = unsaved");
-  await dlg.getByTestId("writer-save").click();
+  ok(/Save •/.test((await dlg.getByTestId("writer-save").textContent()) ?? ""), "restored = unsaved");
+  await bannerTestId(page, dlg, "writer-save", /Save/);
   await poll(async () => !(await readNode(dp)), "Save deletes the draft");
   writeFileSync(join(tmp, "saved.docx"), await bytesOf(docPath));
   ok(docxText(join(tmp, "saved.docx")).includes(`Alpha base paragraph${mark}`), "python-docx reads the restored + saved paragraph");
   // 3. New over unsaved work
   await body.locator("[data-pid]").filter({ hasText: "Alpha base" }).first().click(); await page.keyboard.press("End");
   await page.keyboard.type(" NU");
-  await poll(async () => /Save •/.test(await dlg.getByTestId("writer-save").innerText()), "dirty again");
-  await dlg.getByTestId("writer-new").click();
+  await poll(async () => /Save •/.test((await dlg.getByTestId("writer-save").textContent()) ?? ""), "dirty again");
+  await bannerTestId(page, dlg, "writer-new", "New");
   await confirmBox(page).waitFor();
-  ok(/Starting a new document replaces it/.test(await confirmBox(page).innerText()), "replace wording");
+  ok(/Switching documents replaces these edits/.test(await confirmBox(page).innerText()), "replace wording");
   await page.keyboard.press("Escape");
   await poll(async () => (await confirmBox(page).count()) === 0, "cancelled");
   ok((await body.innerText()).includes("NU"), "Cancel keeps the text (TT68's New discarded it silently)");
-  await dlg.getByTestId("writer-new").click(); await confirmBox(page).waitFor();
+  await bannerTestId(page, dlg, "writer-new", "New"); await confirmBox(page).waitFor();
   await page.getByTestId("close-confirm-discard").click();
   await poll(async () => !(await body.innerText()).includes("Alpha base"), "a new document replaced it");
   const kept = decodeDraft((await readNode(dp))?.content ?? "", "writer"); ok(kept, "Don't save on New keeps a draft of the old document");
@@ -210,7 +211,7 @@ await test("leaving the page with unsaved work raises the browser's beforeunload
   const d2 = p2.locator('[role=dialog][aria-label="Writer"]').last(); const b2 = d2.locator('[data-testid="writer-body"]');
   await b2.locator("[data-pid]").first().waitFor({ timeout: 25_000 });
   await b2.locator("[data-pid]").first().click(); await p2.keyboard.type("unsaved words");
-  await poll(async () => /Save •/.test(await d2.getByTestId("writer-save").innerText()), "dirty");
+  await poll(async () => /Save •/.test((await d2.getByTestId("writer-save").textContent()) ?? ""), "dirty");
   let seen2 = "";
   p2.on("dialog", async (dl) => { seen2 = dl.type(); await dl.dismiss(); });
   await p2.close({ runBeforeUnload: true });

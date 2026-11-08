@@ -1,6 +1,6 @@
 {
   "suite": "e2e-sheet-layout",
-  "at": "2026-11-08T17:43:22.619Z",
+  "at": "2026-11-08T18:29:52.454Z",
   "results": [
     {
       "suite": "e2e-sheet-layout",
@@ -9,7 +9,7 @@
         "FF-33": "full"
       },
       "pass": true,
-      "ms": 7583
+      "ms": 6839
     },
     {
       "suite": "e2e-sheet-layout",
@@ -18,7 +18,7 @@
         "FF-34": "full"
       },
       "pass": true,
-      "ms": 4488
+      "ms": 3234
     },
     {
       "suite": "e2e-sheet-layout",
@@ -27,7 +27,7 @@
         "FF-35": "full"
       },
       "pass": true,
-      "ms": 7633
+      "ms": 7380
     },
     {
       "suite": "e2e-sheet-layout",
@@ -37,7 +37,7 @@
         "FF-28": "partial"
       },
       "pass": true,
-      "ms": 5407
+      "ms": 4936
     },
     {
       "suite": "e2e-sheet-layout",
@@ -50,7 +50,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 10530
+      "ms": 10086
     },
     {
       "suite": "e2e-sheet-layout",
@@ -60,7 +60,7 @@
         "FF-20": "partial"
       },
       "pass": true,
-      "ms": 12219
+      "ms": 11786
     },
     {
       "suite": "e2e-sheet-layout",

@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-11-08T18:05:56.940Z by `scripts/ledger.mjs` from the live register (http://localhost:3999) and
-459 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-11-08T18:39:09.724Z by `scripts/ledger.mjs` from the live register (http://localhost:4000) and
+460 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -19,7 +19,7 @@ See each suite timestamp and the latest turn report for current tests, known cla
 | **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **599** |
 | **Partially tested** (partial tags or an incomplete row with passing evidence) | **62** |
 | Untested | 13 |
-| Recorded test cases / passed (mixed run dates) | 4500 / 4485 |
+| Recorded test cases / passed (mixed run dates) | 4501 / 4488 |
 
 ## Build × test matrix
 
@@ -49,9 +49,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-image | 11 | 11 | 0 | 2026-10-31T05:14:55.173Z |
 | e2e-layout | 12 | 12 | 0 | 2026-10-29T19:51:15.019Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
-| e2e-office | 11 | 10 | 1 | 2026-11-08T17:42:33.419Z |
+| e2e-office | 11 | 11 | 0 | 2026-11-08T18:38:01.993Z |
 | e2e-privacy | 16 | 16 | 0 | 2026-10-31T05:40:42.112Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-08T17:43:22.619Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-08T18:29:52.454Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
 | e2e-tt100-recall | 27 | 27 | 0 | 2026-10-29T19:41:23.175Z |
@@ -86,9 +86,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt123 | 3 | 3 | 0 | 2026-11-08T17:53:52.916Z |
 | e2e-tt124 | 4 | 3 | 1 | 2026-11-08T17:51:23.603Z |
 | e2e-tt125 | 3 | 2 | 1 | 2026-11-08T17:52:33.506Z |
-| e2e-tt126 | 4 | 4 | 0 | 2026-11-08T18:05:48.894Z |
+| e2e-tt126 | 4 | 4 | 0 | 2026-11-08T18:06:58.612Z |
 | e2e-tt127-photos | 1 | 1 | 0 | 2026-11-08T17:53:08.889Z |
-| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-08T18:04:17.996Z |
+| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-08T18:07:17.254Z |
 | e2e-tt128-editor | 4 | 4 | 0 | 2026-11-08T17:50:24.629Z |
 | e2e-tt128-photos | 11 | 11 | 0 | 2026-11-08T17:50:09.063Z |
 | e2e-tt128-time | 2 | 2 | 0 | 2026-11-08T17:50:17.581Z |
@@ -98,7 +98,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt130-alarms | 9 | 9 | 0 | 2026-11-08T17:48:47.883Z |
 | e2e-tt130-privacy | 1 | 1 | 0 | 2026-11-08T17:48:10.805Z |
 | e2e-tt131-image-viewport | 10 | 10 | 0 | 2026-11-08T17:48:07.412Z |
-| e2e-tt132-alarms | 13 | 12 | 1 | 2026-11-08T17:47:01.030Z |
+| e2e-tt132-alarms | 13 | 13 | 0 | 2026-11-08T18:39:05.941Z |
 | e2e-tt132-planner | 17 | 17 | 0 | 2026-11-08T17:48:00.225Z |
 | e2e-tt133-boundaries | 7 | 7 | 0 | 2026-11-08T17:40:01.919Z |
 | e2e-tt133-notes-find | 27 | 27 | 0 | 2026-11-08T17:39:37.950Z |
@@ -110,8 +110,9 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt146 | 5 | 5 | 0 | 2026-11-08T06:39:31.943Z |
 | e2e-tt147 | 6 | 6 | 0 | 2026-11-07T06:33:46.390Z |
 | e2e-tt148 | 4 | 4 | 0 | 2026-11-07T09:13:22.126Z |
-| e2e-tt151 | 2 | 2 | 0 | 2026-11-08T18:04:36.307Z |
+| e2e-tt151 | 2 | 2 | 0 | 2026-11-08T18:32:51.882Z |
 | e2e-tt152-boot | 1 | 1 | 0 | 2026-11-08T06:47:44.086Z |
+| e2e-tt154-recovery | 1 | 1 | 0 | 2026-11-08T18:37:17.185Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -160,10 +161,10 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt66 | 3 | 3 | 0 | 2026-10-25T23:04:53.733Z |
 | e2e-tt67-input | 5 | 5 | 0 | 2026-10-27T21:17:46.574Z |
 | e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-25T23:09:33.883Z |
-| e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-10-25T23:10:09.579Z |
+| e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-11-08T18:35:59.613Z |
 | e2e-tt70-closeall | 3 | 3 | 0 | 2026-10-25T23:11:22.407Z |
 | e2e-tt70-rows | 3 | 3 | 0 | 2026-10-25T23:15:35.730Z |
-| e2e-tt70-seal | 2 | 2 | 0 | 2026-10-25T23:11:08.812Z |
+| e2e-tt70-seal | 2 | 2 | 0 | 2026-11-08T18:36:33.387Z |
 | e2e-tt71-focus | 4 | 4 | 0 | 2026-10-25T23:15:45.675Z |
 | e2e-tt72-access | 4 | 4 | 0 | 2026-10-25T23:17:42.237Z |
 | e2e-tt72-pad | 5 | 5 | 0 | 2026-10-25T23:17:23.026Z |
@@ -274,7 +275,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt124-density | 23 | 20 | 3 | 2026-11-08T17:33:45.954Z |
 | tt125-core | 17 | 17 | 0 | 2026-11-08T17:35:33.671Z |
 | tt125-density | 3 | 3 | 0 | 2026-11-07T06:36:14.671Z |
-| tt126-regressions | 6 | 6 | 0 | 2026-11-08T17:35:44.064Z |
+| tt126-regressions | 6 | 6 | 0 | 2026-11-08T18:37:00.472Z |
 | tt127-conditional | 3 | 3 | 0 | 2026-11-08T17:52:45.870Z |
 | tt128-calendar-race | 1 | 1 | 0 | 2026-11-08T17:49:17.397Z |
 | tt128-core | 23 | 23 | 0 | 2026-11-08T17:35:34.975Z |
@@ -286,7 +287,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt129-worker-unit | 5 | 5 | 0 | 2026-11-08T17:35:34.569Z |
 | tt130-alarms-core | 4 | 4 | 0 | 2026-11-08T17:35:35.368Z |
 | tt130-privacy-boot | 1 | 1 | 0 | 2026-11-08T17:35:35.600Z |
-| tt131-ledger | 5 | 5 | 0 | 2026-11-08T17:48:00.637Z |
+| tt131-ledger | 5 | 5 | 0 | 2026-11-08T18:07:28.105Z |
 | tt132-claim-contract | 3 | 3 | 0 | 2026-11-06T21:20:20.748Z |
 | tt132-core | 12 | 12 | 0 | 2026-11-08T17:35:21.442Z |
 | tt132-lint-contract | 4 | 4 | 0 | 2026-11-08T17:35:21.825Z |
@@ -339,8 +340,8 @@ verifies the honesty contract, not the (impossible) capability.
 | tt147-core | 10 | 10 | 0 | 2026-11-08T17:35:39.897Z |
 | tt148-core | 7 | 7 | 0 | 2026-11-08T17:35:40.204Z |
 | tt149-calc | 6 | 6 | 0 | 2026-11-07T09:39:36.073Z |
-| tt151-qr | 6 | 6 | 0 | 2026-11-08T06:42:12.703Z |
-| tt151-time | 11 | 11 | 0 | 2026-11-08T17:32:30.277Z |
+| tt151-qr | 6 | 6 | 0 | 2026-11-08T18:28:19.209Z |
+| tt151-time | 11 | 11 | 0 | 2026-11-08T18:28:18.409Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-30T17:49:09.360Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-30T17:49:10.295Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -410,7 +411,7 @@ verifies the honesty contract, not the (impossible) capability.
 | tt67-input | 11 | 11 | 0 | 2026-10-27T21:17:11.260Z |
 | tt67-sheet-ns | 13 | 13 | 0 | 2026-10-26T08:11:31.185Z |
 | tt68-blank | 8 | 8 | 0 | 2026-10-25T23:09:25.727Z |
-| tt69-lifecycle | 11 | 11 | 0 | 2026-10-29T19:40:25.551Z |
+| tt69-lifecycle | 11 | 11 | 0 | 2026-11-08T18:28:21.554Z |
 | tt69-sheet-misc | 5 | 5 | 0 | 2026-10-26T07:53:17.856Z |
 | tt70-edge | 5 | 5 | 0 | 2026-10-26T20:00:59.953Z |
 | tt70-range | 6 | 6 | 0 | 2026-10-26T20:00:59.791Z |
@@ -500,7 +501,7 @@ verifies the honesty contract, not the (impossible) capability.
 ## Rows touched by FAILING tests (not counted as tested)
 
 - AX-09: e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen
-- FF-28: e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen; e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised
+- FF-28: e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen
 - AX-03: e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)
 - AX-11: e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
 - AX-08: e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet
@@ -518,8 +519,6 @@ verifies the honesty contract, not the (impossible) capability.
 - ED-09: e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count
 - ED-10: e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count
 - WR-02: e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count
-- CK-01: e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor
-- PR-10: e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor
 - AX-21: tt119-density: AX-21: every app measured, none wordier than the ceiling, no emoji marks
 - AX-22: tt120-density: AX-22: every app measured, none wordier than the ceiling, no emoji marks
 - AX-24: tt124-density: density monitor: words<=520; tt124-density: density routines: words<=300
@@ -856,7 +855,7 @@ verifies the honesty contract, not the (impossible) capability.
 | PH-02 | built | full | e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data; e2e: mount: photos; tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes (+1) |
 | SV-01 | built | full | e2e-tt118: SV-01: a saved search persists and re-applies its query; e2e: mount: find; tt118-core: SV-01 saved searches: modes validated, duplicate names refused, sorted newest first |
 | AX-20 | built | full | e2e: mount: browser; tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks |
-| CK-01 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; e2e-tt130-alarms: control: an open Clock window fires the same alarm; e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes (+43) |
+| CK-01 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; e2e-tt130-alarms: control: an open Clock window fires the same alarm; e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes (+44) |
 | CK-02 | built | full | e2e: mount: clock; tt117-core: CK-02 lap splits: deltas, fastest/slowest, monotonic refusal |
 | CK-03 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; e2e-tt128-time: Clock: local date controls and explicit overlap/gap choices; e2e: mount: clock (+3) |
 | NT-01 | built | full | e2e-tt117: NT-01 in Notes: statistics follow the text being edited; e2e: mount: notes; tt117-core: NT-01 note stats: code excluded, outline, links, reading time |
@@ -1028,7 +1027,7 @@ verifies the honesty contract, not the (impossible) capability.
 | PR-07s | built | full | tt140-cast-privacy: PR-07s · media in another document is never offered as castable; tt140-cast-privacy: PR-07s · each blocker produces its own honest reason; tt140-cast-privacy: PR-07s · the per-tab summary counts and explains |
 | PR-08 | built | full | e2e-tt52-pdf: corpus files open: one thumbnail per page (= PDFium page count), page canvases carry ink — tracemonkey.pdf (14 pages), alphatrans.pdf, 160F-2019.pdf (forms); e2e-tt52-pdf: annotate + page ops + title → Ctrl+S → PDFium/pypdf see exactly those edits; original bytes are an exact prefix (incremental update); e2e-tt52-pdf: forms: Tx + checkbox + choice filled in the Forms panel → pypdf reads the values (+98) |
 | PR-09 | built | full | e2e-tt96-calculator: programmer controls compute exact 64-bit and signed fixed-width expressions in the real UI; e2e-tt96-calculator: history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes; e2e-tt96-calculator: quota denial is visible and never reported as a confirmed saved history entry (+77) |
-| PR-10 | built | full | e2e-tt130-alarms: control: an open Clock window fires the same alarm; e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes; e2e-tt132-alarms: actionable ring survives Clock close and toast expiry; dismiss leaves the schedule enabled (+21) |
+| PR-10 | built | full | e2e-tt130-alarms: control: an open Clock window fires the same alarm; e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes; e2e-tt132-alarms: actionable ring survives Clock close and toast expiry; dismiss leaves the schedule enabled (+22) |
 | PR-11 | built | partial | e2e-tt46: welcome document renders as a paged Word document (title style, bullet markers, bordered table, page box); e2e-tt46: typing with the real keyboard: text, Enter, Shift+Arrow selection + Ctrl+B, Ctrl+Z undo, Backspace join; e2e-tt46: Save as .docx from the UI → python-docx reads the typed text, Heading 1 style, bold run and bullet list (+44) |
 | PR-12 | built | full | e2e-tt57-rows: PR-12 clipboard history: Fusion copies land in the system clipboard (read back independently) and the history; same text twice = one entry moved to top; pin survives Clear; search filters; e2e: mount: clipboard; tt57-units: PR-12 hand cases: dedupe moves to top keeping the pin; sensitive never deduped/pinned; cap spares pinned; clear keeps pinned; search text+source (+1) |
 | PR-13 | built | full | e2e: desktop shows sticky note widget; seeded widget has no hang button; tt139-engines: DIFF-01 · Myers distance equals an independent longest-common-subsequence count; tt139-engines: DIFF-02 · the budget reports truncation instead of pretending everything changed (+3) |
@@ -1078,7 +1077,7 @@ verifies the honesty contract, not the (impossible) capability.
 | BK-06 | built | full | e2e-tt87-backup: BK-03 UI builds a settings-only snapshot, verifies it and downloads both plaintext and authenticated encrypted files; e2e-tt87-backup: BK-03 wrong passphrase, ciphertext mutation and plain checksum tampering are refused before any restore request; e2e-tt87-backup: BK-03 encrypted UI restore previews, can cancel, applies settings live in two tabs and never posts the passphrase (+19) |
 | FF-26 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e: mount: sheet; office: SEQUENCE(2,3) spills all six cells with correct values (+13) |
 | FF-27 | built | full | e2e: mount: sheet; office: FILTER with a broadcast boolean condition, SORT, UNIQUE, XLOOKUP; office: first-party verified semantics survive: SUM(1,"x",2) is still #VALUE! (+7) |
-| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+35) |
+| FF-28 | built | full | e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet; e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates; e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region (+36) |
 | FF-29 | built | full | e2e-office: charts panel renders SVG chart images (bar → pie) from a dynamic-array source; e2e-tt49: imported x14 data bars (automatic bounds + border), x14-only 3Stars and a custom icon mix are drawn cell-for-cell as evaluated; e2e-tt49: CF borders, formula rules and time periods from a workbook our writer produced are drawn as evaluated (+48) |
 | FF-30 | built | full | e2e-image: ORACLE: our compositor vs Chromium/Skia globalCompositeOperation — the 16 canvas blend modes (incl. hue/saturation/color/luminosity), opaque and translucent backdrops; e2e-image: new doc renders; brush drag paints a continuous line in the foreground colour; undo/redo; e2e-image: layers: new layer, paint, blend=multiply changes composite, opacity, visibility toggle, reorder, merge (+28) |
 | FF-31 | built | full | e2e-image: Save PSD → VFS file decodes with our reader (layers/blend/mask) → deep-link reopen restores layers and pixels; e2e: mount: imageedit; image: TT78 PSD: groups / clipping / non-separable keys round-trip; clip to a group is reported and drawn unclipped (+12) |
