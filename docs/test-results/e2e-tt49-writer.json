@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt49-writer",
-  "at": "2026-11-07T06:01:42.567Z",
+  "at": "2026-11-08T17:45:22.851Z",
   "results": [
     {
       "suite": "e2e-tt49-writer",
@@ -8,9 +8,8 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first() to be visible\n",
-      "ms": 25600
+      "pass": true,
+      "ms": 10359
     },
     {
       "suite": "e2e-tt49-writer",
@@ -18,9 +17,8 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first().locator('[data-testid=\"writer-body\"] [data-pid]').first() to be visible\n",
-      "ms": 27974
+      "pass": true,
+      "ms": 7160
     },
     {
       "suite": "e2e-tt49-writer",
@@ -28,9 +26,8 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first().locator('[data-testid=\"writer-body\"] [data-pid]').first() to be visible\n",
-      "ms": 28349
+      "pass": true,
+      "ms": 8109
     },
     {
       "suite": "e2e-tt49-writer",
@@ -38,9 +35,8 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first() to be visible\n",
-      "ms": 25487
+      "pass": true,
+      "ms": 5899
     },
     {
       "suite": "e2e-tt49-writer",
@@ -48,9 +44,8 @@
       "covers": {
         "FF-22": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog][aria-label=\"Writer\"]').first() to be visible\n",
-      "ms": 25440
+      "pass": true,
+      "ms": 7937
     },
     {
       "suite": "e2e-tt49-writer",
@@ -59,7 +54,7 @@
         "FF-22": "full"
       },
       "pass": true,
-      "ms": 227
+      "ms": 185
     }
   ]
 }

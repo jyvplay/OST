@@ -1,10 +1,10 @@
 {
   "suite": "tt140-glyph-geometry",
-  "at": "2026-11-07T05:27:12.835Z",
+  "at": "2026-11-08T17:35:37.028Z",
   "results": [
     {
       "suite": "tt140-glyph-geometry",
-      "name": "every glyph renders, stays on the tile and is distinguishable (46 checked, 4 skipped)",
+      "name": "every glyph renders, stays on the tile and is distinguishable (49 checked, 4 skipped)",
       "covers": {
         "AX-10": "partial"
       },

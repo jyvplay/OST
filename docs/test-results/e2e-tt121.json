@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt121",
-  "at": "2026-11-07T06:17:58.831Z",
+  "at": "2026-11-08T17:55:08.509Z",
   "results": [
     {
       "suite": "e2e-tt121",
@@ -10,7 +10,7 @@
         "CK-05": "full"
       },
       "pass": true,
-      "ms": 13501
+      "ms": 8090
     },
     {
       "suite": "e2e-tt121",
@@ -19,8 +19,9 @@
         "ED-05": "full",
         "TM-05": "full"
       },
-      "pass": true,
-      "ms": 10703
+      "pass": false,
+      "error": "locator.click: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"] input').last()\n    - locator resolved to <input value=\"\" spellcheck=\"false\" class=\"fs-input fs-mono\" aria-label=\"Terminal input\"/>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    39 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "ms": 25955
     },
     {
       "suite": "e2e-tt121",
@@ -32,7 +33,7 @@
         "AX-23": "full"
       },
       "pass": true,
-      "ms": 13500
+      "ms": 8127
     },
     {
       "suite": "e2e-tt121",
@@ -43,7 +44,7 @@
         "SR-11": "full"
       },
       "pass": true,
-      "ms": 10653
+      "ms": 6153
     }
   ]
 }

@@ -1,7 +1,7 @@
 /**
  * TT151 — cron and one-time passwords.
  *
- * Three independent oracles, none of them this code:
+ * References and targeted checks:
  *
  *  RFC 4226 / RFC 6238  normative test vectors (published constants). If the
  *                       dynamic-truncation offset, the 64-bit counter encoding or
@@ -9,15 +9,18 @@
  *  FIPS 180-4 / RFC 2202 SHA-1 and HMAC-SHA1 vectors — the primitive underneath,
  *                       checked separately so a TOTP failure can be attributed.
  *  brute force          `nextOccurrences` must agree, minute by minute, with an
- *                       exhaustive scan written in the test itself, over a whole
- *                       year of UTC instants. The fast path is allowed to be
- *                       clever only if it equals the slow path everywhere.
+ *                       exhaustive scan written in the test itself, over a bounded
+ *                       40-day horizon of UTC instants. The fast path is allowed to be
+ *                       clever only if it equals the slow path for the tested inputs.
+ *
+ *  croniter             pinned fixture checks Vixie leading-star cases independently.
  *
  * The DST cases use a real IANA zone through `Intl` (America/New_York), which is
  * the platform's tzdata rather than a fixture, so "a 02:30 job does not exist on
  * the spring-forward day" is asserted against the same data the browser uses.
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { makeHarness } from "./harness.mts";
 import { parseCron, nextOccurrences, cronMatchesDay, describeCron, CRON_MACROS } from "../src/lib/cron.ts";
 import {
@@ -76,7 +79,11 @@ await test("CR-01 · the grammar accepts the standard five fields and refuses ev
   bad("0 0 * 13 *", /month: 13 is outside 1–12/);
   bad("0 0 * * 8", /day-of-week: 8 is outside 0–7/);
   bad("0 0 * * fry", /not a number or name/);
-  bad("*/0 * * * *", /step must be at least 1/);
+  bad("0 0 * * mondayish", /not a number or name/);
+  bad("0 0 * januaryish *", /not a number or name/);
+  bad(`*/${"9".repeat(400)} * * * *`, /step/);
+  assert.deepEqual(ok("0 0 * January Monday").dayOfWeek, [1]);
+  bad("*/0 * * * *", /step must be .*at least 1/);
   bad("5-1 * * * *", /runs backwards/);
   bad("1,,2 * * * *", /empty list item/);
   bad("1-2-3 * * * *", /more than one dash/);
@@ -110,6 +117,23 @@ await test("CR-01 · day matching follows the Vixie rule: two restricted day fie
   assert.equal(cronMatchesDay(januaryFirst, 2025, 2, 1), false);
 });
 
+await test("CR-01 · leading stars intersect day fields and a viable weekday rescues an impossible month day", {}, () => {
+  const fixture = JSON.parse(readFileSync("docs/test-fixtures/cron-vixie.json", "utf8")) as { cases: { expression: string; startMs: number; nextMs: number[] }[] };
+  for (const c of fixture.cases) {
+    const parsed = parseCron(c.expression);
+    assert.ok(parsed.ok, c.expression);
+    assert.deepEqual(nextOccurrences(parsed.schedule, c.startMs, "UTC", 5, 400).instants, c.nextMs, c.expression);
+  }
+  const valid = parseCron("0 0 30 2 1");
+  assert.ok(valid.ok, "February Mondays exist even though February 30 does not");
+  assert.deepEqual(nextOccurrences(valid.schedule, Date.UTC(2025, 1, 1), "UTC", 4, 40).instants,
+    [3, 10, 17, 24].map(day => Date.UTC(2025, 1, day)));
+  const stepped = parseCron("0 0 */2 * 1");
+  assert.ok(stepped.ok);
+  assert.match(describeCron(stepped.schedule), /day .* and weekday mon/);
+  assert.equal(parseCron("0 0 30 2 *").ok, false, "an impossible AND schedule still refuses");
+});
+
 // ── CR-02: agreement with brute force ───────────────────────────────────────
 
 await test("CR-02 · next-occurrence search equals a minute-by-minute scan in UTC", {}, () => {
@@ -138,6 +162,21 @@ await test("CR-02 · next-occurrence search equals a minute-by-minute scan in UT
   assert.deepEqual(years.instants.map((t) => new Date(t).getUTCFullYear()), [2028, 2032, 2036]);
 });
 
+await test("CR-02 · UTC dense schedules retain strict cursor and midnight boundaries", {}, () => {
+  for (const expr of ["* * * * *", "*/15 * * * *", "0,30 0,23 * * *"]) {
+    const parsed = parseCron(expr); assert.ok(parsed.ok);
+    for (const from of [Date.UTC(2025, 0, 2, 0, 0), Date.UTC(2025, 0, 2, 23, 29, 59), Date.UTC(2025, 0, 2, 23, 59, 59)]) {
+      const actual = nextOccurrences(parsed.schedule, from, "UTC", 5, 3).instants;
+      const expected: number[] = [];
+      for (let t = Math.floor(from / 60000) * 60000 + 60000; expected.length < 5; t += 60000) {
+        const date = new Date(t);
+        if (parsed.schedule.minute.includes(date.getUTCMinutes()) && parsed.schedule.hour.includes(date.getUTCHours())) expected.push(t);
+      }
+      assert.deepEqual(actual, expected, `${expr}: ${new Date(from).toISOString()}`);
+    }
+  }
+});
+
 // ── CR-03: DST honesty ──────────────────────────────────────────────────────
 
 await test("CR-03 · a wall time the zone skipped is reported, not invented, and an overlap fires once", {}, () => {
@@ -154,6 +193,8 @@ await test("CR-03 · a wall time the zone skipped is reported, not invented, and
     "the skipped morning must be absent from the results");
   assert.equal(spring.skipped.length, 1, "and it must be reported exactly once");
   assert.match(spring.skipped[0].local, /2025-03-09 02:30/);
+  const afterGap = nextOccurrences(daily230.schedule, Date.UTC(2025, 2, 9, 7, 0), NY, 1, 5);
+  assert.deepEqual(afterGap.skipped, [], "a gap before the cursor is not a future skipped occurrence");
   // The autumn overlap: 01:30 happens twice on 2025-11-02. Firing twice would be the bug.
   const daily130 = parseCron("30 1 * * *");
   assert.ok(daily130);

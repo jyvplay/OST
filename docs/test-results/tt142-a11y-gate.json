@@ -1,6 +1,6 @@
 {
   "suite": "tt142-a11y-gate",
-  "at": "2026-11-06T22:02:15.642Z",
+  "at": "2026-11-08T17:35:38.713Z",
   "results": [
     {
       "suite": "tt142-a11y-gate",
@@ -63,7 +63,7 @@
         "DP-07": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt142-a11y-gate",

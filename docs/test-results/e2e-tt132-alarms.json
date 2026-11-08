@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt132-alarms",
-  "at": "2026-11-07T06:05:40.187Z",
+  "at": "2026-11-08T17:47:01.030Z",
   "results": [
     {
       "suite": "e2e-tt132-alarms",
@@ -10,7 +10,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 8749
+      "ms": 4744
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -20,7 +20,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 12926
+      "ms": 6134
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -30,7 +30,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 12594
+      "ms": 5187
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -40,7 +40,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 9678
+      "ms": 4727
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -50,7 +50,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 12153
+      "ms": 4845
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -59,8 +59,9 @@
         "CK-01": "partial",
         "PR-10": "partial"
       },
-      "pass": true,
-      "ms": 12275
+      "pass": false,
+      "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n  - waiting for getByTestId('toasts').getByText(/changed in another window/) to be visible\n",
+      "ms": 19703
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -70,7 +71,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 11597
+      "ms": 4402
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -80,7 +81,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 9417
+      "ms": 3965
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -90,7 +91,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 16054
+      "ms": 5961
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -100,7 +101,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 10361
+      "ms": 4205
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -110,7 +111,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 8710
+      "ms": 3379
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -120,7 +121,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 15441
+      "ms": 5396
     },
     {
       "suite": "e2e-tt132-alarms",
@@ -130,7 +131,7 @@
         "PR-10": "partial"
       },
       "pass": true,
-      "ms": 7298
+      "ms": 3449
     }
   ]
 }

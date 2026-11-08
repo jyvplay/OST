@@ -2,27 +2,77 @@
   "scope": "Actual presentation-repair attacks and supplemental captures, not new Class A features or universal device acceptance",
   "records": [
     {
+      "app": "browser-deny",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/browser-deny-wide.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 403
+      }
+    },
+    {
       "app": "browser-unknown",
       "mode": "wide",
       "path": "docs/screens/tt134-review-repairs/browser-unknown-wide.png",
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw5yyv56-wide.invalid/",
+        "url": "https://tt134-mw84c8wr-wide.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw5yyv56-wide.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw84c8wr-wide.invalid",
         "host": "S3-handoff",
         "tookMs": 5
       }
     },
     {
+      "app": "spec-collapsed",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-wide.png",
+      "words": 12142
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "wide",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-wide.png",
+      "words": 12582
+    },
+    {
       "app": "beam",
       "mode": "wide",
       "path": "docs/screens/tt134-review-repairs/beam-wide.png",
-      "words": 291,
+      "words": 301,
       "proof": {
         "localFileGapPx": 8
+      }
+    },
+    {
+      "app": "browser-deny",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/browser-deny-compact.png",
+      "words": 121,
+      "proof": {
+        "ok": true,
+        "url": "https://github.com/",
+        "status": 200,
+        "verdict": "deny",
+        "reason": "X-Frame-Options: DENY",
+        "host": "S3-handoff",
+        "headers": {
+          "x-frame-options": "deny",
+          "frame-ancestors": "'none'"
+        },
+        "tookMs": 305
       }
     },
     {
@@ -32,19 +82,31 @@
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw5yz6k3-compact.invalid/",
+        "url": "https://tt134-mw84cohf-compact.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw5yz6k3-compact.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw84cohf-compact.invalid",
         "host": "S3-handoff",
-        "tookMs": 4
+        "tookMs": 7
       }
+    },
+    {
+      "app": "spec-collapsed",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-collapsed-compact.png",
+      "words": 12142
+    },
+    {
+      "app": "spec-expanded",
+      "mode": "compact",
+      "path": "docs/screens/tt134-review-repairs/spec-expanded-compact.png",
+      "words": 12582
     },
     {
       "app": "beam",
       "mode": "compact",
       "path": "docs/screens/tt134-review-repairs/beam-compact.png",
-      "words": 291,
+      "words": 301,
       "proof": {
         "localFileGapPx": 8
       }

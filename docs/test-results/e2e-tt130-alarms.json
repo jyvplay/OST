@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt130-alarms",
-  "at": "2026-11-07T06:09:00.828Z",
+  "at": "2026-11-08T17:48:47.883Z",
   "results": [
     {
       "suite": "e2e-tt130-alarms",
@@ -10,7 +10,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 8399
+      "ms": 2745
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -20,7 +20,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 6936
+      "ms": 3522
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -29,7 +29,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 8779
+      "ms": 3684
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -38,7 +38,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 11263
+      "ms": 5376
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -47,7 +47,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 8105
+      "ms": 3351
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -56,7 +56,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 6978
+      "ms": 3191
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -66,7 +66,7 @@
         "SC-10": "partial"
       },
       "pass": true,
-      "ms": 10765
+      "ms": 4605
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -75,7 +75,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 7213
+      "ms": 3006
     },
     {
       "suite": "e2e-tt130-alarms",
@@ -84,7 +84,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 20370
+      "ms": 6262
     }
   ]
 }

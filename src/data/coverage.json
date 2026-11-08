@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T06:48:05.699Z",
+ "generatedAt": "2026-11-08T18:05:56.948Z",
  "totals": {
   "built": {
    "full": 649,
@@ -8,13 +8,13 @@
    "none": 0
   },
   "tested": {
-   "full": 597,
-   "partial": 65,
-   "untested": 12
+   "full": 599,
+   "partial": 62,
+   "untested": 13
   },
   "tests": {
-   "total": 4498,
-   "passed": 4467
+   "total": 4500,
+   "passed": 4485
   }
  },
  "rows": {
@@ -951,7 +951,6 @@
   "ED-10": {
    "tested": "full",
    "tests": [
-    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
     "e2e-tt128-editor: timestamp replaces only the selected span",
     "tt125-core: ED-10 stampText: zero-padded local date and time, minute precision",
@@ -961,7 +960,6 @@
   "ED-09": {
    "tested": "full",
    "tests": [
-    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
     "e2e-tt128-editor: case expansion preserves the whole transformed selection",
     "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
@@ -977,7 +975,6 @@
   "WR-02": {
    "tested": "full",
    "tests": [
-    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "tt125-core: WR-02 reading time: 238 wpm, rounds up, empty says so"
    ]
   },
@@ -1088,7 +1085,6 @@
   "ED-08": {
    "tested": "full",
    "tests": [
-    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
     "e2e: mount: editor",
     "tt124-core: ED-08 indent: block spans selection, dedent removes one step, selection tracks",
@@ -1106,7 +1102,6 @@
   "PD-02": {
    "tested": "full",
    "tests": [
-    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: pdf",
     "tt124-core: PD-02 page jump: 1-based clamp, garbage refused"
    ]
@@ -1138,10 +1133,8 @@
   "WR-01": {
    "tested": "full",
    "tests": [
-    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: writer",
-    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
-    "tt124-density: screenshots: writer goal dialog + spec family progress"
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag"
    ]
   },
   "IE-01": {
@@ -1223,8 +1216,7 @@
    "tests": [
     "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
     "e2e: mount: spec",
-    "tt124-core: SP-03 family text: worst first, same engine as the strip",
-    "tt124-density: screenshots: writer goal dialog + spec family progress"
+    "tt124-core: SP-03 family text: worst first, same engine as the strip"
    ]
   },
   "BM-02": {
@@ -1614,7 +1606,6 @@
   "ED-05": {
    "tested": "full",
    "tests": [
-    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
     "e2e: mount: editor",
     "tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order"
    ]
@@ -1735,7 +1726,6 @@
   "TM-05": {
    "tested": "full",
    "tests": [
-    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
     "e2e: mount: terminal",
     "tt121-core: TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq"
    ]
@@ -1766,7 +1756,6 @@
   "ED-04": {
    "tested": "full",
    "tests": [
-    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
     "e2e: mount: editor",
     "tt120-core: ED-04 line nav + stats: clamped, wc-consistent"
    ]
@@ -1796,7 +1785,6 @@
   "TM-04": {
    "tested": "full",
    "tests": [
-    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
     "e2e: mount: terminal",
     "tt120-core: TM-04 head/tail: whole file when short, -n parsing"
    ]
@@ -1854,7 +1842,6 @@
   "ED-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
     "e2e: mount: editor",
     "tt119-core: ED-03 find/replace: literal, counted, nth-only, empty refused"
    ]
@@ -1898,7 +1885,6 @@
   "TM-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
     "e2e: mount: terminal",
     "tt119-core: TM-03 wc: UTF-8 bytes, POSIX lines"
    ]
@@ -2042,9 +2028,10 @@
    ]
   },
   "AX-20": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: browser"
+    "e2e: mount: browser",
+    "tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks"
    ]
   },
   "CK-01": {
@@ -2065,7 +2052,6 @@
     "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
     "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
     "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
-    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
     "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
     "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
     "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
@@ -3462,6 +3448,7 @@
   "FM-07": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
     "e2e: mount: storage",
     "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
     "tt139-media: FM-07 · categories, totals and percentages",
@@ -3841,6 +3828,7 @@
   "AP-02": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E6 Storage overview (FM-07) and Uninstall assistant (AP-02): duplicate digest detection, live per-bucket preview, confirmation gate and selective purge",
     "tt84-wordcount: U1 AP-02 bucket selection and purge validation refuse protected tables, duplicates, empty lists and missing DELETE confirmation",
     "tt84-wordcount: U2 AP-02 / FM-07 preview summarization and post-purge invariant verification",
     "tt84-wordcount: U3 AP-02 browser storage inspection and clearing compute exact UTF-16 byte totals"
@@ -4524,7 +4512,6 @@
     "e2e-tt132-alarms: normal-profile snooze survives reload without replaying the claimed original alarm",
     "e2e-tt132-alarms: cancel snooze before its deadline prevents redelivery",
     "e2e-tt132-alarms: alarm edit saves time, label, weekdays and snooze without replacing its identity",
-    "e2e-tt132-alarms: a second Clock window's edit is not silently overwritten by a stale editor",
     "e2e-tt132-alarms: pause all cancels both pending snoozes and upcoming alarms",
     "e2e-tt132-alarms: write-only storage denial keeps actionable snooze working in memory",
     "e2e-tt132-alarms: two pages racing snooze serialize the same occurrence once under a real Web Lock",
@@ -4768,6 +4755,7 @@
     "e2e-ai: PostScript-era .ai (Apache Tika testAI_PS.ai) and an Illustrator EPS (file-type fixture): metadata only, no PDF view, 'limited' badge",
     "e2e-ai: hostile/edge files: Illustrator data without a PDF part is not rendered; an inflate bomb and 2000+ streams finish inside the 5 s watchdog",
     "e2e-ai: Files routing: double-clicking an .ai in Files opens Peek with the Illustrator panel",
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
     "e2e: mount: vector",
     "oracle-ai: held-out real Illustrator .ai files (CS6 … 28.5): ai-pdf, renderable, version, creator = pypdf, pages = pypdf",
     "oracle-ai: file-type 16.5.4 (independent rule) agrees on ai/pdf/eps for every real and constructed PDF/EPS input",
@@ -5440,10 +5428,18 @@
     "e2e-tt48: Spreadsheet: protect a plain .xlsx → encrypted; remove the password → plain lossless .xlsx again (no-edit parts byte-identical to the original)",
     "e2e-tt48: adversary: a cancelled unlock can neither save over nor re-protect the original; Password… on a non-.xlsx workbook is disabled",
     "e2e-tt48: no uncaught page errors during the TT48 sessions",
+    "e2e-tt49-writer: add a footer 'Page {PAGE} of {NUMPAGES}' and a header through the panel: every page box draws its own number; saved file → python-docx sees live PAGE/NUMPAGES fields",
+    "e2e-tt49-writer: edit a real Word header (POI bug57031.docx): the change shows on every page, Undo restores the original on the pages AND in the panel, the saved file keeps the other header lines",
+    "e2e-tt49-writer: different first page: the checkbox adds First-page tabs; page 1 draws the cover header, later pages the default header; python-docx agrees after save; unticking restores",
+    "e2e-tt49-writer: locked content: a header line holding a picture is shown 'kept as is' (no input); adding a line beside it saves with the picture intact; Remove unlinks the header",
+    "e2e-tt49-writer: Undo of an ADDED header through the UI: pages and panel return to 'no header', typing in the body still lands at the caret, and the saved file is a valid package with no header referenced",
     "e2e-tt49-writer: no page errors; uploads cleaned up",
     "e2e-tt56: FF-22 Writer Track Changes in the UI: toggle, type, delete, review panel per-change accept; saved bytes verified by the lxml oracle",
     "e2e-tt57: FF-22 Writer format tracking in the UI: Ctrl+B with tracking on → 'Formatted: Bold' listed, saved as w:rPrChange; Reject restores plain text; Align centre → 'Paragraph: Centered' → w:pPrChange → Accept (lxml oracle)",
     "e2e-tt58: FF-22 Writer notes in the UI: Ctrl+Alt+F footnote → type in the Notes panel → numbered note on the page → saved footnotes.xml (lxml oracle) → reopen keeps it → endnote (roman) → delete footnote → no orphan, no dangling reference",
+    "e2e-tt73-writer: header picture through the panel: the typed line is applied first, the picture becomes a locked 'picture' line, every page draws it, Undo / Redo move it on every page, and the saved file has it in the header part's own rels (python-docx sees the exact bytes)",
+    "e2e-tt73-writer: refusals: an SVG and a PNG over 5 MB are refused with a visible reason; no picture is added and the document stays clean",
+    "e2e-tt73-writer: modal shortcut: while a header line input has focus, Ctrl+Z is the input's own undo — the document's header picture and body stay",
     "e2e-tt73-writer: cleanup + no page errors",
     "e2e-tt74-office: Writer: Export Markdown downloads heading / bold / list Markdown after the loss dialog; From Markdown opens a new document with the converted heading and list",
     "e2e: mount: writer",
@@ -5595,6 +5591,8 @@
   "FF-25": {
    "tested": "full",
    "tests": [
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
     "e2e: mount: vector",
     "tt139-documents: FF-25 · primitives, serialization and node addressing",
     "tt139-documents: FF-25 · move and resize move exactly one node",
@@ -6086,7 +6084,6 @@
   "FF-28": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
     "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
@@ -6094,7 +6091,6 @@
     "e2e-office: Ctrl+B bold → Ctrl+Z undo → Ctrl+Y redo; toolbar number format; fill colour",
     "e2e-office: clipboard: Ctrl+C / Ctrl+V pastes formula with shifted refs + style; external TSV paste fills a block",
     "e2e-office: sort by active column keeps header + moves row formulas; insert row repairs SUM; find selects match",
-    "e2e-office: column resize by dragging the header edge; frozen header row stays visible; rows are virtualised",
     "e2e-office: save → reopen keeps styles/widths/charts; export .xlsx → server re-import keeps bold, numFmt, widths",
     "e2e-office: no uncaught page errors during the spreadsheet session",
     "e2e-sheet-layout: Freeze first column stays put on horizontal scroll; sorting a range with a merge is refused with Excel's message",
@@ -6246,6 +6242,12 @@
     "e2e-vector: ORACLE Chromium SVG: getBBox + getTotalLength of the ORIGINAL d vs our normalised cubics (arcs included)",
     "e2e-vector: ORACLE Chromium SVG: isPointInFill (nonzero + evenodd) vs our containment on a 31×31 grid per path; transform.baseVal",
     "e2e-vector: ORACLE render parity: Chromium rasterises the original SVG and our import→export identically (≤0.5% pixels > 24/255)",
+    "e2e-vector: UI: rect/ellipse/star by drag (shift = square), exact geometry; undo/redo by keyboard",
+    "e2e-vector: UI: select, move by drag, resize from the se handle, rotate 90° with shift-snap, nudge 1/10",
+    "e2e-vector: UI: pen — corner clicks + close on first node; drag makes a smooth (cubic) node; node tool drags an anchor",
+    "e2e-vector: UI: marquee + shift-click multi-select, align left, distribute, group/ungroup, duplicate, z-order, delete (keyboard)",
+    "e2e-vector: UI: hostile SVG via Files deep link — report lists drops, no script/handler executes, canvas holds only allowlisted markup",
+    "e2e-vector: UI: Save .fsvg → reopen (v2 round trip), Export SVG (re-importable, safe), Export PNG (valid 2× PNG at the declared export size)",
     "e2e-vector: UI: arrow (line tool + Arrowhead) exports as plain path; star stays parametric — point count / inner ratio editable after a move",
     "e2e-vector: no page errors during the vector session",
     "e2e: mount: vector",
@@ -6498,6 +6500,7 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
+    "e2e-tt130-privacy: explicit amnesic boot refuses host writes when localStorage access throws",
     "e2e: mount: privacy",
     "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
     "privacy-layer: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes",
@@ -6566,6 +6569,7 @@
   "FF-37": {
    "tested": "full",
    "tests": [
+    "e2e-vector: TT19 Pathfinder: Unite / Minus Front on two drawn rectangles — geometry, paint and undo",
     "vector-boolean: two rectangles: all four shape modes equal GEOS exactly; paint + stacking follow Illustrator (front paint; Minus Front keeps the back)",
     "vector-boolean: rotated rectangle (transform) × ellipse: every mode within flattening tolerance of GEOS (IoU ≥ 0.9995)",
     "vector-boolean: three operands: Minus Front subtracts every front shape from the back one; Exclude fills odd coverage only (GEOS XOR chain)",
@@ -6612,7 +6616,6 @@
     "e2e-a11y: computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
     "e2e-a11y: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
     "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
-    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
@@ -6631,7 +6634,7 @@
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "e2e-a11y: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
     "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied",
-    "tt140-glyph-geometry: every glyph renders, stays on the tile and is distinguishable (46 checked, 4 skipped)",
+    "tt140-glyph-geometry: every glyph renders, stays on the tile and is distinguishable (49 checked, 4 skipped)",
     "tt143-engines: visual: both token sets pass the contrast audit, and a failing ink is caught",
     "tt143-engines: visual: the word budget is enforced on labels, notes and summaries"
    ]
@@ -6642,8 +6645,7 @@
     "a11y-unit: TT143 tokens: every ink and the interactive border clear the AA floor in both modes",
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
-    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
-    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused"
    ]
   },
   "TB-01": {
@@ -6699,10 +6701,8 @@
    ]
   },
   "AX-12": {
-   "tested": "full",
-   "tests": [
-    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
-   ]
+   "tested": "untested",
+   "tests": []
   },
   "WB-01": {
    "tested": "full",
@@ -6846,7 +6846,6 @@
   "LY-04": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
    ]
@@ -8128,6 +8127,7 @@
   "FF-78": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E1 Spreadsheet MODE.MULT spill in real grid, edit, save and reopen computed output",
     "tt81-core: S1 MODE/SNGL scalar reference vs range, errors, ties and no duplicates",
     "tt81-core: S2 MODE.MULT vertical spill, collision, clear/recalculate, xlsx round-trip and independent openpyxl formula",
     "tt81-core: S3 deterministic independent frequency-map oracle on 240 integer vectors",
@@ -8136,16 +8136,18 @@
    ]
   },
   "FF-79": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt81: E2 PDF custom signature box: refuse off-page without saving, then sign valid box, save and independent pypdf geometry",
     "tt81-core: P1 custom box geometry exact all rotations, negative crop origin and edge boxes",
     "tt81-core: P2 refuse NaN, infinities, zero, negative, off-page, malformed geometry before signing",
     "tt81-core: P3 signed custom boxes: pyHanko intact/valid, pypdf Rect and PDFium visible pixels within displayed box on four rotations"
    ]
   },
   "FF-80": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt81: E3 Slides Find/Replace via Tweak menu, literal matching, undo/redo, modal shortcut isolation, save and python-pptx readback",
     "tt81-core: L1 literal case/scope, groups and tables; no notes/master/package false hits",
     "tt81-core: L2 cross-run replacement keeps first style, independent python-pptx reads tables/groups, untouched parts identical",
     "tt81-core: L3 one-step snapshot undo/redo, deletion, repeated replacement, literal dollar and unicode; paragraph boundaries",
@@ -8157,12 +8159,14 @@
   "FF-81": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E4 PDF /UserUnit reaches the live viewer, text highlights, info panel and bounded canvases; pypdf and PDF.js independently verify",
     "tt81-core: P4 PDF /UserUnit scales page transforms, indirect refs, CropBox offsets and 4 rotations; pypdf and MuPDF independently verify dictionary and physical raster/ink"
    ]
   },
   "FF-82": {
    "tested": "full",
    "tests": [
+    "e2e-tt81: E5 Writer Word Count reports document and selected text through the real UI and excludes tracked deletions",
     "tt84-wordcount: W1 empty text has zero counts",
     "tt84-wordcount: W2 spaces, blank paragraphs and CRLF do not inflate words or character totals",
     "tt84-wordcount: W3 apostrophes, hyphens, decomposed accents and emoji count as reader-visible characters",
@@ -8515,7 +8519,6 @@
   "AX-03": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
     "tt142-browser: the desktop re-flows at 1024×640 without losing a window off-screen"
    ]
   },
@@ -8556,7 +8559,6 @@
    "tests": [
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
-    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",

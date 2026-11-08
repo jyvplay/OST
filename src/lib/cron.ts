@@ -8,9 +8,10 @@
  * `scripts/tt151-time.mts` checks.
  *
  * Semantics follow Vixie cron, including the one rule people get wrong: when *both*
- * day-of-month and day-of-week are restricted, a day matches if *either* does. A `*`
- * in one of them is the "no restriction" marker, which is exactly why `0 0 1 * 1`
- * fires on the 1st **and** on every Monday.
+ * day-of-month and day-of-week both lack a leading wildcard, either may match.
+ * If either starts with `*`, the fields intersect, including stepped forms. Our
+ * `?` extension is treated as a leading wildcard. Thus `0 0 1 * 1` fires on
+ * the 1st **and** on every Monday; a stepped wildcard requires both matches.
  *
  * Time zones are not a detail here. Occurrence search walks civil days and resolves
  * each candidate wall time through `calendar-time.resolveWallTime`, so a 02:30 job in
@@ -27,7 +28,7 @@ export interface CronSchedule {
   dayOfMonth: number[];
   month: number[];
   dayOfWeek: number[];
-  /** True when the field was `*`/`?` — needed for the Vixie OR rule. */
+  /** False for a leading `*` (or our `?` extension), needed for Vixie AND/OR. */
   domRestricted: boolean;
   dowRestricted: boolean;
   macro?: string;
@@ -39,6 +40,8 @@ export type CronParse = { ok: true; schedule: CronSchedule } | { ok: false; erro
 
 const MONTH_NAMES = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const DOW_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+const MONTH_FULL_NAMES = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+const DOW_FULL_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 /** 7 is a second name for Sunday; normalised to 0. */
 const DOW_MAX = 7;
 
@@ -56,8 +59,9 @@ function parseValue(raw: string, min: number, max: number, names: string[] | nul
   const v = raw.trim().toLowerCase();
   if (v === "") return `${field}: empty value`;
   if (names) {
-    const idx = names.indexOf(v.slice(0, 3));
-    if (idx >= 0 && /^[a-z]+$/.test(v)) {
+    const fullNames = names === MONTH_NAMES ? MONTH_FULL_NAMES : DOW_FULL_NAMES;
+    const idx = names.indexOf(v) >= 0 ? names.indexOf(v) : fullNames.indexOf(v);
+    if (idx >= 0) {
       // Chronologically ordered names (months) map to 1-based numbers; weekday names to 0-based.
       return names === MONTH_NAMES ? idx + 1 : idx;
     }
@@ -86,7 +90,7 @@ function parseField(
     if (stepPart !== undefined) {
       if (!/^\d+$/.test(stepPart.trim())) return `${field}: step "${stepPart}" is not a number`;
       step = Number(stepPart);
-      if (step < 1) return `${field}: step must be at least 1`;
+      if (!Number.isSafeInteger(step) || step < 1) return `${field}: step must be a safe integer of at least 1`;
     }
     let lo: number, hi: number;
     if (rangePart.trim() === "*" || (rangePart.trim() === "?" && (field === "day-of-month" || field === "day-of-week"))) {
@@ -152,23 +156,18 @@ export function parseCron(expr: string): CronParse {
   const dayOfWeek = parseField(dow, 0, 6, DOW_NAMES, "day-of-week", CAREFULLY);
   if (typeof dayOfWeek === "string") return { ok: false, error: dayOfWeek };
 
-  const domRestricted = !/^[*?]$/.test(dom.trim());
-  const dowRestricted = !/^[*?]$/.test(dow.trim());
+  // Vixie checks the first character, not whether the expanded set is full.
+  // Our ? extension follows the same leading-wildcard rule.
+  const domRestricted = !/^[*?]/.test(dom);
+  const dowRestricted = !/^[*?]/.test(dow);
 
   // A date that can never occur is worse than a parse error: it looks alive forever.
   if (month.length === 0 || dayOfMonth.length === 0 || dayOfWeek.length === 0) {
     return { ok: false, error: "a field selects nothing" };
   }
   const longest = Math.max(...month.map((m) => [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]));
-  if (dayOfMonth.length && Math.min(...dayOfMonth) > longest) {
+  if (!(domRestricted && dowRestricted) && dayOfMonth.length && Math.min(...dayOfMonth) > longest) {
     return { ok: false, error: `day ${Math.min(...dayOfMonth)} never occurs in the selected months` };
-  }
-  if (domRestricted && dowRestricted && month.length === 1 && dayOfMonth.length === 1) {
-    // Feb 30 and friends: provable only for a single month/day pair; others are caught by the scan.
-    const m = month[0];
-    const d = dayOfMonth[0];
-    const dim = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
-    if (d > dim) return { ok: false, error: `${m}/${d} never occurs` };
   }
   return {
     ok: true,
@@ -193,10 +192,7 @@ export function cronMatchesDay(s: CronSchedule, y: number, m: number, d: number)
   const dow = new Date(daysFromCivil(y, m, d) * 86400000).getUTCDay();
   const domOk = s.dayOfMonth.includes(d);
   const dowOk = s.dayOfWeek.includes(dow);
-  if (s.domRestricted && s.dowRestricted) return domOk || dowOk;
-  if (s.domRestricted) return domOk;
-  if (s.dowRestricted) return dowOk;
-  return true;
+  return s.domRestricted && s.dowRestricted ? domOk || dowOk : domOk && dowOk;
 }
 
 export function cronMatches(s: CronSchedule, parts: { y: number; m: number; d: number; h: number; mi: number }): boolean {
@@ -242,8 +238,14 @@ export function nextOccurrences(
     if (!cronMatchesDay(schedule, y, m, d)) continue;
     for (const h of schedule.hour) {
       for (const mi of schedule.minute) {
+        // UTC has no gaps or overlaps: on the cursor day an earlier (or the
+        // same) civil minute cannot produce an instant strictly after fromMs.
+        // Keep the full zone resolver for every other zone.
+        if (timeZone === "UTC" && dayOffset === 0 && h * 60 + mi <= start.h * 60 + start.mi) continue;
         const res = resolveWallTime(y, m, d, h, mi, timeZone);
         if (res.kind === "gap") {
+          // A nonexistent time earlier on the cursor’s civil day is not a future skip.
+          if (dayOffset === 0 && h * 60 + mi <= start.h * 60 + start.mi) continue;
           skipped.push({ local: `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`, reason: "gap" });
           continue;
         }
@@ -297,13 +299,17 @@ export function describeCron(s: CronSchedule): string {
       : clock
         ? `at ${clock}`
         : `at minutes ${compress(s.minute)} of hours ${compress(s.hour)}`;
+  const domFull = s.dayOfMonth.length === 31;
+  const dowFull = s.dayOfWeek.length === 7;
   const days = s.domRestricted && s.dowRestricted
     ? `on day ${compress(s.dayOfMonth)} or weekday ${compress(s.dayOfWeek, dayName)}`
-    : s.domRestricted
-      ? `on day ${compress(s.dayOfMonth)}`
-      : s.dowRestricted
-        ? `on ${compress(s.dayOfWeek, dayName)}`
-        : "";
+    : !domFull && !dowFull
+      ? `on day ${compress(s.dayOfMonth)} and weekday ${compress(s.dayOfWeek, dayName)}`
+      : !domFull
+        ? `on day ${compress(s.dayOfMonth)}`
+        : !dowFull
+          ? `on ${compress(s.dayOfWeek, dayName)}`
+          : "";
   const months = s.month.length === 12 ? "" : `in ${compress(s.month, (m) => MONTH_NAMES[m - 1])}`;
   return [days, months, time].filter(Boolean).join(" ");
 }

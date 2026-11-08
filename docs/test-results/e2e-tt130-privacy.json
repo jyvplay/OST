@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt130-privacy",
-  "at": "2026-11-07T06:07:31.132Z",
+  "at": "2026-11-08T17:48:10.805Z",
   "results": [
     {
       "suite": "e2e-tt130-privacy",
@@ -8,9 +8,8 @@
       "covers": {
         "SC-11": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Launcher' }) to be visible\n",
-      "ms": 15980
+      "pass": true,
+      "ms": 1179
     }
   ]
 }

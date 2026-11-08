@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt133-notes-find",
-  "at": "2026-11-07T05:33:23.022Z",
+  "at": "2026-11-08T17:39:37.950Z",
   "results": [
     {
       "suite": "e2e-tt133-notes-find",
@@ -9,7 +9,7 @@
         "NT-08": "full"
       },
       "pass": true,
-      "ms": 6631
+      "ms": 4397
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -18,7 +18,7 @@
         "NT-08": "full"
       },
       "pass": true,
-      "ms": 4899
+      "ms": 3467
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -27,7 +27,7 @@
         "NT-09": "full"
       },
       "pass": true,
-      "ms": 6734
+      "ms": 4021
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -36,7 +36,7 @@
         "NT-10": "full"
       },
       "pass": true,
-      "ms": 4397
+      "ms": 2986
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -45,7 +45,7 @@
         "NT-09": "full"
       },
       "pass": true,
-      "ms": 7993
+      "ms": 3590
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -54,7 +54,7 @@
         "NT-11": "full"
       },
       "pass": true,
-      "ms": 3305
+      "ms": 1887
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -63,7 +63,7 @@
         "NT-12": "full"
       },
       "pass": true,
-      "ms": 3386
+      "ms": 3289
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -72,7 +72,7 @@
         "NT-13": "full"
       },
       "pass": true,
-      "ms": 3419
+      "ms": 2127
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -81,7 +81,7 @@
         "NT-14": "full"
       },
       "pass": true,
-      "ms": 5382
+      "ms": 3939
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -90,7 +90,7 @@
         "NT-14": "partial"
       },
       "pass": true,
-      "ms": 3490
+      "ms": 2524
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -99,7 +99,7 @@
         "NT-15": "full"
       },
       "pass": true,
-      "ms": 3608
+      "ms": 3138
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -108,7 +108,7 @@
         "NT-16": "full"
       },
       "pass": true,
-      "ms": 4071
+      "ms": 3237
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -117,7 +117,7 @@
         "NT-17": "full"
       },
       "pass": true,
-      "ms": 4782
+      "ms": 3585
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -126,7 +126,7 @@
         "NT-18": "full"
       },
       "pass": true,
-      "ms": 3745
+      "ms": 3163
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -135,7 +135,7 @@
         "SR-13": "full"
       },
       "pass": true,
-      "ms": 2657
+      "ms": 2011
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -144,7 +144,7 @@
         "SR-14": "full"
       },
       "pass": true,
-      "ms": 3029
+      "ms": 1893
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -153,7 +153,7 @@
         "SR-15": "full"
       },
       "pass": true,
-      "ms": 2945
+      "ms": 1959
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -162,7 +162,7 @@
         "SR-16": "full"
       },
       "pass": true,
-      "ms": 2894
+      "ms": 2160
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -171,7 +171,7 @@
         "SR-17": "full"
       },
       "pass": true,
-      "ms": 4416
+      "ms": 3376
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -180,7 +180,7 @@
         "SR-18": "full"
       },
       "pass": true,
-      "ms": 4540
+      "ms": 3122
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -189,7 +189,7 @@
         "SR-19": "full"
       },
       "pass": true,
-      "ms": 6041
+      "ms": 4311
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -198,7 +198,7 @@
         "SR-19": "full"
       },
       "pass": true,
-      "ms": 4087
+      "ms": 2226
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -207,7 +207,7 @@
         "SV-02": "full"
       },
       "pass": true,
-      "ms": 5055
+      "ms": 4016
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -216,7 +216,7 @@
         "SV-03": "full"
       },
       "pass": true,
-      "ms": 5055
+      "ms": 3947
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -225,7 +225,7 @@
         "SR-10": "full"
       },
       "pass": true,
-      "ms": 5218
+      "ms": 4298
     },
     {
       "suite": "e2e-tt133-notes-find",
@@ -235,7 +235,7 @@
         "SR-12": "partial"
       },
       "pass": true,
-      "ms": 4137
+      "ms": 2581
     },
     {
       "suite": "e2e-tt133-notes-find",

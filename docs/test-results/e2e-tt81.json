@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt81",
-  "at": "2026-11-07T05:47:07.434Z",
+  "at": "2026-11-08T17:44:42.344Z",
   "results": [
     {
       "suite": "e2e-tt81",
@@ -8,9 +8,8 @@
       "covers": {
         "FF-78": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Spreadsheet', exact: true }).last().getByTestId('sheet-grid') to be visible\n",
-      "ms": 15459
+      "pass": true,
+      "ms": 6627
     },
     {
       "suite": "e2e-tt81",
@@ -18,9 +17,8 @@
       "covers": {
         "FF-79": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('pdf-app').last().getByTestId('pdf-thumb').first() to be visible\n",
-      "ms": 15485
+      "pass": true,
+      "ms": 6302
     },
     {
       "suite": "e2e-tt81",
@@ -28,9 +26,8 @@
       "covers": {
         "FF-80": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog', { name: 'Slides', exact: true }).last().getByLabel('Slides editor', { exact: true }) to be visible\n",
-      "ms": 15307
+      "pass": true,
+      "ms": 7650
     },
     {
       "suite": "e2e-tt81",
@@ -38,9 +35,8 @@
       "covers": {
         "FF-81": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('pdf-app').last().getByTestId('pdf-thumb').first() to be visible\n",
-      "ms": 15367
+      "pass": true,
+      "ms": 5304
     },
     {
       "suite": "e2e-tt81",
@@ -48,9 +44,8 @@
       "covers": {
         "FF-82": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('[role=\"dialog\"][aria-label=\"Writer\"]').last().getByTestId('writer-body').locator('[data-pid]').first() to be visible\n",
-      "ms": 15249
+      "pass": true,
+      "ms": 6134
     },
     {
       "suite": "e2e-tt81",
@@ -59,9 +54,8 @@
         "AP-02": "full",
         "FM-07": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByTestId('storage-app').last() to be visible\n",
-      "ms": 15485
+      "pass": true,
+      "ms": 6076
     },
     {
       "suite": "e2e-tt81",

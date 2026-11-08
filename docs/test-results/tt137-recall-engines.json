@@ -1,6 +1,6 @@
 {
   "suite": "tt137-recall-engines",
-  "at": "2026-11-07T05:20:57.094Z",
+  "at": "2026-11-08T17:35:19.286Z",
   "results": [
     {
       "suite": "tt137-recall-engines",
@@ -9,7 +9,7 @@
         "RC-22": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt137-recall-engines",

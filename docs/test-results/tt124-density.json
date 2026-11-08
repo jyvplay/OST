@@ -1,6 +1,6 @@
 {
   "suite": "tt124-density",
-  "at": "2026-11-07T06:35:09.088Z",
+  "at": "2026-11-08T17:33:45.954Z",
   "results": [
     {
       "suite": "tt124-density",
@@ -9,7 +9,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 4251
+      "ms": 1387
     },
     {
       "suite": "tt124-density",
@@ -18,7 +18,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 3719
+      "ms": 2540
     },
     {
       "suite": "tt124-density",
@@ -27,7 +27,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2634
+      "ms": 1131
     },
     {
       "suite": "tt124-density",
@@ -36,7 +36,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 10229
+      "ms": 9867
     },
     {
       "suite": "tt124-density",
@@ -45,7 +45,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2179
+      "ms": 733
     },
     {
       "suite": "tt124-density",
@@ -54,8 +54,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "monitor words 931 > 520",
-      "ms": 2849
+      "error": "monitor words 1508 > 520",
+      "ms": 1221
     },
     {
       "suite": "tt124-density",
@@ -64,7 +64,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2514
+      "ms": 1431
     },
     {
       "suite": "tt124-density",
@@ -73,7 +73,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2956
+      "ms": 1098
     },
     {
       "suite": "tt124-density",
@@ -82,7 +82,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2355
+      "ms": 847
     },
     {
       "suite": "tt124-density",
@@ -91,7 +91,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2270
+      "ms": 1576
     },
     {
       "suite": "tt124-density",
@@ -100,7 +100,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2282
+      "ms": 711
     },
     {
       "suite": "tt124-density",
@@ -109,7 +109,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2214
+      "ms": 754
     },
     {
       "suite": "tt124-density",
@@ -118,7 +118,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2565
+      "ms": 1581
     },
     {
       "suite": "tt124-density",
@@ -127,7 +127,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 3107
+      "ms": 986
     },
     {
       "suite": "tt124-density",
@@ -136,7 +136,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2178
+      "ms": 1278
     },
     {
       "suite": "tt124-density",
@@ -145,8 +145,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "routines words 451 > 300",
-      "ms": 3248
+      "error": "routines words 565 > 300",
+      "ms": 1457
     },
     {
       "suite": "tt124-density",
@@ -155,7 +155,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 5137
+      "ms": 1856
     },
     {
       "suite": "tt124-density",
@@ -164,7 +164,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2336
+      "ms": 1441
     },
     {
       "suite": "tt124-density",
@@ -173,7 +173,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2308
+      "ms": 1037
     },
     {
       "suite": "tt124-density",
@@ -182,7 +182,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2560
+      "ms": 1282
     },
     {
       "suite": "tt124-density",
@@ -192,7 +192,7 @@
         "SSH-02": "full"
       },
       "pass": true,
-      "ms": 30
+      "ms": 28
     },
     {
       "suite": "tt124-density",
@@ -201,7 +201,7 @@
         "AX-26": "full"
       },
       "pass": true,
-      "ms": 7263
+      "ms": 3955
     },
     {
       "suite": "tt124-density",
@@ -210,8 +210,9 @@
         "WR-01": "mechanism",
         "SP-03": "mechanism"
       },
-      "pass": true,
-      "ms": 10210
+      "pass": false,
+      "error": "locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator('[data-win-id=\"w1\"] [data-testid=\"writer-word-count-open\"]')\n    - locator resolved to <button type=\"button\" data-testid=\"writer-word-count-open\" title=\"Open document and selection word counts\">Word count…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <svg width=\"48\" height=\"48\" data-icon=\"doc\" focusable=\"false\" aria-hidden=\"true\" viewBox=\"0 0 48 48\" data-palette=\"blue\" data-style=\"poolside\">…</svg> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    4 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <svg width=\"48\" height=\"48\" data-icon=\"doc\" focusable=\"false\" aria-hidden=\"true\" viewBox=\"0 0 48 48\" data-palette=\"blue\" data-style=\"poolside\">…</svg> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n",
+      "ms": 11482
     }
   ]
 }

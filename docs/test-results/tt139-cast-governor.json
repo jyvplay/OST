@@ -1,6 +1,6 @@
 {
   "suite": "tt139-cast-governor",
-  "at": "2026-11-06T21:29:36.642Z",
+  "at": "2026-11-08T17:35:36.750Z",
   "results": [
     {
       "suite": "tt139-cast-governor",
@@ -18,7 +18,7 @@
         "CA-13": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt139-cast-governor",

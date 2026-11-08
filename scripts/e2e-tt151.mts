@@ -27,6 +27,10 @@ await test("Beam renders and bounds local QR data and refuses overflow", {}, asy
   const { context, page, win, errors } = await open("beam");
   try {
     const input = win.getByTestId("qr-input");
+    assert.equal(await input.inputValue(), "");
+    assert.equal(await win.getByText("nothing to encode").count(), 0, "empty state is not presented as an error");
+    assert.equal(await win.getByTestId("qr-canvas").getAttribute("aria-label"), "Enter text to create a QR code");
+    if (process.env.TT153_CAPTURE === "1") await win.screenshot({ path: "/tmp/tt153-qr-empty.png" });
     await input.fill("https://example.org/test");
     const svg = win.getByTestId("qr-canvas").locator("svg");
     await svg.waitFor();

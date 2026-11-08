@@ -1,19 +1,19 @@
 "use client";
 /**
- * TT151 panels — three small surfaces over engines that would otherwise be
- * unclaimed code: QR (Beam/Share hand-off), one-time codes (Vault), cron
- * (Routines).
+ * TT151 panels — local QR generation in Beam and session-only one-time codes
+ * in Vault. The cron engine is not wired to a routine trigger or preview.
  *
  * Each panel states its own boundary in the interface rather than in a tooltip,
  * because the boundary is the part users get wrong: a QR that is too long is
  * refused with the byte count, a code card says plainly that it does not store the
- * secret, and a cron preview shows the *resolved* next times in the local zone.
+ * secret.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fz } from "@/lib/uiscale";
 import { encodeQr, qrToSvg, byteCapacity } from "@/lib/qr";
 import { parseOtpAuthUri, totp } from "@/lib/totp";
 import { Badge, Btn, Section } from "./ui";
+import { UiGlyph } from "./AppIcon";
 
 // ── QR ─────────────────────────────────────────────────────────────────────
 
@@ -36,18 +36,22 @@ export function QrCard({ value, title = "Open on a phone", onChange }: { value: 
   return (
     <Section title={title} icon="qr">
       <div className="fs-row" style={{ gap: 10, alignItems: "flex-start" }}>
-        <div
+        {result.ok ? <div
           data-testid="qr-canvas"
-          aria-label={result.ok ? `QR code, version ${result.symbol.version}, level ${result.symbol.ecc}` : "QR code unavailable"}
+          aria-label={`QR code, version ${result.symbol.version}, level ${result.symbol.ecc}`}
           role="img"
           style={{ width: fz(132), height: fz(132), flex: "0 0 auto", background: "#fff", padding: 4, borderRadius: 6 }}
           dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        /> : <div data-testid="qr-canvas" role="img" aria-label={text ? "QR code unavailable" : "Enter text to create a QR code"}
+          style={{ width: fz(132), height: fz(132), flex: "0 0 auto", border: "1px solid var(--fs-border)", borderRadius: 6, display: "grid", placeItems: "center", color: "var(--fs-muted)" }}>
+          {!text ? <UiGlyph name="qr" size={48} /> : null}
+        </div>}
         <div style={{ display: "grid", gap: 6, minWidth: 0, flex: 1 }}>
           <input
             className="fs-input fs-mono"
             style={{ fontSize: fz(11) }}
             aria-label="QR content"
+            placeholder="Text or link"
             data-testid="qr-input"
             value={text}
             onChange={(e) => { setText(e.target.value); onChange?.(e.target.value); }}
@@ -58,9 +62,9 @@ export function QrCard({ value, title = "Open on a phone", onChange }: { value: 
               <Badge tone="default">{new TextEncoder().encode(text).length}/{byteCapacity(10, "M")} bytes</Badge>
               <Btn variant="ghost" onClick={download} data-testid="qr-download">SVG</Btn>
             </div>
-          ) : (
+          ) : text ? (
             <Badge tone="bad">{result.error}</Badge>
-          )}
+          ) : <span className="fs-dim" style={{ fontSize: fz(11) }}>Created on this device.</span>}
         </div>
       </div>
     </Section>
@@ -107,7 +111,7 @@ export function OtpCard({ onCopy }: { onCopy: (code: string) => Promise<void> })
     <Section title="One-time codes" icon="keycap">
       <div className="fs-row" style={{ gap: 6 }}>
         <input className="fs-input fs-mono" style={{ fontSize: fz(11) }} type="password" autoComplete="off" placeholder="otpauth://totp/…" aria-label="otpauth URI" data-testid="otp-uri" value={uri} onChange={(e) => setUri(e.target.value)} />
-        <Btn variant="primary" onClick={add} data-testid="otp-add">Add</Btn>
+        <Btn variant="primary" onClick={add} data-testid="otp-add">Add code</Btn>
       </div>
       {error ? <Badge tone="bad" >{error}</Badge> : null}
       <div className="fs-dim" style={{ fontSize: fz(11) }}>Session only — codes are cleared on lock and are not saved.</div>

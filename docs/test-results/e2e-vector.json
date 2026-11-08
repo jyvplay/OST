@@ -1,6 +1,6 @@
 {
   "suite": "e2e-vector",
-  "at": "2026-11-07T05:45:33.190Z",
+  "at": "2026-11-08T17:44:02.315Z",
   "results": [
     {
       "suite": "e2e-vector",
@@ -9,7 +9,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 176
+      "ms": 201
     },
     {
       "suite": "e2e-vector",
@@ -18,7 +18,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 467
+      "ms": 542
     },
     {
       "suite": "e2e-vector",
@@ -27,7 +27,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 402
+      "ms": 502
     },
     {
       "suite": "e2e-vector",
@@ -36,9 +36,8 @@
         "FF-32": "full",
         "FF-25": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first() to be visible\n",
-      "ms": 25257
+      "pass": true,
+      "ms": 5457
     },
     {
       "suite": "e2e-vector",
@@ -46,9 +45,8 @@
       "covers": {
         "FF-32": "full"
       },
-      "pass": false,
-      "error": "locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first()\n",
-      "ms": 33282
+      "pass": true,
+      "ms": 6819
     },
     {
       "suite": "e2e-vector",
@@ -56,9 +54,8 @@
       "covers": {
         "FF-32": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first().getByRole('button', { name: /^Pen tool/ })\n",
-      "ms": 32479
+      "pass": true,
+      "ms": 4466
     },
     {
       "suite": "e2e-vector",
@@ -66,9 +63,8 @@
       "covers": {
         "FF-32": "full"
       },
-      "pass": false,
-      "error": "locator.evaluate: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first().locator('[data-testid=\"vector-canvas\"]')\n",
-      "ms": 35126
+      "pass": true,
+      "ms": 3382
     },
     {
       "suite": "e2e-vector",
@@ -77,9 +73,8 @@
         "FF-04": "full",
         "FF-32": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first() to be visible\n",
-      "ms": 25750
+      "pass": true,
+      "ms": 2546
     },
     {
       "suite": "e2e-vector",
@@ -88,9 +83,8 @@
         "FF-32": "full",
         "FF-25": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first() to be visible\n",
-      "ms": 25281
+      "pass": true,
+      "ms": 6208
     },
     {
       "suite": "e2e-vector",
@@ -99,7 +93,7 @@
         "FF-32": "full"
       },
       "pass": true,
-      "ms": 8410
+      "ms": 4058
     },
     {
       "suite": "e2e-vector",
@@ -107,9 +101,8 @@
       "covers": {
         "FF-37": "full"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n  - waiting for locator('[data-testid=\"vector-studio\"]').first() to be visible\n",
-      "ms": 25523
+      "pass": true,
+      "ms": 4153
     },
     {
       "suite": "e2e-vector",
