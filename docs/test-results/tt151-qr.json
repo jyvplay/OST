@@ -1,0 +1,48 @@
+{
+  "suite": "tt151-qr",
+  "at": "2026-11-08T05:56:23.966Z",
+  "results": [
+    {
+      "suite": "tt151-qr",
+      "name": "QR-01 · every oracle matrix is reproduced byte for byte",
+      "covers": {},
+      "pass": true,
+      "ms": 24
+    },
+    {
+      "suite": "tt151-qr",
+      "name": "QR-01 · capacity is a fact about the block table, and over-long input is refused",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-qr",
+      "name": "QR-02 · Reed–Solomon generator and remainder match published values",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-qr",
+      "name": "QR-03 · format info carries the BCH code and the dark module, and version info appears only from v7",
+      "covers": {},
+      "pass": true,
+      "ms": 59
+    },
+    {
+      "suite": "tt151-qr",
+      "name": "QR-04 · the chosen mask is the minimum-penalty mask, and the penalty rules are the standard four",
+      "covers": {},
+      "pass": true,
+      "ms": 87
+    },
+    {
+      "suite": "tt151-qr",
+      "name": "QR-05 · SVG keeps the four-module quiet zone, and zxing-cpp reads the symbols back",
+      "covers": {},
+      "pass": true,
+      "ms": 185
+    }
+  ]
+}

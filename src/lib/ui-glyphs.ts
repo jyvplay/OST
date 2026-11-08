@@ -29,6 +29,9 @@ export const UI_GLYPH_NAMES = [
   /* TT148: three hardware ideas drawn as geometry — a die with legs, a connector with
      prongs and a lead, and a pointer held inside brackets. */
   "chip", "plug", "cursor",
+  /* TT151: a QR frame — three finder squares and a corner of data. It says "scan me"
+     without the word, which is the whole job of the Beam hand-off heading. */
+  "qr",
 ] as const;
 
 export type UiGlyphName = (typeof UI_GLYPH_NAMES)[number];

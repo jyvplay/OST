@@ -1,4 +1,5 @@
 "use client";
+import { QrCard } from "../tt151-panels";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
@@ -161,6 +162,7 @@ export default function BeamModule(_: ModuleProps) {
         {shell.beam ? <Badge tone="bad">live: {shell.beam.transport} → {shell.beam.target}</Badge> : null}
       </div>
 
+      <QrCard value="" title="QR · local text or link" />
       <label className="fs-dim" style={{ fontSize: fz(12), display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>Local media
         <input type="file" accept="video/*,audio/*" aria-label="Media to cast" onChange={event => {
           const file = event.target.files?.[0]; event.target.value = "";

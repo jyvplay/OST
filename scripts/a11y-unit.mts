@@ -256,18 +256,17 @@ await test("DP-07 gate: the shell's own surface tokens clear the AA floor, and t
   ok(report.summary.length > 10, "the gate produces a verdict sentence");
 });
 
-finish();
 
 /* TT145 — the chrome glyph set is the other half of the icon system: `GLYPH_NAMES`
    covers the tinted module tiles, while `UiGlyph` draws the monochrome 24-grid marks
    used in section headings. A heading that names a glyph it does not draw renders an
    empty span, which no contrast check would ever notice. This test asserts the two
-   sets are the same size and that every chrome glyph has a drawing; it is a coverage
+   sets do not shrink and that every chrome glyph has a drawing; it is a coverage
    gate, not a claim about how a glyph looks. */
 await test("chrome glyphs: every UiGlyph name has a drawing, and the tile glyph set did not shrink", {}, async () => {
   const chrome = UI_GLYPH_NAMES;
   ok(new Set(chrome).size === chrome.length, "no duplicate chrome glyph names");
-  ok(chrome.length === 93, `chrome glyph set is ${chrome.length}, expected 93`);
+  ok(chrome.length >= 93, `chrome glyph set shrank to ${chrome.length}, minimum 93`);
   // Collect the drawing keys from the `UiGlyph` table rather than pattern-matching each
   // name separately: keys are written either bare (`search:`) or quoted (`"caret-up":`),
   // and matching on the key column is the only way to avoid `up` matching inside
@@ -287,3 +286,5 @@ await test("chrome glyphs: every UiGlyph name has a drawing, and the tile glyph 
   const tileMissing = (GLYPH_NAMES as readonly string[]).filter((n) => !tileDrawn.has(n));
   ok(tileMissing.length === 0, `tile glyphs with no drawing: ${tileMissing.join(", ")}`);
 });
+
+await finish();

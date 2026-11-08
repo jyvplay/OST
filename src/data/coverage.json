@@ -1,23 +1,350 @@
 {
- "generatedAt": "2026-11-07T06:03:12.173Z",
+ "generatedAt": "2026-11-08T06:03:35.535Z",
  "totals": {
   "built": {
-   "full": 611,
-   "partial": 31,
-   "blocked": 23,
+   "full": 649,
+   "partial": 5,
+   "blocked": 20,
    "none": 0
   },
   "tested": {
-   "full": 563,
-   "partial": 85,
-   "untested": 17
+   "full": 597,
+   "partial": 65,
+   "untested": 12
   },
   "tests": {
-   "total": 4280,
-   "passed": 4236
+   "total": 4497,
+   "passed": 4444
   }
  },
  "rows": {
+  "WM-16": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: WM-16 the cursor is really confined by a real click, and really released",
+    "tt139-platform: WM-16 · a delta integrates into an absolute cursor and crosses a seam",
+    "tt139-platform: WM-16 · a cursor pushed past every display is clamped, not lost",
+    "tt139-platform: WM-16 · a DPR change resizes the backing store and leaves the position alone",
+    "tt139-platform: WM-16 · lock is refused without a gesture, a secure context, an API — and states the way out",
+    "tt147-core: WM-16 confinement state machine: no API, no gesture, pending, and a raw-input refusal"
+   ]
+  },
+  "IN-06": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: IN-06 · the usable band is the viewport minus the keyboard, never negative",
+    "tt139-platform: IN-06 · an implausible inset is clamped and the clamp is visible",
+    "tt139-platform: IN-06 · scroll-into-view moves the minimum needed, and reflow keeps the focused window put",
+    "tt139-platform: IN-06 · the notice and the CSS variables always agree with the geometry",
+    "tt142-input-scan: IN-06 · the real API wins over the estimate",
+    "tt142-input-scan: IN-06 · a closed keyboard through the real API is a real zero",
+    "tt142-input-scan: IN-06 · the estimate is labelled as one",
+    "tt142-input-scan: IN-06 · browser chrome is not mistaken for a keyboard",
+    "tt142-input-scan: IN-06 · an absurd measurement is clamped and said so",
+    "tt142-input-scan: IN-06 · iOS visual-viewport offset is accounted for",
+    "tt142-input-scan: IN-06 · revealing a field scrolls by the overhang, not to the top",
+    "tt142-input-scan: IN-06 · compact mode follows the inset, not the window",
+    "tt142-input-scan: IN-06 · the description never claims geometry it does not have"
+   ]
+  },
+  "ST-02": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: ST-02 the settings index names real panels and offers only the ones this platform has",
+    "tt139-platform: ST-02 · browser detection does not confuse a Chromium fork with Chrome",
+    "tt139-platform: ST-02 · internal schemes are never linkable, and the refusal carries the text to copy",
+    "tt139-platform: ST-02 · every indexed setting resolves to a real action for the detected browser",
+    "tt141-browser: Spec: the browser-settings index copies an address a page cannot open",
+    "tt147-core: ST-02 settings index: every URI is well-formed, platform-scoped, and never guessed"
+   ]
+  },
+  "PR-06": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: PR-06 · RFC 6068 encoding keeps the safe characters and encodes newlines as %0D%0A",
+    "tt139-platform: PR-06 · a draft builds a valid mailto, drops invalid addresses and never emits a stray '?'",
+    "tt139-platform: PR-06 · an over-long body is truncated on a character boundary and says so",
+    "tt146-core: PR-06 RFC 6068: percent-encoding, CRLF bodies, literal plus, unicode",
+    "tt146-core: PR-06 refusals: header injection, whitespace, non-ASCII addresses, NUL",
+    "tt146-core: PR-06 truncation is visible, bounded, and loses nothing silently",
+    "tt146-core: PR-06 round-trips through parseMailto, and the channel plan is explicit"
+   ]
+  },
+  "PR-07": {
+   "tested": "full",
+   "tests": [
+    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
+    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
+    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
+    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
+    "e2e-browser: no page errors in the browser session",
+    "e2e-tt114-density: AX-17: the browser chrome is drawn too, and its names survived",
+    "e2e-tt114-tabs: PR-07d: a horizontal split puts two live frames side by side",
+    "e2e-tt99-interactions: Browser tab context duplicates the clicked URL and pins a non-active target",
+    "e2e-tt99-interactions: Browser close-others uses the context target, preserving pinned tabs",
+    "e2e-tt99-interactions: Browser explicit Close removes the clicked pinned tab, not the active neighbor",
+    "e2e-tt99-interactions: Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload",
+    "e2e: mount: browser",
+    "tt139-platform: PR-07 · X-Frame-Options is read case-insensitively with the most restrictive answer winning",
+    "tt139-platform: PR-07 · CSP frame-ancestors overrides X-Frame-Options and understands sources",
+    "tt139-platform: PR-07 · a missing policy is 'unknown', not 'allowed' — and the label says which"
+   ]
+  },
+  "FF-06": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt148: FF-06 an AVIF named .heic becomes a real thumbnail in Files — and the decoder agrees it is decodable",
+    "e2e-tt148: FF-06 a real HEIC is refused by the app and by the engine in the same page — the sentence is measured",
+    "tt139-platform: FF-06 · canPlayType's three answers map to three different states",
+    "tt139-platform: FF-06 · MediaCapabilities decides per configuration, and power efficiency decides the state",
+    "tt148-core: FF-06 the container is identified by its brand, not its extension",
+    "tt148-core: FF-06 a real HEIC (libheif/HEVC) is refused as a missing decoder, not as a broken file"
+   ]
+  },
+  "SC-06": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: SC-06 · the guard hides on every trigger and says which one fired",
+    "tt139-platform: SC-06 · the guarantee is never overstated, and the tiles cover the area",
+    "tt140-cast-privacy: SC-06 · the protection statement never claims more than the platform allows",
+    "tt140-cast-privacy: SC-06 · our own capture excludes private windows, always",
+    "tt140-cast-privacy: SC-06 · locks and blanks fire on a live capture and clear when it ends",
+    "tt140-cast-privacy: SC-06 · an unreported surface is unknown, not assumed safe",
+    "tt140-cast-privacy: SC-06 · the summary sentence states the limit in the same breath"
+   ]
+  },
+  "MS-01": {
+   "tested": "full",
+   "tests": [
+    "e2e: mount: messages",
+    "tt139-platform: MS-01 · a plain-http bridge is refused unless it is on this machine",
+    "tt139-platform: MS-01 · requests carry the token in a header, never in the URL",
+    "tt139-platform: MS-01 · a wrong-shaped response is a typed failure, not an empty screen",
+    "tt141-browser: Messages: the bridge address guard refuses a remote plain-http bridge in the real UI"
+   ]
+  },
+  "MS-04": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: MS-04 · Matrix needs https and a real token, and its responses are typed",
+    "tt139-platform: MS-04 · pagination and errors are read correctly, and secrets are redacted"
+   ]
+  },
+  "AX-06": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: AX-06 · dictation is off unless the user consented to cloud speech",
+    "tt139-platform: AX-06 · interim results replace the tail, finals commit, and the budget is enforced",
+    "tt139-platform: AX-06 · every stop reason is classified, and text is never discarded on stop"
+   ]
+  },
+  "AU-04": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: AU-04 · a plan is built from the sentence, and a missing argument is a partial, not a guess",
+    "tt139-platform: AU-04 · an executable plan is validated against the real command table",
+    "tt139-platform: AU-04 · the module never claims a model it does not have"
+   ]
+  },
+  "BL-04": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: BL-04 · a Pay button is impossible outside a real store context",
+    "tt139-platform: BL-04 · a malformed price from the store is a refusal, not 'undefined'",
+    "tt139-platform: BL-04 · there is exactly one store decision function",
+    "tt141-browser: Settings: the licence tab states the store mode and never shows a fake checkout"
+   ]
+  },
+  "LN-02": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: LN-02 · the subject is the largest box plus its neighbours, and no faces means no subject",
+    "tt139-platform: LN-02 · the crop keeps the subject inside and never shrinks below the floor",
+    "tt139-platform: LN-02 · smoothing is critically damped: it approaches without overshoot and stops jittering",
+    "tt141-auto-frame: LN-02 · one face gives a centred subject of its own size",
+    "tt141-auto-frame: LN-02 · several faces produce the union, so nobody is cropped out",
+    "tt141-auto-frame: LN-02 · a degenerate or non-finite box cannot poison the frame",
+    "tt141-auto-frame: LN-02 · the first detection snaps instead of gliding in",
+    "tt141-auto-frame: LN-02 · the tracking is critically damped, so it never overshoots",
+    "tt141-auto-frame: LN-02 · a stationary subject settles and stops moving",
+    "tt141-auto-frame: LN-02 · a backgrounded tab cannot integrate seconds of velocity",
+    "tt141-auto-frame: LN-02 · a wild detection cannot yank the crop to the frame edge",
+    "tt141-auto-frame: LN-02 · losing the subject holds the framing instead of snapping to centre",
+    "tt141-auto-frame: LN-02 · zoom fills the frame within its bounds",
+    "tt141-auto-frame: LN-02 · the crop rectangle always lies inside the source",
+    "tt141-auto-frame: LN-02 · every frame is pure, and the honesty text names what is missing"
+   ]
+  },
+  "LN-12": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: LN-12 · the presenter bubble stays inside the stage and warns when it covers the content",
+    "tt140-cast-privacy: LN-12 · picture-in-picture keeps the camera ratio and stays on screen",
+    "tt140-cast-privacy: LN-12 · invalid presenter settings are refused, not clamped silently",
+    "tt140-cast-privacy: LN-12 · camera-only, green-screen and off are three distinct states",
+    "tt140-cast-privacy: LN-12 · side-by-side gives the presenter a usable column or says it will not",
+    "tt140-cast-privacy: LN-12 · the cutout can be moved and its overlap with content is measured",
+    "tt140-cast-privacy: LN-12 · the presenter monitor is four separate rects that do not overlap"
+   ]
+  },
+  "AU-03": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt146: AU-03 the automation panel mints a token once and never shows it again",
+    "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
+    "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
+    "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
+    "tt108-refusal: every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
+    "tt139-platform: AU-03 · the entry shape is fixed: no free-form steps, bounded arguments",
+    "tt139-platform: AU-03 · a dry run blocks the whole routine when one step is unknown",
+    "tt139-platform: AU-03 · tokens are single-use, routine-bound and expiring",
+    "tt141-browser: Routines: the automation entry plans a real routine and refuses a bad request",
+    "tt146-core: AU-03 tokens: strict shape, hashed comparison, scopes",
+    "tt146-core: AU-03 the rate limiter is a fixed window with an honest retry time",
+    "tt146-core: AU-03 requests: whitelist only, one spelling of the payload, bounded length",
+    "tt146-core: AU-03 a settled run cannot be rewritten",
+    "tt146-http: AU-03 a token is minted once, stored hashed, and never listed",
+    "tt146-http: AU-03 an enqueued command is visible to the shell, settled once, and audited",
+    "tt146-http: AU-03 the door refuses: bad tokens, missing scopes, unknown commands, empty bodies",
+    "tt146-http: AU-03 revocation is immediate, and the limiter is the server's",
+    "tt89-launch-unit: protocol accepts only the documented, known app intent",
+    "tt89-launch-unit: existing-window URL is same-origin, root-only, one bounded module parameter"
+   ]
+  },
+  "TD-04": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: TD-04 · sort is stable, numeric like sort -n, and unique is not a set",
+    "tt139-platform: TD-04 · uniq only collapses adjacent duplicates, which is the real semantics",
+    "tt139-platform: TD-04 · cut, paste and wc follow POSIX counting",
+    "tt139-platform: TD-04 · wc and tr match the tools they are named after"
+   ]
+  },
+  "HW-06": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: HW-06 · windows are centred in the work area, never under a taskbar",
+    "tt139-platform: HW-06 · presentation prefers an external screen, and DPI changes are described"
+   ]
+  },
+  "HW-07": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt147: HW-07 the peripheral card lists every bus this engine has, and counts only what is granted",
+    "tt139-platform: HW-07 · each transport's availability is its own answer, gated on a secure context",
+    "tt139-platform: HW-07 · over-broad filters are refused before a picker opens",
+    "tt139-platform: HW-07 · failures are classified, and frames survive chunk boundaries",
+    "tt147-core: HW-07 inventory: granted is not the device list, and a refusal is not an absence"
+   ]
+  },
+  "HW-09b": {
+   "tested": "untested",
+   "tests": []
+  },
+  "HW-10": {
+   "tested": "full",
+   "tests": [
+    "tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked",
+    "tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string",
+    "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
+    "tt146-core: HW-10 absence is reported with its reason, and threads need isolation",
+    "tt146-core: HW-10 the chunk planner covers every item exactly once"
+   ]
+  },
+  "HW-11": {
+   "tested": "full",
+   "tests": [
+    "e2e-tt110-shell: the screen wake lock is really taken and really released",
+    "tt139-platform: HW-11 · a wake lock is a lease with a visible state, not a boolean hope"
+   ]
+  },
+  "CT-03b": {
+   "tested": "untested",
+   "tests": []
+  },
+  "DP-07": {
+   "tested": "full",
+   "tests": [
+    "a11y-unit: DP-07 gate: the shell's own surface tokens clear the AA floor, and the gate is what decides",
+    "e2e: no non-resource console errors across all module mounts",
+    "tt116-density: every control whose caption was removed still answers to its full name",
+    "tt116-density: no shortened word sits outside the name its control answers to",
+    "tt139-platform: DP-07 · the gate blocks on contrast, names, hidden focus and tiny targets",
+    "tt139-platform: DP-07 · the threshold is an argument, and 'passed' never means 'accessible'",
+    "tt142-a11y-gate: DP-07 · a skipped check is not a pass",
+    "tt142-a11y-gate: DP-07 · the verdict never claims the app is accessible",
+    "tt142-a11y-gate: DP-07 · failures are reported with enough detail to fix",
+    "tt142-a11y-gate: DP-07 · contrast maths matches the WCAG reference values",
+    "tt142-a11y-gate: DP-07 · large text is held to 3:1 and body text to 4.5:1",
+    "tt142-a11y-gate: DP-07 · a translucent colour is composited before it is measured",
+    "tt142-a11y-gate: DP-07 · colour parsing refuses what it cannot parse",
+    "tt142-a11y-gate: DP-07 · the audit reports each pair against its own requirement",
+    "tt142-a11y-gate: DP-07 · this repo's own text tokens actually pass",
+    "tt143-engines: visual: both token sets pass the contrast audit, and a failing ink is caught"
+   ]
+  },
+  "SR-26": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: SR-26 · the query grammar parses every operator and reports bad input",
+    "tt139-engines: SR-26 · ranking prefers a title match and length-normalises long bodies",
+    "tt139-engines: SR-26 · filters are conjunctive and negation scans every field",
+    "tt139-engines: SR-26 · highlight spans merge overlaps and never nest",
+    "tt139-engines: SR-26 · relative dates resolve against a supplied clock, never the wall clock"
+   ]
+  },
+  "CSV-01": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: CSV-03 · delimiter detection scores consistency, not frequency"
+   ]
+  },
+  "CG-01": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: CG-01 · WCAG contrast matches the published extremes and thresholds",
+    "tt139-engines: CG-01 · lightness behaves as perception, not as HSL: a red/blue swap is not 'equal brightness'",
+    "tt139-engines: CG-01 · colour-vision simulation is deterministic, monotone in severity and keeps greys grey",
+    "tt139-engines: CG-01 · CSS colour parsing accepts the syntaxes users paste and rejects the rest",
+    "tt139-engines: CG-01 · theme helpers pick a readable foreground and keep generated palettes distinct"
+   ]
+  },
+  "IN-09": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: IN-09 · chord normalisation is order-independent and platform-aware",
+    "tt139-engines: IN-09 · scope precedence resolves a dialog Escape without closing the window",
+    "tt139-engines: IN-09 · reserved chords and conflicts are reported, never silently accepted",
+    "tt139-engines: IN-09 · hints are generated from the same data the dispatcher matches"
+   ]
+  },
+  "CK-09": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: CK-09 · civil day numbers agree with Date.UTC across four centuries",
+    "tt139-engines: CK-09 · weekday and ISO week match known calendar facts",
+    "tt139-engines: CK-09 · a wall time that does not exist is a gap, and one that happens twice is an overlap",
+    "tt139-engines: CK-09 · a conversion round-trips through the zone it reports",
+    "tt139-engines: CK-09 · relative phrasing and overlap search are bounded and honest"
+   ]
+  },
+  "CV-04": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: CV-04 · defined factors are exact to double precision",
+    "tt139-engines: CV-04 · a dimensionally impossible conversion is refused with the reason",
+    "tt139-engines: CV-04 · free-text quantities parse the forms people type"
+   ]
+  },
+  "ED-11": {
+   "tested": "full",
+   "tests": [
+    "tt139-engines: ED-11 · matching honours case, whole-word and Unicode boundaries",
+    "tt139-engines: ED-11 · a pathological regex is refused or bounded rather than freezing",
+    "tt139-engines: ED-11 · replace-all is literal in literal mode and expands groups in regex mode",
+    "tt139-engines: ED-11 · navigation wraps predictably and the status string is the single source of truth"
+   ]
+  },
   "HW-13": {
    "tested": "full",
    "tests": [
@@ -69,7 +396,10 @@
     "tt135-text-encoding: PR-14 · encodeText rejects characters > 255 in Latin-1",
     "tt135-text-encoding: PR-14 · lineEndings detects dominant ending",
     "tt135-text-encoding: PR-14 · describeDecode mentions encoding and how",
-    "tt135-text-encoding: PR-14 · corrupt BOM is refused, not guessed"
+    "tt135-text-encoding: PR-14 · corrupt BOM is refused, not guessed",
+    "tt139-engines: PR-14 · dead-key composition produces one Unicode character, not two",
+    "tt139-engines: PR-14 · a dead key followed by a non-composable key emits the standalone accent",
+    "tt139-engines: PR-14 · control bytes and special sequences follow the C0 table"
    ]
   },
   "FM-21": {
@@ -165,7 +495,8 @@
     "tt135-system-engines: CO-03 · route rejects GET with body",
     "tt135-system-engines: CO-03 · route rejects oversized POST body",
     "tt135-system-engines: CO-03 · route rejects host not in manifest",
-    "tt135-system-engines: CO-03 · describeVerdict gives a one-line summary"
+    "tt135-system-engines: CO-03 · describeVerdict gives a one-line summary",
+    "tt143-engines: SC-04 egress: a deny rule blocks, an allow rule passes, and the more specific rule wins"
    ]
   },
   "BL-06": {
@@ -1254,7 +1585,6 @@
     "tt124-density: density pdf: words<=400",
     "tt124-density: density peek: words<=260",
     "tt124-density: density lens: words<=320",
-    "tt124-density: density monitor: words<=520",
     "tt124-density: density writer: words<=900",
     "tt124-density: density imageedit: words<=320",
     "tt124-density: density media: words<=340",
@@ -1264,7 +1594,6 @@
     "tt124-density: density vector: words<=340",
     "tt124-density: density capture: words<=320",
     "tt124-density: density together: words<=340",
-    "tt124-density: density routines: words<=300",
     "tt124-density: density spec: words<=12400",
     "tt124-density: density beam: words<=320",
     "tt124-density: density ssh: words<=320",
@@ -1515,10 +1844,9 @@
    ]
   },
   "AX-22": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e: mount: browser",
-    "tt120-density: AX-22: every app measured, none wordier than the ceiling, no emoji marks"
+    "e2e: mount: browser"
    ]
   },
   "ED-03": {
@@ -1612,10 +1940,9 @@
    ]
   },
   "AX-21": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e: mount: browser",
-    "tt119-density: AX-21: every app measured, none wordier than the ceiling, no emoji marks"
+    "e2e: mount: browser"
    ]
   },
   "DF-01": {
@@ -1713,10 +2040,9 @@
    ]
   },
   "AX-20": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e: mount: browser",
-    "tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks"
+    "e2e: mount: browser"
    ]
   },
   "CK-01": {
@@ -1751,7 +2077,7 @@
     "tt130-alarms-core: delivery window is inclusive at due and excludes a full minute late",
     "tt130-alarms-core: weekday schedules do not become daily; empty days mean daily",
     "tt130-alarms-core: 2,000 seeded plans match direct UTC day enumeration",
-    "tt131-ledger: the alarm row is partial and includes the real foreground regression evidence",
+    "tt131-ledger: the alarm row keeps its closed-window regression evidence and its page-bound limit",
     "tt132-claim-contract: an exception after entering a claim callback is propagated, never retried outside the lock",
     "tt132-claim-contract: a lock API failure before callback entry uses the fallback exactly once",
     "tt132-claim-contract: a scheduling predicate exception is propagated without a second predicate evaluation",
@@ -1767,7 +2093,8 @@
     "tt139-systems: CK-01 · weekly alarm respects the day set",
     "tt139-systems: CK-01 · a slept-through schedule fires once, not N times",
     "tt139-systems: CK-01 · once alarms finish; snooze re-arms; disable clears",
-    "tt139-systems: CK-01 · adversarial: duplicate id, bad label, bad snooze"
+    "tt139-systems: CK-01 · adversarial: duplicate id, bad label, bad snooze",
+    "tt145-engines: CK-01 alarms: a weekly alarm with no days is refused, a closed window reports every missed occurrence, a backwards clock fires nothing, and a snooze cannot skip the next occurrence"
    ]
   },
   "CK-02": {
@@ -1890,7 +2217,10 @@
     "e2e-tt117: SP-01 in Spec: the register health panel renders a verdict",
     "e2e: mount: spec",
     "tt117-core: SP-01 register health: duplicates, missing suites, unclaimed built rows, unknown claims",
-    "tt125-density: TT125 register: all twenty codes built, register grew past TT124's 587"
+    "tt125-density: TT125 register: all twenty codes built, register grew past TT124's 587",
+    "tt145-register: TT145 register: no duplicate codes in the seed (a duplicate silently became one database row), and every cited suite exists on disk",
+    "tt145-register: TT145 register: no module claims a code the register lacks, and the built-without-module count is pinned rather than ignored",
+    "tt145-register: TT145 register: the duplicate merge cannot promote — a code present twice keeps the stricter status and tier"
    ]
   },
   "AX-18": {
@@ -2066,7 +2396,8 @@
     "tt107-crash: after the crash the pair is still guard-consistent and can be trashed and restored",
     "tt108-engine-crash: no half pair survived the crash, including the publications in flight",
     "tt108-engine-crash: positive control: even when the WAL tail is lost, whole pairs are lost — never half of one",
-    "tt137-recall-engines: RC-29 · no half pairs after normal operations"
+    "tt137-recall-engines: RC-29 · no half pairs after normal operations",
+    "tt143-engines: RC-29 audit: a half pair is found, a young orphan is spared, and a dangling row is never reclaimed"
    ]
   },
   "RC-30": {
@@ -2387,7 +2718,8 @@
     "tt109-recall: memories are never written into Persistent Storage, and the archive says so plainly",
     "tt109-recall: the exclusions that exist are real: query tokens are dropped and a declared label cannot smuggle them back",
     "tt137-recall-engines: RC-15 · exclusions hide sensitive by default",
-    "tt137-recall-engines: RC-15 · showSensitive reveals all"
+    "tt137-recall-engines: RC-15 · showSensitive reveals all",
+    "tt145-engines: RC-15 exclusions: a bank host stops a capture, query tokens are redacted in the address, and redaction is closed under concatenation so a split token is still caught"
    ]
   },
   "SH-01": {
@@ -2485,9 +2817,10 @@
    ]
   },
   "SH-10": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: Overview (Meta+Q) and Blackout overlay toggle"
+    "e2e: Overview (Meta+Q) and Blackout overlay toggle",
+    "tt145-engines: SH-10 blackout: a flat single layer draws 1 fps instead of 60, every other fill is refused with a reason, and touches coalesce no faster than the display"
    ]
   },
   "SH-11": {
@@ -2515,7 +2848,7 @@
    ]
   },
   "SH-13": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt85: E1 AP-01 app hub: the live module registry is launchable; real manifest handlers, display mode and origin quota are shown without inventing installed apps or OS associations",
     "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
@@ -2527,6 +2860,8 @@
     "e2e-tt89-launch: unsupported binary, NUL, excessive size and excessive launch count are refused",
     "e2e-tt89-launch: amnesic session refuses launch file copies before consent or any host write",
     "e2e-tt89-launch: launch browser session has no uncaught page errors",
+    "tt142-browser: the manifest is installable: name, start_url, display and at least one 192px maskable icon",
+    "tt143-engines: SH-13 virtual list: 100 000 rows index in milliseconds, mount ~0.03% of them, and never collapse",
     "tt89-launch-mutants: allow unknown protocol module",
     "tt89-launch-mutants: allow arbitrary protocol action",
     "tt89-launch-mutants: allow extra protocol parameters",
@@ -2552,7 +2887,6 @@
    "tests": [
     "e2e-tt128-worker: successful worker install and activation; API and query URLs never enter the cache",
     "e2e-tt128-worker: offline API reports 503 and non-desktop navigation shows the explicit fallback",
-    "e2e-tt129-offline: first installation can boot a new offline desktop without an online reload",
     "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
     "e2e-tt94-offline-race: a later queued Files write is not lost while a photo replay is waiting on the database",
     "e2e-tt94-offline-race: a noncooperating queue change during replay is retained and reported",
@@ -2561,6 +2895,8 @@
     "tt129-worker-unit: worker discovers shell assets and only permitted same-origin CSS resources",
     "tt129-worker-unit: failed refresh retains the previous root, then commits once assets succeed",
     "tt129-worker-unit: unchanged root refresh does not refetch already cached shell assets",
+    "tt142-browser: a real service-worker registration controls the origin after a reload",
+    "tt143-engines: SH-14 offline queue: collapses per key, dedupes by content, and refuses past its cap",
     "tt92-ledger-audit: the web-only offline queue is partial and discloses storage and cross-tab limits"
    ]
   },
@@ -2619,15 +2955,17 @@
    ]
   },
   "WM-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e: mount: browser"
+    "e2e: mount: browser",
+    "tt145-engines: WM-06 broker: a blocking origin is probed once then remembered, silence is treated as blocked, a handoff is chosen for a running app, and only S1/S2/S3 claim to bring the other app in"
    ]
   },
   "WM-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
+    "tt143-engines: WM-07 hotplug: park and restore are reversible, and a user move survives the round trip"
    ]
   },
   "WM-08": {
@@ -2650,9 +2988,10 @@
    ]
   },
   "WM-11": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt109-shell: the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over"
+    "e2e-tt109-shell: the always-on-top pop-out takes the real capability branch this browser has, with its styles carried over",
+    "tt145-engines: WM-11 PiP: a request outside the usable range clamps to the content aspect, an oversized stylesheet clone is refused, an empty adoption produces nothing, and a hidden tab closes the window instead of keeping it"
    ]
   },
   "WM-12": {
@@ -2681,16 +3020,10 @@
    "tests": []
   },
   "WM-15": {
-   "tested": "partial",
-   "tests": [
-    "e2e-tt108-shell: a canvas-backed window really is a live video source"
-   ]
-  },
-  "WM-16": {
    "tested": "full",
    "tests": [
-    "e2e-tt147: WM-16 the cursor is really confined by a real click, and really released",
-    "tt147-core: WM-16 confinement state machine: no API, no gesture, pending, and a raw-input refusal"
+    "e2e-tt108-shell: a canvas-backed window really is a live video source",
+    "tt143-engines: WM-15 capture: recording is ready, casting a live stream is refused, tab-audio is disclosed"
    ]
   },
   "WM-17": {
@@ -2752,8 +3085,11 @@
    ]
   },
   "IN-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
+    "e2e-tt148: IN-04 the capture box reads the physical chord and separates browser-reserved from app-owned",
+    "e2e-tt148: IN-04 capturing a chord consumes it: the shell must not act on a key the panel is capturing",
+    "tt145-engines: IN-04 chords: a bare printable key and an OS-reserved chord are refused, a held chord latches and advances, Escape cancels, and focus loss cannot leave a modifier stuck",
     "tt148-core: IN-04 chords are physical keys in a fixed order, so a layout switch cannot move a shortcut"
    ]
   },
@@ -2762,20 +3098,6 @@
    "tests": [
     "tt111-core: no preset collides with itself, and every browser-reserved chord ships with the reason it is reserved",
     "unit: shortcut presets have no internal conflicts; chord matcher"
-   ]
-  },
-  "IN-06": {
-   "tested": "full",
-   "tests": [
-    "tt142-input-scan: IN-06 · the real API wins over the estimate",
-    "tt142-input-scan: IN-06 · a closed keyboard through the real API is a real zero",
-    "tt142-input-scan: IN-06 · the estimate is labelled as one",
-    "tt142-input-scan: IN-06 · browser chrome is not mistaken for a keyboard",
-    "tt142-input-scan: IN-06 · an absurd measurement is clamped and said so",
-    "tt142-input-scan: IN-06 · iOS visual-viewport offset is accounted for",
-    "tt142-input-scan: IN-06 · revealing a field scrolls by the overhang, not to the top",
-    "tt142-input-scan: IN-06 · compact mode follows the inset, not the window",
-    "tt142-input-scan: IN-06 · the description never claims geometry it does not have"
    ]
   },
   "IN-07": {
@@ -2877,7 +3199,7 @@
    ]
   },
   "SR-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt97-calculator-repairs: empty history is a named region; removing its role reintroduces the original axe violation",
     "e2e-tt97-calculator-repairs: empty and populated programmer history remain axe-clean",
@@ -2898,6 +3220,7 @@
     "e2e-tt97-palette-actions: a routine disabled after being listed is rechecked and not run",
     "e2e-tt97-palette-actions: palette action scenarios have no uncaught page errors",
     "e2e: mount: calculator",
+    "tt143-engines: SR-06 clusters: a bulk action never spans a section, and an unknown source is its own cluster",
     "tt96-scientific-units: basic scientific precedence and finite-domain errors",
     "tt96-scientific-units: trigonometric and logarithmic results agree with Python math",
     "tt96-scientific-units: selected physical and binary-storage conversions use the declared dimensions",
@@ -3145,12 +3468,13 @@
    ]
   },
   "FM-08": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt87-localdisk: BK-02 real browser folder handle survives IndexedDB reload and a first sync preserves skipped names and binary data",
     "e2e-tt87-localdisk: FM-08 import selects a conflict-free name and keeps the original Fusion file byte-for-byte",
     "e2e-tt87-localdisk: FM-08 conditional write rejects missing preconditions, existing names and changed versions without modifying data",
-    "e2e: mount: localdisk"
+    "e2e: mount: localdisk",
+    "tt145-engines: FM-08 volumes: an unplugged directory reads as partial, not empty; a lapsed grant is listed but marked; a snapshot is read-only; a quota is never called free disk"
    ]
   },
   "FM-09": {
@@ -3172,7 +3496,7 @@
    "tests": []
   },
   "FM-11": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt91-purge: confirmation states retention limits, rejects wrong text and cancellation leaves every row intact",
     "e2e-tt91-purge: confirming permanent folder deletion removes live/history/index rows and preserves an unrelated file",
@@ -3181,6 +3505,7 @@
     "e2e: mount: files",
     "integration: FM-11 trash → restore is exact; FM-07 finds duplicates by digest",
     "integration: CRITICAL regression: purging /a_b must not touch /aXb (LIKE wildcard)",
+    "tt145-engines: FM-11 trash: the sweep never empties the only copy of a digest, a re-trashed item gets double the window, a taken origin restores beside it, and the summary reports bytes still on the volume",
     "tt91-purge-mutants: leave saved versions behind",
     "tt91-purge-mutants: leave search text behind",
     "tt91-purge-mutants: allow root deletion",
@@ -3258,6 +3583,7 @@
   "FM-14": {
    "tested": "full",
    "tests": [
+    "tt145-engines: FM-14 drop: a real download wins, a browser without DownloadURL gets an explicit button, a hidden tab and a 51-file drop are refused, and a file drop never pretends to carry text",
     "tt146-core: FM-14 drag payloads: types we publish, drops we accept, keyboard alternative"
    ]
   },
@@ -3317,7 +3643,7 @@
     "tt116-safesave: every safe save is visible in the job journal with the stages it really went through",
     "tt116-safesave: a safe-saved text file becomes searchable, and a refused one does not",
     "tt116-safesave: the temporary output folder cannot be used as a target",
-    "tt131-ledger: the VFS safe-save row does not claim the native SAF contract",
+    "tt131-ledger: the VFS safe-save row still refuses to claim the native SAF contract",
     "tt137-system-engines: FM-18 · safe-save creates idle state",
     "tt137-system-engines: FM-18 · safe-save rejects same path",
     "tt137-system-engines: FM-18 · writeChunk tracks progress",
@@ -3325,6 +3651,7 @@
     "tt137-system-engines: FM-18 · validate requires matching size and sha",
     "tt137-system-engines: FM-18 · publish only after validated",
     "tt137-system-engines: FM-18 · original is safe until published",
+    "tt143-engines: FM-18 safe save: the four steps are ordered, and each failure has its own recovery",
     "tt143-safe-save: FM-18 · a fresh save is idle and the original is untouched",
     "tt143-safe-save: FM-18 · nothing can be published before it is validated",
     "tt143-safe-save: FM-18 · a size or digest mismatch leaves the original safe",
@@ -3436,15 +3763,8 @@
     "integration: SR-04 / settings: locked settings refuse writes (423)"
    ]
   },
-  "ST-02": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt147: ST-02 the settings index names real panels and offers only the ones this platform has",
-    "tt147-core: ST-02 settings index: every URI is well-formed, platform-scoped, and never guessed"
-   ]
-  },
   "ST-03": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt89-launch: default-app guide changes platform, reports limits, and sends a real browser protocol request without claiming acceptance",
     "tt137-system-engines: ST-03 · registry has system extensions",
@@ -3452,7 +3772,8 @@
     "tt137-system-engines: ST-03 · override shadows system default",
     "tt137-system-engines: ST-03 · clearOverride restores system default",
     "tt137-system-engines: ST-03 · protocol handlers exist",
-    "tt137-system-engines: ST-03 · describeApp gives one-liner"
+    "tt137-system-engines: ST-03 · describeApp gives one-liner",
+    "tt145-engines: ST-03 handlers: two %s placeholders are refused, a scheme outside web+ needs to be browser-known, a resolved call is only 'offered', and no state ever prints 'default'"
    ]
   },
   "ST-04": {
@@ -3486,7 +3807,7 @@
    "tests": []
   },
   "ST-09": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt90-context: profiles are off initially and editing them does not change the shared appearance",
     "e2e-tt90-context: opt-in applies the chosen profile, retains shared settings, and survives a reload",
@@ -3496,6 +3817,7 @@
     "e2e-tt90-context: a touch-emulated Chromium chooses the touch profile independent of viewport width",
     "e2e-tt90-context: corrupt local storage fails closed and does not claim unavailable screen detection",
     "e2e-tt90-context: context controls have no serious axe findings or uncaught page errors",
+    "tt143-engines: ST-09 profile: a touchscreen laptop is a laptop, an iPad is a tablet, two screens are a desk",
     "tt90-context-unit: default is opt-out; every profile follows the shared text size",
     "tt90-context-unit: multiple screens override primary pointer; single-screen pointer classification ignores viewport size",
     "tt90-context-unit: round trip accepts only a boolean opt-in, valid densities and bounded integer text sizes",
@@ -3532,9 +3854,6 @@
     "e2e-tt108-shell: the shell never takes a service-worker update without being asked",
     "e2e-tt128-worker: failed upgrade preserves the previous activated worker and cache",
     "e2e-tt128-worker: successful upgrade waits for consent, then activates and reloads",
-    "e2e-tt129-offline: a failed required chunk prevents first worker installation",
-    "e2e-tt129-offline: a 200 HTML error page cannot install as a JavaScript dependency",
-    "e2e-tt129-offline: a failed chunk in an upgrade keeps the previously working offline shell",
     "tt129-worker-unit: worker installation rejects missing JS and missing CSS dependencies",
     "tt129-worker-unit: HTML masquerading as a chunk is rejected without poisoning the cache"
    ]
@@ -3542,12 +3861,14 @@
   "AP-05": {
    "tested": "full",
    "tests": [
+    "e2e-tt147: AP-05 the background inventory is the browser's own list, not a copy of it",
     "e2e-tt85: E2 AP-05 inventory: actual service-worker registrations and sync tags match Chromium APIs; page callback counters are measured and clearly not OS wake counts",
     "e2e: mount: apps",
     "tt137-system-engines: AP-05 · register entry",
     "tt137-system-engines: AP-05 · report counts by kind and module",
     "tt137-system-engines: AP-05 · consistency check flags missing startup on SW",
     "tt137-system-engines: AP-05 · unregister removes entry",
+    "tt143-engines: AP-05 background: each mechanism states its real guarantee; periodic sync is a floor, not a schedule",
     "tt85-inventory: AP-05: inventory definitions are unique and explicitly describe only app-owned foreground work",
     "tt85-inventory: AP-05: only real callback entry increments count; status updates do not invent callbacks; snapshots are detached",
     "tt85-inventory: AP-05: observers receive bounded snapshots and unsubscribe prevents later notifications",
@@ -3636,10 +3957,6 @@
     "tt45-unit: G: downgrade adversary strips the mlkem* names from BOTH KEXINITs → both sides agree on curve25519, but I_C / I_S are inside H, so the signature check fails; stripping one side only → the server's own DISCONNECT reason is shown"
    ]
   },
-  "TD-04": {
-   "tested": "untested",
-   "tests": []
-  },
   "TD-05": {
    "tested": "partial",
    "tests": [
@@ -3659,6 +3976,7 @@
     "e2e: mount: editor",
     "e2e: editor: open via terminal, edit, Ctrl+S → saved and a version snapshot exists",
     "tt116-safesave: replacing an existing file advances it by one version and keeps the previous one",
+    "tt145-engines: PR-01 journal: a no-op save creates no revision, a second writer forks a conflict instead of overwriting, a pending save survives a crash, and body compression never drops the last distinct version",
     "tt146-core: PR-01 encodings: BOM, UTF-16 without BOM, invalid UTF-8, and large-file policy",
     "tt92-ledger-audit: the editor does not advertise its database version snapshots as native SAF safe-save"
    ]
@@ -3806,33 +4124,6 @@
     "e2e: mount: contacts"
    ]
   },
-  "PR-06": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt146: PR-06 the mail composer builds a link this browser accepts, and says what it cannot do",
-    "tt146-core: PR-06 RFC 6068: percent-encoding, CRLF bodies, literal plus, unicode",
-    "tt146-core: PR-06 refusals: header injection, whitespace, non-ASCII addresses, NUL",
-    "tt146-core: PR-06 truncation is visible, bounded, and loses nothing silently",
-    "tt146-core: PR-06 round-trips through parseMailto, and the channel plan is explicit"
-   ]
-  },
-  "PR-07": {
-   "tested": "full",
-   "tests": [
-    "browser-session: URL guard: http(s) only, bare hosts get https, credentials and own origin refused",
-    "browser-session: restore normalisation: hostile/invalid tabs dropped, groups/perms validated, active repaired, pinned first",
-    "e2e-browser: hostile saved session: javascript:, same-origin and credential URLs are dropped on restore; no frame ever points at the shell origin",
-    "e2e-browser: address bar refuses credential, non-http and own-origin URLs; accepts bare hosts (https)",
-    "e2e-browser: no page errors in the browser session",
-    "e2e-tt114-density: AX-17: the browser chrome is drawn too, and its names survived",
-    "e2e-tt114-tabs: PR-07d: a horizontal split puts two live frames side by side",
-    "e2e-tt99-interactions: Browser tab context duplicates the clicked URL and pins a non-active target",
-    "e2e-tt99-interactions: Browser close-others uses the context target, preserving pinned tabs",
-    "e2e-tt99-interactions: Browser explicit Close removes the clicked pinned tab, not the active neighbor",
-    "e2e-tt99-interactions: Browser vertical-tab keyboard sleep/wake respects active-tab guards and survives persisted reload",
-    "e2e: mount: browser"
-   ]
-  },
   "PR-07a": {
    "tested": "full",
    "tests": [
@@ -3927,7 +4218,7 @@
    ]
   },
   "PR-07m": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt35: find in page, identity and Save to Files on a real site (WP-05; PR-07h, PR-07n, PR-07m): find counts and steps through matches inside the proxied page; Mobile makes the server AND the page present a mobile browser; Save to Files writes the page's original HTML into /Downloads",
     "e2e-tt35: large downloads and media ranges through the proxy (WP-02, PR-07m): a real file bigger than the 8 MB page limit (a numpy wheel from files.pythonhosted.org) streams through whole — byte-identical to a direct download (SHA-256) — and a Range request returns 206 with exactly the requested bytes; a 9 MB upload is refused (413)",
@@ -3938,6 +4229,7 @@
     "e2e-tt91-browser-download: a remote HTTP error is reported and never creates a file",
     "e2e-tt91-browser-download: a committed write with its acknowledgement lost is reported as unknown, not as a definite failure",
     "e2e-tt91-browser-download: restarting amnesic while the download is stalled does not publish it or permit a conditional host write",
+    "tt143-engines: PR-07m downloads: three streams at once, a short body is not a success, and cancel is final",
     "tt91-browser-download: download names cannot escape Downloads and malformed percent escapes do not crash",
     "tt91-browser-download: MIME metadata is canonicalised and control characters or invalid shapes are refused",
     "tt91-browser-download: a streamed body up to and including 8 MiB is read exactly, with real byte progress",
@@ -3993,7 +4285,8 @@
     "tt140-cast-privacy: PR-07p · rules match hosts exactly, never substrings",
     "tt140-cast-privacy: PR-07p · allow wins, invalid input is refused, non-http never navigates",
     "tt140-cast-privacy: PR-07p · rules are validated at construction",
-    "tt140-cast-privacy: PR-07p · the capability report distinguishes enforced from impossible"
+    "tt140-cast-privacy: PR-07p · the capability report distinguishes enforced from impossible",
+    "tt145-engines: PR-07p filter: a suffix rule cannot swallow a look-alike host, allow beats block at equal specificity, embeds are scoped separately, and malformed rules are reported not dropped"
    ]
   },
   "PR-07q": {
@@ -4130,7 +4423,7 @@
    ]
   },
   "PR-09": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt96-calculator: programmer controls compute exact 64-bit and signed fixed-width expressions in the real UI",
     "e2e-tt96-calculator: history is session-only by default, then explicit local opt-in survives reload, filters, restores mode and deletes",
@@ -4150,6 +4443,12 @@
     "e2e-tt97-calculator-repairs: calculator repair scenarios have no uncaught page errors",
     "e2e: mount: calculator",
     "e2e: calculator evaluates typed input with the shared evaluator",
+    "tt149-calc: PR-09 scientific functions agree with libm across the grid",
+    "tt149-calc: PR-09 integer-valued scientific expressions are exact, not merely close",
+    "tt149-calc: PR-09 unit conversions match exact rational definitions",
+    "tt149-calc: PR-09 programmer mode matches Python integers over 400 pairs and four word widths",
+    "tt149-calc: PR-09 refusals: eight impossible inputs are refused instead of answered with NaN",
+    "tt149-calc: PR-09 the oracle fixture is the artefact this suite claims (and it says who made it)",
     "tt95-calculator-audit: the register labels the expanded calculator and local history as partial",
     "tt95-calculator-audit: scientific and fixed-width programmer modes have distinct explicit operators",
     "tt95-calculator-audit: calculator history exists in the mounted window but is not saved as a note or search row",
@@ -4302,7 +4601,12 @@
   "PR-13": {
    "tested": "full",
    "tests": [
-    "e2e: desktop shows sticky note widget; seeded widget has no hang button"
+    "e2e: desktop shows sticky note widget; seeded widget has no hang button",
+    "tt139-engines: DIFF-01 · Myers distance equals an independent longest-common-subsequence count",
+    "tt139-engines: DIFF-02 · the budget reports truncation instead of pretending everything changed",
+    "tt139-engines: DIFF-03 · unified text and hunks are well formed and reversible",
+    "tt139-engines: DIFF-04 · three-way merge refuses to hide a conflict and merges disjoint edits",
+    "tt139-engines: DIFF-05 · word diff is finer than line diff and costs less than a full table"
    ]
   },
   "FF-01": {
@@ -4474,13 +4778,6 @@
     "tt59-raster: GIF transparency: alpha < 128 → the transparent index (Graphic Control Extension), visible pixels exact; an all-transparent image is valid",
     "tt59-raster: GIF photo (> 256 colours): median cut + Floyd–Steinberg — mean error per channel ≤ 6 and 8×8 block-mean error ≤ 0.8 (no diffusion: 2.7; no right-hand term: 0.95) on a smooth 256×256 gradient, ≤ 12 on noise; quantising 1 MP stays < 4 s",
     "tt59-raster: refusals: zero / oversized dimensions and short pixel buffers throw instead of writing a broken file"
-   ]
-  },
-  "FF-06": {
-   "tested": "partial",
-   "tests": [
-    "tt148-core: FF-06 the container is identified by its brand, not its extension",
-    "tt148-core: FF-06 a real HEIC (libheif/HEVC) is refused as a missing decoder, not as a broken file"
    ]
   },
   "FF-07": {
@@ -5350,6 +5647,7 @@
     "e2e: mount: photos",
     "e2e: mount: imageedit",
     "privacy-layer: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes",
+    "tt143-engines: MD-03 photo edit: the chain is non-destructive, refuses an impossible crop, and drops a no-op",
     "tt54-meta: MD-03 recipe engine: 117 renders vs numpy/Pillow (geometry bit-exact, tone ≤ 1 level, straighten ≥ 30 dB vs Pillow rotate with the crop scale checked by bisection, resolution independence) + 14 properties (rotate⁴ = id, flips, monotone curves on 343 slider combos, hostile sidecars bounded, no prototype keys)",
     "tt54-meta: Negative shapes: 22 hostile inputs to the readers / decoder / writers are refused or bounded — no crash, no hang, no garbage output",
     "tt92-ledger-audit: MD-03 does not claim native MediaStore, universal HEIC or atomic sidecar follow",
@@ -5434,12 +5732,13 @@
    ]
   },
   "MD-06": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt110-shell: audio outputs are enumerated and a tone can be routed to a chosen one",
     "e2e: mount: devices",
     "tt137-system-engines: MD-06 · routeAudio uses defaults",
-    "tt137-system-engines: MD-06 · reroute changes output device"
+    "tt137-system-engines: MD-06 · reroute changes output device",
+    "tt143-engines: MD-06 audio: an output can be chosen when the platform allows it, and labels are explained"
    ]
   },
   "MD-07": {
@@ -5510,9 +5809,10 @@
    ]
   },
   "SC-04": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "tt107-features: every capability declared blocked is still refused with a stated reason"
+    "tt107-features: every capability declared blocked is still refused with a stated reason",
+    "tt143-engines: SC-04 egress: a deny rule blocks, an allow rule passes, and the more specific rule wins"
    ]
   },
   "SC-05": {
@@ -5528,16 +5828,6 @@
     "tt72-access: outcomes, order, cap",
     "tt72-access: live until every track ended — 'ended' event or code stop(); double stop once; stopLive; Clear keeps live",
     "tt72-access: wrappers: granted / denied / failed with the module; original errors rethrown; no content stored"
-   ]
-  },
-  "SC-06": {
-   "tested": "full",
-   "tests": [
-    "tt140-cast-privacy: SC-06 · the protection statement never claims more than the platform allows",
-    "tt140-cast-privacy: SC-06 · our own capture excludes private windows, always",
-    "tt140-cast-privacy: SC-06 · locks and blanks fire on a live capture and clear when it ends",
-    "tt140-cast-privacy: SC-06 · an unreported surface is unknown, not assumed safe",
-    "tt140-cast-privacy: SC-06 · the summary sentence states the limit in the same breath"
    ]
   },
   "SC-07": {
@@ -5566,11 +5856,12 @@
    ]
   },
   "BK-01": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e: mount: backup",
     "integration: FM-18 overwrite snapshots the previous version",
     "integration: BK-01 tampered backup bundle is refused before anything is written",
+    "tt145-engines: BK-01 timeline: a broken ancestor chain fails verification, an edited manifest fails its root, and compaction keeps every ancestor of a retained snapshot",
     "tt87-backup-http: BK-01 data snapshot restores Unicode text, binary, empty folders and notes; keeps previous file versions and avoids duplicate notes",
     "tt87-backup-http: BK-01 identical source notes are counted rather than collapsed, and a repeated restore adds no extra copies",
     "tt87-backup-http: BK-01 restores private ciphertext without indexing, refuses an encrypted-to-plaintext overwrite and file/folder collision",
@@ -5654,7 +5945,7 @@
    ]
   },
   "BK-05": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt89-drill: a real downloaded recovery-key archive is selected and the drill controls are keyboard accessible",
     "e2e-tt89-drill: wrong password and modified ciphertext fail locally, do not post, and set failed status",
@@ -5671,6 +5962,7 @@
     "tt137-system-engines: BK-05 · stale backup reports issues",
     "tt137-system-engines: BK-05 · drill plan is safe for dry run",
     "tt137-system-engines: BK-05 · drill rejects incomplete set",
+    "tt145-engines: BK-05 health: a future-dated archive and an unknown status are unhealthy, a zero-file drill is vacuous, and the sampler is deterministic but spreads across the manifest",
     "tt89-drill-db: scratch data drill restores Unicode, binary, empty folders, duplicate notes and private-index exclusion without touching production",
     "tt89-drill-db: config drill writes a sentinel then reads real values back; reports locked and unknown keys without changing settings or sequences",
     "tt89-drill-db: empty backup and all-unknown configuration cannot become a successful drill",
@@ -6174,7 +6466,6 @@
    "tests": [
     "e2e-privacy: create Persistent Storage in the UI: Argon2id keyslots + recovery key; nothing secret reaches the host; top bar shows the unlocked state",
     "e2e-privacy: lock from the top bar → 423; unlock with the RECOVERY key in the UI → readable; a reload forgets the key (memory only)",
-    "e2e-tt130-privacy: explicit amnesic boot refuses host writes when localStorage access throws",
     "e2e: mount: privacy",
     "privacy-backup: amnesic rescue: RAM-only files are listed and moved into /Private/Rescued encrypted; nothing lands in clear; locked refuses",
     "privacy-layer: TT94 photo guards preserve unlocked host checks without leaking private or RAM recipes",
@@ -6302,15 +6593,20 @@
     "a11y-unit: icon contrast: every palette's glyph colour is ≥3:1 against its tile gradient across the whole glyph area (WCAG 1.4.11)",
     "a11y-unit: every registered module and every common file type has a real glyph; tile palettes exist",
     "a11y-unit: no emoji glyphs left in the shell chrome (they render blank without a colour-emoji font)",
+    "a11y-unit: TT143 tokens: every ink and the interactive border clear the AA floor in both modes",
+    "a11y-unit: TT143 copy: every module summary fits the 12-word budget and says something the title does not",
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "e2e-a11y: icons are SVG tiles (shelf, launcher, titlebar, palette, desktop) and every manifest icon resolves with the right type",
     "e2e-tt95-a11y-settings-race: a delayed settings response can expose default-sized icons before the saved scale is applied",
-    "tt140-glyph-geometry: every glyph renders, stays on the tile and is distinguishable (46 checked, 4 skipped)"
+    "tt140-glyph-geometry: every glyph renders, stays on the tile and is distinguishable (46 checked, 4 skipped)",
+    "tt143-engines: visual: both token sets pass the contrast audit, and a failing ink is caught",
+    "tt143-engines: visual: the word budget is enforced on labels, notes and summaries"
    ]
   },
   "AX-11": {
    "tested": "full",
    "tests": [
+    "a11y-unit: TT143 tokens: every ink and the interactive border clear the AA floor in both modes",
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
     "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
@@ -6862,9 +7158,10 @@
    ]
   },
   "SM-07": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "e2e-tt33: Qobuz + Amazon Music (SM-06, SM-07): store link → widget.qobuz.com with the page's zone at 390 px with encrypted-media; Amazon Share → Embed code pasted → the issued address minus tracking; a page link → built address + the 'use Share → Embed' note; neither offers controls it cannot honour",
+    "tt145-engines: SM-07 Amazon Music: all twelve storefronts resolve with their own marketplace id, affiliate and utm parameters never survive, and a non-Amazon host is refused rather than guessed",
     "tt33-unit: Amazon Music grammar (SM-07): Share → Embed code kept as issued (tracking params dropped); page links → embed shape flagged unverified; 12 storefronts",
     "tt33-unit: ≥ 15 refused shapes, each with a reason (negative space)",
     "tt33-unit: access notes say what each embed can and cannot do; library round-trip and dedupe across link forms"
@@ -7721,6 +8018,13 @@
     "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
     "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
     "e2e-tt79-pdf: Q5 no page errors",
+    "tt139-engines: MD-01 · raw HTML in the source is escaped, never parsed",
+    "tt139-engines: MD-02 · javascript: and data: destinations are dropped, text kept",
+    "tt139-engines: MD-03 · code fences keep their content byte-exact and their language",
+    "tt139-engines: MD-04 · emphasis follows the CommonMark flanking rules (no intraword _em_)",
+    "tt139-engines: MD-05 · nested blocks, tables, task lists and outline agree with the render",
+    "tt139-engines: MD-06 · bounds are enforced, and the refusal is an error rather than truncation",
+    "tt141-browser: Editor: markdown preview escapes raw HTML and the outline lists the headings",
     "tt79-pdf: P1 ciphers: 3DES == OpenSSL, RC2 RFC 2268 vectors, RC4 RFC 6229, PKCS#7 unpad",
     "tt79-pdf: P2 every PFX variant parses: key == writer's key, certificates == leaf + chain, MAC + schemes named",
     "tt79-pdf: P3 wrong password refused everywhere; a flipped authSafe byte breaks the MAC; -nomac still refuses",
@@ -7745,6 +8049,12 @@
     "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
     "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
     "e2e-tt79-pdf: Q5 no page errors",
+    "tt139-engines: ZIP-01 · CRC-32 matches the published IEEE 802.3 check value",
+    "tt139-engines: ZIP-02 · deflate round-trips exactly on adversarial byte patterns",
+    "tt139-engines: ZIP-03 · writer produces a directory an independent reader accepts, byte-identically twice",
+    "tt139-engines: ZIP-04 · zip-slip, duplicate names and over-long archives are refused",
+    "tt139-engines: ZIP-05 · a corrupted payload is detected, and a bomb's declared size is refused before inflating",
+    "tt139-engines: ZIP-06 · DOS timestamps round-trip and clamp the representable range",
     "tt79-pdf: P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
     "tt79-pdf: P6 visible appearance: PDFium ink only inside the rectangle on page 2, page 1 identical, text inside, qpdf clean",
     "tt79-pdf: P8 rotated pages: the visible box lands in the seen corner and reads upright (PDFium, IoU vs unrotated)"
@@ -7758,6 +8068,10 @@
     "e2e-tt79-pdf: Q3 Trust this certificate → Identity trusted; survives reload; Remove → not verified",
     "e2e-tt79-pdf: Q4 Add certificate… (unrelated root) → untrusted with a reason",
     "e2e-tt79-pdf: Q5 no page errors",
+    "tt139-engines: CSV-01 · quoted delimiters, doubled quotes and embedded newlines survive",
+    "tt139-engines: CSV-02 · BOM, CR-only endings and an unbalanced quote are reported, not silently repaired",
+    "tt139-engines: CSV-04 · export guards formula injection and the guard is exactly reversible",
+    "tt139-engines: CSV-05 · ragged rows are counted, not dropped; a field cap is enforced",
     "tt79-pdf: P5 sign with PFX identities (visible, page 2) → pyHanko valid + trusted with the root; Fusion trust verdicts",
     "tt79-pdf: P7 trust negatives agree with pyHanko: non-CA intermediate, expired signer, key usage without signing"
    ]
@@ -7865,6 +8179,10 @@
     "e2e-tt146: CT-03 a link made here opens the same desktop there, and a tampered one is refused",
     "tt139-media: CT-03 · a superseded handoff cannot be accepted (the race)",
     "tt139-media: CT-03 · expire clears the item; an invalid offer is refused",
+    "tt139-platform: CT-03 · a handoff link round-trips and its payload stays out of the query string",
+    "tt139-platform: CT-03 · a truncated paste, an edited payload and an old link all fail loudly",
+    "tt139-platform: CT-03 · unknown modules are dropped with a warning, and the size budget is enforced",
+    "tt145-engines: CT-03 handoff: only a connected same-origin channel is called live, a fragment is a link the user carries, an over-budget fragment is impossible rather than truncated, and a fragment can never be presented as live",
     "tt146-core: CT-03 handoff links: round trip, secret-stripped, tamper-refused, size-capped"
    ]
   },
@@ -7875,8 +8193,10 @@
    ]
   },
   "CT-05": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "tt143-engines: CT-05 remote: an unregistered scheme is copied, a registered one is a handoff, http is refused"
+   ]
   },
   "CT-06": {
    "tested": "partial",
@@ -7939,7 +8259,8 @@
     "tt140-cast-privacy: CA-08 · among several candidates the largest usable area wins",
     "tt140-cast-privacy: CA-08 · the window request uses usable area and absolute coordinates",
     "tt140-cast-privacy: CA-08 · placement is verified, and a mismatch is reported not hidden",
-    "tt140-cast-privacy: CA-08 · caveats name the things that actually go wrong"
+    "tt140-cast-privacy: CA-08 · caveats name the things that actually go wrong",
+    "tt143-engines: CA-08/CA-12 cast: a fetchable URL is available, a blob is refused, and the blocked protocols say why"
    ]
   },
   "CA-09": {
@@ -7967,7 +8288,8 @@
   "CA-12": {
    "tested": "full",
    "tests": [
-    "e2e: Beam lists every transport and names the missing primitive on blocked ones"
+    "e2e: Beam lists every transport and names the missing primitive on blocked ones",
+    "tt143-engines: CA-08/CA-12 cast: a fetchable URL is available, a blob is refused, and the blocked protocols say why"
    ]
   },
   "CA-13": {
@@ -8014,23 +8336,6 @@
     "e2e: Lens processes frames from a (fake) camera at > 0 fps"
    ]
   },
-  "LN-02": {
-   "tested": "full",
-   "tests": [
-    "tt141-auto-frame: LN-02 · one face gives a centred subject of its own size",
-    "tt141-auto-frame: LN-02 · several faces produce the union, so nobody is cropped out",
-    "tt141-auto-frame: LN-02 · a degenerate or non-finite box cannot poison the frame",
-    "tt141-auto-frame: LN-02 · the first detection snaps instead of gliding in",
-    "tt141-auto-frame: LN-02 · the tracking is critically damped, so it never overshoots",
-    "tt141-auto-frame: LN-02 · a stationary subject settles and stops moving",
-    "tt141-auto-frame: LN-02 · a backgrounded tab cannot integrate seconds of velocity",
-    "tt141-auto-frame: LN-02 · a wild detection cannot yank the crop to the frame edge",
-    "tt141-auto-frame: LN-02 · losing the subject holds the framing instead of snapping to centre",
-    "tt141-auto-frame: LN-02 · zoom fills the frame within its bounds",
-    "tt141-auto-frame: LN-02 · the crop rectangle always lies inside the source",
-    "tt141-auto-frame: LN-02 · every frame is pure, and the honesty text names what is missing"
-   ]
-  },
   "LN-03": {
    "tested": "untested",
    "tests": []
@@ -8068,6 +8373,7 @@
     "tt137-system-engines: LN-06 · computeLighting gives intensity at source",
     "tt137-system-engines: LN-06 · applyRelightPixel shifts channels",
     "tt137-system-engines: LN-06 · relightReport gives coverage stats",
+    "tt143-engines: LN-06 key light: it fills from the dark side, discloses the clip, and never claims to remove a shadow",
     "tt146-core: LN-06 the key light is a direction, not a brightness knob",
     "tt146-oracle: LN-06 agrees with the numpy lighting reference across angles and intensities"
    ]
@@ -8117,17 +8423,6 @@
    "tested": "untested",
    "tests": []
   },
-  "LN-12": {
-   "tested": "full",
-   "tests": [
-    "tt140-cast-privacy: LN-12 · picture-in-picture keeps the camera ratio and stays on screen",
-    "tt140-cast-privacy: LN-12 · invalid presenter settings are refused, not clamped silently",
-    "tt140-cast-privacy: LN-12 · camera-only, green-screen and off are three distinct states",
-    "tt140-cast-privacy: LN-12 · side-by-side gives the presenter a usable column or says it will not",
-    "tt140-cast-privacy: LN-12 · the cutout can be moved and its overlap with content is measured",
-    "tt140-cast-privacy: LN-12 · the presenter monitor is four separate rects that do not overlap"
-   ]
-  },
   "LN-13": {
    "tested": "partial",
    "tests": [
@@ -8147,12 +8442,6 @@
     "e2e: Lens processes frames from a (fake) camera at > 0 fps"
    ]
   },
-  "MS-01": {
-   "tested": "partial",
-   "tests": [
-    "e2e: mount: messages"
-   ]
-  },
   "MS-02": {
    "tested": "partial",
    "tests": [
@@ -8164,10 +8453,6 @@
    "tests": [
     "e2e: mount: messages"
    ]
-  },
-  "MS-04": {
-   "tested": "untested",
-   "tests": []
   },
   "AX-01": {
    "tested": "full",
@@ -8197,7 +8482,8 @@
   "AX-03": {
    "tested": "full",
    "tests": [
-    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)"
+    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
+    "tt142-browser: the desktop re-flows at 1024×640 without losing a window off-screen"
    ]
   },
   "AX-04": {
@@ -8218,10 +8504,6 @@
     "e2e-tt113-density: a disclosure opens from the keyboard alone",
     "e2e: keyboard tiling: Meta+ArrowLeft snaps the focused window to the left half"
    ]
-  },
-  "AX-06": {
-   "tested": "untested",
-   "tests": []
   },
   "AX-07": {
    "tested": "full",
@@ -8278,6 +8560,7 @@
   "AU-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt147: AU-01 a routine is previewed, saved, rehearsed, then run — and the audit tells them apart",
     "e2e-tt97-palette-actions: register keeps palette actions partial and discloses native Cast and privacy limits",
     "e2e-tt97-palette-actions: action-mode quick note is inert while typing, stays out of search requests and creates an indexed note only on selection",
     "e2e-tt97-palette-actions: composition Enter cannot trigger a note action; a subsequent real Enter can",
@@ -8293,6 +8576,7 @@
     "e2e: routines: dry-run lists actions without executing; Run opens the window",
     "integration: AU-01 routine whitelist rejects commands outside the palette vocabulary",
     "tt110-core: a routine can be rehearsed without doing anything, and both rehearsal and run are audited",
+    "tt145-engines: AU-01 routines: an action outside the closed vocabulary is refused at construction, a rehearsal and a run produce the same plan but only one is executable, and their audit entries differ",
     "unit: routine whitelist"
    ]
   },
@@ -8303,30 +8587,6 @@
     "integration: AU-02 presets list and delete; non-prefixed rows cannot be deleted",
     "tt111-core: workspace presets are stored as their own rows and restoring one does not invent a viewport"
    ]
-  },
-  "AU-03": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt146: AU-03 the automation panel mints a token once and never shows it again",
-    "e2e-tt89-launch: cold browser navigation opens a documented protocol intent and suppresses its duplicate queue delivery",
-    "e2e-tt89-launch: focus-existing synthetic launches restrict origin, action and app ids",
-    "integration: every JSON handler answers 400 to empty, malformed or non-object bodies and writes nothing (TT23 proxy + TT24 readJsonObject)",
-    "tt108-refusal: every body-taking API route refuses a malformed JSON body quickly, not after a thirty-second loop",
-    "tt146-core: AU-03 tokens: strict shape, hashed comparison, scopes",
-    "tt146-core: AU-03 the rate limiter is a fixed window with an honest retry time",
-    "tt146-core: AU-03 requests: whitelist only, one spelling of the payload, bounded length",
-    "tt146-core: AU-03 a settled run cannot be rewritten",
-    "tt146-http: AU-03 a token is minted once, stored hashed, and never listed",
-    "tt146-http: AU-03 an enqueued command is visible to the shell, settled once, and audited",
-    "tt146-http: AU-03 the door refuses: bad tokens, missing scopes, unknown commands, empty bodies",
-    "tt146-http: AU-03 revocation is immediate, and the limiter is the server's",
-    "tt89-launch-unit: protocol accepts only the documented, known app intent",
-    "tt89-launch-unit: existing-window URL is same-origin, root-only, one bounded module parameter"
-   ]
-  },
-  "AU-04": {
-   "tested": "untested",
-   "tests": []
   },
   "RG-01": {
    "tested": "full",
@@ -8345,7 +8605,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
-    "tt139-systems: RG-02 · scheduling hints defer heavy work under pressure"
+    "tt139-systems: RG-02 · scheduling hints defer heavy work under pressure",
+    "tt145-engines: RG-02 budget: user-blocking slices are admitted before background ones, a non-resumable slice that does not fit is deferred whole, an overrun changes the next estimate, and an absent isInputPending is labelled a downgrade"
    ]
   },
   "RG-03": {
@@ -8402,7 +8663,7 @@
   "HW-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
+    "tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed",
     "tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon",
     "tt146-core: HW-03 a probe that never answers cannot hang the matrix"
    ]
@@ -8411,6 +8672,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt147: HW-04 the accelerator card agrees with a direct WebGPU request in the same page",
+    "tt139-platform: HW-04 · an inference tier is only certified by a timed run, with warm-up discarded",
     "tt147-core: HW-04 an adapter that names SwiftShader is reported as software, not as a GPU"
    ]
   },
@@ -8419,24 +8681,20 @@
    "tests": [
     "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
     "tt139-systems: HW-05 · latency budget adds up and classifies honestly",
-    "tt139-systems: HW-05 · voice count shrinks with convolvers"
-   ]
-  },
-  "HW-06": {
-   "tested": "untested",
-   "tests": []
-  },
-  "HW-07": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt147: HW-07 the peripheral card lists every bus this engine has, and counts only what is granted",
-    "tt147-core: HW-07 inventory: granted is not the device list, and a refusal is not an absence"
+    "tt139-systems: HW-05 · voice count shrinks with convolvers",
+    "tt145-engines: HW-05 audio: a convolver overruns an interactive budget and is refused, a suspended context reports nothing measured, drift beyond a quantum is a failure, and 44.1→48 kHz is exact enough"
    ]
   },
   "HW-08": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
-    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)"
+    "e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support)",
+    "tt139-engines: HW-08 · Base64 matches RFC 4648 test vectors exactly",
+    "tt139-engines: HW-08 · Base64 handles non-Latin-1 text and rejects invalid input",
+    "tt139-engines: HW-08 · hex is strict, constant-time compare is length-safe, entropy is bounded",
+    "tt139-engines: HW-08 · encoding detection distinguishes BOMs, UTF-16 and legacy bytes",
+    "tt145-engines: HW-08 vault: AES-GCM round-trips, a swapped record fails the AAD, a retired key cannot seal, and backing is never called 'hardware'",
+    "tt145-register: TT145 register: every row this turn promoted is built, tier A, reachable from a module, and states a boundary"
    ]
   },
   "HW-09": {
@@ -8444,25 +8702,13 @@
    "tests": [
     "e2e-tt112-shell: SH-07 first run: the capability report is measured in this browser, not asserted",
     "e2e-tt146: HW-09 one probe re-plans every open surface: the painted gallery widens with the tier",
+    "tt139-platform: HW-09 · a cached or tiny sample is not a measurement",
+    "tt139-platform: HW-09 · the ladder names an exact resolution and steps down on loss",
+    "tt141-browser: Monitor: a measured throughput probe either reports a number with its confidence or refuses",
     "tt146-core: HW-09 network facts are normalised, never invented, and bounded",
     "tt146-core: HW-09 throughput estimator rejects timer noise and cache hits, then tracks an EWMA",
     "tt146-core: HW-09 the ladder is monotone, and Save-Data/offline always win",
     "tt146-core: HW-09 hysteresis: down at once, up only after evidence and dwell"
-   ]
-  },
-  "HW-10": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
-    "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
-    "tt146-core: HW-10 absence is reported with its reason, and threads need isolation",
-    "tt146-core: HW-10 the chunk planner covers every item exactly once"
-   ]
-  },
-  "HW-11": {
-   "tested": "full",
-   "tests": [
-    "e2e-tt110-shell: the screen wake lock is really taken and really released"
    ]
   },
   "CM-01": {
@@ -8488,10 +8734,11 @@
    ]
   },
   "BL-02": {
-   "tested": "partial",
+   "tested": "full",
    "tests": [
     "integration: BL-01 licence: valid key verifies; one flipped character fails; wrong client is refused",
-    "tt110-core: a licence verifies offline against the published key, and the grace period is stated"
+    "tt110-core: a licence verifies offline against the published key, and the grace period is stated",
+    "tt145-engines: BL-02 entitlement: a signed grant opens offline, tampering/rollback/expiry each refuse with their own verdict, and a stale refresh cannot shorten a grant"
    ]
   },
   "BL-03": {
@@ -8501,10 +8748,6 @@
     "tt107-features: an expired trial degrades to read-only and still shows its history",
     "tt107-features: an unknown client is untiered rather than defaulted to paid"
    ]
-  },
-  "BL-04": {
-   "tested": "untested",
-   "tests": []
   },
   "BL-05": {
    "tested": "full",
@@ -8517,7 +8760,8 @@
    "tested": "full",
    "tests": [
     "e2e-tt56-rows: DP-01 account-free: no login / auth route answers, no auth library or sign-in call in the client bundle",
-    "e2e-tt56-rows: no uncaught page errors"
+    "e2e-tt56-rows: no uncaught page errors",
+    "tt142-browser: private mode refuses a host write and says why, instead of pretending to save"
    ]
   },
   "DP-02": {
@@ -8529,14 +8773,24 @@
   "DP-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay"
+    "e2e-tt55-files: FM-09 / DP-03 origin badges: rows say where bytes live; offline, a new file shows as a 'queued' ghost row and becomes a real server row after replay",
+    "tt142-browser: the shell labels the desktop row it is showing, before it paints",
+    "tt142-platform: DP-03 · no name means the shared desktop, so every screen shows one desktop",
+    "tt142-platform: DP-03 · a named desktop is opt-in, valid, and openly shared",
+    "tt142-platform: DP-03 · an unusable name is reported, and the reserved rows cannot be taken",
+    "tt142-platform: DP-03 · a share link is a real URL that refuses to be built for a bad name",
+    "tt142-platform: DP-03 · live: ?desk= changes the row the server renders, before the first paint",
+    "tt143-engines: DP-03 named desks: a share link round-trips and an unusable name cannot be minted"
    ]
   },
   "DP-04": {
    "tested": "full",
    "tests": [
     "integration: FM-03 journaled move: 6 states in order, digest preserved, source retired",
-    "tt111-core: every write is journalled and nothing is silently mutated: a read leaves no trace, a write leaves an auditable one"
+    "tt111-core: every write is journalled and nothing is silently mutated: a read leaves no trace, a write leaves an auditable one",
+    "tt142-browser: two tabs share one desktop through the server, and a stale revision cannot overwrite a newer one",
+    "tt142-platform: DP-04 · live: two named desktops are isolated, and a stale revision cannot win",
+    "tt143-engines: DP-04 merge: no window is lost, a newer close wins, and z-order is dense"
    ]
   },
   "DP-05": {
@@ -8551,23 +8805,6 @@
    "tested": "partial",
    "tests": [
     "e2e-tt108-shell: every control of a window is reachable by keyboard alone, with no focus trap"
-   ]
-  },
-  "DP-07": {
-   "tested": "full",
-   "tests": [
-    "e2e: no non-resource console errors across all module mounts",
-    "tt116-density: every control whose caption was removed still answers to its full name",
-    "tt116-density: no shortened word sits outside the name its control answers to",
-    "tt142-a11y-gate: DP-07 · a skipped check is not a pass",
-    "tt142-a11y-gate: DP-07 · the verdict never claims the app is accessible",
-    "tt142-a11y-gate: DP-07 · failures are reported with enough detail to fix",
-    "tt142-a11y-gate: DP-07 · contrast maths matches the WCAG reference values",
-    "tt142-a11y-gate: DP-07 · large text is held to 3:1 and body text to 4.5:1",
-    "tt142-a11y-gate: DP-07 · a translucent colour is composited before it is measured",
-    "tt142-a11y-gate: DP-07 · colour parsing refuses what it cannot parse",
-    "tt142-a11y-gate: DP-07 · the audit reports each pair against its own requirement",
-    "tt142-a11y-gate: DP-07 · this repo's own text tokens actually pass"
    ]
   },
   "DP-08": {
@@ -8589,7 +8826,9 @@
    "tests": [
     "e2e: mount: spec",
     "e2e: Beam lists every transport and names the missing primitive on blocked ones",
-    "integration: health + bootstrap reconcile the register"
+    "integration: health + bootstrap reconcile the register",
+    "tt141-browser: Shell: no page error was thrown by any surface above",
+    "tt142-browser: no uncaught page error across every case above"
    ]
   },
   "DP-11": {
@@ -8627,6 +8866,8 @@
   "DP-15": {
    "tested": "full",
    "tests": [
+    "tt139-engines: DP-15 · plural categories follow the CLDR rules for every family",
+    "tt139-engines: DP-15 · message formatting handles plural, select, number, date and a missing argument",
     "tt80-banner: writer: one banner, own menu names, menus mirror the strip",
     "tt80-banner: slides: one banner, own menu names, menus mirror the strip",
     "tt80-banner: sheet: one banner, own menu names, menus mirror the strip",

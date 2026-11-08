@@ -7,8 +7,11 @@ import { patchTT137 } from "./seed-data/features-tt137";
 import { patchTT141 } from "./seed-data/features-tt141";
 import { patchTT147 } from "./seed-data/features-tt147";
 import { patchTT148 } from "./seed-data/features-tt148";
+import { patchTT149 } from "./seed-data/features-tt149";
+import { patchTT150 } from "./seed-data/features-tt150";
 import type { SpecRow } from "./seed-data/row";
 import { tt134Features } from "./seed-data/features-tt134";
+import { tt150Features } from "./seed-data/features-tt150";
 import { tt133Features } from "./seed-data/features-tt133";
 import {UPDATES_TT107} from "./seed-data/updates-tt107";
 import { UPDATES_TT108 } from "./seed-data/updates-tt108";
@@ -130,7 +133,7 @@ import { tt125Features } from "./seed-data/features-tt125";
 import { UPDATES_TT116 } from "./seed-data/updates-tt116";
 import { ensureDir, getNode, writeFile } from "@/lib/server/vfs";
 
-export const SEED_VERSION = "3.102.0";
+export const SEED_VERSION = "3.105.0";
 
 /**
  * Orderings used when a code appears twice in the seed. Lower is a stronger claim;
@@ -145,7 +148,7 @@ export const STRICTER_TIER: Record<SpecRow["tier"], number> = { A: 0, "A/B": 1, 
  * replaced feature can never linger in the register as if it were news. */
 export const RETIRED_FEATURE_CODES = ["FM-20"]; // TT125: Files already had a collision-free New folder flow; slot reassigned to ED-10
 
-export const allFeatures = [...tt139Features, ...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
+export const allFeatures = [...tt139Features, ...tt150Features, ...tt135Features, ...tt134Features, ...tt133Features, ...tt125Features, ...tt124Features, ...tt123Features, ...tt122Features, ...tt121Features, ...tt120Features, ...tt119Features, ...tt118Features, ...tt117Features, ...tt116Features, ...tt114Features, ...tt113Features, ...tt112Features, ...tt111Features, ...tt110Features, ...tt109Features, ...tt107Features,
   ...tt108Features, ...tt106Features, ...tt105Features, ...tt104Features, ...tt103Features, ...shellFeatures, ...filesFeatures, ...appFeatures, ...tt15Features, ...tt16Features, ...tt17Features, ...tt18Features, ...tt19Features, ...tt20Features, ...tt21Features, ...tt22Features, ...tt23Features, ...tt24Features, ...tt25Features, ...tt26Features, ...tt27Features, ...tt28Features, ...tt29Features, ...tt30Features, ...tt31Features, ...tt32Features, ...tt33Features, ...tt34Features, ...tt35Features, ...tt37Features, ...tt38Features, ...tt39Features, ...tt40Features, ...tt41Features, ...tt42Features, ...tt43Features, ...tt59Features, ...tt60Features, ...tt61Features, ...tt62Features, ...tt63Features, ...tt64Features, ...tt65Features, ...tt66Features, ...tt67Features, ...tt68Features, ...tt74Features, ...tt75Features, ...tt76Features, ...tt78Features, ...tt79Features, ...tt81Features, ...platformFeatures]
   .map((f) => (UPDATES_V31[f.code] ? { ...f, ...UPDATES_V31[f.code] } : f))
   .map((f) => patchTT137(f))
@@ -224,6 +227,8 @@ export const allFeatures = [...tt139Features, ...tt135Features, ...tt134Features
   // rule above (a later per-turn patch wins) is exactly what makes them stick.
   .map((f) => patchTT147(f))
   .map((f) => patchTT148(f))
+  .map((f) => patchTT149(f))
+  .map((f) => patchTT150(f))
   /**
    * One row per code, and a duplicate may never *raise* a claim.
    *
