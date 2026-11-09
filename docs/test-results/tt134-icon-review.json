@@ -1,41 +1,41 @@
 {
   "suite": "tt134-icon-review",
-  "at": "2026-11-09T07:03:44.281Z",
+  "at": "2026-11-09T14:59:40.575Z",
   "results": [
     {
       "suite": "tt134-icon-review",
       "name": "wide: notes original mark renders in the real window without an external asset or page error",
       "covers": {},
       "pass": true,
-      "ms": 4490
+      "ms": 4899
     },
     {
       "suite": "tt134-icon-review",
       "name": "wide: find original mark renders in the real window without an external asset or page error",
       "covers": {},
       "pass": true,
-      "ms": 2905
+      "ms": 2928
     },
     {
       "suite": "tt134-icon-review",
       "name": "compact: notes original mark renders in the real window without an external asset or page error",
       "covers": {},
       "pass": true,
-      "ms": 2412
+      "ms": 2409
     },
     {
       "suite": "tt134-icon-review",
       "name": "compact: find original mark renders in the real window without an external asset or page error",
       "covers": {},
       "pass": true,
-      "ms": 2192
+      "ms": 2245
     },
     {
       "suite": "tt134-icon-review",
       "name": "compact Contacts: the initially clipped Duplicates command scrolls into view and actually opens its panel",
       "covers": {},
       "pass": true,
-      "ms": 2124
+      "ms": 2401
     }
   ]
 }

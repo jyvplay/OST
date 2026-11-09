@@ -11,6 +11,7 @@ import { filterRoutines } from "@/lib/routine-filter";
 import { duplicateName } from "@/lib/routine-dup";
 import { askText } from "@/lib/ask";
 import { parseAutomationRequest, dryRun, issueToken, redeemToken } from "@/lib/automation-entry";
+import { validateRoutineTrigger } from "@/lib/routine-trigger";
 import { RoutineGuardPanel } from "../tt145-panels";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
@@ -45,6 +46,9 @@ export default function RoutinesModule(_: ModuleProps) {
   let parsed: RoutineAction[] = [];
   let parseErr = "";
   try { parsed = parseScript(script); } catch (e) { parseErr = String((e as Error).message); }
+
+  let triggerErr = "";
+  try { validateRoutineTrigger(trigger, arg); } catch (e) { triggerErr = (e as Error).message; }
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
@@ -82,10 +86,10 @@ export default function RoutinesModule(_: ModuleProps) {
             <option value="display-connected">when a display is connected</option>
           </select>
           {trigger === "interval" || trigger === "time-of-day" ? (
-            <input className="fs-input" style={{ width: fz(110) }} placeholder={trigger === "interval" ? "minutes" : "08:30"} value={arg} onChange={(e) => setArg(e.target.value)} />
+            <input className="fs-input" style={{ width: fz(110) }} placeholder={trigger === "interval" ? "minutes" : "08:30"} aria-label={trigger === "interval" ? "Interval in minutes" : "Time of day"} value={arg} onChange={(e) => setArg(e.target.value)} />
           ) : null}
           <Btn variant="ghost" data-testid="routine-preview" disabled={Boolean(parseErr)} onClick={() => setDry(parsed.map((a, i) => `${i + 1}. ${a.cmd}${a.arg ? ` ${a.arg}` : ""}`))}>Preview</Btn>
-          <Btn variant="primary" data-testid="routine-save" disabled={Boolean(parseErr)} onClick={async () => {
+          <Btn variant="primary" data-testid="routine-save" disabled={Boolean(parseErr || triggerErr)} onClick={async () => {
             setErr("");
             try {
               await post("/api/routines", { name, trigger, triggerArg: arg, actions: parsed });
@@ -93,6 +97,7 @@ export default function RoutinesModule(_: ModuleProps) {
             } catch (e) { setErr(String((e as Error).message)); }
           }}>Save routine</Btn>
         </div>
+        {triggerErr ? <div role="alert">{triggerErr}</div> : null}
         {parseErr ? <Badge tone="bad">{parseErr}</Badge> : <Badge tone="ok">{parsed.length} valid actions</Badge>}
         {err ? <Badge tone="bad">{err}</Badge> : null}
         {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }} data-testid="routine-preview-text">{`Preview — nothing executed yet:\n${dry.join("\n")}`}</pre> : null}
@@ -156,6 +161,7 @@ export default function RoutinesModule(_: ModuleProps) {
           <div key={r.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
             <span style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: fz(12) }}>{r.name}</div>
+              {(() => { try { validateRoutineTrigger(r.trigger, r.triggerArg); return null; } catch { return <div role="status">Invalid trigger — automatic execution paused. Recreate this routine with a valid trigger.</div>; } })()}
               <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>
                 {r.trigger}{r.triggerArg ? ` ${r.triggerArg}` : ""} · {r.actions.map((a) => a.cmd).join(" → ")}
                 {r.lastRun ? ` · last ${fmtTime(r.lastRun)}` : ""}

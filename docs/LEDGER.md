@@ -1,7 +1,7 @@
 # Fusion Shell Web — build / test ledger (generated)
 
-Generated 2026-11-09T08:56:16.367Z by `scripts/ledger.mjs` from the live register (http://localhost:4000) and
-463 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
+Generated 2026-11-09T15:32:48.485Z by `scripts/ledger.mjs` from the live register (http://localhost:4000) and
+466 machine-readable suite result files in `docs/test-results/`. Nothing in the counts is hand-edited.
 These files span different runs and dates: this is a historical aggregate, **not** a claim that all suites were rerun today.
 Each suite file is overwritten on a full rerun, so this is the latest saved result per suite, not a history of every attempt.
 Register statuses and test tags are authored claims, not independent proof that the canonical specification is implemented.
@@ -16,16 +16,16 @@ See each suite timestamp and the latest turn report for current tests, known cla
 | Partially built (partial 5 + probe 0) | 5 |
 | Not buildable on this platform (blocked, reason rendered in UI) | 20 |
 | Not built at all (skeleton) | 0 |
-| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **600** |
-| **Partially tested** (partial tags or an incomplete row with passing evidence) | **62** |
+| **Fully tested** (≥1 passing `full` tag; incomplete rows capped) | **598** |
+| **Partially tested** (partial tags or an incomplete row with passing evidence) | **64** |
 | Untested | 12 |
-| Recorded test cases / passed (mixed run dates) | 4506 / 4498 |
+| Recorded test cases / passed (mixed run dates) | 4510 / 4496 |
 
 ## Build × test matrix
 
 | build \ test | fully tested | partially tested | untested |
 |---|---:|---:|---:|
-| fully built | 595 | 49 | 5 |
+| fully built | 593 | 51 | 5 |
 | partially built | 0 | 5 | 0 |
 | blocked | 5 | 8 | 7 |
 | skeleton | 0 | 0 | 0 |
@@ -37,21 +37,21 @@ verifies the honesty contract, not the (impossible) capability.
 
 | suite | tests | passed | failed | ran at |
 |---|---:|---:|---:|---|
-| a11y-unit | 12 | 12 | 0 | 2026-11-09T06:55:08.841Z |
-| ai-format | 5 | 5 | 0 | 2026-11-09T06:55:16.777Z |
+| a11y-unit | 12 | 12 | 0 | 2026-11-09T14:50:05.279Z |
+| ai-format | 5 | 5 | 0 | 2026-11-09T14:50:14.034Z |
 | browser-session | 5 | 5 | 0 | 2026-10-30T17:48:48.358Z |
-| contacts-engine | 8 | 8 | 0 | 2026-11-09T06:55:13.953Z |
-| e2e-a11y | 9 | 9 | 0 | 2026-11-09T07:23:03.985Z |
+| contacts-engine | 8 | 8 | 0 | 2026-11-09T14:50:10.638Z |
+| e2e-a11y | 9 | 9 | 0 | 2026-11-09T15:20:06.439Z |
 | e2e-ai | 6 | 6 | 0 | 2026-10-25T22:19:39.720Z |
 | e2e-beauty | 6 | 6 | 0 | 2026-10-26T12:15:43.541Z |
 | e2e-browser | 6 | 6 | 0 | 2026-10-30T17:55:03.660Z |
 | e2e-contacts | 9 | 9 | 0 | 2026-10-25T22:20:01.143Z |
 | e2e-image | 11 | 11 | 0 | 2026-10-31T05:14:55.173Z |
-| e2e-layout | 12 | 12 | 0 | 2026-11-09T07:55:14.025Z |
+| e2e-layout | 12 | 12 | 0 | 2026-11-09T14:52:28.812Z |
 | e2e-media27 | 7 | 7 | 0 | 2026-10-25T22:23:42.055Z |
-| e2e-office | 11 | 11 | 0 | 2026-11-09T07:57:31.156Z |
+| e2e-office | 11 | 11 | 0 | 2026-11-09T15:01:14.617Z |
 | e2e-privacy | 16 | 16 | 0 | 2026-10-31T05:40:42.112Z |
-| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-09T07:05:57.032Z |
+| e2e-sheet-layout | 7 | 7 | 0 | 2026-11-09T15:02:05.376Z |
 | e2e-tables | 8 | 8 | 0 | 2026-10-26T13:12:19.850Z |
 | e2e-tabletop | 15 | 15 | 0 | 2026-10-27T21:16:03.541Z |
 | e2e-tt100-recall | 27 | 27 | 0 | 2026-10-29T19:41:23.175Z |
@@ -77,44 +77,46 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt114-density | 6 | 6 | 0 | 2026-10-29T19:54:04.033Z |
 | e2e-tt114-shell | 9 | 9 | 0 | 2026-10-29T19:53:33.210Z |
 | e2e-tt114-tabs | 5 | 5 | 0 | 2026-10-29T23:45:00.924Z |
-| e2e-tt117 | 5 | 5 | 0 | 2026-11-09T07:17:10.388Z |
+| e2e-tt117 | 5 | 5 | 0 | 2026-11-09T15:13:55.749Z |
 | e2e-tt118 | 5 | 5 | 0 | 2026-10-30T00:30:35.025Z |
-| e2e-tt119 | 4 | 4 | 0 | 2026-11-09T07:56:03.624Z |
-| e2e-tt120 | 4 | 4 | 0 | 2026-11-09T07:48:15.409Z |
-| e2e-tt121 | 4 | 4 | 0 | 2026-11-09T07:48:45.821Z |
-| e2e-tt122 | 3 | 3 | 0 | 2026-11-09T07:15:39.152Z |
-| e2e-tt123 | 3 | 3 | 0 | 2026-11-09T07:15:15.328Z |
-| e2e-tt124 | 4 | 4 | 0 | 2026-11-09T07:56:41.321Z |
-| e2e-tt125 | 3 | 3 | 0 | 2026-11-09T07:50:11.802Z |
-| e2e-tt126 | 4 | 4 | 0 | 2026-11-09T07:14:07.512Z |
-| e2e-tt127-photos | 1 | 1 | 0 | 2026-11-09T07:14:33.386Z |
-| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-09T07:14:26.964Z |
-| e2e-tt128-editor | 4 | 4 | 0 | 2026-11-09T07:12:24.743Z |
-| e2e-tt128-photos | 11 | 11 | 0 | 2026-11-09T07:12:08.884Z |
-| e2e-tt128-time | 2 | 2 | 0 | 2026-11-09T07:12:17.901Z |
-| e2e-tt128-worker | 4 | 4 | 0 | 2026-11-09T07:11:28.152Z |
-| e2e-tt129-calendar | 3 | 3 | 0 | 2026-11-09T07:11:18.957Z |
-| e2e-tt129-offline | 4 | 4 | 0 | 2026-11-09T07:11:12.690Z |
-| e2e-tt130-alarms | 9 | 9 | 0 | 2026-11-09T07:10:50.554Z |
-| e2e-tt130-privacy | 1 | 1 | 0 | 2026-11-09T07:10:13.662Z |
-| e2e-tt131-image-viewport | 10 | 10 | 0 | 2026-11-09T07:10:10.735Z |
-| e2e-tt132-alarms | 13 | 13 | 0 | 2026-11-09T07:09:08.752Z |
-| e2e-tt132-planner | 17 | 17 | 0 | 2026-11-09T07:10:04.232Z |
-| e2e-tt133-boundaries | 7 | 7 | 0 | 2026-11-09T07:02:57.241Z |
-| e2e-tt133-notes-find | 27 | 27 | 0 | 2026-11-09T07:02:34.731Z |
+| e2e-tt119 | 4 | 4 | 0 | 2026-11-09T15:13:35.175Z |
+| e2e-tt120 | 4 | 4 | 0 | 2026-11-09T15:13:10.856Z |
+| e2e-tt121 | 4 | 4 | 0 | 2026-11-09T15:12:51.651Z |
+| e2e-tt122 | 3 | 3 | 0 | 2026-11-09T15:12:20.939Z |
+| e2e-tt123 | 3 | 3 | 0 | 2026-11-09T15:11:56.051Z |
+| e2e-tt124 | 4 | 4 | 0 | 2026-11-09T15:09:41.924Z |
+| e2e-tt125 | 3 | 3 | 0 | 2026-11-09T15:10:31.391Z |
+| e2e-tt126 | 4 | 4 | 0 | 2026-11-09T15:10:47.351Z |
+| e2e-tt127-photos | 1 | 1 | 0 | 2026-11-09T15:11:14.083Z |
+| e2e-tt127-vault | 3 | 3 | 0 | 2026-11-09T15:11:08.145Z |
+| e2e-tt128-editor | 4 | 4 | 0 | 2026-11-09T15:09:04.812Z |
+| e2e-tt128-photos | 11 | 11 | 0 | 2026-11-09T15:08:48.511Z |
+| e2e-tt128-time | 2 | 2 | 0 | 2026-11-09T15:08:58.403Z |
+| e2e-tt128-worker | 4 | 4 | 0 | 2026-11-09T15:08:04.587Z |
+| e2e-tt129-calendar | 3 | 3 | 0 | 2026-11-09T15:07:55.141Z |
+| e2e-tt129-offline | 4 | 4 | 0 | 2026-11-09T15:07:48.376Z |
+| e2e-tt130-alarms | 9 | 9 | 0 | 2026-11-09T15:07:26.399Z |
+| e2e-tt130-privacy | 1 | 1 | 0 | 2026-11-09T15:06:46.578Z |
+| e2e-tt131-image-viewport | 10 | 10 | 0 | 2026-11-09T15:06:43.341Z |
+| e2e-tt132-alarms | 13 | 13 | 0 | 2026-11-09T15:05:37.223Z |
+| e2e-tt132-planner | 17 | 17 | 0 | 2026-11-09T15:06:36.883Z |
+| e2e-tt133-boundaries | 7 | 7 | 0 | 2026-11-09T14:58:50.543Z |
+| e2e-tt133-notes-find | 27 | 27 | 0 | 2026-11-09T14:58:27.038Z |
 | e2e-tt133-openssh | 7 | 7 | 0 | 2026-11-02T00:17:19.134Z |
-| e2e-tt134-ownership | 6 | 6 | 0 | 2026-11-09T07:03:28.458Z |
-| e2e-tt134-workflows-clipboard | 11 | 11 | 0 | 2026-11-09T07:00:34.144Z |
-| e2e-tt134-workflows-find | 10 | 10 | 0 | 2026-11-09T07:01:11.496Z |
-| e2e-tt134-workflows-notes | 13 | 13 | 0 | 2026-11-09T06:59:56.354Z |
-| e2e-tt146 | 5 | 5 | 0 | 2026-11-09T07:53:28.718Z |
-| e2e-tt147 | 6 | 6 | 0 | 2026-11-09T07:24:42.100Z |
-| e2e-tt148 | 4 | 4 | 0 | 2026-11-09T07:25:02.320Z |
-| e2e-tt151 | 2 | 2 | 0 | 2026-11-09T06:57:36.197Z |
+| e2e-tt134-ownership | 6 | 6 | 0 | 2026-11-09T14:59:23.982Z |
+| e2e-tt134-workflows-clipboard | 11 | 11 | 0 | 2026-11-09T14:56:15.800Z |
+| e2e-tt134-workflows-find | 10 | 10 | 0 | 2026-11-09T14:56:58.636Z |
+| e2e-tt134-workflows-notes | 13 | 13 | 0 | 2026-11-09T14:55:32.740Z |
+| e2e-tt146 | 5 | 4 | 1 | 2026-11-09T15:21:05.428Z |
+| e2e-tt147 | 6 | 6 | 0 | 2026-11-09T15:21:44.065Z |
+| e2e-tt148 | 4 | 4 | 0 | 2026-11-09T15:22:02.806Z |
+| e2e-tt151 | 2 | 2 | 0 | 2026-11-09T14:52:59.602Z |
 | e2e-tt152-boot | 1 | 1 | 0 | 2026-11-08T06:47:44.086Z |
-| e2e-tt154-recovery | 1 | 1 | 0 | 2026-11-09T07:51:05.463Z |
-| e2e-tt155-files | 1 | 1 | 0 | 2026-11-09T07:44:52.467Z |
-| e2e-tt155-window-fit | 2 | 2 | 0 | 2026-11-09T07:52:53.349Z |
+| e2e-tt154-recovery | 1 | 1 | 0 | 2026-11-09T14:52:47.819Z |
+| e2e-tt155-files | 1 | 1 | 0 | 2026-11-09T14:52:32.352Z |
+| e2e-tt155-window-fit | 2 | 2 | 0 | 2026-11-09T14:52:43.372Z |
+| e2e-tt156-monitor | 1 | 1 | 0 | 2026-11-09T14:50:40.954Z |
+| e2e-tt157-routines | 2 | 2 | 0 | 2026-11-09T14:50:34.477Z |
 | e2e-tt28 | 7 | 7 | 0 | 2026-10-25T22:24:18.083Z |
 | e2e-tt29 | 4 | 4 | 0 | 2026-10-26T12:12:00.498Z |
 | e2e-tt30 | 6 | 6 | 0 | 2026-10-25T22:26:37.267Z |
@@ -137,7 +139,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt47 | 5 | 5 | 0 | 2026-10-25T22:48:18.928Z |
 | e2e-tt48-sync | 4 | 4 | 0 | 2026-10-25T22:49:07.022Z |
 | e2e-tt48 | 6 | 6 | 0 | 2026-10-25T22:48:59.174Z |
-| e2e-tt49-writer | 6 | 6 | 0 | 2026-11-09T07:07:45.720Z |
+| e2e-tt49-writer | 6 | 6 | 0 | 2026-11-09T15:04:09.697Z |
 | e2e-tt49 | 5 | 5 | 0 | 2026-10-25T22:49:43.811Z |
 | e2e-tt50-charts | 5 | 5 | 0 | 2026-10-26T13:09:52.094Z |
 | e2e-tt51-slides | 6 | 6 | 0 | 2026-10-26T15:55:38.896Z |
@@ -163,14 +165,14 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt66 | 3 | 3 | 0 | 2026-10-25T23:04:53.733Z |
 | e2e-tt67-input | 5 | 5 | 0 | 2026-10-27T21:17:46.574Z |
 | e2e-tt68-sheet | 3 | 3 | 0 | 2026-10-25T23:09:33.883Z |
-| e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-11-09T06:58:22.493Z |
+| e2e-tt69-lifecycle | 6 | 6 | 0 | 2026-11-09T14:53:50.752Z |
 | e2e-tt70-closeall | 3 | 3 | 0 | 2026-10-25T23:11:22.407Z |
 | e2e-tt70-rows | 3 | 3 | 0 | 2026-10-25T23:15:35.730Z |
-| e2e-tt70-seal | 2 | 2 | 0 | 2026-11-09T06:58:56.841Z |
+| e2e-tt70-seal | 2 | 2 | 0 | 2026-11-09T14:54:27.626Z |
 | e2e-tt71-focus | 4 | 4 | 0 | 2026-10-25T23:15:45.675Z |
 | e2e-tt72-access | 4 | 4 | 0 | 2026-10-25T23:17:42.237Z |
 | e2e-tt72-pad | 5 | 5 | 0 | 2026-10-25T23:17:23.026Z |
-| e2e-tt73-writer | 4 | 4 | 0 | 2026-11-09T07:08:04.713Z |
+| e2e-tt73-writer | 4 | 4 | 0 | 2026-11-09T15:04:29.183Z |
 | e2e-tt74-office | 6 | 6 | 0 | 2026-10-25T23:22:40.553Z |
 | e2e-tt75-books | 16 | 16 | 0 | 2026-10-25T23:26:09.598Z |
 | e2e-tt76-sheet | 6 | 6 | 0 | 2026-10-25T23:26:23.466Z |
@@ -179,7 +181,7 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt78-sheet | 3 | 3 | 0 | 2026-10-26T11:55:23.062Z |
 | e2e-tt79-archive | 7 | 7 | 0 | 2026-10-26T13:07:47.830Z |
 | e2e-tt79-pdf | 5 | 5 | 0 | 2026-10-26T15:55:00.602Z |
-| e2e-tt81 | 7 | 7 | 0 | 2026-11-09T07:07:11.239Z |
+| e2e-tt81 | 7 | 7 | 0 | 2026-11-09T15:03:28.492Z |
 | e2e-tt85 | 3 | 3 | 0 | 2026-10-27T07:26:10.093Z |
 | e2e-tt86-pointer | 6 | 6 | 0 | 2026-11-09T07:55:39.307Z |
 | e2e-tt87-backup | 6 | 6 | 0 | 2026-10-27T21:23:53.015Z |
@@ -210,13 +212,13 @@ verifies the honesty contract, not the (impossible) capability.
 | e2e-tt97-palette-actions | 11 | 11 | 0 | 2026-10-29T19:38:36.272Z |
 | e2e-tt98-orbit | 22 | 22 | 0 | 2026-10-29T19:38:55.599Z |
 | e2e-tt99-interactions | 29 | 29 | 0 | 2026-10-29T19:39:41.331Z |
-| e2e-vector | 12 | 12 | 0 | 2026-11-09T07:06:33.556Z |
+| e2e-vector | 12 | 12 | 0 | 2026-11-09T15:02:45.578Z |
 | e2e-whiteboard | 7 | 7 | 0 | 2026-10-26T13:08:34.110Z |
 | e2e | 68 | 68 | 0 | 2026-10-30T17:51:32.119Z |
-| image | 16 | 16 | 0 | 2026-11-09T06:55:14.446Z |
-| integration | 25 | 25 | 0 | 2026-11-09T07:04:24.235Z |
+| image | 16 | 16 | 0 | 2026-11-09T14:50:11.274Z |
+| integration | 25 | 25 | 0 | 2026-11-09T15:00:22.470Z |
 | layout-unit | 8 | 8 | 0 | 2026-11-09T06:54:46.892Z |
-| maps-unit | 6 | 6 | 0 | 2026-11-09T06:55:16.517Z |
+| maps-unit | 6 | 6 | 0 | 2026-11-09T14:50:14.179Z |
 | metaclean | 6 | 6 | 0 | 2026-10-30T17:48:56.803Z |
 | names | 7 | 7 | 0 | 2026-10-30T17:48:41.792Z |
 | office | 35 | 35 | 0 | 2026-10-30T17:48:35.700Z |
@@ -232,7 +234,7 @@ verifies the honesty contract, not the (impossible) capability.
 | sheet-layout | 6 | 6 | 0 | 2026-10-30T17:48:38.199Z |
 | stream-unit | 7 | 7 | 0 | 2026-11-09T06:55:12.992Z |
 | tables-engine | 9 | 9 | 0 | 2026-11-09T06:55:15.381Z |
-| tabletop-unit | 17 | 17 | 0 | 2026-11-09T06:55:13.484Z |
+| tabletop-unit | 17 | 17 | 0 | 2026-11-09T14:50:10.087Z |
 | tt101-search | 37 | 37 | 0 | 2026-10-29T19:36:23.826Z |
 | tt102-private-bound | 5 | 5 | 0 | 2026-10-29T19:36:21.550Z |
 | tt102-search | 33 | 33 | 0 | 2026-10-29T19:35:51.689Z |
@@ -254,97 +256,98 @@ verifies the honesty contract, not the (impossible) capability.
 | tt111-recall-tap | 7 | 7 | 0 | 2026-10-29T19:51:19.261Z |
 | tt114-core | 9 | 9 | 0 | 2026-10-29T19:53:11.828Z |
 | tt114-recall-token | 8 | 8 | 0 | 2026-10-29T19:53:12.448Z |
-| tt116-density | 6 | 6 | 0 | 2026-11-09T07:34:58.040Z |
+| tt116-density | 6 | 6 | 0 | 2026-11-09T15:32:33.739Z |
 | tt116-platform | 9 | 9 | 0 | 2026-10-29T19:54:07.136Z |
 | tt116-recall-archive | 8 | 8 | 0 | 2026-10-29T19:54:06.444Z |
 | tt116-recall-retention | 7 | 7 | 0 | 2026-10-29T19:54:05.957Z |
 | tt116-safesave | 15 | 15 | 0 | 2026-10-31T04:53:31.846Z |
-| tt117-core | 12 | 12 | 0 | 2026-11-09T06:55:16.902Z |
-| tt117-density | 1 | 1 | 0 | 2026-11-09T07:34:42.650Z |
-| tt118-core | 12 | 12 | 0 | 2026-11-09T06:55:17.180Z |
-| tt118-density | 1 | 1 | 0 | 2026-11-08T17:29:46.295Z |
-| tt119-core | 11 | 11 | 0 | 2026-11-09T06:55:17.176Z |
-| tt119-density | 1 | 0 | 1 | 2026-11-09T07:33:08.468Z |
-| tt120-core | 10 | 10 | 0 | 2026-11-09T07:16:07.871Z |
-| tt120-density | 1 | 0 | 1 | 2026-11-09T07:31:39.912Z |
-| tt121-core | 19 | 19 | 0 | 2026-11-09T06:55:17.505Z |
-| tt121-density | 1 | 1 | 0 | 2026-11-07T16:52:28.106Z |
-| tt122-core | 20 | 20 | 0 | 2026-11-09T07:15:15.547Z |
-| tt122-density | 1 | 1 | 0 | 2026-11-09T07:28:34.587Z |
-| tt123-core | 18 | 18 | 0 | 2026-11-08T17:53:09.130Z |
-| tt123-density | 23 | 21 | 2 | 2026-11-09T07:27:07.933Z |
-| tt124-core | 19 | 19 | 0 | 2026-11-09T07:12:25.137Z |
-| tt124-density | 23 | 20 | 3 | 2026-11-09T07:25:48.027Z |
-| tt125-core | 17 | 17 | 0 | 2026-11-09T06:55:18.069Z |
-| tt125-density | 3 | 2 | 1 | 2026-11-09T07:26:26.840Z |
-| tt126-regressions | 6 | 6 | 0 | 2026-11-09T07:35:44.751Z |
-| tt127-conditional | 3 | 3 | 0 | 2026-11-09T07:14:07.836Z |
-| tt128-calendar-race | 1 | 1 | 0 | 2026-11-09T07:11:19.398Z |
-| tt128-core | 23 | 23 | 0 | 2026-11-09T06:55:19.054Z |
+| tt117-core | 12 | 12 | 0 | 2026-11-09T14:50:14.451Z |
+| tt117-density | 1 | 1 | 0 | 2026-11-09T15:32:17.358Z |
+| tt118-core | 12 | 12 | 0 | 2026-11-09T14:50:14.550Z |
+| tt118-density | 1 | 0 | 1 | 2026-11-09T15:32:10.593Z |
+| tt119-core | 11 | 11 | 0 | 2026-11-09T14:50:14.819Z |
+| tt119-density | 1 | 0 | 1 | 2026-11-09T15:30:41.375Z |
+| tt120-core | 10 | 10 | 0 | 2026-11-09T15:12:51.883Z |
+| tt120-density | 1 | 0 | 1 | 2026-11-09T15:29:07.183Z |
+| tt121-core | 19 | 19 | 0 | 2026-11-09T14:50:15.253Z |
+| tt121-density | 1 | 0 | 1 | 2026-11-09T15:27:25.039Z |
+| tt122-core | 20 | 20 | 0 | 2026-11-09T15:11:56.278Z |
+| tt122-density | 1 | 0 | 1 | 2026-11-09T15:25:50.654Z |
+| tt123-core | 18 | 18 | 0 | 2026-11-09T15:11:14.376Z |
+| tt123-density | 23 | 21 | 2 | 2026-11-09T15:24:17.384Z |
+| tt124-core | 19 | 19 | 0 | 2026-11-09T15:09:05.089Z |
+| tt124-density | 23 | 20 | 3 | 2026-11-09T15:22:57.841Z |
+| tt125-core | 17 | 17 | 0 | 2026-11-09T14:50:16.059Z |
+| tt125-density | 3 | 2 | 1 | 2026-11-09T15:23:36.411Z |
+| tt126-regressions | 6 | 6 | 0 | 2026-11-09T14:50:25.848Z |
+| tt127-conditional | 3 | 3 | 0 | 2026-11-09T15:10:47.687Z |
+| tt128-calendar-race | 1 | 1 | 0 | 2026-11-09T15:07:55.553Z |
+| tt128-core | 23 | 23 | 0 | 2026-11-09T14:50:17.052Z |
 | tt128-oracle | 5 | 5 | 0 | 2026-10-31T04:47:39.773Z |
 | tt128-visual | 47 | 47 | 0 | 2026-10-30T23:13:54.938Z |
-| tt128-writer-races | 2 | 2 | 0 | 2026-11-09T07:11:19.889Z |
-| tt129-calendar-core | 6 | 6 | 0 | 2026-11-09T06:55:19.224Z |
-| tt129-core | 7 | 7 | 0 | 2026-11-09T06:55:18.634Z |
-| tt129-worker-unit | 5 | 5 | 0 | 2026-11-09T06:55:18.977Z |
-| tt130-alarms-core | 4 | 4 | 0 | 2026-11-09T06:55:19.439Z |
-| tt130-privacy-boot | 1 | 1 | 0 | 2026-11-09T06:55:19.592Z |
-| tt131-ledger | 5 | 5 | 0 | 2026-11-09T07:51:46.084Z |
+| tt128-writer-races | 2 | 2 | 0 | 2026-11-09T15:07:56.045Z |
+| tt129-calendar-core | 6 | 6 | 0 | 2026-11-09T14:50:17.094Z |
+| tt129-core | 7 | 7 | 0 | 2026-11-09T14:50:16.438Z |
+| tt129-worker-unit | 5 | 5 | 0 | 2026-11-09T14:50:16.769Z |
+| tt130-alarms-core | 4 | 4 | 0 | 2026-11-09T14:50:17.345Z |
+| tt130-privacy-boot | 1 | 1 | 0 | 2026-11-09T14:50:17.645Z |
+| tt131-ledger | 5 | 5 | 0 | 2026-11-09T15:06:37.279Z |
 | tt132-claim-contract | 3 | 3 | 0 | 2026-11-06T21:20:20.748Z |
 | tt132-core | 12 | 12 | 0 | 2026-11-08T17:35:21.442Z |
-| tt132-lint-contract | 4 | 4 | 0 | 2026-11-09T06:55:08.268Z |
-| tt132-oracles | 5 | 5 | 0 | 2026-11-09T07:13:54.470Z |
-| tt132-planner-http | 11 | 11 | 0 | 2026-11-09T07:08:05.474Z |
+| tt132-lint-contract | 4 | 4 | 0 | 2026-11-09T14:50:04.628Z |
+| tt132-oracles | 5 | 5 | 0 | 2026-11-09T15:04:29.614Z |
+| tt132-planner-http | 11 | 11 | 0 | 2026-11-09T15:04:30.259Z |
 | tt132-visual | 94 | 94 | 0 | 2026-10-31T07:19:57.468Z |
 | tt133-browser-kernels | 8 | 8 | 0 | 2026-11-06T05:04:35.501Z |
-| tt133-core | 23 | 23 | 0 | 2026-11-09T06:55:07.580Z |
-| tt133-http | 13 | 13 | 0 | 2026-11-09T07:01:16.854Z |
-| tt133-projections | 6 | 6 | 0 | 2026-11-09T06:55:07.967Z |
-| tt134-icon-review | 5 | 5 | 0 | 2026-11-09T07:03:44.281Z |
+| tt133-core | 23 | 23 | 0 | 2026-11-09T14:50:04.044Z |
+| tt133-http | 13 | 13 | 0 | 2026-11-09T14:57:04.074Z |
+| tt133-projections | 6 | 6 | 0 | 2026-11-09T14:50:04.293Z |
+| tt134-icon-review | 5 | 5 | 0 | 2026-11-09T14:59:40.575Z |
 | tt134-note-migration | 7 | 7 | 0 | 2026-11-02T00:22:44.722Z |
-| tt134-review-repairs | 8 | 8 | 0 | 2026-11-09T07:04:20.726Z |
+| tt134-review-repairs | 8 | 6 | 2 | 2026-11-09T15:00:18.792Z |
 | tt134-visual | 94 | 94 | 0 | 2026-11-02T00:23:34.190Z |
-| tt134-workflows-core | 22 | 22 | 0 | 2026-11-09T06:55:07.414Z |
-| tt134-workflows-http | 9 | 9 | 0 | 2026-11-09T06:59:01.700Z |
+| tt134-workflows-core | 22 | 22 | 0 | 2026-11-09T14:50:03.718Z |
+| tt134-workflows-http | 9 | 9 | 0 | 2026-11-09T14:54:32.783Z |
 | tt134-workflows-visual | 94 | 94 | 0 | 2026-11-02T03:43:52.511Z |
 | tt135-core-engines | 20 | 20 | 0 | 2026-11-07T05:20:15.281Z |
-| tt135-files-engines | 44 | 44 | 0 | 2026-11-09T06:55:06.676Z |
-| tt135-system-engines | 48 | 48 | 0 | 2026-11-09T06:55:06.837Z |
-| tt135-text-encoding | 14 | 14 | 0 | 2026-11-09T06:55:06.494Z |
-| tt137-recall-engines | 31 | 31 | 0 | 2026-11-09T06:55:05.944Z |
-| tt137-system-engines | 39 | 39 | 0 | 2026-11-09T06:55:06.207Z |
+| tt135-files-engines | 44 | 44 | 0 | 2026-11-09T14:50:02.870Z |
+| tt135-system-engines | 48 | 48 | 0 | 2026-11-09T14:50:03.110Z |
+| tt135-text-encoding | 14 | 14 | 0 | 2026-11-09T14:50:02.693Z |
+| tt137-recall-engines | 31 | 31 | 0 | 2026-11-09T14:50:02.194Z |
+| tt137-system-engines | 39 | 39 | 0 | 2026-11-09T14:50:02.494Z |
 | tt139-cast-governor | 12 | 12 | 0 | 2026-11-09T06:55:20.540Z |
-| tt139-documents | 31 | 31 | 0 | 2026-11-09T06:55:20.005Z |
+| tt139-documents | 31 | 31 | 0 | 2026-11-09T14:50:18.103Z |
 | tt139-engines | 57 | 57 | 0 | 2026-11-07T16:52:38.901Z |
-| tt139-formulas | 43 | 43 | 0 | 2026-11-09T06:55:19.957Z |
-| tt139-media | 42 | 42 | 0 | 2026-11-09T06:55:20.336Z |
+| tt139-formulas | 43 | 43 | 0 | 2026-11-09T14:50:17.970Z |
+| tt139-media | 42 | 42 | 0 | 2026-11-09T14:50:18.556Z |
 | tt139-platform | 61 | 61 | 0 | 2026-11-07T05:39:38.128Z |
-| tt139-systems | 45 | 45 | 0 | 2026-11-09T06:55:20.320Z |
-| tt140-cast-privacy | 24 | 24 | 0 | 2026-11-07T02:23:43.087Z |
-| tt140-glyph-geometry | 1 | 1 | 0 | 2026-11-09T06:55:20.813Z |
+| tt139-systems | 45 | 45 | 0 | 2026-11-09T14:50:18.302Z |
+| tt140-cast-privacy | 24 | 24 | 0 | 2026-11-09T14:50:18.858Z |
+| tt140-glyph-geometry | 1 | 1 | 0 | 2026-11-09T14:50:19.005Z |
 | tt141-auto-frame | 12 | 12 | 0 | 2026-11-06T21:54:11.058Z |
-| tt141-browser | 8 | 8 | 0 | 2026-11-07T05:40:28.150Z |
-| tt141-gamepad-pointer | 11 | 11 | 0 | 2026-11-09T06:55:21.074Z |
-| tt142-a11y-gate | 9 | 9 | 0 | 2026-11-09T06:55:22.171Z |
+| tt141-browser | 8 | 8 | 0 | 2026-11-09T11:33:10.532Z |
+| tt141-gamepad-pointer | 11 | 11 | 0 | 2026-11-09T14:50:19.157Z |
+| tt142-a11y-gate | 9 | 9 | 0 | 2026-11-09T14:50:20.697Z |
 | tt142-browser | 7 | 7 | 0 | 2026-11-07T04:37:03.525Z |
 | tt142-input-scan | 16 | 16 | 0 | 2026-11-06T22:01:49.739Z |
 | tt142-platform | 6 | 6 | 0 | 2026-11-07T05:25:36.877Z |
 | tt142-share-gate | 13 | 13 | 0 | 2026-11-07T05:27:13.622Z |
-| tt142-voice-gate | 9 | 9 | 0 | 2026-11-09T06:55:21.485Z |
+| tt142-voice-gate | 9 | 9 | 0 | 2026-11-09T14:50:20.037Z |
 | tt143-engines | 20 | 20 | 0 | 2026-11-09T07:35:38.638Z |
 | tt143-safe-save | 9 | 9 | 0 | 2026-11-07T02:23:43.757Z |
 | tt145-engines | 22 | 22 | 0 | 2026-11-07T05:39:43.525Z |
 | tt145-register | 4 | 4 | 0 | 2026-11-07T09:12:50.118Z |
-| tt146-core | 22 | 22 | 0 | 2026-11-09T06:55:22.821Z |
-| tt146-http | 4 | 4 | 0 | 2026-11-09T07:23:04.538Z |
-| tt146-net-quality | 9 | 9 | 0 | 2026-11-09T06:55:22.903Z |
-| tt146-oracle | 3 | 3 | 0 | 2026-11-09T06:55:23.500Z |
-| tt147-core | 10 | 10 | 0 | 2026-11-09T06:55:23.217Z |
-| tt148-core | 7 | 7 | 0 | 2026-11-09T06:55:23.545Z |
+| tt146-core | 22 | 22 | 0 | 2026-11-09T14:50:21.447Z |
+| tt146-http | 4 | 4 | 0 | 2026-11-09T15:20:07.070Z |
+| tt146-net-quality | 9 | 9 | 0 | 2026-11-09T14:50:21.453Z |
+| tt146-oracle | 3 | 3 | 0 | 2026-11-09T14:50:22.004Z |
+| tt147-core | 10 | 10 | 0 | 2026-11-09T14:50:21.900Z |
+| tt148-core | 7 | 7 | 0 | 2026-11-09T14:50:22.168Z |
 | tt149-calc | 6 | 6 | 0 | 2026-11-07T09:39:36.073Z |
-| tt151-qr | 6 | 6 | 0 | 2026-11-09T06:55:06.002Z |
-| tt151-time | 11 | 11 | 0 | 2026-11-09T06:55:05.689Z |
-| tt155-window-fit | 2 | 2 | 0 | 2026-11-09T06:54:46.560Z |
+| tt151-qr | 6 | 6 | 0 | 2026-11-09T14:50:02.377Z |
+| tt151-time | 11 | 11 | 0 | 2026-11-09T14:50:01.902Z |
+| tt155-window-fit | 2 | 2 | 0 | 2026-11-09T14:50:01.422Z |
+| tt157-routine-triggers | 1 | 1 | 0 | 2026-11-09T14:47:30.429Z |
 | tt28-unit | 5 | 5 | 0 | 2026-10-30T17:49:09.360Z |
 | tt29-unit | 4 | 4 | 0 | 2026-10-30T17:49:10.295Z |
 | tt30-unit | 7 | 7 | 0 | 2026-10-26T19:56:55.105Z |
@@ -496,16 +499,22 @@ verifies the honesty contract, not the (impossible) capability.
 | tt97-palette-commands | 4 | 4 | 0 | 2026-10-29T19:38:14.093Z |
 | tt97-palette-mutants | 8 | 8 | 0 | 2026-10-27T23:08:25.457823+00:00 |
 | tt97-svg-attributes | 3 | 3 | 0 | 2026-10-28T02:00:16.639Z |
-| unit | 23 | 23 | 0 | 2026-11-09T07:35:41.504Z |
+| unit | 23 | 23 | 0 | 2026-11-09T14:50:09.367Z |
 | vector-boolean | 6 | 6 | 0 | 2026-11-07T05:39:32.405Z |
-| vector | 18 | 18 | 0 | 2026-11-09T06:55:14.798Z |
-| whiteboard-engine | 9 | 9 | 0 | 2026-11-09T06:55:15.065Z |
+| vector | 18 | 18 | 0 | 2026-11-09T14:50:11.758Z |
+| whiteboard-engine | 9 | 9 | 0 | 2026-11-09T14:50:12.098Z |
 
 ## Rows touched by FAILING tests (not counted as tested)
 
+- HW-03: e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does
+- HW-10: e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does
+- AX-20: tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks
 - AX-21: tt119-density: AX-21: every app measured, none wordier than the ceiling, no emoji marks
 - AX-22: tt120-density: AX-22: every app measured, none wordier than the ceiling, no emoji marks
-- AX-24: tt123-density: density beam: words<=300; tt123-density: density files: words<=320; tt124-density: density monitor: words<=520; tt124-density: density routines: words<=300; tt124-density: density storage: words<=480; tt125-density: AX-24 bounds: every touched module within its TT125 cap
+- AX-23: tt121-density: AX-23: every app measured, none wordier than the ceiling, no emoji marks
+- AX-24: tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks; tt123-density: density beam: words<=300; tt123-density: density files: words<=320; tt124-density: density routines: words<=300; tt124-density: density storage: words<=480; tt125-density: AX-24 bounds: every touched module within its TT125 cap
+- WR-01: tt124-density: screenshots: writer goal dialog + spec family progress
+- SP-03: tt124-density: screenshots: writer goal dialog + spec family progress
 
 ## By family
 
@@ -574,7 +583,7 @@ verifies the honesty contract, not the (impossible) capability.
 | Storage | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Music | 4 | 4 | 0 | 0 | 4 | 0 | 0 |
 | Local disk | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
-| Design | 7 | 7 | 0 | 0 | 5 | 2 | 0 |
+| Design | 7 | 7 | 0 | 0 | 3 | 4 | 0 |
 | Alerts | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | Maps | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
 | PDF | 1 | 1 | 0 | 0 | 1 | 0 | 0 |
@@ -633,7 +642,7 @@ verifies the honesty contract, not the (impossible) capability.
 | HW-06 | built | full | tt139-platform: HW-06 · windows are centred in the work area, never under a taskbar; tt139-platform: HW-06 · presentation prefers an external screen, and DPI changes are described |
 | HW-07 | built | full | e2e-tt147: HW-07 the peripheral card lists every bus this engine has, and counts only what is granted; tt139-platform: HW-07 · each transport's availability is its own answer, gated on a secure context; tt139-platform: HW-07 · over-broad filters are refused before a picker opens (+2) |
 | HW-09b | built | untested |  |
-| HW-10 | built | full | e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does; tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked; tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string (+3) |
+| HW-10 | built | full | tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked; tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string; tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant (+2) |
 | HW-11 | built | full | e2e-tt110-shell: the screen wake lock is really taken and really released; tt139-platform: HW-11 · a wake lock is a lease with a visible state, not a boolean hope |
 | CT-03b | built | untested |  |
 | DP-07 | built | full | a11y-unit: DP-07 gate: the shell's own surface tokens clear the AA floor, and the gate is what decides; e2e: no non-resource console errors across all module mounts; tt116-density: every control whose caption was removed still answers to its full name (+13) |
@@ -727,7 +736,7 @@ verifies the honesty contract, not the (impossible) capability.
 | PK-02 | built | full | e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick; e2e: mount: peek; tt124-core: PK-02 hex head: 16-per-line, ascii gutter, truncation stated |
 | LN-17 | built | full | e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick; e2e: mount: lens; tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras |
 | MN-02 | built | full | e2e-tt124: PK-02/MN-02/LN-17 controls render: hex head on a binary, in-flight toggle, resolution pick; e2e: mount: monitor; tt124-core: MN-02 in-flight view: finished rows filtered, journal untouched |
-| WR-01 | built | full | e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps; e2e: mount: writer; tt124-core: WR-01 word goal: net writing, clamped, done flag (+1) |
+| WR-01 | built | full | e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps; e2e: mount: writer; tt124-core: WR-01 word goal: net writing, clamped, done flag |
 | IE-01 | built | full | e2e-tt131-image-viewport: zoomed image viewport exposes a named keyboard focus target and arrow-key panning; e2e-tt131-image-viewport: modified arrows are not consumed by the viewport handler; e2e-tt131-image-viewport: viewport focus keeps existing editor shortcuts available (+7) |
 | MD-12 | built | full | e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines; e2e: mount: media; tt124-core: MD-12 A–B loop: A→B→off cycle, B before A re-sets A, seek at B |
 | CN-10 | built | full | e2e: mount: contacts; tt124-core: CN-10 email list: deduped, sorted, empties dropped |
@@ -737,7 +746,7 @@ verifies the honesty contract, not the (impossible) capability.
 | CP-02 | built | full | e2e: mount: capture; tt124-core: LN-17/CP-02 resolution pick: one engine, two cameras; tt124-core: CP-02 resolution: ideals only, max adds nothing |
 | TG-01 | built | full | e2e: mount: together; tt124-core: TG-01 room code: prefix, length, unambiguous alphabet |
 | RT-03 | built | full | e2e: mount: routines; tt124-core: RT-03 duplicate name: collisions get numbered copies |
-| SP-03 | built | full | e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines; e2e: mount: spec; tt124-core: SP-03 family text: worst first, same engine as the strip (+1) |
+| SP-03 | built | full | e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines; e2e: mount: spec; tt124-core: SP-03 family text: worst first, same engine as the strip |
 | BM-02 | built | full | e2e: mount: beam; tt124-core: BM-02 session text: newest first, active rows carry elapsed |
 | SSH-02 | built | full | e2e: mount: ssh; tt124-core: SSH-02 conn line: default port omitted, state in words; tt124-density: TT124 register: all twenty codes built, register grew past TT123's 567 |
 | AX-26 | built | full | tt124-density: AX-26: indent and compare glyphs render on their buttons |
@@ -781,7 +790,7 @@ verifies the honesty contract, not the (impossible) capability.
 | PH-06 | built | full | e2e: mount: photos; tt122-core: PH-06 shuffle: permutation, seeded determinism, identity detection |
 | PL-07 | built | full | e2e-tt128-time: Planner: week columns and completion counts survive midnight DST transition; e2e: mount: planner; tt122-core: PL-07 completion stats: today/week windows, undated kept separate (+1) |
 | LD-01 | built | full | e2e: mount: localdisk; tt122-core: LD-01 sync summary: conflicts never read as clean |
-| AX-24 | built | full | e2e: mount: devices; tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks; tt123-density: density whiteboard: words<=260 (+34) |
+| AX-24 | built | partial | e2e: mount: devices; tt123-density: density whiteboard: words<=260; tt123-density: density vector: words<=320 (+34) |
 | CV-02 | built | full | e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00; e2e: mount: calculator; tt121-core: CV-02 calculator memory: register transitions, NaN refused |
 | ED-05 | built | full | e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file; e2e: mount: editor; tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order |
 | CK-05 | built | full | e2e-tt121: CV-02/CK-05: calculator memory recalls into the expression; timer preset sets 25:00; e2e: mount: clock; tt121-core: CK-05 timer presets: fixed ladder, lookup exact |
@@ -802,7 +811,7 @@ verifies the honesty contract, not the (impossible) capability.
 | TM-05 | built | full | e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file; e2e: mount: terminal; tt121-core: TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq |
 | NT-05 | built | full | e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star; e2e: mount: notes; tt121-core: NT-05 note sort: pinned lead, title case-insensitive, updated newest first |
 | AP-06 | built | full | e2e: mount: apps; tt121-core: AP-06 app filter: group facet exact, query spans title+group+summary |
-| AX-23 | built | full | e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star; e2e: mount: browser; tt121-density: AX-23: every app measured, none wordier than the ceiling, no emoji marks |
+| AX-23 | built | full | e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star; e2e: mount: browser |
 | ED-04 | built | full | e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file; e2e: mount: editor; tt120-core: ED-04 line nav + stats: clamped, wc-consistent |
 | NT-04 | built | full | e2e: mount: notes; tt120-core: NT-04 note export: filename cannot escape, front-matter stands alone |
 | PL-05 | built | full | e2e: mount: planner; tt120-core: PL-05 due presets: local end-of-day, +1/+7 days |
@@ -837,7 +846,7 @@ verifies the honesty contract, not the (impossible) capability.
 | TM-02 | built | full | e2e-tt118: UC-01/TM-02: clean-link control exists; terminal suggests the real command; e2e: mount: terminal; tt118-core: TM-02 suggestion: transposition costs one, short inputs get nothing |
 | PH-02 | built | full | e2e-tt118: PL-03/PH-02: agenda view and photo timeline render from real data; e2e: mount: photos; tt118-core: PH-02 photo timeline: local months, undated counted, largest month by bytes (+1) |
 | SV-01 | built | full | e2e-tt118: SV-01: a saved search persists and re-applies its query; e2e: mount: find; tt118-core: SV-01 saved searches: modes validated, duplicate names refused, sorted newest first |
-| AX-20 | built | full | e2e: mount: browser; tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks |
+| AX-20 | built | partial | e2e: mount: browser |
 | CK-01 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; e2e-tt130-alarms: control: an open Clock window fires the same alarm; e2e-tt130-alarms: an alarm still fires in the shell after its Clock window closes (+44) |
 | CK-02 | built | full | e2e: mount: clock; tt117-core: CK-02 lap splits: deltas, fastest/slowest, monotonic refusal |
 | CK-03 | built | full | e2e-tt117: CK-01/02/03 in Clock: add an alarm, see next fire and the date calculator; e2e-tt128-time: Clock: local date controls and explicit overlap/gap choices; e2e: mount: clock (+3) |
@@ -1263,7 +1272,7 @@ verifies the honesty contract, not the (impossible) capability.
 | RG-07 | built | full | e2e-tt56-rows: RG-07 capability report: ≥ 40 APIs in Settings → Capabilities, each row has detail/degrade text, sampled rows equal independent detection |
 | HW-01 | built | partial | e2e: drag a window by its title bar; geometry is committed and persisted |
 | HW-02 | built | full | tt139-systems: HW-02 · CPU-bound pool leaves a core for the main thread; tt139-systems: HW-02 · memory budget and load level can veto the plan; tt139-systems: HW-02 · realistic throughput is below the ideal (Amdahl honesty) (+1) |
-| HW-03 | built | full | e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does; tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed; tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon (+1) |
+| HW-03 | built | full | tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed; tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon; tt146-core: HW-03 a probe that never answers cannot hang the matrix |
 | HW-04 | built | full | e2e-tt147: HW-04 the accelerator card agrees with a direct WebGPU request in the same page; tt139-platform: HW-04 · an inference tier is only certified by a timed run, with warm-up discarded; tt147-core: HW-04 an adapter that names SwiftShader is reported as software, not as a GPU |
 | HW-05 | built | full | e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support); tt139-systems: HW-05 · latency budget adds up and classifies honestly; tt139-systems: HW-05 · voice count shrinks with convolvers (+1) |
 | HW-08 | built | full | e2e-tt112-shell: every capability claim matches what this browser actually exposes (no invented support); tt139-engines: HW-08 · Base64 matches RFC 4648 test vectors exactly; tt139-engines: HW-08 · Base64 handles non-Latin-1 text and rejects invalid input (+4) |

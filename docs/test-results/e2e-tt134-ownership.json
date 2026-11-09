@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt134-ownership",
-  "at": "2026-11-09T07:03:28.458Z",
+  "at": "2026-11-09T14:59:23.982Z",
   "results": [
     {
       "suite": "e2e-tt134-ownership",
@@ -10,7 +10,7 @@
         "NT-10": "partial"
       },
       "pass": true,
-      "ms": 4458
+      "ms": 5001
     },
     {
       "suite": "e2e-tt134-ownership",
@@ -20,7 +20,7 @@
         "NT-10": "partial"
       },
       "pass": true,
-      "ms": 4396
+      "ms": 4710
     },
     {
       "suite": "e2e-tt134-ownership",
@@ -30,7 +30,7 @@
         "NT-13": "partial"
       },
       "pass": true,
-      "ms": 3007
+      "ms": 3429
     },
     {
       "suite": "e2e-tt134-ownership",
@@ -40,7 +40,7 @@
         "NT-10": "partial"
       },
       "pass": true,
-      "ms": 7575
+      "ms": 7663
     },
     {
       "suite": "e2e-tt134-ownership",
@@ -49,14 +49,14 @@
         "FF-15": "partial"
       },
       "pass": true,
-      "ms": 10747
+      "ms": 11575
     },
     {
       "suite": "e2e-tt134-ownership",
       "name": "No uncaught browser exceptions during native note/Writer ownership checks",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 1
     }
   ]
 }

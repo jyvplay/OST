@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { makeHarness } from "./harness.mts";
+import { validateRoutineTrigger, routineTriggerDue } from "../src/lib/routine-trigger.ts";
+const { test, finish } = makeHarness("tt157-routine-triggers");
+await test("trigger boundary and malformed persisted rows fail closed", {}, () => {
+  for (const value of ["", "0", "-1", "NaN", "Infinity", "1e309", "0.5", "525601", "10 minutes"]) assert.throws(() => validateRoutineTrigger("interval", value), undefined, value);
+  for (const value of ["", "8:30", "24:00", "12:60", "12:99", "aa:bb", "12:30extra"]) assert.throws(() => validateRoutineTrigger("time-of-day", value), undefined, value);
+  assert.throws(() => validateRoutineTrigger("unknown", ""));
+  assert.equal(validateRoutineTrigger("interval", "1"), "1");
+  assert.equal(validateRoutineTrigger("interval", "525600"), "525600");
+  assert.equal(validateRoutineTrigger("time-of-day", "00:00"), "00:00");
+  assert.equal(validateRoutineTrigger("time-of-day", "23:59"), "23:59");
+  const now = new Date(2025, 4, 3, 12, 30, 0);
+  for (const [trigger, triggerArg] of [["interval", ""], ["interval", "-1"], ["time-of-day", "nonsense"], ["time-of-day", "24:00"]]) assert.equal(routineTriggerDue({ trigger, triggerArg, lastRun: null }, now, false), false);
+  assert.equal(routineTriggerDue({ trigger: "interval", triggerArg: "2", lastRun: new Date(now.getTime()-119999).toISOString() }, now, false), false);
+  assert.equal(routineTriggerDue({ trigger: "interval", triggerArg: "2", lastRun: new Date(now.getTime()-120000).toISOString() }, now, false), true);
+  assert.equal(routineTriggerDue({ trigger: "time-of-day", triggerArg: "12:30", lastRun: null }, now, false), true);
+  assert.equal(routineTriggerDue({ trigger: "time-of-day", triggerArg: "12:30", lastRun: now.toISOString() }, now, false), false);
+  assert.equal(routineTriggerDue({ trigger: "display-connected", triggerArg: "", lastRun: null }, now, false), false);
+  assert.equal(routineTriggerDue({ trigger: "display-connected", triggerArg: "", lastRun: null }, now, true), true);
+});
+finish();

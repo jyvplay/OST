@@ -1,4 +1,5 @@
 "use client";
+import { routineTriggerDue } from "@/lib/routine-trigger";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { api, patch, post, replayQueue } from "@/lib/api";
@@ -150,18 +151,7 @@ export default function ShellDaemons() {
         let ran = 0;
         for (const rt of r.rows) {
           if (!rt.enabled || rt.trigger === "manual") continue;
-          const last = rt.lastRun ? new Date(rt.lastRun) : null;
-          let due = false;
-          if (rt.trigger === "interval") {
-            const mins = Math.max(1, Number(rt.triggerArg) || 60);
-            due = !last || now.getTime() - last.getTime() >= mins * 60_000;
-          } else if (rt.trigger === "time-of-day") {
-            const [h, m] = rt.triggerArg.split(":").map(Number);
-            const at = new Date(now); at.setHours(h || 0, m || 0, 0, 0);
-            due = now >= at && (!last || last < at);
-          } else if (rt.trigger === "display-connected") {
-            due = displayRose;
-          }
+          const due = routineTriggerDue(rt, now, displayRose);
           if (due) {
             await s.runActions(rt.actions);
             await post("/api/routines", { ranId: rt.id });

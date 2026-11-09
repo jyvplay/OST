@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T08:56:16.373Z",
+ "generatedAt": "2026-11-09T15:32:48.488Z",
  "totals": {
   "built": {
    "full": 649,
@@ -8,13 +8,13 @@
    "none": 0
   },
   "tested": {
-   "full": 600,
-   "partial": 62,
+   "full": 598,
+   "partial": 64,
    "untested": 12
   },
   "tests": {
-   "total": 4506,
-   "passed": 4498
+   "total": 4510,
+   "passed": 4496
   }
  },
  "rows": {
@@ -245,7 +245,6 @@
   "HW-10": {
    "tested": "full",
    "tests": [
-    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked",
     "tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string",
     "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
@@ -1140,8 +1139,7 @@
    "tests": [
     "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: writer",
-    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
-    "tt124-density: screenshots: writer goal dialog + spec family progress"
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag"
    ]
   },
   "IE-01": {
@@ -1223,8 +1221,7 @@
    "tests": [
     "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
     "e2e: mount: spec",
-    "tt124-core: SP-03 family text: worst first, same engine as the strip",
-    "tt124-density: screenshots: writer goal dialog + spec family progress"
+    "tt124-core: SP-03 family text: worst first, same engine as the strip"
    ]
   },
   "BM-02": {
@@ -1558,10 +1555,9 @@
    ]
   },
   "AX-24": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
     "e2e: mount: devices",
-    "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks",
     "tt123-density: density whiteboard: words<=260",
     "tt123-density: density vector: words<=320",
     "tt123-density: density privacy: words<=420",
@@ -1585,6 +1581,7 @@
     "tt124-density: density pdf: words<=400",
     "tt124-density: density peek: words<=260",
     "tt124-density: density lens: words<=320",
+    "tt124-density: density monitor: words<=520",
     "tt124-density: density writer: words<=900",
     "tt124-density: density imageedit: words<=320",
     "tt124-density: density media: words<=340",
@@ -1755,8 +1752,7 @@
    "tested": "full",
    "tests": [
     "e2e-tt121: MD-10/NT-05/CN-07/AX-23: speed select, note sort, contact facet, drawn star",
-    "e2e: mount: browser",
-    "tt121-density: AX-23: every app measured, none wordier than the ceiling, no emoji marks"
+    "e2e: mount: browser"
    ]
   },
   "ED-04": {
@@ -2038,10 +2034,9 @@
    ]
   },
   "AX-20": {
-   "tested": "full",
+   "tested": "partial",
    "tests": [
-    "e2e: mount: browser",
-    "tt118-density: AX-20: every app measured, none wordier than the ceiling, no emoji marks"
+    "e2e: mount: browser"
    ]
   },
   "CK-01": {
@@ -8719,7 +8714,6 @@
   "HW-03": {
    "tested": "full",
    "tests": [
-    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed",
     "tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon",
     "tt146-core: HW-03 a probe that never answers cannot hang the matrix"

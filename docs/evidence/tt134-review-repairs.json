@@ -2,37 +2,18 @@
   "scope": "Actual presentation-repair attacks and supplemental captures, not new Class A features or universal device acceptance",
   "records": [
     {
-      "app": "browser-deny",
-      "mode": "wide",
-      "path": "docs/screens/tt134-review-repairs/browser-deny-wide.png",
-      "words": 121,
-      "proof": {
-        "ok": true,
-        "url": "https://github.com/",
-        "status": 200,
-        "verdict": "deny",
-        "reason": "X-Frame-Options: DENY",
-        "host": "S3-handoff",
-        "headers": {
-          "x-frame-options": "deny",
-          "frame-ancestors": "'none'"
-        },
-        "tookMs": 562
-      }
-    },
-    {
       "app": "browser-unknown",
       "mode": "wide",
       "path": "docs/screens/tt134-review-repairs/browser-unknown-wide.png",
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw8x0mn9-wide.invalid/",
+        "url": "https://tt134-mw9e0oe7-wide.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw8x0mn9-wide.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw9e0oe7-wide.invalid",
         "host": "S3-handoff",
-        "tookMs": 3
+        "tookMs": 7
       }
     },
     {
@@ -57,37 +38,18 @@
       }
     },
     {
-      "app": "browser-deny",
-      "mode": "compact",
-      "path": "docs/screens/tt134-review-repairs/browser-deny-compact.png",
-      "words": 121,
-      "proof": {
-        "ok": true,
-        "url": "https://github.com/",
-        "status": 200,
-        "verdict": "deny",
-        "reason": "X-Frame-Options: DENY",
-        "host": "S3-handoff",
-        "headers": {
-          "x-frame-options": "deny",
-          "frame-ancestors": "'none'"
-        },
-        "tookMs": 253
-      }
-    },
-    {
       "app": "browser-unknown",
       "mode": "compact",
       "path": "docs/screens/tt134-review-repairs/browser-unknown-compact.png",
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw8x10qy-compact.invalid/",
+        "url": "https://tt134-mw9e139d-compact.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw8x10qy-compact.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw9e139d-compact.invalid",
         "host": "S3-handoff",
-        "tookMs": 4
+        "tookMs": 8
       }
     },
     {

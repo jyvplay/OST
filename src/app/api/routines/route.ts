@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 import { ROUTINE_COMMANDS, validateActions as validate } from "@/lib/routines";
 import { readJsonObject } from "@/lib/http-json";
+import { validateRoutineTrigger } from "@/lib/routine-trigger";
 
 export async function GET() {
   const rows = await db.select().from(routines).orderBy(asc(routines.id));
@@ -25,9 +26,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, dry: Boolean(b.dry) });
     }
     const actions = validate(b.actions);
-    const trigger = ["manual", "interval", "display-connected", "time-of-day"].includes(b.trigger ?? "") ? b.trigger! : "manual";
+    const trigger = b.trigger ?? "manual";
+    const triggerArg = validateRoutineTrigger(trigger, b.triggerArg);
     const [row] = await db.insert(routines).values({
-      name: b.name || "Routine", trigger, triggerArg: b.triggerArg ?? "", actions,
+      name: b.name || "Routine", trigger, triggerArg, actions,
     }).returning();
     return NextResponse.json({ ok: true, row });
   } catch (e) {
