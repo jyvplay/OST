@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-editor",
-  "at": "2026-11-08T17:50:24.629Z",
+  "at": "2026-11-09T07:12:24.743Z",
   "results": [
     {
       "suite": "e2e-tt128-editor",
@@ -10,7 +10,7 @@
         "ED-10": "partial"
       },
       "pass": true,
-      "ms": 2791
+      "ms": 2536
     },
     {
       "suite": "e2e-tt128-editor",
@@ -19,7 +19,7 @@
         "ED-09": "partial"
       },
       "pass": true,
-      "ms": 600
+      "ms": 657
     },
     {
       "suite": "e2e-tt128-editor",
@@ -29,7 +29,7 @@
         "ED-09": "partial"
       },
       "pass": true,
-      "ms": 967
+      "ms": 879
     },
     {
       "suite": "e2e-tt128-editor",
@@ -38,7 +38,7 @@
         "ED-10": "partial"
       },
       "pass": true,
-      "ms": 216
+      "ms": 213
     }
   ]
 }

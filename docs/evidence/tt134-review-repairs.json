@@ -17,7 +17,7 @@
           "x-frame-options": "deny",
           "frame-ancestors": "'none'"
         },
-        "tookMs": 403
+        "tookMs": 562
       }
     },
     {
@@ -27,12 +27,12 @@
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw84c8wr-wide.invalid/",
+        "url": "https://tt134-mw8x0mn9-wide.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw84c8wr-wide.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw8x0mn9-wide.invalid",
         "host": "S3-handoff",
-        "tookMs": 5
+        "tookMs": 3
       }
     },
     {
@@ -72,7 +72,7 @@
           "x-frame-options": "deny",
           "frame-ancestors": "'none'"
         },
-        "tookMs": 305
+        "tookMs": 253
       }
     },
     {
@@ -82,12 +82,12 @@
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mw84cohf-compact.invalid/",
+        "url": "https://tt134-mw8x10qy-compact.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mw84cohf-compact.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mw8x10qy-compact.invalid",
         "host": "S3-handoff",
-        "tookMs": 7
+        "tookMs": 4
       }
     },
     {

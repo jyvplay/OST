@@ -1,6 +1,6 @@
 {
   "suite": "tables-engine",
-  "at": "2026-11-08T17:35:30.094Z",
+  "at": "2026-11-09T06:55:15.381Z",
   "results": [
     {
       "suite": "tables-engine",
@@ -9,7 +9,7 @@
         "TB-01": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 1
     },
     {
       "suite": "tables-engine",
@@ -27,7 +27,7 @@
         "TB-02": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 1
     },
     {
       "suite": "tables-engine",
@@ -37,7 +37,7 @@
         "TB-03": "partial"
       },
       "pass": true,
-      "ms": 7
+      "ms": 2
     },
     {
       "suite": "tables-engine",
@@ -46,7 +46,7 @@
         "TB-03": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tables-engine",
@@ -64,7 +64,7 @@
         "TB-04": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 2
     },
     {
       "suite": "tables-engine",
@@ -83,7 +83,7 @@
         "TB-04": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     }
   ]
 }

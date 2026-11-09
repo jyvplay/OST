@@ -281,13 +281,11 @@ try {
     await desktop([]);
     const { page, close } = await boot();
     const base = Number(await page.getByTestId("dock").getAttribute("data-base"));
-    // TT79 grew Core to 11 apps, so at 1440 the dock folds it into a stack: launch two of its apps from the
-    // stack, and they stay in the dock as running icons (the plan keeps running apps out of the stack)
-    // launching one app from the stack also unfolds Core (the plan keeps a group open once its apps are running),
-    // so the dock then shows every Core app as its own icon — which is what the magnification maths is measured on
+    // The current registry and width decide whether Core is folded. Exercise the
+    // same user-facing launch in either real plan; do not assume a fixed group size.
     const stack = page.getByTestId("dock-stack-Core");
-    await stack.click();
-    await page.getByTestId("dock-stack-app-calculator").click();
+    if (await stack.count()) { await stack.click(); await page.getByTestId("dock-stack-app-calculator").click(); }
+    else await page.getByTestId("dock-calculator").click();
     await poll(async () => (await page.getByTestId("dock-calculator").count()) === 1 && (await page.getByTestId("dock-clock").count()) === 1, "launched apps are dock icons");
     const target = "calculator", left1 = "clock", left4 = "files";
     const t0 = await box(page.getByTestId(`dock-${target}`));

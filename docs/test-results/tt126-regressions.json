@@ -1,13 +1,13 @@
 {
   "suite": "tt126-regressions",
-  "at": "2026-11-08T18:37:00.472Z",
+  "at": "2026-11-09T07:35:44.751Z",
   "results": [
     {
       "suite": "tt126-regressions",
       "name": "zoom: bounded grid samples, tiny steps, nonaligned max and invalid capabilities",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt126-regressions",
@@ -21,7 +21,7 @@
       "name": "service worker: unrelated caches survive and only the canonical successful shell refreshes root",
       "covers": {},
       "pass": true,
-      "ms": 25
+      "ms": 32
     },
     {
       "suite": "tt126-regressions",
@@ -35,14 +35,14 @@
       "name": "browser gate rejects a process that prints success then exits nonzero",
       "covers": {},
       "pass": true,
-      "ms": 2536
+      "ms": 2553
     },
     {
       "suite": "tt126-regressions",
       "name": "fast default retains the external oracle and propagates its failure",
       "covers": {},
       "pass": true,
-      "ms": 474
+      "ms": 458
     }
   ]
 }

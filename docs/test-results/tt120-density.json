@@ -1,6 +1,6 @@
 {
   "suite": "tt120-density",
-  "at": "2026-11-08T17:32:55.338Z",
+  "at": "2026-11-09T07:31:39.912Z",
   "results": [
     {
       "suite": "tt120-density",
@@ -10,7 +10,7 @@
       },
       "pass": false,
       "error": "monitor: 1508 visible words exceeds its bound 700",
-      "ms": 1
+      "ms": 0
     }
   ]
 }

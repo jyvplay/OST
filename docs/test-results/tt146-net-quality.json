@@ -1,6 +1,6 @@
 {
   "suite": "tt146-net-quality",
-  "at": "2026-11-08T17:35:39.282Z",
+  "at": "2026-11-09T06:55:22.903Z",
   "results": [
     {
       "suite": "tt146-net-quality",
@@ -49,7 +49,7 @@
       "name": "fuzz: 20 000 random inputs never leave the ladder, never invert it, never pick a value off the rung",
       "covers": {},
       "pass": true,
-      "ms": 44
+      "ms": 60
     },
     {
       "suite": "tt146-net-quality",

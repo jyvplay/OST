@@ -1,6 +1,6 @@
 {
   "suite": "e2e-a11y",
-  "at": "2026-11-08T18:03:46.346Z",
+  "at": "2026-11-09T07:23:03.985Z",
   "results": [
     {
       "suite": "e2e-a11y",
@@ -10,7 +10,7 @@
         "AX-01": "partial"
       },
       "pass": true,
-      "ms": 161494
+      "ms": 154950
     },
     {
       "suite": "e2e-a11y",
@@ -19,7 +19,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 28595
+      "ms": 27092
     },
     {
       "suite": "e2e-a11y",
@@ -28,7 +28,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 4248
+      "ms": 4323
     },
     {
       "suite": "e2e-a11y",
@@ -37,7 +37,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 4567
+      "ms": 4196
     },
     {
       "suite": "e2e-a11y",
@@ -46,7 +46,7 @@
         "AX-09": "full"
       },
       "pass": true,
-      "ms": 19970
+      "ms": 18627
     },
     {
       "suite": "e2e-a11y",
@@ -55,9 +55,8 @@
         "AX-09": "partial",
         "FF-28": "partial"
       },
-      "pass": false,
-      "error": "drag 40px → width 138 → 138",
-      "ms": 4405
+      "pass": true,
+      "ms": 4270
     },
     {
       "suite": "e2e-a11y",
@@ -65,9 +64,8 @@
       "covers": {
         "AX-03": "full"
       },
-      "pass": false,
-      "error": "locator.evaluate: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('.fs-window[aria-label=\"Files\"] .fs-btn').first()\n",
-      "ms": 31961
+      "pass": true,
+      "ms": 3260
     },
     {
       "suite": "e2e-a11y",
@@ -76,7 +74,7 @@
         "AX-11": "full"
       },
       "pass": true,
-      "ms": 23756
+      "ms": 16873
     },
     {
       "suite": "e2e-a11y",
@@ -87,9 +85,8 @@
         "AX-12": "full",
         "LY-04": "partial"
       },
-      "pass": false,
-      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('td[data-cell=\"A2\"]') to be visible\n",
-      "ms": 134607
+      "pass": true,
+      "ms": 118691
     }
   ]
 }

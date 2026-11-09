@@ -307,6 +307,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         {actions.filter((a) => layout === "fusion" || !a[4]).map(([title, label, glyph, run, bubble]) => (
           <button key={label} className="fs-btn fs-winbtn" data-variant="ghost" title={title} aria-label={label} onClick={run}
             data-bubble={bubble ? "1" : undefined}
+            onPointerDown={(e) => { e.stopPropagation(); shell.dispatch({ t: "focus", id: win.id }); }}
             style={bubble ? { background: bubble, color: "#14213d", borderColor: "rgba(0,0,0,.25)" } : undefined}>
             <UiGlyph name={glyph} size={bubble ? 11 : 13} />
           </button>

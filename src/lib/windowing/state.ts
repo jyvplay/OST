@@ -262,6 +262,28 @@ function invariants(state: DesktopState): DesktopState {
   return focus === state.focus ? { ...state, windows } : { ...state, windows, focus };
 }
 
+/** Fit only axes larger than the available desk when restoring a layout or
+ * changing displays. Ordinary partially-offscreen moves and explicit resizes
+ * remain possible; changing every geometry operation would break that contract. */
+function fitOversizedWindows(state: DesktopState): DesktopState {
+  let changed = false;
+  const windows = state.windows.map((win) => {
+    if (win.maximized) return win; // invariants already tiles maximized windows
+    const density = win.density ?? "balanced";
+    const maxW = Math.max(MIN_W[density], Math.floor(state.viewport.w));
+    const maxH = Math.max(MIN_H[density], Math.floor(state.viewport.h));
+    const wide = win.w > maxW, tall = win.h > maxH;
+    if (!wide && !tall) return win;
+    changed = true;
+    // Keep the reachable origin where possible: forcing an oversized window to
+    // (0,0) can move it on top of a neighboring window after session restore.
+    const x = Math.max(0, Math.min(win.x, maxW - MIN_W[density]));
+    const y = Math.max(0, Math.min(win.y, maxH - MIN_H[density]));
+    return { ...win, ...(wide ? { x, w: maxW - x } : {}), ...(tall ? { y, h: maxH - y } : {}) };
+  });
+  return changed ? { ...state, windows } : state;
+}
+
 /** Commands after which a pending "Show desktop" restore no longer makes sense (the user picked a window). */
 const ENDS_PEEK = new Set<WindowCommand["t"]>(["open", "focus", "restore", "switchWorkspace", "closeAll", "minimize", "cycle"]);
 
@@ -287,7 +309,7 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
 
   switch (cmd.t) {
     case "hydrate":
-      return invariants({ ...cmd.state, revision: Math.max(cmd.state.revision, state.revision) });
+      return invariants(fitOversizedWindows({ ...cmd.state, revision: Math.max(cmd.state.revision, state.revision) }));
 
     case "reconcile": {
       // the newer desktop wins for shared data (workspaces, icons, tabletop, …) but each tab keeps its OWN windows:
@@ -367,13 +389,13 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
         windows: map((w) => ({ ...w, minimized: false, z: state.nextZ + 1 }), cmd.id) });
 
     case "toggleMax":
-      return bump({ ...state, windows: map((w) => {
+      return bump(fitOversizedWindows({ ...state, windows: map((w) => {
         if (w.maximized) {
           const r = w.restore ?? { x: 100, y: 80, w: 760, h: 520 };
           return { ...w, maximized: false, ...r, restore: undefined };
         }
         return { ...w, maximized: true, restore: { x: w.x, y: w.y, w: w.w, h: w.h } };
-      }, cmd.id) });
+      }, cmd.id) }));
 
     case "tile": {
       const r = tileRect(cmd.slot, state.viewport);
@@ -424,7 +446,7 @@ function reduceInner(state: DesktopState, cmd: WindowCommand): DesktopState {
       // TT21: a ResizeObserver tick with an unchanged size is a no-op. Bumping anyway re-armed the 600 ms
       // persistence debounce on every top-bar reflow at 2x text, which delayed geometry saves past 1.8 s.
       if (state.viewport.w === w && state.viewport.h === h) return state;
-      return bump({ ...state, viewport: { w, h } });
+      return bump(fitOversizedWindows({ ...state, viewport: { w, h } }));
     }
 
     case "cycle": {

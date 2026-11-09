@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt124",
-  "at": "2026-11-08T17:51:23.603Z",
+  "at": "2026-11-09T07:56:41.321Z",
   "results": [
     {
       "suite": "e2e-tt124",
@@ -10,9 +10,8 @@
         "WR-01": "full",
         "PD-02": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 20000ms exceeded.\nCall log:\n  - waiting for getByTestId('writer-word-count-open')\n    - locator resolved to <button type=\"button\" data-testid=\"writer-word-count-open\" title=\"Open document and selection word counts\">Word count…</button>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <span>writer</span> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <svg width=\"48\" height=\"48\" data-icon=\"doc\" focusable=\"false\" aria-hidden=\"true\" viewBox=\"0 0 48 48\" data-palette=\"blue\" data-style=\"poolside\">…</svg> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    8 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <svg width=\"48\" height=\"48\" data-icon=\"doc\" focusable=\"false\" aria-hidden=\"true\" viewBox=\"0 0 48 48\" data-palette=\"blue\" data-style=\"poolside\">…</svg> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <svg width=\"48\" height=\"48\" data-icon=\"doc\" focusable=\"false\" aria-hidden=\"true\" viewBox=\"0 0 48 48\" data-palette=\"blue\" data-style=\"poolside\">…</svg> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button class=\"fs-btn\" data-variant=\"primary\" title=\"writer — middle-click to close\">…</button> from <footer class=\"fs-row\" role=\"toolbar\" aria-label=\"Shelf\">…</footer> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n",
-      "ms": 26549
+      "pass": true,
+      "ms": 6564
     },
     {
       "suite": "e2e-tt124",
@@ -23,7 +22,7 @@
         "LN-17": "full"
       },
       "pass": true,
-      "ms": 5024
+      "ms": 5500
     },
     {
       "suite": "e2e-tt124",
@@ -34,7 +33,7 @@
         "SP-03": "full"
       },
       "pass": true,
-      "ms": 23730
+      "ms": 21471
     },
     {
       "suite": "e2e-tt124",
@@ -43,7 +42,7 @@
         "PH-08": "full"
       },
       "pass": true,
-      "ms": 2105
+      "ms": 2772
     }
   ]
 }

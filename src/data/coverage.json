@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T18:39:09.728Z",
+ "generatedAt": "2026-11-09T08:56:16.373Z",
  "totals": {
   "built": {
    "full": 649,
@@ -8,13 +8,13 @@
    "none": 0
   },
   "tested": {
-   "full": 599,
+   "full": 600,
    "partial": 62,
-   "untested": 13
+   "untested": 12
   },
   "tests": {
-   "total": 4501,
-   "passed": 4488
+   "total": 4506,
+   "passed": 4498
   }
  },
  "rows": {
@@ -951,6 +951,7 @@
   "ED-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
     "e2e-tt128-editor: timestamp replaces only the selected span",
     "tt125-core: ED-10 stampText: zero-padded local date and time, minute precision",
@@ -960,6 +961,7 @@
   "ED-09": {
    "tested": "full",
    "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "e2e-tt128-editor: a delayed selection restore cannot undo a newer caret position or erase later text",
     "e2e-tt128-editor: case expansion preserves the whole transformed selection",
     "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
@@ -975,6 +977,7 @@
   "WR-02": {
    "tested": "full",
    "tests": [
+    "e2e-tt125: ED-09/ED-10/WR-02: case rewrites only the selection; the now-button stamps the caret; reading time appears in Word Count",
     "tt125-core: WR-02 reading time: 238 wpm, rounds up, empty says so"
    ]
   },
@@ -1085,6 +1088,7 @@
   "ED-08": {
    "tested": "full",
    "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e-tt128-editor: indent, dedent, and unchanged edits keep the affected selection",
     "e2e: mount: editor",
     "tt124-core: ED-08 indent: block spans selection, dedent removes one step, selection tracks",
@@ -1102,6 +1106,7 @@
   "PD-02": {
    "tested": "full",
    "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: pdf",
     "tt124-core: PD-02 page jump: 1-based clamp, garbage refused"
    ]
@@ -1133,8 +1138,10 @@
   "WR-01": {
    "tested": "full",
    "tests": [
+    "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: writer",
-    "tt124-core: WR-01 word goal: net writing, clamped, done flag"
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
    ]
   },
   "IE-01": {
@@ -1216,7 +1223,8 @@
    "tests": [
     "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
     "e2e: mount: spec",
-    "tt124-core: SP-03 family text: worst first, same engine as the strip"
+    "tt124-core: SP-03 family text: worst first, same engine as the strip",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
    ]
   },
   "BM-02": {
@@ -1556,7 +1564,6 @@
     "tt122-density: AX-24: every app measured, none wordier than the ceiling, no emoji marks",
     "tt123-density: density whiteboard: words<=260",
     "tt123-density: density vector: words<=320",
-    "tt123-density: density beam: words<=300",
     "tt123-density: density privacy: words<=420",
     "tt123-density: density ssh: words<=300",
     "tt123-density: density clock: words<=320",
@@ -1572,7 +1579,6 @@
     "tt123-density: density devices: words<=300",
     "tt123-density: density slides: words<=380",
     "tt123-density: density contacts: words<=220",
-    "tt123-density: density files: words<=320",
     "tt123-density: density streams: words<=380",
     "tt124-density: density editor: words<=210",
     "tt124-density: density clock: words<=340",
@@ -1590,9 +1596,7 @@
     "tt124-density: density together: words<=340",
     "tt124-density: density spec: words<=12400",
     "tt124-density: density beam: words<=320",
-    "tt124-density: density ssh: words<=320",
-    "tt124-density: density storage: words<=480",
-    "tt125-density: AX-24 bounds: every touched module within its TT125 cap"
+    "tt124-density: density ssh: words<=320"
    ]
   },
   "CV-02": {
@@ -1606,6 +1610,7 @@
   "ED-05": {
    "tested": "full",
    "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
     "e2e: mount: editor",
     "tt121-core: ED-05 line ops: sort/dedupe keep termination, natural order"
    ]
@@ -1726,6 +1731,7 @@
   "TM-05": {
    "tested": "full",
    "tests": [
+    "e2e-tt121: ED-05/TM-05: editor sorts the buffer; terminal sort reads a real file",
     "e2e: mount: terminal",
     "tt121-core: TM-05 terminal sort/uniq: numeric mode, adjacent vs global uniq"
    ]
@@ -1756,6 +1762,7 @@
   "ED-04": {
    "tested": "full",
    "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
     "e2e: mount: editor",
     "tt120-core: ED-04 line nav + stats: clamped, wc-consistent"
    ]
@@ -1785,6 +1792,7 @@
   "TM-04": {
    "tested": "full",
    "tests": [
+    "e2e-tt120: ED-04/TM-04: editor stats count the buffer; terminal tail reads a real file",
     "e2e: mount: terminal",
     "tt120-core: TM-04 head/tail: whole file when short, -n parsing"
    ]
@@ -1842,6 +1850,7 @@
   "ED-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
     "e2e: mount: editor",
     "tt119-core: ED-03 find/replace: literal, counted, nth-only, empty refused"
    ]
@@ -1885,6 +1894,7 @@
   "TM-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt119: ED-03/TM-03: editor replaces all; terminal wc counts a real file",
     "e2e: mount: terminal",
     "tt119-core: TM-03 wc: UTF-8 bytes, POSIX lines"
    ]
@@ -6086,6 +6096,7 @@
   "FF-28": {
    "tested": "full",
    "tests": [
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-office: sample renders through numfmt + spill: currency, SUM, SORTBY spill outline/tooltip, % format on another sheet",
     "e2e-office: autocomplete (Tab inserts NAME( ), point-mode click inserts a reference, Enter commits and recalculates",
     "e2e-office: drag-select a range → status bar Sum/Count; Ctrl+A selects current region",
@@ -6619,6 +6630,7 @@
     "e2e-a11y: computed sizes: at the 125 % default nothing visible is below 12 px and body text is ≥16 px; in Large text mode (200 %) nothing is below 20 px",
     "e2e-a11y: reflow: at 300 % text on 1280×800 and at 200 % on a 360×640 phone the page never scrolls sideways and windows fit",
     "e2e-a11y: text size is live: Quick panel A+ / A− and the Settings radio buttons change computed sizes, persist, and bad values are refused",
+    "e2e-a11y: spreadsheet grid geometry scales with the text (row height = 22 × scale) and a header drag still moves the edge 1:1 on screen",
     "e2e-layout: keyboard + motion: Tab focus magnifies a dock icon and shows its name; reduced motion → no bounce, no transitions",
     "e2e-layout: phone 360×640 in Art: the page never scrolls sideways; every group folds into a stack and the dock fits at ≥32 px; with many minimised windows it scrolls inside itself, magnification off (honest fallback)",
     "e2e-tabletop: reduced motion: every Tabletop transition is instant (computed durations 0) and a wall is main immediately",
@@ -6648,7 +6660,8 @@
     "a11y-unit: TT143 tokens: every ink and the interactive border clear the AA floor in both modes",
     "a11y-unit: style system: every style's glyphs ≥3:1 on their tiles, chrome ink ≥4.5:1, dark+light text tokens ≥4.5:1, accent buttons ≥4.5:1; CSS emitted for each",
     "a11y-unit: light theme: field background and status-text tokens reach ≥4.5:1; filled spreadsheet cells get automatic ink",
-    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused"
+    "e2e-a11y: style switch: the Settings and Quick panel pickers swap data-style, logo colours, auto wallpaper and accent; persisted; bad values refused",
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
    ]
   },
   "TB-01": {
@@ -6704,8 +6717,10 @@
    ]
   },
   "AX-12": {
-   "tested": "untested",
-   "tests": []
+   "tested": "full",
+   "tests": [
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet"
+   ]
   },
   "WB-01": {
    "tested": "full",
@@ -6849,6 +6864,7 @@
   "LY-04": {
    "tested": "full",
    "tests": [
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "layout-unit: TT25 professional styles: Enterprise (flat, Windows-like) and Graphite (aluminium, macOS-like) with their own wallpapers"
    ]
@@ -8522,6 +8538,7 @@
   "AX-03": {
    "tested": "full",
    "tests": [
+    "e2e-a11y: forced colours and prefers-contrast: more are honoured (buttons get system borders, muted text brightens)",
     "tt142-browser: the desktop re-flows at 1024×640 without losing a window off-screen"
    ]
   },
@@ -8562,6 +8579,7 @@
    "tests": [
     "a11y-unit: token text contrast ≥4.5:1 (WCAG 1.4.3): body, muted, badges, desktop labels over the brightest wallpaper spot",
     "e2e-a11y: axe-core WCAG 2.x A/AA on every module window and the shell chrome: no serious or critical violations",
+    "e2e-a11y: light + dark theme, all 13 styles: axe finds no serious violations in the chrome, Files and Spreadsheet",
     "e2e-contacts: axe-core: list, card, editor (with errors) and duplicates view — no serious/critical WCAG 2.2 AA violations",
     "e2e-layout: axe-core: Business with Enterprise and Art with Graphite, dark + light, Start menu / Launchpad / menus open — no serious or critical violations",
     "e2e-media27: axe-core: Video, Music and Maps (dark + light) — no serious or critical violations",
