@@ -144,31 +144,31 @@ export default function MonitorModule(_: ModuleProps) {
 
       <MeasuredNetworkSection />
       <EngineFeaturesSection />
-      <TT143Section />
-      <Section title="Platform mechanics (TT145)">
-        <div className="fs-dim" style={{ fontSize: fz(10.5) }} data-testid="tt145-intro">
-          Twenty mechanisms, each with its own refusal. Every sentence below comes from the engine that made the decision.
+      <details className="fs-card" style={{ padding: 10 }}>
+        <summary style={{ cursor: "pointer", fontWeight: 700 }}>Window, performance and media</summary>
+        <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+          <Section title="Platform mechanics (TT145)">
+            <div className="fs-dim" style={{ fontSize: fz(10.5) }} data-testid="tt145-intro">
+              Twenty mechanisms, each with its own refusal. Every sentence below comes from the engine that made the decision.
+            </div>
+          </Section>
+          <FrameBudgetPanel /><HandoffClaimPanel /><BlackoutPanel /><WindowMechanicsPanel /><LanePanel />
+          <AudioBudgetPanel /><CodecPanel /><UpscalePanel />
         </div>
-      </Section>
-      <FrameBudgetPanel />
-      <HandoffClaimPanel />
-      <BlackoutPanel />
-      <WindowMechanicsPanel />
-      <LanePanel />
-      <AudioBudgetPanel />
-      <CodecPanel />
-      <VolumePanel />
-      <DropPanel />
-      <FilterPanel />
-      <ExclusionPanel />
-      <EntitlementPanel />
-      <BackupEvidencePanel />
-      <TrashPanel />
-      <AlarmPanel />
-      <UpscalePanel />
-
-      <SchedulerSection />
-      <TestsFasterSection />
+      </details>
+      <details className="fs-card" style={{ padding: 10 }}>
+        <summary style={{ cursor: "pointer", fontWeight: 700 }}>Privacy, storage and alarms</summary>
+        <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+          <VolumePanel /><DropPanel /><FilterPanel /><ExclusionPanel /><EntitlementPanel />
+          <BackupEvidencePanel /><TrashPanel /><AlarmPanel />
+        </div>
+      </details>
+      <details className="fs-card" style={{ padding: 10 }}>
+        <summary style={{ cursor: "pointer", fontWeight: 700 }}>Platform, scheduling and tests</summary>
+        <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+          <TT143Section /><SchedulerSection /><TestsFasterSection />
+        </div>
+      </details>
 
       <Section title="Audit log">
         <div className="fs-scroll fs-mono" tabIndex={0} role="region" aria-label="Audit log" style={{ maxHeight: fz(130), fontSize: fz(10.5) }}>

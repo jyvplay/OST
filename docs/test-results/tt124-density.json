@@ -1,6 +1,6 @@
 {
   "suite": "tt124-density",
-  "at": "2026-11-09T07:25:48.027Z",
+  "at": "2026-11-09T11:29:48.911Z",
   "results": [
     {
       "suite": "tt124-density",
@@ -9,7 +9,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1369
+      "ms": 1613
     },
     {
       "suite": "tt124-density",
@@ -18,7 +18,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2684
+      "ms": 2318
     },
     {
       "suite": "tt124-density",
@@ -27,7 +27,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1116
+      "ms": 1602
     },
     {
       "suite": "tt124-density",
@@ -36,7 +36,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 8862
+      "ms": 9086
     },
     {
       "suite": "tt124-density",
@@ -45,7 +45,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 590
+      "ms": 757
     },
     {
       "suite": "tt124-density",
@@ -53,9 +53,8 @@
       "covers": {
         "AX-24": "mechanism"
       },
-      "pass": false,
-      "error": "monitor words 1508 > 520",
-      "ms": 1576
+      "pass": true,
+      "ms": 1343
     },
     {
       "suite": "tt124-density",
@@ -64,7 +63,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1645
+      "ms": 1200
     },
     {
       "suite": "tt124-density",
@@ -73,7 +72,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1483
+      "ms": 1875
     },
     {
       "suite": "tt124-density",
@@ -82,7 +81,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1228
+      "ms": 798
     },
     {
       "suite": "tt124-density",
@@ -91,7 +90,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1220
+      "ms": 937
     },
     {
       "suite": "tt124-density",
@@ -100,7 +99,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1162
+      "ms": 1188
     },
     {
       "suite": "tt124-density",
@@ -109,7 +108,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1670
+      "ms": 1517
     },
     {
       "suite": "tt124-density",
@@ -118,7 +117,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1151
+      "ms": 1560
     },
     {
       "suite": "tt124-density",
@@ -127,7 +126,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1244
+      "ms": 848
     },
     {
       "suite": "tt124-density",
@@ -136,7 +135,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1194
+      "ms": 1058
     },
     {
       "suite": "tt124-density",
@@ -145,8 +144,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "routines words 658 > 300",
-      "ms": 911
+      "error": "routines words 697 > 300",
+      "ms": 857
     },
     {
       "suite": "tt124-density",
@@ -155,7 +154,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1872
+      "ms": 1293
     },
     {
       "suite": "tt124-density",
@@ -164,7 +163,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1054
+      "ms": 1092
     },
     {
       "suite": "tt124-density",
@@ -173,7 +172,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 895
+      "ms": 938
     },
     {
       "suite": "tt124-density",
@@ -182,8 +181,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "storage words 496 > 480",
-      "ms": 1030
+      "error": "storage words 507 > 480",
+      "ms": 1455
     },
     {
       "suite": "tt124-density",
@@ -193,7 +192,7 @@
         "SSH-02": "full"
       },
       "pass": true,
-      "ms": 52
+      "ms": 25
     },
     {
       "suite": "tt124-density",
@@ -202,7 +201,7 @@
         "AX-26": "full"
       },
       "pass": true,
-      "ms": 4126
+      "ms": 3779
     },
     {
       "suite": "tt124-density",
@@ -212,7 +211,7 @@
         "SP-03": "mechanism"
       },
       "pass": true,
-      "ms": 5800
+      "ms": 5758
     }
   ]
 }

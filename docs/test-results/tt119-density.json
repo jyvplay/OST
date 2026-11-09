@@ -1,6 +1,6 @@
 {
   "suite": "tt119-density",
-  "at": "2026-11-09T07:33:08.468Z",
+  "at": "2026-11-09T11:31:23.064Z",
   "results": [
     {
       "suite": "tt119-density",
@@ -9,8 +9,8 @@
         "AX-21": "full"
       },
       "pass": false,
-      "error": "monitor: 1508 visible words exceeds its bound 700",
-      "ms": 0
+      "error": "backup: 459 words > bound 440",
+      "ms": 14
     }
   ]
 }
