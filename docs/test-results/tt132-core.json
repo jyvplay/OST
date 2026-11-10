@@ -1,6 +1,6 @@
 {
   "suite": "tt132-core",
-  "at": "2026-11-10T22:33:18.222Z",
+  "at": "2026-11-10T23:15:33.370Z",
   "results": [
     {
       "suite": "tt132-core",
@@ -102,7 +102,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt132-core",

@@ -1,6 +1,6 @@
 {
   "suite": "tt120-density",
-  "at": "2026-11-10T23:04:47.606Z",
+  "at": "2026-11-10T23:47:32.882Z",
   "results": [
     {
       "suite": "tt120-density",
@@ -9,7 +9,7 @@
         "AX-22": "full"
       },
       "pass": false,
-      "error": "routines: 1406 visible words exceeds its bound 700",
+      "error": "backup: 459 words > bound 440",
       "ms": 1
     }
   ]

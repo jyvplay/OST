@@ -1,6 +1,6 @@
 {
   "suite": "tt133-browser-kernels",
-  "at": "2026-11-10T22:39:03.763Z",
+  "at": "2026-11-10T23:21:26.878Z",
   "results": [
     {
       "suite": "tt133-browser-kernels",
@@ -56,7 +56,7 @@
       "name": "No uncaught browser errors in native kernel ownership/scheduler/storage attacks",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     }
   ]
 }

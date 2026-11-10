@@ -1,6 +1,6 @@
 {
   "suite": "tt142-input-scan",
-  "at": "2026-11-10T22:33:30.940Z",
+  "at": "2026-11-10T23:15:47.296Z",
   "results": [
     {
       "suite": "tt142-input-scan",
@@ -45,7 +45,7 @@
         "IN-06": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 3
     },
     {
       "suite": "tt142-input-scan",
@@ -90,7 +90,7 @@
         "MD-05": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 3
     },
     {
       "suite": "tt142-input-scan",
@@ -99,7 +99,7 @@
         "MD-05": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 0
     },
     {
       "suite": "tt142-input-scan",
@@ -126,7 +126,7 @@
         "MD-05": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt142-input-scan",
@@ -135,7 +135,7 @@
         "MD-05": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 6
     },
     {
       "suite": "tt142-input-scan",

@@ -1,6 +1,6 @@
 {
   "suite": "tt121-density",
-  "at": "2026-11-10T23:03:28.357Z",
+  "at": "2026-11-10T23:46:12.310Z",
   "results": [
     {
       "suite": "tt121-density",
@@ -8,9 +8,8 @@
       "covers": {
         "AX-23": "full"
       },
-      "pass": false,
-      "error": "routines: 1406 visible words exceeds its bound 700",
-      "ms": 0
+      "pass": true,
+      "ms": 1
     }
   ]
 }

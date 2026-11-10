@@ -214,12 +214,19 @@ function AutomationPanel() {
   const [scopes, setScopes] = useState<{ run: boolean; read: boolean }>({ run: true, read: true });
   const [fresh, setFresh] = useState<{ token: string; example: string } | null>(null);
   const [err, setErr] = useState("");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
 
   const load = useCallback(() => api<{ rows: AutomationToken[] }>("/api/automation/tokens")
     .then((r) => setRows(r.rows)).catch((e) => setErr(String((e as Error).message))), []);
   useEffect(() => { void load(); }, [load]);
 
   const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
+  const needle = query.trim().toLowerCase();
+  const matching = needle ? rows.filter((t) => `${t.id} ${t.name} ${t.scopes.join(" ")} ${t.revoked ? "revoked" : "live"}`.toLowerCase().includes(needle)) : rows;
+  const pageSize = 8;
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(matching.length / pageSize) - 1));
+  const visible = matching.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return (
     <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={rows.some((r) => !r.revoked) ? "ok" : "default"}>{rows.filter((r) => !r.revoked).length} live</Badge>}>
       <div className="fs-dim" style={{ fontSize: fz(11) }}>
@@ -238,6 +245,8 @@ function AutomationPanel() {
           try {
             const r = await post<{ token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
             setFresh({ token: r.token, example: r.example });
+            setQuery("");
+            setPage(Math.floor(rows.length / pageSize));
             await load();
           } catch (e) { setErr(String((e as Error).message)); }
         }}>Create token</Btn>
@@ -254,8 +263,15 @@ function AutomationPanel() {
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
       {rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
-      {rows.map((t) => (
-        <div key={t.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
+      {rows.length ? <input className="fs-input" type="search" aria-label="Search automation tokens" placeholder="Search tokens" value={query} onChange={e => { setQuery(e.target.value); setPage(0); }} /> : null}
+      {matching.length ? <div className="fs-row" style={{ gap: 6 }}>
+        <Btn variant="ghost" aria-label="Previous token page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</Btn>
+        <span role="status" className="fs-dim">{currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, matching.length)} of {matching.length}</span>
+        <Btn variant="ghost" aria-label="Next token page" disabled={(currentPage + 1) * pageSize >= matching.length} onClick={() => setPage(currentPage + 1)}>Next</Btn>
+      </div> : rows.length ? <div className="fs-dim">No matching tokens</div> : null}
+      <div data-testid="automation-token-list">
+      {visible.map((t) => (
+        <div key={t.id} data-token-id={t.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
           <span style={{ fontSize: fz(11.5), minWidth: 0 }}>
             <span className="fs-mono">{t.id}</span> {t.name} <span className="fs-dim">· {t.scopes.join(", ")}{t.lastUsedAt ? ` · used ${fmtTime(t.lastUsedAt)}` : ""}</span>
           </span>
@@ -265,6 +281,7 @@ function AutomationPanel() {
           )}
         </div>
       ))}
+      </div>
     </Section>
   );
 }
