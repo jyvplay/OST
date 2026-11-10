@@ -1,0 +1,13 @@
+{
+  "suite": "e2e-tt161-lazy-thumbnail",
+  "at": "2026-11-10T22:32:08.982Z",
+  "results": [
+    {
+      "suite": "e2e-tt161-lazy-thumbnail",
+      "name": "a clipped HEIC stays lazy until the user scrolls to it",
+      "covers": {},
+      "pass": true,
+      "ms": 4348
+    }
+  ]
+}

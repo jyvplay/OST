@@ -118,6 +118,8 @@ await test("FF-06 an AVIF named .heic becomes a real thumbnail in Files — and 
       await win.getByTitle("grid view").click();
       const thumb = row.locator("[data-thumb]");
       await thumb.waitFor();
+      await thumb.scrollIntoViewIfNeeded();
+      await page.waitForFunction((p) => document.querySelector(`[data-path="${p}"] [data-thumb]`)?.getAttribute("data-thumb") === "none", target, { timeout: 30_000 });
       assert.equal(await thumb.getAttribute("data-thumb"), "none", "no decoder means no thumbnail, not a placeholder image");
       const title = (await thumb.getAttribute("title")) ?? "";
       assert.match(title, /AVIF|cannot be decoded/i, `the refusal must name what happened: ${title}`);
@@ -129,6 +131,9 @@ await test("FF-06 an AVIF named .heic becomes a real thumbnail in Files — and 
     await win.getByTitle("grid view").click();
     const thumb = row.locator("[data-thumb]");
     await thumb.waitFor();
+    // Thumbnails are intentionally lazy within the clipped Files scrollport.
+    // DOM presence alone does not mean the observer has requested this tile.
+    await thumb.scrollIntoViewIfNeeded();
     await page.waitForFunction((p) => {
       const el = document.querySelector(`[data-path="${p}"] [data-thumb]`);
       return el?.getAttribute("data-thumb") === "ready";
@@ -143,7 +148,7 @@ await test("FF-06 an AVIF named .heic becomes a real thumbnail in Files — and 
     assert.equal(drawn.blob, true, "the preview is a locally rendered blob URL, not a fetch to a third party");
     assert.match(drawn.alt, /avif-as-heic/, "the preview names the file it belongs to");
     assert.deepEqual(errors, []);
-  } finally { await context.close(); }
+  } finally { await context.close(); await api("POST", "/api/fs", { op: "purge", path: target }); }
 });
 
 await test("FF-06 a real HEIC is refused by the app and by the engine in the same page — the sentence is measured", { "FF-06": "full" }, async () => {
@@ -168,6 +173,9 @@ await test("FF-06 a real HEIC is refused by the app and by the engine in the sam
     await row.waitFor();
     const thumb = row.locator("[data-thumb]");
     await thumb.waitFor();
+    // Thumbnails are intentionally lazy within the clipped Files scrollport.
+    // DOM presence alone does not mean the observer has requested this tile.
+    await thumb.scrollIntoViewIfNeeded();
     await page.waitForFunction((p) => {
       const el = document.querySelector(`[data-path="${p}"] [data-thumb]`);
       return el?.getAttribute("data-thumb") !== "pending";
@@ -187,7 +195,7 @@ await test("FF-06 a real HEIC is refused by the app and by the engine in the sam
     assert.match(title, /convert the file to AVIF, PNG or JPEG/, "the refusal has to leave the user with an action");
     assert.doesNotMatch(title, /corrupt|damaged|invalid/i, "a format the engine lacks is not a damaged file");
     assert.deepEqual(errors, []);
-  } finally { await context.close(); }
+  } finally { await context.close(); await api("POST", "/api/fs", { op: "purge", path: target }); }
 });
 
 await test("IN-04 the capture box reads the physical chord and separates browser-reserved from app-owned", { "IN-04": "full" }, async () => {

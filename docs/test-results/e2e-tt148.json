@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt148",
-  "at": "2026-11-10T22:26:00.299Z",
+  "at": "2026-11-10T22:31:18.646Z",
   "results": [
     {
       "suite": "e2e-tt148",
@@ -9,7 +9,7 @@
         "FF-06": "full"
       },
       "pass": true,
-      "ms": 3696
+      "ms": 3498
     },
     {
       "suite": "e2e-tt148",
@@ -17,9 +17,8 @@
       "covers": {
         "FF-06": "full"
       },
-      "pass": false,
-      "error": "page.waitForFunction: Timeout 30000ms exceeded.",
-      "ms": 31523
+      "pass": true,
+      "ms": 2698
     },
     {
       "suite": "e2e-tt148",
@@ -28,7 +27,7 @@
         "IN-04": "full"
       },
       "pass": true,
-      "ms": 4321
+      "ms": 4639
     },
     {
       "suite": "e2e-tt148",
@@ -37,7 +36,7 @@
         "IN-04": "full"
       },
       "pass": true,
-      "ms": 3176
+      "ms": 2975
     }
   ]
 }
