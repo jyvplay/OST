@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-10T08:06:24.655Z",
+ "generatedAt": "2026-11-10T08:53:13.375Z",
  "totals": {
   "built": {
    "full": 649,
@@ -13,8 +13,8 @@
    "untested": 12
   },
   "tests": {
-   "total": 4512,
-   "passed": 4501
+   "total": 4514,
+   "passed": 4504
   }
  },
  "rows": {
@@ -245,6 +245,7 @@
   "HW-10": {
    "tested": "full",
    "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt139-platform: HW-10 · WASM probes are real modules, and threads without isolation is reported as blocked",
     "tt141-browser: Monitor: WASM SIMD is decided by real module validation, not a user-agent string",
     "tt146-core: HW-10 the assembled module is real SIMD and reproduces its own constant",
@@ -8716,6 +8717,7 @@
   "HW-03": {
    "tested": "full",
    "tests": [
+    "e2e-tt146: HW-03/HW-10 the runtime pane reports what this engine really does",
     "tt145-engines: HW-03 codecs: a bare family name is not turned into a profile, a mismatched profile is refused, 'maybe' keeps a fallback loaded, and an absent mediaCapabilities is unmeasured rather than guessed",
     "tt146-core: HW-03 verdicts follow the probe's answers and never claim silicon",
     "tt146-core: HW-03 a probe that never answers cannot hang the matrix"

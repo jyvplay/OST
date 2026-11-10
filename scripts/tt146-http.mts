@@ -8,9 +8,11 @@
  */
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import pg from "pg";
 import { makeHarness } from "./harness.mts";
 
-const BASE = process.env.BASE ?? "http://localhost:3999";
+if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL || !process.env.BASE) throw new Error("exclusive disposable server/database required");
+const BASE = process.env.BASE;
 const { test, finish } = makeHarness("tt146-http");
 
 const call = async (method: string, path: string, body?: unknown, token?: string) => {
@@ -124,8 +126,14 @@ await test("AU-03 the door refuses: bad tokens, missing scopes, unknown commands
 });
 
 await test("AU-03 revocation is immediate, and the limiter is the server's", { "AU-03": "full" }, async () => {
+  const ownedRunIds: number[] = [];
+  const cleanup = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  await cleanup.connect();
+  try {
   const doomed = await mint(["run", "read"], "TT146 revoke me");
-  assert.equal((await call("POST", "/api/automation", { commands: "open notes" }, doomed.token)).status, 201);
+  const first = await call("POST", "/api/automation", { commands: "open notes" }, doomed.token);
+  if (typeof first.json.id === "number") ownedRunIds.push(first.json.id);
+  assert.equal(first.status, 201);
   const del = await call("DELETE", `/api/automation/tokens?id=${doomed.id}`);
   assert.equal(del.status, 200);
   assert.equal((await call("POST", "/api/automation", { commands: "open notes" }, doomed.token)).status, 401,
@@ -141,6 +149,7 @@ await test("AU-03 revocation is immediate, and the limiter is the server's", { "
   for (let i = 1; i <= 32; i++) {
     const r = await call("POST", "/api/automation", { commands: "open files" }, limited.token);
     if (r.status === 429) { firstRefusal = i; break; }
+    if (typeof r.json.id === "number") ownedRunIds.push(r.json.id);
     assert.equal(r.status, 201, `request ${i}: ${JSON.stringify(r.json)}`);
   }
   assert.equal(firstRefusal, 31, "30 requests are allowed in the window, the 31st is refused");
@@ -149,6 +158,12 @@ await test("AU-03 revocation is immediate, and the limiter is the server's", { "
   const retry = Number(refused.headers.get("retry-after"));
   assert.ok(retry > 0 && retry <= 60, `retry-after is ${refused.headers.get("retry-after")}`);
   await call("DELETE", `/api/automation/tokens?id=${limited.id}`);
+  } finally {
+    // Remove only the fixture's never-executed queue rows. Leaving them behind
+    // drives real open-file actions in the next browser suite.
+    if (ownedRunIds.length) await cleanup.query("DELETE FROM automation_runs WHERE id = ANY($1::int[]) AND status = 'queued'", [ownedRunIds]);
+    await cleanup.end();
+  }
 });
 
 finish();

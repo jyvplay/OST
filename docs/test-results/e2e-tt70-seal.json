@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt70-seal",
-  "at": "2026-11-10T07:27:59.176Z",
+  "at": "2026-11-10T08:17:11.855Z",
   "results": [
     {
       "suite": "e2e-tt70-seal",
@@ -10,7 +10,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 16753
+      "ms": 14928
     },
     {
       "suite": "e2e-tt70-seal",
@@ -20,7 +20,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 19753
+      "ms": 20326
     }
   ]
 }

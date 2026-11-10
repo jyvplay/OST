@@ -1,11 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { db } from "@/db";
 import { auditLog, automationRuns, automationTokens } from "@/db/schema";
 import { readJsonObject } from "@/lib/http-json";
 import {
-  hasScope, MAX_QUEUE_DEPTH, parseScopes, parseToken, settle, takeToken, timingSafeEqualHex,
+  hasScope, MAX_QUEUE_DEPTH, parseScopes, parseToken, takeToken, timingSafeEqualHex,
   validateRequest, vocabulary, type QueuedRun, type RateLimitState, type RunStatus, type Scope,
 } from "@/lib/automation/tokens";
 
@@ -95,16 +95,25 @@ export async function POST(req: NextRequest) {
     const id = body.settleId;
     if (!Number.isInteger(id) || id < 1) return NextResponse.json({ ok: false, error: "settleId must be a positive integer" }, { status: 400 });
     if (typeof body.ok !== "boolean") return NextResponse.json({ ok: false, error: "ok must be true or false" }, { status: 400 });
-    const rows = await db.select().from(automationRuns).where(eq(automationRuns.id, id)).limit(1);
-    const row = rows[0];
-    if (!row) return NextResponse.json({ ok: false, error: "no such run" }, { status: 404 });
-    const next = settle(toRun(row), body.ok, typeof body.result === "string" ? body.result : "", Date.now());
-    if (next.status === row.status) return NextResponse.json({ ok: true, unchanged: true, run: toRun(row) });
-    await db.update(automationRuns)
-      .set({ status: next.status, result: next.result, finishedAt: new Date(next.finishedAt ?? Date.now()) })
-      .where(eq(automationRuns.id, id));
-    await db.insert(auditLog).values({ actor: "automation", action: `automation.${next.status}`, detail: `run ${id}: ${next.result.slice(0, 200)}` });
-    return NextResponse.json({ ok: true, run: next });
+    const status = body.ok ? "done" : "failed";
+    const result = (typeof body.result === "string" ? body.result : "").slice(0, 500);
+    // Conditional update serializes competing reports on this row. Keep the
+    // terminal audit and status in the same transaction: an audit failure must
+    // not leave an unaudited terminal outcome.
+    const outcome = await db.transaction(async tx => {
+      const [won] = await tx.update(automationRuns)
+        .set({ status, result, finishedAt: new Date() })
+        .where(and(eq(automationRuns.id, id), eq(automationRuns.status, "queued")))
+        .returning();
+      if (won) {
+        await tx.insert(auditLog).values({ actor: "automation", action: `automation.${status}`, detail: `run ${id}: ${result.slice(0, 200)}` });
+        return { row: won, unchanged: false };
+      }
+      const [row] = await tx.select().from(automationRuns).where(eq(automationRuns.id, id)).limit(1);
+      return { row, unchanged: true };
+    });
+    if (!outcome.row) return NextResponse.json({ ok: false, error: "no such run" }, { status: 404 });
+    return NextResponse.json({ ok: true, ...(outcome.unchanged ? { unchanged: true } : {}), run: toRun(outcome.row) });
   }
 
   // ---- external path

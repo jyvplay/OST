@@ -17,7 +17,7 @@
           "x-frame-options": "deny",
           "frame-ancestors": "'none'"
         },
-        "tookMs": 469
+        "tookMs": 556
       }
     },
     {
@@ -27,12 +27,12 @@
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mwaemogd-wide.invalid/",
+        "url": "https://tt134-mwaf9bj4-wide.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mwaemogd-wide.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mwaf9bj4-wide.invalid",
         "host": "S3-handoff",
-        "tookMs": 3
+        "tookMs": 6
       }
     },
     {
@@ -72,7 +72,7 @@
           "x-frame-options": "deny",
           "frame-ancestors": "'none'"
         },
-        "tookMs": 332
+        "tookMs": 422
       }
     },
     {
@@ -82,12 +82,12 @@
       "words": 60,
       "proof": {
         "ok": true,
-        "url": "https://tt134-mwaen1l6-compact.invalid/",
+        "url": "https://tt134-mwaf9rb0-compact.invalid/",
         "status": 0,
         "verdict": "unknown",
-        "reason": "probe failed: DNS lookup failed for tt134-mwaen1l6-compact.invalid",
+        "reason": "probe failed: DNS lookup failed for tt134-mwaf9rb0-compact.invalid",
         "host": "S3-handoff",
-        "tookMs": 4
+        "tookMs": 6
       }
     },
     {

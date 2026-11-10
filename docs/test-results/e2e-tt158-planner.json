@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt158-planner",
-  "at": "2026-11-10T07:24:06.030Z",
+  "at": "2026-11-10T08:13:18.594Z",
   "results": [
     {
       "suite": "e2e-tt158-planner",
       "name": "local planner rejects wrong secret and replay without running actions",
       "covers": {},
       "pass": true,
-      "ms": 5877
+      "ms": 4170
     }
   ]
 }

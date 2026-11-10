@@ -1,6 +1,6 @@
 {
   "suite": "tt143-safe-save",
-  "at": "2026-11-10T07:23:53.886Z",
+  "at": "2026-11-10T08:13:07.911Z",
   "results": [
     {
       "suite": "tt143-safe-save",
@@ -18,7 +18,7 @@
         "FM-18": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 0
     },
     {
       "suite": "tt143-safe-save",

@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt146",
-  "at": "2026-11-10T07:52:58.619Z",
+  "at": "2026-11-10T08:42:21.944Z",
   "results": [
     {
       "suite": "e2e-tt146",
@@ -9,9 +9,8 @@
         "HW-03": "full",
         "HW-10": "full"
       },
-      "pass": false,
-      "error": "locator.click: Timeout 25000ms exceeded.\nCall log:\n  - waiting for getByRole('tab', { name: 'Runtime' })\n    - locator resolved to <button role=\"tab\" class=\"fs-btn\" data-variant=\"ghost\" aria-selected=\"false\">Runtime</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"fs-titlebar\">…</div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <div class=\"fs-titlebar\">…</div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 100ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"fs-resizer\"></div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"fs-titlebar\">…</div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"fs-resizer\"></div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 500ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"fs-titlebar\">…</div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <div class=\"fs-resizer\"></div> from <div tabindex=\"-1\" role=\"dialog\" class=\"fs-window\" aria-label=\"Files\" aria-modal=\"false\" data-focused=\"false\" data-win-id=\"w6_files\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n",
-      "ms": 26253
+      "pass": true,
+      "ms": 3118
     },
     {
       "suite": "e2e-tt146",
@@ -20,7 +19,7 @@
         "HW-09": "full"
       },
       "pass": true,
-      "ms": 11172
+      "ms": 6203
     },
     {
       "suite": "e2e-tt146",
@@ -29,7 +28,7 @@
         "PR-06": "full"
       },
       "pass": true,
-      "ms": 3490
+      "ms": 3788
     },
     {
       "suite": "e2e-tt146",
@@ -38,7 +37,7 @@
         "AU-03": "full"
       },
       "pass": true,
-      "ms": 6746
+      "ms": 8680
     },
     {
       "suite": "e2e-tt146",
@@ -47,7 +46,7 @@
         "CT-03": "full"
       },
       "pass": true,
-      "ms": 9100
+      "ms": 9385
     }
   ]
 }
