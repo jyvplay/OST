@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, sql } from "drizzle-orm";
 import { createHash } from "node:crypto";
 import { db } from "@/db";
 import { auditLog, automationRuns, automationTokens } from "@/db/schema";
@@ -130,26 +130,28 @@ export async function POST(req: NextRequest) {
   const parsed = validateRequest(body);
   if (!parsed.ok) return NextResponse.json({ ok: false, errors: parsed.errors }, { status: 400 });
 
-  const gate = takeToken((who.row.rateState as RateLimitState | null) ?? null, Date.now(), RATE_LIMIT, RATE_WINDOW_MS);
-  if (!gate.allowed) {
-    await db.update(automationTokens).set({ rateState: gate.state }).where(eq(automationTokens.id, who.row.id));
-    await db.insert(auditLog).values({ actor: `automation:${who.row.id}`, action: "automation.throttled", detail: `retry in ${gate.retryAfterMs} ms` });
-    return NextResponse.json({ ok: false, error: "rate limit exceeded" }, { status: 429, headers: { "retry-after": String(Math.ceil(gate.retryAfterMs / 1000)) } });
-  }
-
-  const queued = await db.select({ id: automationRuns.id }).from(automationRuns).where(eq(automationRuns.status, "queued"));
-  if (queued.length >= MAX_QUEUE_DEPTH) {
-    return NextResponse.json(
-      { ok: false, error: `queue is full (${queued.length}/${MAX_QUEUE_DEPTH}); the open shell has not drained it` },
-      { status: 503 },
-    );
-  }
-
-  const [run] = await db.insert(automationRuns).values({ tokenId: who.row.id, actions: parsed.request.actions, status: "queued" }).returning();
-  await db.update(automationTokens).set({ rateState: gate.state, lastUsedAt: new Date() }).where(eq(automationTokens.id, who.row.id));
-  await db.insert(auditLog).values({
-    actor: `automation:${who.row.id}`, action: "automation.enqueued",
-    detail: `run ${run.id}: ${parsed.request.actions.map((a) => a.cmd).join(" ")}`,
+  // Admission is a single transaction. All writers through this route take the
+  // same transaction-scoped lock before counting the global queue; the token
+  // row lock also serializes against revocation. Recheck after acquiring locks.
+  const admission = await db.transaction(async tx => {
+    await tx.execute(sql`select pg_advisory_xact_lock(5198676, 160)`);
+    const [row] = await tx.select().from(automationTokens).where(eq(automationTokens.id, who.row.id)).for("update");
+    if (!row || row.revokedAt || row.secretHash !== who.row.secretHash || !hasScope(parseScopes(row.scopes), "run")) {
+      return { status: 401 as const, error: "token no longer valid" };
+    }
+    const gate = takeToken((row.rateState as RateLimitState | null) ?? null, Date.now(), RATE_LIMIT, RATE_WINDOW_MS);
+    if (!gate.allowed) {
+      await tx.update(automationTokens).set({ rateState: gate.state }).where(eq(automationTokens.id, row.id));
+      await tx.insert(auditLog).values({ actor: `automation:${row.id}`, action: "automation.throttled", detail: `retry in ${gate.retryAfterMs} ms` });
+      return { status: 429 as const, error: "rate limit exceeded", retryAfter: Math.ceil(gate.retryAfterMs / 1000) };
+    }
+    const [{ value: depth }] = await tx.select({ value: count() }).from(automationRuns).where(eq(automationRuns.status, "queued"));
+    if (depth >= MAX_QUEUE_DEPTH) return { status: 503 as const, error: `queue is full (${depth}/${MAX_QUEUE_DEPTH}); the open shell has not drained it` };
+    const [run] = await tx.insert(automationRuns).values({ tokenId: row.id, actions: parsed.request.actions, status: "queued" }).returning();
+    await tx.update(automationTokens).set({ rateState: gate.state, lastUsedAt: new Date() }).where(eq(automationTokens.id, row.id));
+    await tx.insert(auditLog).values({ actor: `automation:${row.id}`, action: "automation.enqueued", detail: `run ${run.id}: ${parsed.request.actions.map(a => a.cmd).join(" ")}` });
+    return { status: 201 as const, id: run.id, remaining: gate.remaining };
   });
-  return NextResponse.json({ ok: true, id: run.id, status: "queued", remaining: gate.remaining }, { status: 201 });
+  if (admission.status !== 201) return NextResponse.json({ ok: false, error: admission.error }, { status: admission.status, ...(admission.status === 429 ? { headers: { "retry-after": String(admission.retryAfter) } } : {}) });
+  return NextResponse.json({ ok: true, id: admission.id, status: "queued", remaining: admission.remaining }, { status: 201 });
 }

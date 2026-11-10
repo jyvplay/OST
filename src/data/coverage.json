@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-10T08:53:13.375Z",
+ "generatedAt": "2026-11-10T22:25:11.792Z",
  "totals": {
   "built": {
    "full": 649,
@@ -13,8 +13,8 @@
    "untested": 12
   },
   "tests": {
-   "total": 4514,
-   "passed": 4504
+   "total": 4517,
+   "passed": 4506
   }
  },
  "rows": {
@@ -95,7 +95,6 @@
    "tested": "full",
    "tests": [
     "e2e-tt148: FF-06 an AVIF named .heic becomes a real thumbnail in Files — and the decoder agrees it is decodable",
-    "e2e-tt148: FF-06 a real HEIC is refused by the app and by the engine in the same page — the sentence is measured",
     "tt139-platform: FF-06 · canPlayType's three answers map to three different states",
     "tt139-platform: FF-06 · MediaCapabilities decides per configuration, and power efficiency decides the state",
     "tt148-core: FF-06 the container is identified by its brand, not its extension",

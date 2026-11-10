@@ -1,6 +1,6 @@
 {
   "suite": "tt146-net-quality",
-  "at": "2026-11-10T08:13:08.333Z",
+  "at": "2026-11-10T21:47:35.956Z",
   "results": [
     {
       "suite": "tt146-net-quality",
@@ -42,14 +42,14 @@
       "name": "ceiling: a governor cap is respected for every surface and every source",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt146-net-quality",
       "name": "fuzz: 20 000 random inputs never leave the ladder, never invert it, never pick a value off the rung",
       "covers": {},
       "pass": true,
-      "ms": 43
+      "ms": 39
     },
     {
       "suite": "tt146-net-quality",

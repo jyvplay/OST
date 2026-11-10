@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-time",
-  "at": "2026-11-10T08:30:55.538Z",
+  "at": "2026-11-10T22:04:12.226Z",
   "results": [
     {
       "suite": "e2e-tt128-time",
@@ -10,7 +10,7 @@
         "WD-03": "partial"
       },
       "pass": true,
-      "ms": 3289
+      "ms": 2876
     },
     {
       "suite": "e2e-tt128-time",
@@ -20,7 +20,7 @@
         "PL-07": "partial"
       },
       "pass": true,
-      "ms": 4308
+      "ms": 4198
     }
   ]
 }

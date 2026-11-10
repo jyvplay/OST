@@ -1,6 +1,6 @@
 {
   "suite": "tt116-density",
-  "at": "2026-11-10T08:53:08.475Z",
+  "at": "2026-11-10T22:25:05.897Z",
   "results": [
     {
       "suite": "tt116-density",
@@ -10,7 +10,7 @@
         "RC-05": "partial"
       },
       "pass": true,
-      "ms": 1562
+      "ms": 1327
     },
     {
       "suite": "tt116-density",
@@ -20,7 +20,7 @@
         "DP-07": "partial"
       },
       "pass": true,
-      "ms": 3265
+      "ms": 2692
     },
     {
       "suite": "tt116-density",
@@ -30,7 +30,7 @@
         "DP-07": "partial"
       },
       "pass": true,
-      "ms": 2327
+      "ms": 2150
     },
     {
       "suite": "tt116-density",
@@ -39,7 +39,7 @@
         "AX-18": "full"
       },
       "pass": true,
-      "ms": 1866
+      "ms": 1856
     },
     {
       "suite": "tt116-density",
@@ -49,7 +49,7 @@
         "RC-11": "partial"
       },
       "pass": true,
-      "ms": 1890
+      "ms": 1691
     },
     {
       "suite": "tt116-density",
@@ -59,7 +59,7 @@
         "AX-18": "full"
       },
       "pass": true,
-      "ms": 1935
+      "ms": 1983
     }
   ]
 }

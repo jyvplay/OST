@@ -1,6 +1,6 @@
 {
   "suite": "tt141-auto-frame",
-  "at": "2026-11-06T21:54:11.058Z",
+  "at": "2026-11-10T21:47:34.121Z",
   "results": [
     {
       "suite": "tt141-auto-frame",
@@ -54,7 +54,7 @@
         "LN-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt141-auto-frame",
@@ -90,7 +90,7 @@
         "LN-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt141-auto-frame",
@@ -99,7 +99,7 @@
         "LN-02": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt141-auto-frame",

@@ -1,6 +1,6 @@
 {
   "suite": "tt125-core",
-  "at": "2026-11-10T08:13:03.357Z",
+  "at": "2026-11-10T21:47:30.513Z",
   "results": [
     {
       "suite": "tt125-core",
@@ -72,7 +72,7 @@
         "VA-03": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt125-core",

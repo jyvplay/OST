@@ -1,48 +1,48 @@
 {
   "suite": "tt133-projections",
-  "at": "2026-11-10T08:12:52.685Z",
+  "at": "2026-11-10T21:47:21.011Z",
   "results": [
     {
       "suite": "tt133-projections",
       "name": "Document projection owns its page, tracking, style rows and counts; model mutation cannot rewrite an older render",
       "covers": {},
       "pass": true,
-      "ms": 101
+      "ms": 86
     },
     {
       "suite": "tt133-projections",
       "name": "Toolbar projection owns formatting/mixed flags and paragraph scalars across style, text, list and selection changes",
       "covers": {},
       "pass": true,
-      "ms": 22
+      "ms": 15
     },
     {
       "suite": "tt133-projections",
       "name": "Comment projection whitelists scalars: comment blocks/XML must not leak through a shallow spread",
       "covers": {},
       "pass": true,
-      "ms": 16
+      "ms": 9
     },
     {
       "suite": "tt133-projections",
       "name": "Header/footer projection owns paragraph rows across editing and page-setup mutation",
       "covers": {},
       "pass": true,
-      "ms": 18
+      "ms": 7
     },
     {
       "suite": "tt133-projections",
       "name": "Navigation, note and revision panes contain no engine aliases and stay unchanged after real engine edits",
       "covers": {},
       "pass": true,
-      "ms": 11
+      "ms": 7
     },
     {
       "suite": "tt133-projections",
       "name": "Inactive panes remain empty; stale selections do not alias the replacement document",
       "covers": {},
       "pass": true,
-      "ms": 27
+      "ms": 11
     }
   ]
 }

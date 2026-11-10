@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt134-workflows-clipboard",
-  "at": "2026-11-10T08:18:55.442Z",
+  "at": "2026-11-10T21:52:48.962Z",
   "results": [
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -9,7 +9,7 @@
         "CB-04": "full"
       },
       "pass": true,
-      "ms": 5984
+      "ms": 4293
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -18,7 +18,7 @@
         "CB-04": "full"
       },
       "pass": true,
-      "ms": 3206
+      "ms": 3735
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -27,7 +27,7 @@
         "CB-05": "full"
       },
       "pass": true,
-      "ms": 3034
+      "ms": 3132
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -36,7 +36,7 @@
         "CB-06": "full"
       },
       "pass": true,
-      "ms": 2898
+      "ms": 2834
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -45,7 +45,7 @@
         "CB-07": "full"
       },
       "pass": true,
-      "ms": 3531
+      "ms": 3595
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -54,7 +54,7 @@
         "CB-08": "full"
       },
       "pass": true,
-      "ms": 2565
+      "ms": 2842
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -63,7 +63,7 @@
         "CB-08": "full"
       },
       "pass": true,
-      "ms": 5457
+      "ms": 5680
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -72,7 +72,7 @@
         "CB-08": "full"
       },
       "pass": true,
-      "ms": 6417
+      "ms": 5222
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -85,7 +85,7 @@
         "CB-08": "partial"
       },
       "pass": true,
-      "ms": 3572
+      "ms": 3334
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",
@@ -94,7 +94,7 @@
         "CB-04": "partial"
       },
       "pass": true,
-      "ms": 2616
+      "ms": 2404
     },
     {
       "suite": "e2e-tt134-workflows-clipboard",

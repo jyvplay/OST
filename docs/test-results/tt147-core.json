@@ -1,6 +1,6 @@
 {
   "suite": "tt147-core",
-  "at": "2026-11-10T08:13:08.852Z",
+  "at": "2026-11-10T21:47:36.247Z",
   "results": [
     {
       "suite": "tt147-core",
@@ -9,7 +9,7 @@
         "ST-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -32,7 +32,7 @@
         "HW-04": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -80,7 +80,7 @@
         "PR-07o": "full"
       },
       "pass": true,
-      "ms": 13
+      "ms": 5
     }
   ]
 }
