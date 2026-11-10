@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-photos",
-  "at": "2026-11-10T22:04:03.833Z",
+  "at": "2026-11-10T22:48:17.772Z",
   "results": [
     {
       "suite": "e2e-tt128-photos",
@@ -10,7 +10,7 @@
         "PH-05": "partial"
       },
       "pass": true,
-      "ms": 7466
+      "ms": 6046
     },
     {
       "suite": "e2e-tt128-photos",
@@ -19,7 +19,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 3917
+      "ms": 3629
     },
     {
       "suite": "e2e-tt128-photos",
@@ -28,7 +28,7 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 3083
+      "ms": 2806
     },
     {
       "suite": "e2e-tt128-photos",
@@ -37,7 +37,7 @@
         "PH-07": "partial"
       },
       "pass": true,
-      "ms": 2323
+      "ms": 2348
     },
     {
       "suite": "e2e-tt128-photos",
@@ -46,7 +46,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 2752
+      "ms": 2329
     },
     {
       "suite": "e2e-tt128-photos",
@@ -55,7 +55,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 3325
+      "ms": 2506
     },
     {
       "suite": "e2e-tt128-photos",
@@ -64,7 +64,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 3540
+      "ms": 2797
     },
     {
       "suite": "e2e-tt128-photos",
@@ -73,7 +73,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 4000
+      "ms": 3435
     },
     {
       "suite": "e2e-tt128-photos",
@@ -82,7 +82,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 1758
+      "ms": 1422
     },
     {
       "suite": "e2e-tt128-photos",
@@ -91,7 +91,7 @@
         "MD-03": "partial"
       },
       "pass": true,
-      "ms": 2466
+      "ms": 1862
     },
     {
       "suite": "e2e-tt128-photos",
@@ -100,7 +100,7 @@
         "PH-04": "partial"
       },
       "pass": true,
-      "ms": 5882
+      "ms": 5455
     }
   ]
 }

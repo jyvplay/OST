@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt155-files",
-  "at": "2026-11-10T21:49:29.913Z",
+  "at": "2026-11-10T22:35:28.430Z",
   "results": [
     {
       "suite": "e2e-tt155-files",
       "name": "Files mechanics is keyboard-focusable and its overflowing content scrolls",
       "covers": {},
       "pass": true,
-      "ms": 1306
+      "ms": 2230
     }
   ]
 }

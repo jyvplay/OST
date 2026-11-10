@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt154-recovery",
-  "at": "2026-11-10T21:49:43.098Z",
+  "at": "2026-11-10T22:35:40.099Z",
   "results": [
     {
       "suite": "e2e-tt154-recovery",
       "name": "delayed recovery check signals readiness only after the real draft offer renders",
       "covers": {},
       "pass": true,
-      "ms": 2051
+      "ms": 1314
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt124-density",
-  "at": "2026-11-10T22:17:04.149Z",
+  "at": "2026-11-10T22:59:43.404Z",
   "results": [
     {
       "suite": "tt124-density",
@@ -9,7 +9,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1418
+      "ms": 1338
     },
     {
       "suite": "tt124-density",
@@ -18,7 +18,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 2353
+      "ms": 1984
     },
     {
       "suite": "tt124-density",
@@ -27,7 +27,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 901
+      "ms": 1463
     },
     {
       "suite": "tt124-density",
@@ -36,7 +36,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 9024
+      "ms": 8657
     },
     {
       "suite": "tt124-density",
@@ -45,7 +45,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 585
+      "ms": 605
     },
     {
       "suite": "tt124-density",
@@ -54,7 +54,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1391
+      "ms": 1069
     },
     {
       "suite": "tt124-density",
@@ -63,7 +63,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1086
+      "ms": 1448
     },
     {
       "suite": "tt124-density",
@@ -72,7 +72,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1255
+      "ms": 1082
     },
     {
       "suite": "tt124-density",
@@ -81,7 +81,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1184
+      "ms": 1473
     },
     {
       "suite": "tt124-density",
@@ -90,7 +90,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1221
+      "ms": 1078
     },
     {
       "suite": "tt124-density",
@@ -99,7 +99,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 703
+      "ms": 764
     },
     {
       "suite": "tt124-density",
@@ -108,7 +108,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1230
+      "ms": 784
     },
     {
       "suite": "tt124-density",
@@ -117,7 +117,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1226
+      "ms": 1442
     },
     {
       "suite": "tt124-density",
@@ -126,7 +126,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1143
+      "ms": 990
     },
     {
       "suite": "tt124-density",
@@ -135,7 +135,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1158
+      "ms": 859
     },
     {
       "suite": "tt124-density",
@@ -144,8 +144,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "routines words 1313 > 300",
-      "ms": 968
+      "error": "routines words 1406 > 300",
+      "ms": 1005
     },
     {
       "suite": "tt124-density",
@@ -154,7 +154,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 1053
+      "ms": 1713
     },
     {
       "suite": "tt124-density",
@@ -163,7 +163,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 830
+      "ms": 935
     },
     {
       "suite": "tt124-density",
@@ -172,7 +172,7 @@
         "AX-24": "mechanism"
       },
       "pass": true,
-      "ms": 824
+      "ms": 1078
     },
     {
       "suite": "tt124-density",
@@ -181,8 +181,8 @@
         "AX-24": "mechanism"
       },
       "pass": false,
-      "error": "storage words 563 > 480",
-      "ms": 1042
+      "error": "storage words 579 > 480",
+      "ms": 1178
     },
     {
       "suite": "tt124-density",
@@ -192,7 +192,7 @@
         "SSH-02": "full"
       },
       "pass": true,
-      "ms": 16
+      "ms": 20
     },
     {
       "suite": "tt124-density",
@@ -201,7 +201,7 @@
         "AX-26": "full"
       },
       "pass": true,
-      "ms": 2751
+      "ms": 4369
     },
     {
       "suite": "tt124-density",
@@ -211,7 +211,7 @@
         "SP-03": "mechanism"
       },
       "pass": true,
-      "ms": 5530
+      "ms": 5247
     }
   ]
 }

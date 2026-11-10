@@ -1,6 +1,6 @@
 {
   "suite": "tt123-core",
-  "at": "2026-11-10T22:06:40.135Z",
+  "at": "2026-11-10T22:50:23.022Z",
   "results": [
     {
       "suite": "tt123-core",
@@ -46,7 +46,7 @@
         "CK-07": "full"
       },
       "pass": true,
-      "ms": 20
+      "ms": 11
     },
     {
       "suite": "tt123-core",
@@ -73,7 +73,7 @@
         "BK-11": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt123-core",

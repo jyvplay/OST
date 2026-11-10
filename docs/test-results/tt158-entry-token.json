@@ -1,13 +1,13 @@
 {
   "suite": "tt158-entry-token",
-  "at": "2026-11-10T08:12:49.528Z",
+  "at": "2026-11-10T22:33:15.951Z",
   "results": [
     {
       "suite": "tt158-entry-token",
       "name": "presented secret and routine binding precede one-time consumption",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     }
   ]
 }

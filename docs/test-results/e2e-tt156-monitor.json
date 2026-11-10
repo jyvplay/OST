@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt156-monitor",
-  "at": "2026-11-10T21:47:58.542Z",
+  "at": "2026-11-10T22:33:59.617Z",
   "results": [
     {
       "suite": "e2e-tt156-monitor",
       "name": "Monitor disclosures retain keyboard access and interactive diagnostics",
       "covers": {},
       "pass": true,
-      "ms": 4659
+      "ms": 4845
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt130-alarms-core",
-  "at": "2026-11-10T21:47:31.701Z",
+  "at": "2026-11-10T22:33:28.451Z",
   "results": [
     {
       "suite": "tt130-alarms-core",
@@ -36,7 +36,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 43
+      "ms": 47
     }
   ]
 }
