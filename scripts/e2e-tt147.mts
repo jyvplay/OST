@@ -198,7 +198,9 @@ await test("AU-01 a routine is previewed, saved, rehearsed, then run — and the
   // Saving a routine must not have opened anything: a preview is not a run.
   assert.equal(await page.evaluate(() => document.querySelectorAll("[data-win-id]").length), openBefore);
 
-  const row = page.locator("div.fs-row", { hasText: name }).first();
+  // The token routine selector also contains routine names. Require the actual
+  // row's Rehearse control, not just any ancestor containing the name.
+  const row = page.locator("div.fs-row", { hasText: name }).filter({ has: page.getByTestId("routine-rehearse") }).first();
   await row.getByTestId("routine-rehearse").click();
   await page.waitForFunction(() => /nothing was executed/i.test(document.body.innerText), undefined, { timeout: 15_000 });
 

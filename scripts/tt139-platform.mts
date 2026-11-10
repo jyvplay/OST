@@ -627,15 +627,15 @@ await test("AU-03 · a dry run blocks the whole routine when one step is unknown
   eq(dryRun({ ...routine, actions: [{ command: "find.open", args: {} }] }, schema).executable, false, "an empty argument object is refused when one is required");
 });
 
-await test("AU-03 · tokens are single-use, routine-bound and expiring", { "AU-03": "full" }, () => {
+await test("AU-03 · tokens are single-use, routine-bound and expiring", { "AU-03": "partial" }, () => {
   const now = 1_000_000;
   const token = issueToken("morning", now, 60_000);
   eq(token.value.length, 24, "96 bits of randomness, hex");
-  eq(redeemToken(token, "morning", now + 1000).ok, true, "a fresh token for the right routine");
-  eq(redeemToken({ ...token, used: true }, "morning", now).ok, false, "single use");
-  eq(redeemToken(token, "other", now).ok, false, "routine-bound");
-  eq(redeemToken(token, "morning", now + 120_000).ok, false, "expiring");
-  eq(redeemToken(undefined, "morning", now).ok, false, "a token is required");
+  eq(redeemToken({ ...token }, token.value, "morning", now + 1000).ok, true, "a fresh token for the right routine");
+  eq(redeemToken({ ...token, used: true }, token.value, "morning", now).ok, false, "single use");
+  eq(redeemToken(token, token.value, "other", now).ok, false, "routine-bound");
+  eq(redeemToken(token, token.value, "morning", now + 120_000).ok, false, "expiring");
+  eq(redeemToken(undefined, undefined, "morning", now).ok, false, "a token is required");
   ok(issueToken("x", now).expiresAt <= now + 600_000, "the ttl is capped");
 });
 

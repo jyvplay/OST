@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T15:32:48.488Z",
+ "generatedAt": "2026-11-10T08:06:24.655Z",
  "totals": {
   "built": {
    "full": 649,
@@ -13,8 +13,8 @@
    "untested": 12
   },
   "tests": {
-   "total": 4510,
-   "passed": 4496
+   "total": 4512,
+   "passed": 4501
   }
  },
  "rows": {
@@ -1139,7 +1139,8 @@
    "tests": [
     "e2e-tt124: ED-08/WR-01/PD-02: indent changes the buffer and selection; goal badge appears; page jump clamps",
     "e2e: mount: writer",
-    "tt124-core: WR-01 word goal: net writing, clamped, done flag"
+    "tt124-core: WR-01 word goal: net writing, clamped, done flag",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
    ]
   },
   "IE-01": {
@@ -1221,7 +1222,8 @@
    "tests": [
     "e2e-tt124: MD-12/CK-08/SP-03: A–B label cycles; copy buttons exist on clock, spec, beam, contacts, messages, photos-editor, vector, ssh, together, routines",
     "e2e: mount: spec",
-    "tt124-core: SP-03 family text: worst first, same engine as the strip"
+    "tt124-core: SP-03 family text: worst first, same engine as the strip",
+    "tt124-density: screenshots: writer goal dialog + spec family progress"
    ]
   },
   "BM-02": {

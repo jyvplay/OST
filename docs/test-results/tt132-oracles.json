@@ -1,6 +1,6 @@
 {
   "suite": "tt132-oracles",
-  "at": "2026-11-09T15:04:29.614Z",
+  "at": "2026-11-10T07:36:46.506Z",
   "results": [
     {
       "suite": "tt132-oracles",
@@ -10,7 +10,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 19
+      "ms": 16
     },
     {
       "suite": "tt132-oracles",
@@ -50,7 +50,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 3
+      "ms": 2
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt148-core",
-  "at": "2026-11-09T14:50:22.168Z",
+  "at": "2026-11-10T07:23:54.877Z",
   "results": [
     {
       "suite": "tt148-core",
@@ -16,14 +16,14 @@
       "name": "FF-06 decode policy: an engine that refuses HEIC says so; a corrupt AVIF is not called unsupported",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 4
     },
     {
       "suite": "tt148-core",
       "name": "FF-06 the committed AVIF fixture is real: the oracle's file sniffs as AVIF and carries its dimensions",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 5
     },
     {
       "suite": "tt148-core",
@@ -55,7 +55,7 @@
       "name": "IN-04 capture plans: no focus means no capture; Keyboard Lock is the only path to reserved keys",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     }
   ]
 }

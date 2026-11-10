@@ -34,6 +34,7 @@ export default function RoutinesModule(_: ModuleProps) {
   const [dry, setDry] = useState<string[] | null>(null);
   const [reqText, setReqText] = useState('{ "routineId": "morning", "args": {} }');
   const [reqOut, setReqOut] = useState<string[]>([]);
+  const [tokenRoutineId, setTokenRoutineId] = useState("");
   const [token, setToken] = useState<{ value: string; routineId: string; expiresAt: number; used: boolean } | null>(null);
   const [err, setErr] = useState("");
 
@@ -106,7 +107,7 @@ export default function RoutinesModule(_: ModuleProps) {
       <RoutineGuardPanel />
 
       <Section title="Automation entry (AU-03)" icon="keycap">
-        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>A request names a routine and typed arguments — never a step list. It is planned first, and only a planned request may run.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner only: it does not run requests or authenticate their origin. Server automation tokens are managed below.</div>
         <textarea className="fs-input fs-mono" rows={3} value={reqText} aria-label="Automation request JSON" data-testid="routines-request" onChange={(e) => setReqText(e.target.value)} style={{ resize: "vertical", fontSize: fz(11) }} />
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" data-testid="routines-validate" onClick={() => {
@@ -122,16 +123,23 @@ export default function RoutinesModule(_: ModuleProps) {
               schema[cmd] = { args: ["arg"], mutates: true, required: needsArg ? ["arg"] : [] };
             }
             const plan = dryRun({ id: target.name, name: target.name, trigger: "manual", enabled: target.enabled, actions: target.actions.map((a) => ({ command: a.cmd, args: a.arg ? { arg: a.arg } : {} })) }, schema);
-            const tokenCheck = parsedReq.request.origin && parsedReq.request.origin !== location.origin ? redeemToken(token ?? undefined, parsedReq.request.routineId, Date.now()) : { ok: true, error: null };
+            // A failed plan must not consume the local token. The pasted origin
+            // is user-controlled, so this check is never server authorization.
+            const tokenCheck = plan.executable && parsedReq.request.origin && parsedReq.request.origin !== location.origin ? redeemToken(token ?? undefined, parsedReq.request.token, String(target.id), Date.now()) : { ok: true, error: null };
+            if (token?.used) setToken({ ...token });
             setReqOut([
-              plan.executable && tokenCheck.ok ? `executable: ${plan.steps.length} step(s)` : `refused: ${[...plan.problems, tokenCheck.error ?? ""].filter(Boolean).join("; ")}`,
+              plan.executable && tokenCheck.ok ? `executable: ${plan.steps.length} step(s) (local plan only; nothing ran)` : `refused: ${[...plan.problems, tokenCheck.error ?? ""].filter(Boolean).join("; ")}`,
               ...plan.steps.map((st) => `${st.index + 1}. ${st.describe}${st.wouldChange.length ? " · writes" : ""}`),
             ]);
           }}>Plan</Btn>
           <Btn variant="ghost" disabled={!token} onClick={() => setToken(null)}>Clear token</Btn>
-          <Btn variant="ghost" disabled={!rows.length} data-testid="routines-token" onClick={() => { const first = rows[0]; const t = issueToken(first.name, Date.now(), 60_000); setToken(t); setReqOut([`token issued for “${first.name}”, valid one minute, single use`]); }}>Issue token</Btn>
+          <select className="fs-select" aria-label="Planner token routine" value={tokenRoutineId} onChange={e => setTokenRoutineId(e.target.value)}>
+            <option value="">Choose a routine</option>
+            {rows.map(r => <option key={r.id} value={String(r.id)}>{r.name} (id {r.id})</option>)}
+          </select>
+          <Btn variant="ghost" disabled={!rows.some(r => String(r.id) === tokenRoutineId)} data-testid="routines-token" onClick={() => { const selected = rows.find(r => String(r.id) === tokenRoutineId); if (!selected) return; const t = issueToken(String(selected.id), Date.now(), 60_000); setToken(t); setReqOut([`local planner token for “${selected.name}” (id ${selected.id}), valid one minute, single use`]); }}>Issue token</Btn>
         </div>
-        {token ? <div className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="routines-token-value">{token.value.slice(0, 8)}… · expires {new Date(token.expiresAt).toLocaleTimeString()}</div> : null}
+        {token ? <div className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="routines-token-value">{token.value} · {token.used ? "used" : "unused"} · expires {new Date(token.expiresAt).toLocaleTimeString()}</div> : null}
         {reqOut.map((line, i) => <div key={i} className={i === 0 ? "fs-mono" : "fs-dim"} style={{ fontSize: fz(11) }}>{line}</div>)}
       </Section>
 
