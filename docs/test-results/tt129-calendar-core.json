@@ -1,6 +1,6 @@
 {
   "suite": "tt129-calendar-core",
-  "at": "2026-11-10T21:47:31.453Z",
+  "at": "2026-11-11T17:10:12.239Z",
   "results": [
     {
       "suite": "tt129-calendar-core",
@@ -18,7 +18,7 @@
         "PR-04": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt129-calendar-core",

@@ -1,13 +1,13 @@
 {
   "suite": "tt151-qr",
-  "at": "2026-11-11T16:03:44.268Z",
+  "at": "2026-11-11T17:09:59.142Z",
   "results": [
     {
       "suite": "tt151-qr",
       "name": "QR-01 · every oracle matrix is reproduced byte for byte",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 21
     },
     {
       "suite": "tt151-qr",
@@ -28,21 +28,21 @@
       "name": "QR-03 · format info carries the BCH code and the dark module, and version info appears only from v7",
       "covers": {},
       "pass": true,
-      "ms": 49
+      "ms": 80
     },
     {
       "suite": "tt151-qr",
       "name": "QR-04 · the chosen mask is the minimum-penalty mask, and the penalty rules are the standard four",
       "covers": {},
       "pass": true,
-      "ms": 75
+      "ms": 178
     },
     {
       "suite": "tt151-qr",
       "name": "QR-05 · SVG keeps the four-module quiet zone, and zxing-cpp reads the symbols back",
       "covers": {},
       "pass": true,
-      "ms": 3579
+      "ms": 787
     }
   ]
 }

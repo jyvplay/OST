@@ -214,6 +214,9 @@ function AutomationPanel() {
   const [scopes, setScopes] = useState<{ run: boolean; read: boolean }>({ run: true, read: true });
   const [fresh, setFresh] = useState<{ token: string; example: string } | null>(null);
   const [err, setErr] = useState("");
+  const [listError, setListError] = useState("");
+  const [listLoaded, setListLoaded] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const requestVersion = useRef(0);
@@ -221,17 +224,24 @@ function AutomationPanel() {
 
   const load = useCallback(async (focusId?: string, focusVersion?: number) => {
     const version = ++requestVersion.current;
+    setListLoading(true);
     try {
       const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens");
       // An older response must not replace a newer list or its page selection.
       if (version !== requestVersion.current) return;
       setRows(result.rows);
+      setListLoaded(true);
+      setListError("");
+      setListLoading(false);
       if (focusId && focusVersion === interactionVersion.current) {
         const index = result.rows.findIndex((row) => row.id === focusId);
         if (index >= 0) setPage(Math.floor(index / 8));
       }
     } catch (e) {
-      if (version === requestVersion.current) setErr(String((e as Error).message));
+      if (version === requestVersion.current) {
+        setListLoading(false);
+        setListError(String((e as Error).message));
+      }
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
@@ -243,7 +253,7 @@ function AutomationPanel() {
   const currentPage = Math.min(page, Math.max(0, Math.ceil(matching.length / pageSize) - 1));
   const visible = matching.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   return (
-    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={rows.some((r) => !r.revoked) ? "ok" : "default"}>{rows.filter((r) => !r.revoked).length} live</Badge>}>
+    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
       <div className="fs-dim" style={{ fontSize: fz(11) }}>
         A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
       </div>
@@ -257,11 +267,11 @@ function AutomationPanel() {
         </label>
         <Btn variant="primary" disabled={!wanted.length} data-testid="automation-mint" onClick={async () => {
           setErr(""); setFresh(null);
+          const focusVersion = interactionVersion.current;
           try {
             const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
             setFresh({ token: r.token, example: r.example });
-            setQuery("");
-            const focusVersion = ++interactionVersion.current;
+            if (focusVersion === interactionVersion.current) setQuery("");
             await load(r.id, focusVersion);
           } catch (e) { setErr(String((e as Error).message)); }
         }}>Create token</Btn>
@@ -277,7 +287,11 @@ function AutomationPanel() {
         </div>
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
-      {rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
+      {listError ? <div role="alert" data-testid="automation-list-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <span>{listLoaded ? "Token list may be out of date." : "Token list unavailable."} {listError}</span>
+        <Btn variant="ghost" aria-label="Retry token list" disabled={listLoading} onClick={() => void load()}>Retry</Btn>
+      </div> : null}
+      {listLoaded && !listLoading && !listError && rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
       {rows.length ? <input className="fs-input" type="search" aria-label="Search automation tokens" placeholder="Search tokens" value={query} onChange={e => { interactionVersion.current++; setQuery(e.target.value); setPage(0); }} /> : null}
       {matching.length ? <div className="fs-row" style={{ gap: 6 }}>
         <Btn variant="ghost" aria-label="Previous token page" disabled={currentPage === 0} onClick={() => { interactionVersion.current++; setPage(currentPage - 1); }}>Previous</Btn>

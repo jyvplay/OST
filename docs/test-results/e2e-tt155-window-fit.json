@@ -1,20 +1,20 @@
 {
   "suite": "e2e-tt155-window-fit",
-  "at": "2026-11-11T16:06:19.921Z",
+  "at": "2026-11-11T17:13:02.315Z",
   "results": [
     {
       "suite": "e2e-tt155-window-fit",
       "name": "an oversized restored terminal fits the desk and its input accepts native pointer and keyboard actions",
       "covers": {},
       "pass": true,
-      "ms": 5831
+      "ms": 5893
     },
     {
       "suite": "e2e-tt155-window-fit",
       "name": "a title action raises an inactive window without starting a drag",
       "covers": {},
       "pass": true,
-      "ms": 2350
+      "ms": 2391
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt133-core",
-  "at": "2026-11-11T16:03:43.003Z",
+  "at": "2026-11-11T17:10:00.503Z",
   "results": [
     {
       "suite": "tt133-core",
@@ -45,7 +45,7 @@
         "NT-11": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 2
     },
     {
       "suite": "tt133-core",
@@ -64,7 +64,7 @@
         "NT-15": "partial"
       },
       "pass": true,
-      "ms": 15
+      "ms": 14
     },
     {
       "suite": "tt133-core",
@@ -73,7 +73,7 @@
         "NT-12": "partial"
       },
       "pass": true,
-      "ms": 8
+      "ms": 9
     },
     {
       "suite": "tt133-core",
@@ -138,7 +138,7 @@
         "SV-02": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt133-core",
@@ -167,7 +167,7 @@
         "NT-10": "partial"
       },
       "pass": true,
-      "ms": 13
+      "ms": 12
     },
     {
       "suite": "tt133-core",
@@ -185,7 +185,7 @@
         "NT-09": "partial"
       },
       "pass": true,
-      "ms": 163
+      "ms": 198
     },
     {
       "suite": "tt133-core",

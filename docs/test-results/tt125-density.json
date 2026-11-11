@@ -1,6 +1,6 @@
 {
   "suite": "tt125-density",
-  "at": "2026-11-11T16:32:11.747Z",
+  "at": "2026-11-11T17:40:02.972Z",
   "results": [
     {
       "suite": "tt125-density",
@@ -9,7 +9,7 @@
         "SP-01": "mechanism"
       },
       "pass": true,
-      "ms": 18
+      "ms": 20
     },
     {
       "suite": "tt125-density",
@@ -29,7 +29,7 @@
         "LN-19": "mechanism"
       },
       "pass": true,
-      "ms": 3843
+      "ms": 4381
     }
   ]
 }

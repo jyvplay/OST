@@ -1,6 +1,6 @@
 {
   "suite": "tt121-core",
-  "at": "2026-11-11T16:03:52.553Z",
+  "at": "2026-11-11T17:10:10.543Z",
   "results": [
     {
       "suite": "tt121-core",
@@ -163,7 +163,7 @@
         "NT-05": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 11
     },
     {
       "suite": "tt121-core",

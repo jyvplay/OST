@@ -1,6 +1,6 @@
 {
   "suite": "a11y-unit",
-  "at": "2026-11-11T16:03:44.739Z",
+  "at": "2026-11-11T17:10:01.838Z",
   "results": [
     {
       "suite": "a11y-unit",
@@ -9,7 +9,7 @@
         "AX-10": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 2
     },
     {
       "suite": "a11y-unit",
@@ -27,7 +27,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 6
+      "ms": 2
     },
     {
       "suite": "a11y-unit",
@@ -36,7 +36,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 49
+      "ms": 38
     },
     {
       "suite": "a11y-unit",
@@ -56,7 +56,7 @@
         "AX-11": "partial"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "a11y-unit",
@@ -74,7 +74,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "a11y-unit",
@@ -84,7 +84,7 @@
         "AX-10": "partial"
       },
       "pass": true,
-      "ms": 20
+      "ms": 23
     },
     {
       "suite": "a11y-unit",
@@ -94,7 +94,7 @@
         "AX-09": "partial"
       },
       "pass": true,
-      "ms": 12
+      "ms": 13
     },
     {
       "suite": "a11y-unit",
@@ -110,7 +110,7 @@
       "name": "chrome glyphs: every UiGlyph name has a drawing, and the tile glyph set did not shrink",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 1
     }
   ]
 }

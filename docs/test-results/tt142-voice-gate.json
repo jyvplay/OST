@@ -1,6 +1,6 @@
 {
   "suite": "tt142-voice-gate",
-  "at": "2026-11-11T16:03:57.681Z",
+  "at": "2026-11-11T17:10:14.987Z",
   "results": [
     {
       "suite": "tt142-voice-gate",
@@ -9,7 +9,7 @@
         "LN-08": "full"
       },
       "pass": true,
-      "ms": 17
+      "ms": 36
     },
     {
       "suite": "tt142-voice-gate",
@@ -27,7 +27,7 @@
         "LN-08": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 28
     },
     {
       "suite": "tt142-voice-gate",

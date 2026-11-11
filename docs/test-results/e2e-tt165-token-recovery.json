@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt165-token-recovery",
+  "at": "2026-11-11T17:10:33.331Z",
+  "results": [
+    {
+      "suite": "e2e-tt165-token-recovery",
+      "name": "search during a pending real mint is not reset when its response arrives",
+      "covers": {},
+      "pass": true,
+      "ms": 2501
+    },
+    {
+      "suite": "e2e-tt165-token-recovery",
+      "name": "failed initial listing is not described as empty and can be retried",
+      "covers": {},
+      "pass": true,
+      "ms": 2827
+    },
+    {
+      "suite": "e2e-tt165-token-recovery",
+      "name": "failed refresh retains secret and marks old list stale until retry",
+      "covers": {},
+      "pass": true,
+      "ms": 2807
+    },
+    {
+      "suite": "e2e-tt165-token-recovery",
+      "name": "older successful listing cannot mask a newer failed refresh",
+      "covers": {},
+      "pass": true,
+      "ms": 3061
+    }
+  ]
+}
