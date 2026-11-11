@@ -1,6 +1,6 @@
 {
   "suite": "tt126-regressions",
-  "at": "2026-11-10T23:15:52.686Z",
+  "at": "2026-11-11T16:04:02.845Z",
   "results": [
     {
       "suite": "tt126-regressions",
@@ -21,28 +21,28 @@
       "name": "service worker: unrelated caches survive and only the canonical successful shell refreshes root",
       "covers": {},
       "pass": true,
-      "ms": 26
+      "ms": 20
     },
     {
       "suite": "tt126-regressions",
       "name": "service worker: cache storage failures do not turn working network assets into 504s",
       "covers": {},
       "pass": true,
-      "ms": 3
+      "ms": 2
     },
     {
       "suite": "tt126-regressions",
       "name": "browser gate rejects a process that prints success then exits nonzero",
       "covers": {},
       "pass": true,
-      "ms": 2808
+      "ms": 2700
     },
     {
       "suite": "tt126-regressions",
       "name": "fast default retains the external oracle and propagates its failure",
       "covers": {},
       "pass": true,
-      "ms": 448
+      "ms": 699
     }
   ]
 }

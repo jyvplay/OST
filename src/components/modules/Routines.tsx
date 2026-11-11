@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
@@ -216,9 +216,24 @@ function AutomationPanel() {
   const [err, setErr] = useState("");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const requestVersion = useRef(0);
+  const interactionVersion = useRef(0);
 
-  const load = useCallback(() => api<{ rows: AutomationToken[] }>("/api/automation/tokens")
-    .then((r) => setRows(r.rows)).catch((e) => setErr(String((e as Error).message))), []);
+  const load = useCallback(async (focusId?: string, focusVersion?: number) => {
+    const version = ++requestVersion.current;
+    try {
+      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens");
+      // An older response must not replace a newer list or its page selection.
+      if (version !== requestVersion.current) return;
+      setRows(result.rows);
+      if (focusId && focusVersion === interactionVersion.current) {
+        const index = result.rows.findIndex((row) => row.id === focusId);
+        if (index >= 0) setPage(Math.floor(index / 8));
+      }
+    } catch (e) {
+      if (version === requestVersion.current) setErr(String((e as Error).message));
+    }
+  }, []);
   useEffect(() => { void load(); }, [load]);
 
   const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
@@ -243,11 +258,11 @@ function AutomationPanel() {
         <Btn variant="primary" disabled={!wanted.length} data-testid="automation-mint" onClick={async () => {
           setErr(""); setFresh(null);
           try {
-            const r = await post<{ token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
             setFresh({ token: r.token, example: r.example });
             setQuery("");
-            setPage(Math.floor(rows.length / pageSize));
-            await load();
+            const focusVersion = ++interactionVersion.current;
+            await load(r.id, focusVersion);
           } catch (e) { setErr(String((e as Error).message)); }
         }}>Create token</Btn>
       </div>
@@ -263,11 +278,11 @@ function AutomationPanel() {
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
       {rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
-      {rows.length ? <input className="fs-input" type="search" aria-label="Search automation tokens" placeholder="Search tokens" value={query} onChange={e => { setQuery(e.target.value); setPage(0); }} /> : null}
+      {rows.length ? <input className="fs-input" type="search" aria-label="Search automation tokens" placeholder="Search tokens" value={query} onChange={e => { interactionVersion.current++; setQuery(e.target.value); setPage(0); }} /> : null}
       {matching.length ? <div className="fs-row" style={{ gap: 6 }}>
-        <Btn variant="ghost" aria-label="Previous token page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</Btn>
+        <Btn variant="ghost" aria-label="Previous token page" disabled={currentPage === 0} onClick={() => { interactionVersion.current++; setPage(currentPage - 1); }}>Previous</Btn>
         <span role="status" className="fs-dim">{currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, matching.length)} of {matching.length}</span>
-        <Btn variant="ghost" aria-label="Next token page" disabled={(currentPage + 1) * pageSize >= matching.length} onClick={() => setPage(currentPage + 1)}>Next</Btn>
+        <Btn variant="ghost" aria-label="Next token page" disabled={(currentPage + 1) * pageSize >= matching.length} onClick={() => { interactionVersion.current++; setPage(currentPage + 1); }}>Next</Btn>
       </div> : rows.length ? <div className="fs-dim">No matching tokens</div> : null}
       <div data-testid="automation-token-list">
       {visible.map((t) => (

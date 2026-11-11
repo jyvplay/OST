@@ -1,27 +1,27 @@
 {
   "suite": "tt160-automation-concurrency",
-  "at": "2026-11-10T23:16:03.420Z",
+  "at": "2026-11-11T16:04:21.468Z",
   "results": [
     {
       "suite": "tt160-automation-concurrency",
       "name": "concurrent requests share one per-token rate budget",
       "covers": {},
       "pass": true,
-      "ms": 491
+      "ms": 415
     },
     {
       "suite": "tt160-automation-concurrency",
       "name": "global queue capacity holds across distinct tokens",
       "covers": {},
       "pass": true,
-      "ms": 417
+      "ms": 445
     },
     {
       "suite": "tt160-automation-concurrency",
       "name": "revocation while admission waits prevents enqueue",
       "covers": {},
       "pass": true,
-      "ms": 29
+      "ms": 83
     }
   ]
 }

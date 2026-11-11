@@ -1,20 +1,20 @@
 {
   "suite": "tt155-window-fit",
-  "at": "2026-11-10T23:15:30.980Z",
+  "at": "2026-11-11T16:03:40.290Z",
   "results": [
     {
       "suite": "tt155-window-fit",
       "name": "restored oversized axes fit the measured desk while fitting partial-offscreen windows are preserved",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 1
     },
     {
       "suite": "tt155-window-fit",
       "name": "shrinking the desk fits only oversized axes, preserving maximize restore",
       "covers": {},
       "pass": true,
-      "ms": 33
+      "ms": 1
     }
   ]
 }

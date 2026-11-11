@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt131-image-viewport",
-  "at": "2026-11-10T23:29:04.905Z",
+  "at": "2026-11-11T16:17:49.452Z",
   "results": [
     {
       "suite": "e2e-tt131-image-viewport",
@@ -10,7 +10,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 103
+      "ms": 157
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -19,7 +19,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 10
+      "ms": 9
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -28,7 +28,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 26
+      "ms": 35
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -56,7 +56,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 136
+      "ms": 192
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -66,7 +66,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 36
+      "ms": 41
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -75,7 +75,7 @@
         "IE-01": "partial"
       },
       "pass": true,
-      "ms": 2801
+      "ms": 2138
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -84,7 +84,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 354
+      "ms": 227
     },
     {
       "suite": "e2e-tt131-image-viewport",
@@ -93,7 +93,7 @@
         "AX-08": "partial"
       },
       "pass": true,
-      "ms": 148
+      "ms": 214
     }
   ]
 }

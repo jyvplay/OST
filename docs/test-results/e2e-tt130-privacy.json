@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt130-privacy",
-  "at": "2026-11-10T23:29:06.919Z",
+  "at": "2026-11-11T16:17:52.272Z",
   "results": [
     {
       "suite": "e2e-tt130-privacy",
@@ -9,7 +9,7 @@
         "SC-11": "partial"
       },
       "pass": true,
-      "ms": 844
+      "ms": 1014
     }
   ]
 }

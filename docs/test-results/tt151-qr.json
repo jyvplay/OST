@@ -1,13 +1,13 @@
 {
   "suite": "tt151-qr",
-  "at": "2026-11-10T23:15:31.864Z",
+  "at": "2026-11-11T16:03:44.268Z",
   "results": [
     {
       "suite": "tt151-qr",
       "name": "QR-01 · every oracle matrix is reproduced byte for byte",
       "covers": {},
       "pass": true,
-      "ms": 36
+      "ms": 29
     },
     {
       "suite": "tt151-qr",
@@ -28,7 +28,7 @@
       "name": "QR-03 · format info carries the BCH code and the dark module, and version info appears only from v7",
       "covers": {},
       "pass": true,
-      "ms": 38
+      "ms": 49
     },
     {
       "suite": "tt151-qr",
@@ -42,7 +42,7 @@
       "name": "QR-05 · SVG keeps the four-module quiet zone, and zxing-cpp reads the symbols back",
       "covers": {},
       "pass": true,
-      "ms": 675
+      "ms": 3579
     }
   ]
 }

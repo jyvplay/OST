@@ -1,62 +1,62 @@
 {
   "suite": "tt134-review-repairs",
-  "at": "2026-11-10T23:24:03.096Z",
+  "at": "2026-11-11T16:12:39.174Z",
   "results": [
     {
       "suite": "tt134-review-repairs",
       "name": "wide Browser: actual GitHub framing denial is not confused with network uncertainty",
       "covers": {},
       "pass": true,
-      "ms": 4470
+      "ms": 4565
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Browser: actual DNS failure is not confused with a measured framing policy",
       "covers": {},
       "pass": true,
-      "ms": 3094
+      "ms": 3281
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
       "covers": {},
       "pass": true,
-      "ms": 5967
+      "ms": 5514
     },
     {
       "suite": "tt134-review-repairs",
       "name": "wide Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
       "covers": {},
       "pass": true,
-      "ms": 3824
+      "ms": 3453
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Browser: actual GitHub framing denial is not confused with network uncertainty",
       "covers": {},
       "pass": true,
-      "ms": 2649
+      "ms": 2346
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Browser: actual DNS failure is not confused with a measured framing policy",
       "covers": {},
       "pass": true,
-      "ms": 2557
+      "ms": 2541
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Spec: all register rows remain; native mouse/keyboard disclosure retains every real question, status, pass criterion, fallback and result",
       "covers": {},
       "pass": true,
-      "ms": 5057
+      "ms": 5444
     },
     {
       "suite": "tt134-review-repairs",
       "name": "compact Beam: concise labels retain the file control, real capability distinctions and every blocked transport explanation",
       "covers": {},
       "pass": true,
-      "ms": 2727
+      "ms": 2881
     }
   ]
 }

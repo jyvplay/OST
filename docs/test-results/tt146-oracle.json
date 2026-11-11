@@ -1,6 +1,6 @@
 {
   "suite": "tt146-oracle",
-  "at": "2026-11-10T23:15:49.006Z",
+  "at": "2026-11-11T16:03:59.016Z",
   "results": [
     {
       "suite": "tt146-oracle",
@@ -9,7 +9,7 @@
         "LN-05": "full"
       },
       "pass": true,
-      "ms": 260
+      "ms": 209
     },
     {
       "suite": "tt146-oracle",
@@ -18,7 +18,7 @@
         "LN-05": "partial"
       },
       "pass": true,
-      "ms": 50
+      "ms": 22
     },
     {
       "suite": "tt146-oracle",
@@ -27,7 +27,7 @@
         "LN-06": "full"
       },
       "pass": true,
-      "ms": 34
+      "ms": 20
     }
   ]
 }

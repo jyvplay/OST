@@ -1,6 +1,6 @@
 {
   "suite": "tt139-formulas",
-  "at": "2026-11-10T23:15:45.180Z",
+  "at": "2026-11-11T16:03:54.884Z",
   "results": [
     {
       "suite": "tt139-formulas",
@@ -189,7 +189,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt139-formulas",
@@ -207,7 +207,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt139-formulas",
@@ -216,7 +216,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt139-formulas",
@@ -225,7 +225,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-formulas",
@@ -243,7 +243,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 2
     },
     {
       "suite": "tt139-formulas",
@@ -261,7 +261,7 @@
         "FF-20": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-formulas",
@@ -288,7 +288,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 4
     },
     {
       "suite": "tt139-formulas",
@@ -342,7 +342,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 3
     },
     {
       "suite": "tt139-formulas",
@@ -389,7 +389,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     }
   ]
 }

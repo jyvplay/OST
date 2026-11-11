@@ -1,6 +1,6 @@
 {
   "suite": "tt147-core",
-  "at": "2026-11-10T23:15:48.833Z",
+  "at": "2026-11-11T16:03:59.165Z",
   "results": [
     {
       "suite": "tt147-core",
@@ -9,7 +9,7 @@
         "ST-02": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -23,7 +23,7 @@
       "name": "ST-02 search: label beats keyword, every returned entry is usable, and a miss returns nothing",
       "covers": {},
       "pass": true,
-      "ms": 7
+      "ms": 3
     },
     {
       "suite": "tt147-core",
@@ -32,7 +32,7 @@
         "HW-04": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt147-core",
@@ -80,7 +80,7 @@
         "PR-07o": "full"
       },
       "pass": true,
-      "ms": 5
+      "ms": 25
     }
   ]
 }

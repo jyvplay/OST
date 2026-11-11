@@ -1,6 +1,6 @@
 {
   "suite": "tt146-core",
-  "at": "2026-11-10T23:15:48.530Z",
+  "at": "2026-11-11T16:03:58.526Z",
   "results": [
     {
       "suite": "tt146-core",
@@ -54,7 +54,7 @@
         "HW-03": "full"
       },
       "pass": true,
-      "ms": 60
+      "ms": 61
     },
     {
       "suite": "tt146-core",
@@ -81,7 +81,7 @@
         "HW-10": "full"
       },
       "pass": true,
-      "ms": 3
+      "ms": 4
     },
     {
       "suite": "tt146-core",
@@ -108,7 +108,7 @@
         "PR-06": "full"
       },
       "pass": true,
-      "ms": 10
+      "ms": 2
     },
     {
       "suite": "tt146-core",
@@ -126,7 +126,7 @@
         "AU-03": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 3
     },
     {
       "suite": "tt146-core",
@@ -162,7 +162,7 @@
         "LN-05": "full"
       },
       "pass": true,
-      "ms": 7
+      "ms": 6
     },
     {
       "suite": "tt146-core",
@@ -171,7 +171,7 @@
         "LN-06": "full"
       },
       "pass": true,
-      "ms": 25
+      "ms": 22
     },
     {
       "suite": "tt146-core",
@@ -180,7 +180,7 @@
         "FM-14": "full"
       },
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt146-core",
@@ -198,7 +198,7 @@
         "CT-03": "full"
       },
       "pass": true,
-      "ms": 2
+      "ms": 4
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "suite": "tt132-core",
-  "at": "2026-11-10T23:15:33.370Z",
+  "at": "2026-11-11T16:03:43.617Z",
   "results": [
     {
       "suite": "tt132-core",
@@ -72,7 +72,7 @@
         "CK-01": "partial"
       },
       "pass": true,
-      "ms": 17
+      "ms": 13
     },
     {
       "suite": "tt132-core",

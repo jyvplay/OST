@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  * way to be able to show it again is to keep it.
  */
 export async function GET() {
-  const rows = await db.select().from(automationTokens).orderBy(asc(automationTokens.createdAt));
+  const rows = await db.select().from(automationTokens).orderBy(asc(automationTokens.createdAt), asc(automationTokens.id));
   return NextResponse.json({
     ok: true,
     scopes: SCOPES,
