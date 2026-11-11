@@ -1,13 +1,13 @@
 {
   "suite": "tt151-time",
-  "at": "2026-11-11T17:09:58.526Z",
+  "at": "2026-11-11T21:37:21.018Z",
   "results": [
     {
       "suite": "tt151-time",
       "name": "CR-01 · the grammar accepts the standard five fields and refuses everything ambiguous",
       "covers": {},
       "pass": true,
-      "ms": 6
+      "ms": 4
     },
     {
       "suite": "tt151-time",
@@ -21,28 +21,28 @@
       "name": "CR-01 · leading stars intersect day fields and a viable weekday rescues an impossible month day",
       "covers": {},
       "pass": true,
-      "ms": 36
+      "ms": 14
     },
     {
       "suite": "tt151-time",
       "name": "CR-02 · next-occurrence search equals a minute-by-minute scan in UTC",
       "covers": {},
       "pass": true,
-      "ms": 50
+      "ms": 21
     },
     {
       "suite": "tt151-time",
       "name": "CR-02 · UTC dense schedules retain strict cursor and midnight boundaries",
       "covers": {},
       "pass": true,
-      "ms": 9
+      "ms": 11
     },
     {
       "suite": "tt151-time",
       "name": "CR-03 · a wall time the zone skipped is reported, not invented, and an overlap fires once",
       "covers": {},
       "pass": true,
-      "ms": 2
+      "ms": 1
     },
     {
       "suite": "tt151-time",
@@ -63,7 +63,7 @@
       "name": "OT-02 · SHA-1 and HMAC-SHA1 match FIPS 180-4 and RFC 2202",
       "covers": {},
       "pass": true,
-      "ms": 46
+      "ms": 43
     },
     {
       "suite": "tt151-time",
@@ -77,7 +77,7 @@
       "name": "OT-04 · verification honours the drift window, refuses malformed codes, and the URI round-trips",
       "covers": {},
       "pass": true,
-      "ms": 5
+      "ms": 3
     }
   ]
 }

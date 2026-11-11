@@ -1,6 +1,6 @@
 {
   "suite": "tt142-share-gate",
-  "at": "2026-11-11T17:10:15.614Z",
+  "at": "2026-11-11T21:37:36.720Z",
   "results": [
     {
       "suite": "tt142-share-gate",
@@ -72,7 +72,7 @@
         "CT-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt142-share-gate",

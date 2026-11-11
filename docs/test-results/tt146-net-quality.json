@@ -1,13 +1,13 @@
 {
   "suite": "tt146-net-quality",
-  "at": "2026-11-11T17:10:16.326Z",
+  "at": "2026-11-11T21:37:37.706Z",
   "results": [
     {
       "suite": "tt146-net-quality",
       "name": "facts: absent API is reported as absent; hostile values are clamped, never trusted",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt146-net-quality",
@@ -21,7 +21,7 @@
       "name": "estimator: confidence follows the evidence, not the speed",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt146-net-quality",
@@ -42,14 +42,14 @@
       "name": "ceiling: a governor cap is respected for every surface and every source",
       "covers": {},
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt146-net-quality",
       "name": "fuzz: 20 000 random inputs never leave the ladder, never invert it, never pick a value off the rung",
       "covers": {},
       "pass": true,
-      "ms": 54
+      "ms": 45
     },
     {
       "suite": "tt146-net-quality",

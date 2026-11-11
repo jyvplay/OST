@@ -213,6 +213,10 @@ function AutomationPanel() {
   const [name, setName] = useState("Shortcut");
   const [scopes, setScopes] = useState<{ run: boolean; read: boolean }>({ run: true, read: true });
   const [fresh, setFresh] = useState<{ token: string; example: string } | null>(null);
+  const [minting, setMinting] = useState(false);
+  // Synchronous guard: two activations can arrive before React renders disabled.
+  // A successful mint stays locked until the user dismisses its one-time secret.
+  const mintLock = useRef(false);
   const [err, setErr] = useState("");
   const [listError, setListError] = useState("");
   const [listLoaded, setListLoaded] = useState(false);
@@ -265,15 +269,21 @@ function AutomationPanel() {
         <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
           <input type="checkbox" checked={scopes.read} onChange={(e) => setScopes({ ...scopes, read: e.target.checked })} /> read
         </label>
-        <Btn variant="primary" disabled={!wanted.length} data-testid="automation-mint" onClick={async () => {
-          setErr(""); setFresh(null);
+        <Btn variant="primary" disabled={!wanted.length || minting || Boolean(fresh)} data-testid="automation-mint" onClick={async () => {
+          if (mintLock.current) return;
+          mintLock.current = true; setMinting(true); setErr("");
+          let created = false;
           const focusVersion = interactionVersion.current;
           try {
             const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            created = true;
             setFresh({ token: r.token, example: r.example });
             if (focusVersion === interactionVersion.current) setQuery("");
             await load(r.id, focusVersion);
-          } catch (e) { setErr(String((e as Error).message)); }
+          } catch (e) {
+            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${String((e as Error).message)}`);
+            await load();
+          } finally { if (!created) mintLock.current = false; setMinting(false); }
         }}>Create token</Btn>
       </div>
       {fresh ? (
@@ -282,7 +292,8 @@ function AutomationPanel() {
           <code className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="automation-token">{fresh.token}</code>
           <div className="fs-row" style={{ gap: 6 }}>
             <Btn variant="ghost" onClick={() => shell.copy(fresh.token, "Routines", true)}>Copy token</Btn>
-            <Btn variant="ghost" onClick={() => shell.copy(fresh.example, "Routines", false)}>Copy curl example</Btn>
+            <Btn variant="ghost" onClick={() => shell.copy(fresh.example, "Routines", true)}>Copy curl example</Btn>
+            <Btn variant="ghost" onClick={() => { setFresh(null); mintLock.current = false; }}>Done with token</Btn>
           </div>
         </div>
       ) : null}

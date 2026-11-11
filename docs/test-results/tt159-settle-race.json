@@ -1,20 +1,20 @@
 {
   "suite": "tt159-settle-race",
-  "at": "2026-11-11T17:10:55.162Z",
+  "at": "2026-11-11T21:38:28.966Z",
   "results": [
     {
       "suite": "tt159-settle-race",
       "name": "concurrent conflicting settlements preserve a single terminal result and audit",
       "covers": {},
       "pass": true,
-      "ms": 129
+      "ms": 126
     },
     {
       "suite": "tt159-settle-race",
       "name": "audit write failure rolls back the terminal status",
       "covers": {},
       "pass": true,
-      "ms": 49
+      "ms": 27
     }
   ]
 }

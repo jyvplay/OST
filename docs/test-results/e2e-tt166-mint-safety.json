@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt166-mint-safety",
+  "at": "2026-11-11T21:37:54.946Z",
+  "results": [
+    {
+      "suite": "e2e-tt166-mint-safety",
+      "name": "rapid mint attempts cannot overwrite an unread one-time secret",
+      "covers": {},
+      "pass": true,
+      "ms": 4249
+    },
+    {
+      "suite": "e2e-tt166-mint-safety",
+      "name": "failed mint permits an explicit retry without displaying a secret",
+      "covers": {},
+      "pass": true,
+      "ms": 2429
+    },
+    {
+      "suite": "e2e-tt166-mint-safety",
+      "name": "lost mint response warns and refreshes the committed token row",
+      "covers": {},
+      "pass": true,
+      "ms": 2305
+    },
+    {
+      "suite": "e2e-tt166-mint-safety",
+      "name": "curl example and token copies are both masked in clipboard history",
+      "covers": {},
+      "pass": true,
+      "ms": 2939
+    }
+  ]
+}
