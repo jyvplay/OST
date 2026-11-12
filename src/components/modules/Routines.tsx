@@ -218,6 +218,9 @@ function AutomationPanel() {
   // A successful mint stays locked until the user dismisses its one-time secret.
   const mintLock = useRef(false);
   const [err, setErr] = useState("");
+  const [revokeErrors, setRevokeErrors] = useState<Record<string, string>>({});
+  const [revoking, setRevoking] = useState<string[]>([]);
+  const revokeLocks = useRef(new Set<string>());
   const [listError, setListError] = useState("");
   const [listLoaded, setListLoaded] = useState(false);
   const [listLoading, setListLoading] = useState(true);
@@ -298,6 +301,10 @@ function AutomationPanel() {
         </div>
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
+      {Object.entries(revokeErrors).map(([id, message]) => <div key={id} role="alert" data-testid={`automation-revoke-error-${id}`} className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <span>{message}</span>
+        <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>
+      </div>)}
       {listError ? <div role="alert" data-testid="automation-list-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <span>{listLoaded ? "Token list may be out of date." : "Token list unavailable."} {listError}</span>
         <Btn variant="ghost" aria-label="Retry token list" disabled={listLoading} onClick={() => void load()}>Retry</Btn>
@@ -317,7 +324,22 @@ function AutomationPanel() {
           </span>
           <Badge tone={t.revoked ? "bad" : "ok"}>{t.revoked ? "revoked" : "live"}</Badge>
           {t.revoked ? null : (
-            <Btn variant="ghost" onClick={async () => { await fetch(`/api/automation/tokens?id=${t.id}`, { method: "DELETE" }); await load(); }}>Revoke</Btn>
+            <Btn variant="ghost" disabled={revoking.includes(t.id)} onClick={async () => {
+              if (revokeLocks.current.has(t.id)) return;
+              revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
+              setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
+              try {
+                const response = await fetch(`/api/automation/tokens?id=${encodeURIComponent(t.id)}`, { method: "DELETE" });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const result = await response.json() as { ok?: boolean };
+                if (result.ok !== true) throw new Error("invalid revocation response");
+              } catch {
+                setRevokeErrors(previous => ({ ...previous, [t.id]: `Revocation not confirmed for token ${t.id}. Check its current status before retrying.` }));
+              } finally {
+                await load();
+                revokeLocks.current.delete(t.id); setRevoking(previous => previous.filter(id => id !== t.id));
+              }
+            }}>Revoke</Btn>
           )}
         </div>
       ))}
