@@ -1,0 +1,41 @@
+{
+  "suite": "e2e-tt169-storage-recovery",
+  "at": "2026-11-12T21:39:24.255Z",
+  "results": [
+    {
+      "suite": "e2e-tt169-storage-recovery",
+      "name": "initial HTTP failure is unavailable, then retry loads the real overview",
+      "covers": {},
+      "pass": true,
+      "ms": 2790
+    },
+    {
+      "suite": "e2e-tt169-storage-recovery",
+      "name": "failed refresh marks retained data stale until successful retry",
+      "covers": {},
+      "pass": true,
+      "ms": 2801
+    },
+    {
+      "suite": "e2e-tt169-storage-recovery",
+      "name": "a late older failure cannot replace a newer successful refresh",
+      "covers": {},
+      "pass": true,
+      "ms": 3406
+    },
+    {
+      "suite": "e2e-tt169-storage-recovery",
+      "name": "HTTP 500 with a success-shaped real body is still rejected",
+      "covers": {},
+      "pass": true,
+      "ms": 1503
+    },
+    {
+      "suite": "e2e-tt169-storage-recovery",
+      "name": "malformed success response is not represented as an empty overview",
+      "covers": {},
+      "pass": true,
+      "ms": 1577
+    }
+  ]
+}
