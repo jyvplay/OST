@@ -1,0 +1,52 @@
+{
+  "suite": "e2e-tt146",
+  "at": "2026-11-12T17:00:53.536Z",
+  "results": [
+    {
+      "suite": "e2e-tt146",
+      "name": "HW-03/HW-10 the runtime pane reports what this engine really does",
+      "covers": {
+        "HW-03": "full",
+        "HW-10": "full"
+      },
+      "pass": true,
+      "ms": 2545
+    },
+    {
+      "suite": "e2e-tt146",
+      "name": "HW-09 one probe re-plans every open surface: the painted gallery widens with the tier",
+      "covers": {
+        "HW-09": "full"
+      },
+      "pass": true,
+      "ms": 5998
+    },
+    {
+      "suite": "e2e-tt146",
+      "name": "PR-06 the mail composer builds a link this browser accepts, and says what it cannot do",
+      "covers": {
+        "PR-06": "full"
+      },
+      "pass": true,
+      "ms": 3352
+    },
+    {
+      "suite": "e2e-tt146",
+      "name": "AU-03 the automation panel mints a token once and never shows it again",
+      "covers": {
+        "AU-03": "full"
+      },
+      "pass": true,
+      "ms": 6273
+    },
+    {
+      "suite": "e2e-tt146",
+      "name": "CT-03 a link made here opens the same desktop there, and a tampered one is refused",
+      "covers": {
+        "CT-03": "full"
+      },
+      "pass": true,
+      "ms": 8433
+    }
+  ]
+}

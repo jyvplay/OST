@@ -1,0 +1,83 @@
+{
+  "suite": "tt151-time",
+  "at": "2026-11-12T16:33:50.380Z",
+  "results": [
+    {
+      "suite": "tt151-time",
+      "name": "CR-01 · the grammar accepts the standard five fields and refuses everything ambiguous",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-01 · day matching follows the Vixie rule: two restricted day fields are ORed",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-01 · leading stars intersect day fields and a viable weekday rescues an impossible month day",
+      "covers": {},
+      "pass": true,
+      "ms": 16
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-02 · next-occurrence search equals a minute-by-minute scan in UTC",
+      "covers": {},
+      "pass": true,
+      "ms": 20
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-02 · UTC dense schedules retain strict cursor and midnight boundaries",
+      "covers": {},
+      "pass": true,
+      "ms": 8
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-03 · a wall time the zone skipped is reported, not invented, and an overlap fires once",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-time",
+      "name": "CR-04 · the human description is derived from the parsed fields, never from the source text",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-time",
+      "name": "OT-01 · base32 is RFC 4648 and rejects anything that is not exactly that",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-time",
+      "name": "OT-02 · SHA-1 and HMAC-SHA1 match FIPS 180-4 and RFC 2202",
+      "covers": {},
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "tt151-time",
+      "name": "OT-03 · HOTP and TOTP reproduce the RFC 4226 and RFC 6238 vectors",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt151-time",
+      "name": "OT-04 · verification honours the drift window, refuses malformed codes, and the URI round-trips",
+      "covers": {},
+      "pass": true,
+      "ms": 3
+    }
+  ]
+}

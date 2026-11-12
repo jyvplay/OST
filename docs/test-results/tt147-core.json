@@ -1,0 +1,86 @@
+{
+  "suite": "tt147-core",
+  "at": "2026-11-12T16:34:06.946Z",
+  "results": [
+    {
+      "suite": "tt147-core",
+      "name": "ST-02 settings index: every URI is well-formed, platform-scoped, and never guessed",
+      "covers": {
+        "ST-02": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt147-core",
+      "name": "ST-02 platform detection: an iPad is iOS, an Android phone is not Linux",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt147-core",
+      "name": "ST-02 search: label beats keyword, every returned entry is usable, and a miss returns nothing",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt147-core",
+      "name": "HW-04 an adapter that names SwiftShader is reported as software, not as a GPU",
+      "covers": {
+        "HW-04": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt147-core",
+      "name": "HW-04 WebNN: an NPU is claimed only when a context was really created",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt147-core",
+      "name": "HW-07 inventory: granted is not the device list, and a refusal is not an absence",
+      "covers": {
+        "HW-07": "full"
+      },
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt147-core",
+      "name": "HW-07 requests: a filterless request is refused before it can ask for a keyboard",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt147-core",
+      "name": "WM-16 confinement state machine: no API, no gesture, pending, and a raw-input refusal",
+      "covers": {
+        "WM-16": "full"
+      },
+      "pass": true,
+      "ms": 1
+    },
+    {
+      "suite": "tt147-core",
+      "name": "HW-07 browserInventory works on this Node engine: every bus is absent and says so",
+      "covers": {},
+      "pass": true,
+      "ms": 0
+    },
+    {
+      "suite": "tt147-core",
+      "name": "PR-07o profiles: one jar per profile, one jar per anonymous tab, and names that cannot escape",
+      "covers": {
+        "PR-07o": "full"
+      },
+      "pass": true,
+      "ms": 10
+    }
+  ]
+}

@@ -13,7 +13,7 @@ import { cleanUrl } from "@/lib/url-clean";
 import NetworkRoute, { useRoute } from "./NetworkRoute";
 import {
   PERMISSION_FEATURES, activate, allowAttribute, batchClose, closeTab, createGroup, hostOf, makeTab, normalizeSession, removeGroup,
-  safeBrowserUrl, setGroup, sleepInactive, sleepTab, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
+  profileSessionKeys, safeBrowserUrl, setGroup, sleepInactive, sleepTab, toggleCollapse, togglePin, visibleTabs, type Session, type Tab,
 } from "@/lib/browserSession";
 
 /** Mechanism B4: out-of-process render, shown as a static image (no interaction — declared limit). */
@@ -79,7 +79,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
   const [proxyAll, setProxyAll] = useState(Boolean(saved.proxyAll));
   const [proxySessions] = useState(() => new Map<string, string>());
   // a session lives while some tab uses its key: the tab id, or "p:<profile>" for tabs sharing a named profile
-  const sessionKeys = tabs.map((t) => (t.profile ? `p:${t.profile}` : t.id)).join(",");
+  const sessionKeys = profileSessionKeys(tabs).join(",");
   const profileNames = [...new Set(tabs.map((t) => t.profile ?? "").filter(Boolean))];
   useEffect(() => {
     const live = new Set(sessionKeys.split(","));

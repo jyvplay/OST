@@ -1514,7 +1514,7 @@ export default function SpreadsheetModule({ win }: ModuleProps) {
           ))}
         </div>
       ) : null}
-      <div ref={gridRef} tabIndex={0} data-testid="sheet-grid" className="fs-scroll" style={{ flex: 1, minHeight: 0, outline: "none", position: "relative", userSelect: "none" }}
+      <div ref={gridRef} tabIndex={0} data-testid="sheet-grid" data-recovery-checked={recovery.checked ? "true" : "false"} className="fs-scroll" style={{ flex: 1, minHeight: 0, outline: "none", position: "relative", userSelect: "none" }}
         onKeyDown={gridKeys} onCopy={(e) => onCopy(e)} onCut={(e) => onCopy(e, true)} onPaste={onPaste}
         onScroll={(e) => { const t = (e.target as HTMLDivElement).scrollTop; if (Math.abs(t - scroll.top) > ROW_H) setScroll((s) => ({ ...s, top: t })); }}>
         <table style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: fz(11.5), tableLayout: "fixed", width: totalW }}>

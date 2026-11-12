@@ -1,6 +1,6 @@
 {
   "suite": "tt139-formulas",
-  "at": "2026-11-07T02:24:05.873Z",
+  "at": "2026-11-12T16:34:03.633Z",
   "results": [
     {
       "suite": "tt139-formulas",
@@ -54,7 +54,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 8
+      "ms": 7
     },
     {
       "suite": "tt139-formulas",
@@ -189,7 +189,7 @@
         "FF-19": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-formulas",
@@ -360,7 +360,7 @@
         "FF-21": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-formulas",

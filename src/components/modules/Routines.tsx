@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
@@ -11,6 +11,7 @@ import { filterRoutines } from "@/lib/routine-filter";
 import { duplicateName } from "@/lib/routine-dup";
 import { askText } from "@/lib/ask";
 import { parseAutomationRequest, dryRun, issueToken, redeemToken } from "@/lib/automation-entry";
+import { validateRoutineTrigger } from "@/lib/routine-trigger";
 import { RoutineGuardPanel } from "../tt145-panels";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
@@ -33,6 +34,7 @@ export default function RoutinesModule(_: ModuleProps) {
   const [dry, setDry] = useState<string[] | null>(null);
   const [reqText, setReqText] = useState('{ "routineId": "morning", "args": {} }');
   const [reqOut, setReqOut] = useState<string[]>([]);
+  const [tokenRoutineId, setTokenRoutineId] = useState("");
   const [token, setToken] = useState<{ value: string; routineId: string; expiresAt: number; used: boolean } | null>(null);
   const [err, setErr] = useState("");
 
@@ -45,6 +47,9 @@ export default function RoutinesModule(_: ModuleProps) {
   let parsed: RoutineAction[] = [];
   let parseErr = "";
   try { parsed = parseScript(script); } catch (e) { parseErr = String((e as Error).message); }
+
+  let triggerErr = "";
+  try { validateRoutineTrigger(trigger, arg); } catch (e) { triggerErr = (e as Error).message; }
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
@@ -71,8 +76,8 @@ export default function RoutinesModule(_: ModuleProps) {
       </Section>
 
       <Section title="New routine (AU-01)">
-        <input className="fs-input" value={name} onChange={(e) => setName(e.target.value)} aria-label="Routine name" />
-        <textarea className="fs-textarea" rows={6} value={script} onChange={(e) => setScript(e.target.value)} aria-label="Routine script" />
+        <input className="fs-input" value={name} onChange={(e) => setName(e.target.value)} aria-label="Routine name" data-testid="routine-name" />
+        <textarea className="fs-textarea" rows={6} value={script} onChange={(e) => setScript(e.target.value)} aria-label="Routine script" data-testid="routine-script" />
         <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>commands: {ROUTINE_COMMANDS.join(" · ")} — one per line or separated by “;”</div>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <select className="fs-select" aria-label="Routine trigger" style={{ width: fz(180) }} value={trigger} onChange={(e) => setTrigger(e.target.value)}>
@@ -82,10 +87,10 @@ export default function RoutinesModule(_: ModuleProps) {
             <option value="display-connected">when a display is connected</option>
           </select>
           {trigger === "interval" || trigger === "time-of-day" ? (
-            <input className="fs-input" style={{ width: fz(110) }} placeholder={trigger === "interval" ? "minutes" : "08:30"} value={arg} onChange={(e) => setArg(e.target.value)} />
+            <input className="fs-input" style={{ width: fz(110) }} placeholder={trigger === "interval" ? "minutes" : "08:30"} aria-label={trigger === "interval" ? "Interval in minutes" : "Time of day"} value={arg} onChange={(e) => setArg(e.target.value)} />
           ) : null}
-          <Btn variant="ghost" disabled={Boolean(parseErr)} onClick={() => setDry(parsed.map((a, i) => `${i + 1}. ${a.cmd}${a.arg ? ` ${a.arg}` : ""}`))}>Dry run</Btn>
-          <Btn variant="primary" disabled={Boolean(parseErr)} onClick={async () => {
+          <Btn variant="ghost" data-testid="routine-preview" disabled={Boolean(parseErr)} onClick={() => setDry(parsed.map((a, i) => `${i + 1}. ${a.cmd}${a.arg ? ` ${a.arg}` : ""}`))}>Preview</Btn>
+          <Btn variant="primary" data-testid="routine-save" disabled={Boolean(parseErr || triggerErr)} onClick={async () => {
             setErr("");
             try {
               await post("/api/routines", { name, trigger, triggerArg: arg, actions: parsed });
@@ -93,15 +98,16 @@ export default function RoutinesModule(_: ModuleProps) {
             } catch (e) { setErr(String((e as Error).message)); }
           }}>Save routine</Btn>
         </div>
+        {triggerErr ? <div role="alert">{triggerErr}</div> : null}
         {parseErr ? <Badge tone="bad">{parseErr}</Badge> : <Badge tone="ok">{parsed.length} valid actions</Badge>}
         {err ? <Badge tone="bad">{err}</Badge> : null}
-        {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }}>{`Dry run — nothing executed:\n${dry.join("\n")}`}</pre> : null}
+        {dry ? <pre className="fs-mono" style={{ fontSize: fz(11.5), margin: 0 }} data-testid="routine-preview-text">{`Preview — nothing executed yet:\n${dry.join("\n")}`}</pre> : null}
       </Section>
 
       <RoutineGuardPanel />
 
       <Section title="Automation entry (AU-03)" icon="keycap">
-        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>A request names a routine and typed arguments — never a step list. It is planned first, and only a planned request may run.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner only: it does not run requests or authenticate their origin. Server automation tokens are managed below.</div>
         <textarea className="fs-input fs-mono" rows={3} value={reqText} aria-label="Automation request JSON" data-testid="routines-request" onChange={(e) => setReqText(e.target.value)} style={{ resize: "vertical", fontSize: fz(11) }} />
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" data-testid="routines-validate" onClick={() => {
@@ -117,16 +123,23 @@ export default function RoutinesModule(_: ModuleProps) {
               schema[cmd] = { args: ["arg"], mutates: true, required: needsArg ? ["arg"] : [] };
             }
             const plan = dryRun({ id: target.name, name: target.name, trigger: "manual", enabled: target.enabled, actions: target.actions.map((a) => ({ command: a.cmd, args: a.arg ? { arg: a.arg } : {} })) }, schema);
-            const tokenCheck = parsedReq.request.origin && parsedReq.request.origin !== location.origin ? redeemToken(token ?? undefined, parsedReq.request.routineId, Date.now()) : { ok: true, error: null };
+            // A failed plan must not consume the local token. The pasted origin
+            // is user-controlled, so this check is never server authorization.
+            const tokenCheck = plan.executable && parsedReq.request.origin && parsedReq.request.origin !== location.origin ? redeemToken(token ?? undefined, parsedReq.request.token, String(target.id), Date.now()) : { ok: true, error: null };
+            if (token?.used) setToken({ ...token });
             setReqOut([
-              plan.executable && tokenCheck.ok ? `executable: ${plan.steps.length} step(s)` : `refused: ${[...plan.problems, tokenCheck.error ?? ""].filter(Boolean).join("; ")}`,
+              plan.executable && tokenCheck.ok ? `executable: ${plan.steps.length} step(s) (local plan only; nothing ran)` : `refused: ${[...plan.problems, tokenCheck.error ?? ""].filter(Boolean).join("; ")}`,
               ...plan.steps.map((st) => `${st.index + 1}. ${st.describe}${st.wouldChange.length ? " · writes" : ""}`),
             ]);
           }}>Plan</Btn>
           <Btn variant="ghost" disabled={!token} onClick={() => setToken(null)}>Clear token</Btn>
-          <Btn variant="ghost" disabled={!rows.length} data-testid="routines-token" onClick={() => { const first = rows[0]; const t = issueToken(first.name, Date.now(), 60_000); setToken(t); setReqOut([`token issued for “${first.name}”, valid one minute, single use`]); }}>Issue token</Btn>
+          <select className="fs-select" aria-label="Planner token routine" value={tokenRoutineId} onChange={e => setTokenRoutineId(e.target.value)}>
+            <option value="">Choose a routine</option>
+            {rows.map(r => <option key={r.id} value={String(r.id)}>{r.name} (id {r.id})</option>)}
+          </select>
+          <Btn variant="ghost" disabled={!rows.some(r => String(r.id) === tokenRoutineId)} data-testid="routines-token" onClick={() => { const selected = rows.find(r => String(r.id) === tokenRoutineId); if (!selected) return; const t = issueToken(String(selected.id), Date.now(), 60_000); setToken(t); setReqOut([`local planner token for “${selected.name}” (id ${selected.id}), valid one minute, single use`]); }}>Issue token</Btn>
         </div>
-        {token ? <div className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="routines-token-value">{token.value.slice(0, 8)}… · expires {new Date(token.expiresAt).toLocaleTimeString()}</div> : null}
+        {token ? <div className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="routines-token-value">{token.value} · {token.used ? "used" : "unused"} · expires {new Date(token.expiresAt).toLocaleTimeString()}</div> : null}
         {reqOut.map((line, i) => <div key={i} className={i === 0 ? "fs-mono" : "fs-dim"} style={{ fontSize: fz(11) }}>{line}</div>)}
       </Section>
 
@@ -156,6 +169,7 @@ export default function RoutinesModule(_: ModuleProps) {
           <div key={r.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
             <span style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: fz(12) }}>{r.name}</div>
+              {(() => { try { validateRoutineTrigger(r.trigger, r.triggerArg); return null; } catch { return <div role="status">Invalid trigger — automatic execution paused. Recreate this routine with a valid trigger.</div>; } })()}
               <div className="fs-dim fs-mono" style={{ fontSize: fz(10.5) }}>
                 {r.trigger}{r.triggerArg ? ` ${r.triggerArg}` : ""} · {r.actions.map((a) => a.cmd).join(" → ")}
                 {r.lastRun ? ` · last ${fmtTime(r.lastRun)}` : ""}
@@ -164,14 +178,172 @@ export default function RoutinesModule(_: ModuleProps) {
             <Badge tone={r.enabled ? "ok" : "default"}>{r.enabled ? "enabled" : "off"}</Badge>
             <Btn variant="ghost" onClick={async () => { await post("/api/routines", { name: duplicateName(r.name, rows.map((x) => x.name)), trigger: r.trigger, triggerArg: r.triggerArg ?? "", actions: r.actions }); await load(); }} data-testid="routine-dup">Duplicate</Btn>
             <Btn variant="ghost" onClick={async () => { await patch("/api/routines", { id: r.id, enabled: !r.enabled }); await load(); }}>{r.enabled ? "Disable" : "Enable"}</Btn>
-            <Btn variant="primary" onClick={async () => { await shell.runActions(r.actions); await post("/api/routines", { ranId: r.id }); await load(); }}>Run</Btn>
+            <Btn variant="ghost" data-testid="routine-rehearse" title="Rehearse: record the intent in the audit log and execute nothing"
+              onClick={async () => {
+                // AU-01: the rehearsal goes through the same server path as a run
+                // and is audited as routine.dryrun, so a person can tell later
+                // which of the two happened — the executor is simply not called.
+                await post("/api/routines", { ranId: r.id, dry: true });
+                shell.toast(`Rehearsed "${r.name}": ${r.actions.map((a) => a.cmd).join(", ")} — nothing was executed.`, "info");
+                await load();
+              }}>Rehearse</Btn>
+            <Btn variant="primary" data-testid="routine-run" onClick={async () => { await shell.runActions(r.actions); await post("/api/routines", { ranId: r.id }); await load(); }}>Run</Btn>
             <Btn variant="ghost" onClick={async () => { await fetch(`/api/routines?id=${r.id}`, { method: "DELETE" }); await load(); }}>✕</Btn>
           </div>
         ))}
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Automatic triggers are evaluated by the shell while it is open. Every run is written to the audit log (Monitor).
+          Triggers run while the shell is open; every run is written to the audit log (Monitor).
         </div>
       </Section>
+
+      <AutomationPanel />
     </div>
+  );
+}
+
+interface AutomationToken { id: string; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revoked: boolean }
+
+/**
+ * AU-03 external entry points. The token is shown once; the panel never offers
+ * to show it again because the server cannot — it stores only a hash.
+ */
+function AutomationPanel() {
+  const shell = useShell();
+  const [rows, setRows] = useState<AutomationToken[]>([]);
+  const [name, setName] = useState("Shortcut");
+  const [scopes, setScopes] = useState<{ run: boolean; read: boolean }>({ run: true, read: true });
+  const [fresh, setFresh] = useState<{ token: string; example: string } | null>(null);
+  const [minting, setMinting] = useState(false);
+  // Synchronous guard: two activations can arrive before React renders disabled.
+  // A successful mint stays locked until the user dismisses its one-time secret.
+  const mintLock = useRef(false);
+  const [err, setErr] = useState("");
+  const [revokeErrors, setRevokeErrors] = useState<Record<string, string>>({});
+  const [revoking, setRevoking] = useState<string[]>([]);
+  const revokeLocks = useRef(new Set<string>());
+  const [listError, setListError] = useState("");
+  const [listLoaded, setListLoaded] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const requestVersion = useRef(0);
+  const interactionVersion = useRef(0);
+
+  const load = useCallback(async (focusId?: string, focusVersion?: number) => {
+    const version = ++requestVersion.current;
+    setListLoading(true);
+    try {
+      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens");
+      // An older response must not replace a newer list or its page selection.
+      if (version !== requestVersion.current) return;
+      setRows(result.rows);
+      setListLoaded(true);
+      setListError("");
+      setListLoading(false);
+      if (focusId && focusVersion === interactionVersion.current) {
+        const index = result.rows.findIndex((row) => row.id === focusId);
+        if (index >= 0) setPage(Math.floor(index / 8));
+      }
+    } catch (e) {
+      if (version === requestVersion.current) {
+        setListLoading(false);
+        setListError(String((e as Error).message));
+      }
+    }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
+
+  const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
+  const needle = query.trim().toLowerCase();
+  const matching = needle ? rows.filter((t) => `${t.id} ${t.name} ${t.scopes.join(" ")} ${t.revoked ? "revoked" : "live"}`.toLowerCase().includes(needle)) : rows;
+  const pageSize = 8;
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(matching.length / pageSize) - 1));
+  const visible = matching.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  return (
+    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
+      <div className="fs-dim" style={{ fontSize: fz(11) }}>
+        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
+      </div>
+      <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <input className="fs-input" style={{ width: fz(160) }} value={name} onChange={(e) => setName(e.target.value)} aria-label="Token name" />
+        <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
+          <input type="checkbox" checked={scopes.run} onChange={(e) => setScopes({ ...scopes, run: e.target.checked })} /> run
+        </label>
+        <label className="fs-row" style={{ gap: 4, fontSize: fz(11.5) }}>
+          <input type="checkbox" checked={scopes.read} onChange={(e) => setScopes({ ...scopes, read: e.target.checked })} /> read
+        </label>
+        <Btn variant="primary" disabled={!wanted.length || minting || Boolean(fresh)} data-testid="automation-mint" onClick={async () => {
+          if (mintLock.current) return;
+          mintLock.current = true; setMinting(true); setErr("");
+          let created = false;
+          const focusVersion = interactionVersion.current;
+          try {
+            const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            created = true;
+            setFresh({ token: r.token, example: r.example });
+            if (focusVersion === interactionVersion.current) setQuery("");
+            await load(r.id, focusVersion);
+          } catch (e) {
+            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${String((e as Error).message)}`);
+            await load();
+          } finally { if (!created) mintLock.current = false; setMinting(false); }
+        }}>Create token</Btn>
+      </div>
+      {fresh ? (
+        <div className="fs-panel" style={{ padding: 8, display: "grid", gap: 6, borderColor: "rgba(255,196,83,.4)" }}>
+          <div style={{ fontSize: fz(11.5) }}>Copy it now — only a hash is stored, so it cannot be shown again.</div>
+          <code className="fs-mono" style={{ fontSize: fz(10.5), wordBreak: "break-all" }} data-testid="automation-token">{fresh.token}</code>
+          <div className="fs-row" style={{ gap: 6 }}>
+            <Btn variant="ghost" onClick={() => shell.copy(fresh.token, "Routines", true)}>Copy token</Btn>
+            <Btn variant="ghost" onClick={() => shell.copy(fresh.example, "Routines", true)}>Copy curl example</Btn>
+            <Btn variant="ghost" onClick={() => { setFresh(null); mintLock.current = false; }}>Done with token</Btn>
+          </div>
+        </div>
+      ) : null}
+      {err ? <Badge tone="bad">{err}</Badge> : null}
+      {Object.entries(revokeErrors).map(([id, message]) => <div key={id} role="alert" data-testid={`automation-revoke-error-${id}`} className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <span>{message}</span>
+        <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>
+      </div>)}
+      {listError ? <div role="alert" data-testid="automation-list-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <span>{listLoaded ? "Token list may be out of date." : "Token list unavailable."} {listError}</span>
+        <Btn variant="ghost" aria-label="Retry token list" disabled={listLoading} onClick={() => void load()}>Retry</Btn>
+      </div> : null}
+      {listLoaded && !listLoading && !listError && rows.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No tokens. Nothing outside this window can run a command.</div> : null}
+      {rows.length ? <input className="fs-input" type="search" aria-label="Search automation tokens" placeholder="Search tokens" value={query} onChange={e => { interactionVersion.current++; setQuery(e.target.value); setPage(0); }} /> : null}
+      {matching.length ? <div className="fs-row" style={{ gap: 6 }}>
+        <Btn variant="ghost" aria-label="Previous token page" disabled={currentPage === 0} onClick={() => { interactionVersion.current++; setPage(currentPage - 1); }}>Previous</Btn>
+        <span role="status" className="fs-dim">{currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, matching.length)} of {matching.length}</span>
+        <Btn variant="ghost" aria-label="Next token page" disabled={(currentPage + 1) * pageSize >= matching.length} onClick={() => { interactionVersion.current++; setPage(currentPage + 1); }}>Next</Btn>
+      </div> : rows.length ? <div className="fs-dim">No matching tokens</div> : null}
+      <div data-testid="automation-token-list">
+      {visible.map((t) => (
+        <div key={t.id} data-token-id={t.id} className="fs-row" style={{ justifyContent: "space-between", gap: 8 }}>
+          <span style={{ fontSize: fz(11.5), minWidth: 0 }}>
+            <span className="fs-mono">{t.id}</span> {t.name} <span className="fs-dim">· {t.scopes.join(", ")}{t.lastUsedAt ? ` · used ${fmtTime(t.lastUsedAt)}` : ""}</span>
+          </span>
+          <Badge tone={t.revoked ? "bad" : "ok"}>{t.revoked ? "revoked" : "live"}</Badge>
+          {t.revoked ? null : (
+            <Btn variant="ghost" disabled={revoking.includes(t.id)} onClick={async () => {
+              if (revokeLocks.current.has(t.id)) return;
+              revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
+              setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
+              try {
+                const response = await fetch(`/api/automation/tokens?id=${encodeURIComponent(t.id)}`, { method: "DELETE" });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const result = await response.json() as { ok?: boolean };
+                if (result.ok !== true) throw new Error("invalid revocation response");
+              } catch {
+                setRevokeErrors(previous => ({ ...previous, [t.id]: `Revocation not confirmed for token ${t.id}. Check its current status before retrying.` }));
+              } finally {
+                await load();
+                revokeLocks.current.delete(t.id); setRevoking(previous => previous.filter(id => id !== t.id));
+              }
+            }}>Revoke</Btn>
+          )}
+        </div>
+      ))}
+      </div>
+    </Section>
   );
 }

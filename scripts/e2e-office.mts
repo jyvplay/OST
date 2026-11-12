@@ -42,7 +42,7 @@ async function openSheet(path?: string): Promise<{ page: Page; dlg: Locator; cel
   const dlg = page.locator('[role=dialog][aria-label="Spreadsheet"]').first();
   await dlg.waitFor({ state: "visible", timeout: 20_000 });
   // maximise for room: double-click the title bar if supported; otherwise just use the default rect
-  await dlg.locator('[data-testid="sheet-grid"]').waitFor({ timeout: 20_000 });
+  await dlg.locator('[data-testid="sheet-grid"][data-recovery-checked="true"]').waitFor({ timeout: 20_000 });
   eq(await page.getByRole("dialog", { name: "Spreadsheet", exact: true }).count(), 1, "one native Spreadsheet window after verified reset");
   const cell = (ref: string) => dlg.locator(`[data-cell="${ref}"]`);
   return { page, dlg, cell, close: () => ctx.close() };

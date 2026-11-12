@@ -1,3 +1,4 @@
+import { bannerClick, bannerTestId } from "./banner-click.mts";
 /**
  * TT70 FF-15 sealed recovery drafts of password-protected documents, in the real UI (Chromium 143, production build).
  * TT69 kept NO draft for protected documents; now the draft is sealed with the document's password.
@@ -102,7 +103,7 @@ await test("Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python
   ok(!msoff(sealed, "wrong").ok, "msoffcrypto refuses the wrong password");
   await dlg.getByRole("button", { name: "Close window" }).first().click();
   await confirmBox(page).waitFor();
-  ok(/recovery draft is kept/.test(await confirmBox(page).innerText()), "the dialog now says a draft is kept (TT69: 'no recovery draft')");
+  ok(/Don.t save first writes a recovery draft/.test(await confirmBox(page).innerText()), "the dialog now says a draft is kept (TT69: 'no recovery draft')");
   await page.getByTestId("close-confirm-discard").click();
   await poll(async () => (await page.locator('[role=dialog][aria-label="Writer"]').count()) === 0, "closed without saving");
   ok(await readNode(dp), "the sealed draft survives Don't save");
@@ -117,8 +118,8 @@ await test("Writer: a protected .docx keeps a SEALED draft (msoffcrypto + python
   await dlg.getByTestId("recover-restore").click();
   await poll(async () => (await body.innerText()).includes(mark.trim()), "restored text visible", 20_000);
   eq(await ask(page).count(), 0, "no password prompt for the draft: the window's password opened it");
-  ok(/Save •/.test(await dlg.getByTestId("writer-save").innerText()), "restored = unsaved");
-  await dlg.getByTestId("writer-save").click();
+  ok(/Save •/.test((await dlg.getByTestId("writer-save").textContent()) ?? ""), "restored = unsaved");
+  await bannerTestId(page, dlg, "writer-save", /Save/);
   await poll(async () => !(await readNode(dp)), "Save deletes the draft", 20_000);
   const saved = await bytesOf(docPath); ok(isCfb(saved), "the saved file is still encrypted (restoring did not drop the protection)");
   const s = msoff(saved, P1); ok(s.ok, `msoffcrypto opens the saved file: ${s.error}`);
@@ -174,7 +175,7 @@ await test("Spreadsheet adversary: password changed P1→P2 after the draft — 
   await dlg.getByTestId("recover-restore").click();
   await answer(page, P1);
   await poll(async () => (await cell("B1").innerText()).trim() === "7731", "P1 restores the edit", 20_000);
-  await dlg.getByRole("button", { name: "Save workbook" }).click();
+  await bannerClick(page, dlg, "Save workbook", "Save workbook");
   await dlg.locator('[data-testid="sheet-status"]', { hasText: /^saved \/.* encrypted with your password/ }).waitFor({ timeout: 25_000 });
   const saved = await bytesOf(src); ok(isCfb(saved), "still encrypted");
   ok(!msoff(saved, P1).ok, "the draft's old password does NOT open the saved file");

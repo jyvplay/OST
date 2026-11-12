@@ -1,0 +1,13 @@
+{
+  "suite": "tt157-routine-triggers",
+  "at": "2026-11-12T16:33:49.717Z",
+  "results": [
+    {
+      "suite": "tt157-routine-triggers",
+      "name": "trigger boundary and malformed persisted rows fail closed",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    }
+  ]
+}

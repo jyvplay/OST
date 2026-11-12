@@ -1,6 +1,6 @@
 {
   "suite": "tt117-density",
-  "at": "2026-11-02T16:48:26.612Z",
+  "at": "2026-11-12T17:10:40.632Z",
   "results": [
     {
       "suite": "tt117-density",
@@ -10,7 +10,7 @@
         "AX-18": "partial"
       },
       "pass": true,
-      "ms": 3775
+      "ms": 4404
     }
   ]
 }

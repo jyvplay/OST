@@ -254,6 +254,7 @@ export function FusionLogo({ size = 20, label = "Fusion", styleId: forced }: { s
 }
 
 /** Small monochrome UI glyphs for chrome buttons (currentColor, so they follow theme + contrast). */
+
 /**
  * TT145: the chrome glyph names are plain data in `src/lib/ui-glyphs.ts` (mirroring
  * `glyph-names` in icon-data.ts) so the accessibility suite can import the list without
@@ -267,6 +268,7 @@ export { UI_GLYPH_NAMES };
  * that has no drawing and nothing would fail. Kept beside the drawings so the two
  * cannot drift far apart.
  */
+
 
 export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number }) {
   const d: Record<string, ReactNode> = {
@@ -296,6 +298,12 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     gauge: <><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 16.5 4-5" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="12" cy="16.5" r="1.4" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
     // a session that comes back: an arrow returning into a frame
     session: <><rect x="4" y="5.5" width="16" height="13" rx="2" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M9 12h6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m12 9 3 3-3 3" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT148: a die — an inner square on a carrier with legs on four sides
+    chip: <><rect x="7" y="7" width="10" height="10" rx="1.6" {...S} stroke="currentColor" strokeWidth="1.8" /><rect x="10" y="10" width="4" height="4" rx=".6" {...S} stroke="currentColor" strokeWidth="1.6" /><path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT148: a connector — body, two prongs, one lead
+    plug: <><rect x="5" y="10.5" width="6.5" height="6.5" rx="1.6" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M11.5 13.8h4.5a2 2 0 0 0 2-2V5.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M6.8 10.5V7M9.7 10.5V7" {...S} stroke="currentColor" strokeWidth="1.8" /><circle cx="18" cy="4.6" r="1.3" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
+    // TT148: an arrow inside brackets — the pointer held to one region
+    cursor: <><path d="M8.5 4.5H5.5a1 1 0 0 0-1 1v3M15.5 4.5h3a1 1 0 0 1 1 1v3M8.5 19.5H5.5a1 1 0 0 1-1-1v-3M15.5 19.5h3a1 1 0 0 0 1-1v-3" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="m11 8.5 5 3.5-2.2.5 1.3 2.6-1.3.7-1.3-2.6-1.5 1.5Z" {...S} stroke="currentColor" strokeWidth="1.5" /></>,
     // an address: two links of a chain
     link: <><path d="M10.5 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11.5 7.5" {...S} stroke="currentColor" strokeWidth="1.8" /><path d="M13.5 10.5a3.5 3.5 0 0 0-5 0L6 13a3.54 3.54 0 0 0 5 5l1.5-1.5" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
     // TT117 manifest: a list whose last line is a tick — a checked inventory
@@ -326,6 +334,8 @@ export function UiGlyph({ name, size = 14 }: { name: UiGlyphName; size?: number 
     deadkey: <><path d="M8.5 6.5 12 3l3.5 3.5" {...S} stroke="currentColor" strokeWidth="1.7" /><path d="M5 20.5V10.5h6M5 15h5.5" {...S} stroke="currentColor" strokeWidth="1.9" /><circle cx="17.5" cy="15.5" r="2.6" {...S} stroke="currentColor" strokeWidth="1.7" /></>,
     // TT139 plural: one dot, then many — a count changing its word
     plural: <><circle cx="5.5" cy="9" r="2.2" fill="currentColor" /><circle cx="14" cy="17.5" r="1.7" fill="currentColor" /><circle cx="18.5" cy="17.5" r="1.7" fill="currentColor" opacity=".7" /><circle cx="23" cy="17.5" r="1.7" fill="currentColor" opacity=".45" /><path d="M4 5h4" {...S} stroke="currentColor" strokeWidth="1.8" /></>,
+    // TT151 qr: three finder squares cornering a field of modules — a code, not a grid
+    qr: <><rect x="3.5" y="3.5" width="6" height="6" rx="1" {...S} stroke="currentColor" strokeWidth="1.7" /><rect x="14.5" y="3.5" width="6" height="6" rx="1" {...S} stroke="currentColor" strokeWidth="1.7" /><rect x="3.5" y="14.5" width="6" height="6" rx="1" {...S} stroke="currentColor" strokeWidth="1.7" /><rect x="14.5" y="14.5" width="2.6" height="2.6" fill="currentColor" /><rect x="19" y="14.5" width="2.6" height="2.6" fill="currentColor" opacity=".6" /><rect x="14.5" y="19" width="2.6" height="2.6" fill="currentColor" opacity=".6" /></>,
     // TT123 carets: a chevron stepping away from its baseline — match stepping
     "caret-up": <><path d="M6 14.5 12 8.5l6 6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 18.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,
     "caret-down": <><path d="M6 9.5 12 15.5l6-6" {...S} stroke="currentColor" strokeWidth="1.9" /><path d="M6 5.5h12" {...S} stroke="currentColor" strokeWidth="1.6" /></>,

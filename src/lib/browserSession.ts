@@ -47,6 +47,23 @@ export function safeProfileName(v: unknown): string | undefined {
   return /^[\p{L}\p{N} _-]{1,30}$/u.test(t) ? t : undefined;
 }
 
+/**
+ * PR-07o: the key a tab's cookie jar is filed under.
+ *
+ * Two tabs that chose the same profile share one jar; a tab that chose "this tab
+ * only" gets a jar of its own, keyed by its id. This was duplicated inline in
+ * the Browser and the proxy frame, where a divergence would silently split one
+ * profile into two jars — so it lives here, once, and is tested.
+ */
+export function profileSessionKey(tab: { id: string; profile?: string }): string {
+  return tab.profile ? `p:${tab.profile}` : tab.id;
+}
+
+/** Every jar a tab list needs, in tab order, without duplicates. */
+export function profileSessionKeys(tabs: readonly { id: string; profile?: string }[]): string[] {
+  return [...new Set(tabs.map(profileSessionKey))];
+}
+
 export function normalizeSession(raw: unknown, selfOrigin?: string, fallbackUrl = "https://example.com"): Session & { dropped: number } {
   const o = (raw && typeof raw === "object" ? raw : {}) as Partial<Session> & { tabs?: unknown[] };
   let dropped = 0;

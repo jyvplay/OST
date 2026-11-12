@@ -9,6 +9,8 @@ import { BINDINGS, BROWSER_RESERVED, comboFor, conflicts, type Preset } from "@/
 import { shortcutsText } from "@/lib/shortcuts-text";
 import { useShell, type ModuleProps } from "../shell-context";
 import DefaultAppsGuide from "../DefaultAppsGuide";
+import SystemLinks from "../SystemLinks";
+import ShortcutCapture from "../ShortcutCapture";
 import ContextProfiles from "../ContextProfiles";
 import { Badge, Btn, KV, Section, Tabs } from "../ui";
 import { exportSettings, parseSettingsImport } from "@/lib/settings-io";
@@ -106,7 +108,7 @@ export default function SettingsModule({ win }: ModuleProps) {
       ) : null}
 
       {tab === "contexts" ? <ContextProfiles /> : null}
-      {tab === "defaults" ? <DefaultAppsGuide /> : null}
+      {tab === "defaults" ? <><DefaultAppsGuide /><SystemLinks /></> : null}
 
       {tab === "capabilities" ? (
         <>
@@ -215,6 +217,7 @@ export default function SettingsModule({ win }: ModuleProps) {
               claim them.
             </div>
           </Section>
+          <ShortcutCapture preset={preset} />
           <MouseButtonsSettings />
         </>
       ) : null}

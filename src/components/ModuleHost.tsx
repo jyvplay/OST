@@ -45,6 +45,7 @@ import ContactsModule from "./modules/Contacts";
 import VideoModule from "./modules/Video";
 import MusicModule from "./modules/Music";
 import MapsModule from "./modules/Maps";
+import MailModule from "./modules/Mail";
 import SlidesModule from "./modules/Slides";
 import PdfModule from "./modules/Pdf";
 import BooksModule from "./modules/Books";
@@ -101,6 +102,7 @@ export default function ModuleHost({ win }: { win: WindowState }) {
     case "video": return <VideoModule win={win} />;
     case "music": return <MusicModule win={win} />;
     case "maps": return <MapsModule win={win} />;
+    case "mail": return <MailModule />;
     case "slides": return <SlidesModule win={win} />;
     case "pdf": return <PdfModule win={win} />;
     case "books": return <BooksModule win={win} />;

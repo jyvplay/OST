@@ -1,0 +1,33 @@
+{
+  "suite": "tt146-oracle",
+  "at": "2026-11-12T16:34:07.569Z",
+  "results": [
+    {
+      "suite": "tt146-oracle",
+      "name": "LN-05 agrees with the numpy float64 reference on upscale, downscale and odd sizes",
+      "covers": {
+        "LN-05": "full"
+      },
+      "pass": true,
+      "ms": 411
+    },
+    {
+      "suite": "tt146-oracle",
+      "name": "LN-05 is in Pillow's band (an independent third-party Lanczos)",
+      "covers": {
+        "LN-05": "partial"
+      },
+      "pass": true,
+      "ms": 88
+    },
+    {
+      "suite": "tt146-oracle",
+      "name": "LN-06 agrees with the numpy lighting reference across angles and intensities",
+      "covers": {
+        "LN-06": "full"
+      },
+      "pass": true,
+      "ms": 185
+    }
+  ]
+}

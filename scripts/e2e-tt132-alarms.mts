@@ -86,7 +86,8 @@ try {
     await first.getByRole("button", { name: "Edit alarm Edit race", exact: true }).click();
     await second.getByRole("button", { name: "On", exact: true }).click();
     await first.getByLabel("Alarm label", { exact: true }).fill("Stale name"); await first.getByRole("button", { name: "Save alarm", exact: true }).click();
-    await page.getByTestId("toasts").getByText(/changed in another window/).waitFor();
+    await page.getByTestId("toasts").getByText("Changed elsewhere — reopen the editor.", { exact: true }).waitFor();
+    assert.equal(await first.getByLabel("Alarm label", { exact: true }).inputValue(), "Stale name", "conflict keeps the unsaved edit available");
     const value = await page.evaluate(() => JSON.parse(localStorage.getItem("fusion.alarms.v1")!)[0]); assert.equal(value.label, "Edit race"); assert.equal(value.enabled, false);
   }, undefined, 2));
   await test("pause all cancels both pending snoozes and upcoming alarms", covers, () => withClock(async (page) => {

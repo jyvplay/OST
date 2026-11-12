@@ -404,6 +404,49 @@ export const safeSaveClaims = pgTable("safe_save_claims", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* ------------------------------------------------ automation entry points (TT146, AU-03)
+
+   An external automation door needs to be a door, not a hole.
+
+   The secret is never stored: the row keeps SHA-256(secret) and the token itself is shown once.
+   `rate_state` is a fixed-window counter so a looping script cannot wedge the shell; it lives on the
+   token row because that is the only place that knows which caller is looping. `automation_runs` is
+   the queue the open shell drains — the server records intent, the browser executes it through the
+   same executor the UI uses, and the row keeps both timestamps so an unexecuted request is visibly
+   `queued` rather than silently dropped. */
+
+export const automationTokens = pgTable("automation_tokens", {
+  /** public half of the token, 8 base36 characters */
+  id: text("id").primaryKey(),
+  name: text("name").notNull().default(""),
+  /** SHA-256 of the secret half, hex. The secret itself is never stored. */
+  secretHash: text("secret_hash").notNull(),
+  /** ["run", "read"] */
+  scopes: jsonb("scopes").notNull().default([]),
+  /** { count, windowStart } — the fixed-window limiter's state */
+  rateState: jsonb("rate_state"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+});
+
+export const automationRuns = pgTable(
+  "automation_runs",
+  {
+    id: serial("id").primaryKey(),
+    tokenId: text("token_id").notNull(),
+    /** ordered RoutineAction list, validated against the shared whitelist */
+    actions: jsonb("actions").notNull().default([]),
+    /** queued | done | failed — terminal states are terminal */
+    status: text("status").notNull().default("queued"),
+    /** what the shell reported; empty until it reports */
+    result: text("result").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (t) => [index("automation_runs_status_idx").on(t.status, t.id)],
+);
+
 export type FeatureRow = typeof features.$inferSelect;
 export type VfsNode = typeof vfsNodes.$inferSelect;
 export type FileOpRow = typeof fileOps.$inferSelect;

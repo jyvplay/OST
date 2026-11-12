@@ -1,13 +1,13 @@
 {
   "suite": "e2e-tt127-photos",
-  "at": "2026-11-02T16:33:40.874Z",
+  "at": "2026-11-12T16:52:40.749Z",
   "results": [
     {
       "suite": "e2e-tt127-photos",
       "name": "Photos name and size selections order tiles and editor navigation",
       "covers": {},
       "pass": true,
-      "ms": 3524
+      "ms": 5427
     }
   ]
 }

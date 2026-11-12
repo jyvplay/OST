@@ -268,6 +268,7 @@ await test("spreadsheet grid geometry scales with the text (row height = 22 × s
   await desktop([win("ss", "sheet", 40, 20, 1100, 760, 11)]);
   const { page, close } = await boot();
   const dlg = page.locator('.fs-window[aria-label="Spreadsheet"]');
+  await dlg.locator('[data-testid="sheet-grid"][data-recovery-checked="true"]').waitFor({ timeout: 15_000 });
   const a2 = dlg.locator('td[data-cell="A2"]'); await a2.waitFor({ timeout: 15_000 });
   const h = (await a2.boundingBox())!.height;
   ok(Math.abs(h - 27.5) <= 2, `row height at 125 %: ${h} (want 27.5)`);

@@ -102,28 +102,31 @@ export interface Offer { draft: DraftRecord; stale: boolean; at: string; draftFi
 
 /** look once per opened document: a draft of this path (or, untitled, the newest orphaned untitled draft) */
 export function useRecoveryOffer(kind: DocKind, path: string, ready: boolean) {
-  const [offer, setOffer] = useState<Offer | null>(null);
+  // Associate the result with the document it was read for; a late response
+  // must never show a different document's recovery offer.
+  const key = JSON.stringify([kind, path]);
+  const [result, setResult] = useState<{ key: string; offer: Offer | null } | null>(null);
+  const offer = result?.key === key ? result.offer : null;
   useEffect(() => {
-    if (!ready) return;
+    if (!ready) { setResult(null); return; }
     let live = true;
-    (async () => {
+    (async (): Promise<Offer | null> => {
       if (path) {
         const [d, sha] = await Promise.all([readDraft(kind, path), fileSha(path)]);
         const o = draftOffer(d, path, sha);
-        if (live && o.offer && d) setOffer({ draft: d, stale: o.stale, at: new Date(d.savedAt).toLocaleString(), draftFile: draftPathFor(kind, path) });
-      } else {
-        const list = await untitledDrafts(kind);
-        const top = list[0];
-        if (live && top) setOffer({ draft: top.draft, stale: false, at: new Date(top.draft.savedAt).toLocaleString(), draftFile: top.path });
+        return o.offer && d ? { draft: d, stale: o.stale, at: new Date(d.savedAt).toLocaleString(), draftFile: draftPathFor(kind, path) } : null;
       }
-    })().catch(() => undefined);
+      const top = (await untitledDrafts(kind))[0];
+      return top ? { draft: top.draft, stale: false, at: new Date(top.draft.savedAt).toLocaleString(), draftFile: top.path } : null;
+    })().catch(() => null).then((value) => { if (live) setResult({ key, offer: value }); });
     return () => { live = false; };
-  }, [kind, path, ready]);
-  const discard = useCallback(async () => { const o = offer; setOffer(null); if (o) await fsDraftIo.remove(o.draftFile); }, [offer]);
-  const take = useCallback(() => { const o = offer; setOffer(null); return o; }, [offer]);
+  }, [kind, path, ready, key]);
+  const setOffer = useCallback((value: Offer | null) => setResult({ key, offer: value }), [key]);
+  const discard = useCallback(async () => { const o = offer; setOffer(null); if (o) await fsDraftIo.remove(o.draftFile); }, [offer, setOffer]);
+  const take = useCallback(() => { const o = offer; setOffer(null); return o; }, [offer, setOffer]);
   /** put a taken offer back (the user cancelled a step of the restore, e.g. the password prompt of a sealed draft) */
-  const untake = useCallback((o: Offer) => setOffer(o), []);
-  return { offer, discard, take, untake };
+  const untake = useCallback((o: Offer) => setOffer(o), [setOffer]);
+  return { offer, discard, take, untake, checked: ready && result?.key === key };
 }
 
 export function RecoveryBanner({ offer, onRestore, onDiscard }: { offer: Offer | null; onRestore: () => void; onDiscard: () => void }) {

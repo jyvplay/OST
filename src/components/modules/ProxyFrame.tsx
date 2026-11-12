@@ -9,6 +9,7 @@ import { fz } from "@/lib/uiscale";
 import { MAX_BROWSER_SAVE_BYTES, readBrowserSave, saveBrowserDownload } from "@/lib/browser-download";
 import { privacy } from "@/lib/privacy/session";
 import { encodeTarget, type UaKind } from "@/lib/wp-core";
+import { profileSessionKey } from "@/lib/browserSession";
 import { useShell } from "../shell-context";
 import { startSharedBroker } from "@/lib/wp-shared-broker";
 import { Btn , Hint } from "../ui";
@@ -71,7 +72,7 @@ export default function ProxyFrame({ embeddedRecall=false, tabId, url, sessions,
   const [savedPath, setSavedPath] = useState("");
   useEffect(() => () => { transfer.current?.abort(); }, []);
   // TT36 (PR-07o): tabs sharing a named profile share one proxy session (one cookie jar); "" = this tab only
-  const sessionKey = profile ? `p:${profile}` : tabId;
+  const sessionKey = profileSessionKey({ id: tabId, profile: profile || undefined });
   const [reader, setReader] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const [start] = useState(url);

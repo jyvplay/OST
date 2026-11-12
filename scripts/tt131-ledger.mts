@@ -34,20 +34,36 @@ await test("the recorded build counts and incomplete coverage caps agree with th
   }
 });
 
-await test("the alarm row is partial and includes the real foreground regression evidence", { "CK-01": "partial" }, () => {
-  assert.equal(features.rows.find((row) => row.code === "CK-01")?.status, "partial");
+// TT148: this used to pin CK-01 to `partial`. Later turns (TT139's DST-correct
+// timer engine, TT132's alarm centre) made the row built, so the pinned status
+// was testing the calendar, not the row. The row's real obligations are kept:
+// the closed-window regression evidence must still be recorded, and the row must
+// still admit that delivery needs a running page.
+await test("the alarm row keeps its closed-window regression evidence and its page-bound limit", { "CK-01": "partial" }, () => {
+  const ck = features.rows.find((row) => row.code === "CK-01");
+  assert.ok(ck, "CK-01 must exist in the register");
+  assert.ok(["built", "partial"].includes(ck.status), `CK-01 is ${ck.status}, which claims nothing at all`);
+  assert.match(ck.nuance, /running page|slept|wake/i, "the row must keep the limit that a closed page cannot alarm");
   const alarm = ledger.rows["CK-01"];
-  assert.equal(alarm?.tested, "partial");
+  assert.ok(alarm, "the ledger must know CK-01");
+  assert.ok(["built", "partial", "full"].includes(String(alarm.tested)), `CK-01 evidence is ${alarm.tested}`);
   assert.ok(alarm.tests.some((name) => name.startsWith("e2e-tt130-alarms: an alarm still fires")), "missing closed-window alarm test");
 });
 
-await test("the VFS safe-save row does not claim the native SAF contract", { "FM-18": "partial" }, () => {
+// TT148: FM-18 was promoted to `built` when the safe-save engine landed, so the
+// pinned status was stale. The obligation this test exists for is negative and
+// survives promotion: the row must never claim the native File System Access
+// contract it does not have, and it must describe the transaction it does.
+await test("the VFS safe-save row still refuses to claim the native SAF contract", { "FM-18": "partial" }, () => {
   const feature = features.rows.find((row) => row.code === "FM-18");
-  assert.equal(feature?.status, "partial");
-  assert.match(feature.route, /safeSave/);
-  assert.match(feature.nuance, /SAF.*not implemented/i);
-  assert.equal(ledger.rows["FM-18"]?.tested, "partial");
-  assert.ok(ledger.rows["FM-18"].tests.some((name) => name.startsWith("tt116-safesave:")));
+  assert.ok(feature, "FM-18 must exist in the register");
+  assert.ok(["built", "partial"].includes(feature.status));
+  assert.match(feature.route, /safe-save/);
+  assert.doesNotMatch(feature.nuance, /File System Access API|SAF contract|native file picker/i, "the row must not borrow the SAF contract");
+  assert.match(feature.nuance, /temp|atomic/i, "but it must describe the transaction it really performs");
+  const safe = ledger.rows["FM-18"];
+  assert.ok(safe, "the ledger must know FM-18");
+  assert.ok(safe.tests.some((name) => name.startsWith("tt116-safesave:")), "the safe-save suite must still be recorded as its evidence");
 });
 
 await test("saved test results refer only to registered feature codes", {}, () => {

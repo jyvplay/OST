@@ -1,0 +1,20 @@
+{
+  "suite": "e2e-tt170-launcher-boot",
+  "at": "2026-11-12T22:43:36.136Z",
+  "results": [
+    {
+      "suite": "e2e-tt170-launcher-boot",
+      "name": "server-rendered launcher cannot be activated before client boot",
+      "covers": {},
+      "pass": true,
+      "ms": 1350
+    },
+    {
+      "suite": "e2e-tt170-launcher-boot",
+      "name": "a failed bootstrap still enables the Fusion launcher in read-only shell",
+      "covers": {},
+      "pass": true,
+      "ms": 2388
+    }
+  ]
+}

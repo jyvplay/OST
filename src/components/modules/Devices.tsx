@@ -12,8 +12,9 @@ import { estimateText } from "@/lib/storage-estimate";
 import { deviceInfoText } from "@/lib/device-info";
 import { classifyScan, type ScanResult } from "@/lib/scan/barcode";
 import { PROFILES, quantumMs, evaluate, limiterPlan, peakDb, limiterGain, type LatencyProfile, type Measurements } from "@/lib/audio-latency";
+import RuntimePanel from "./RuntimePanel";
 
-type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad";
+type Tab = "recorder" | "scan" | "color" | "audio" | "serial" | "peripherals" | "gamepad" | "runtime";
 
 type AnyNav = Navigator & Record<string, any>;
 
@@ -34,6 +35,7 @@ export default function DevicesModule(_: ModuleProps) {
         { id: "recorder", label: "Voice" }, { id: "scan", label: "QR scan" }, { id: "color", label: "Colour" },
         { id: "audio", label: "Audio devices" }, { id: "serial", label: "Serial" },
         { id: "peripherals", label: "HID/USB/BT" }, { id: "gamepad", label: "Gamepad" },
+        { id: "runtime", label: "Runtime" },
       ]} />
       <Section title="Storage">
         <div className="fs-dim" style={{ fontSize: fz(11.5) }} data-testid="devices-storage">{estText}</div>
@@ -50,6 +52,7 @@ export default function DevicesModule(_: ModuleProps) {
         <Blocked what="Serial console" missing="navigator.serial (Web Serial)" workaround="Chromium-based desktop browsers implement it." />) : null}
       {tab === "peripherals" ? <Peripherals /> : null}
       {tab === "gamepad" ? <Gamepads /> : null}
+      {tab === "runtime" ? <RuntimePanel /> : null}
     </div>
   );
 }

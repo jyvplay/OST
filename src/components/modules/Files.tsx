@@ -122,7 +122,7 @@ export default function FilesModule({ win }: ModuleProps) {
           // A fixed-height strip, not a squeezed one: the three panels measure the trash
           // policy, the drop handshake and the volume quota, and all three were being cut
           // off mid-sentence when the strip took whatever height was left.
-          <section aria-label="Files mechanics" data-testid="files-mechanics"
+          <section aria-label="Files mechanics" data-testid="files-mechanics" tabIndex={0}
             style={{ flex: "0 0 auto", maxHeight: "38%", overflowY: "auto", borderTop: "1px solid var(--fs-border)", padding: 8, display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", alignContent: "start" }}>
             <TrashPanel />
             <DropPanel />

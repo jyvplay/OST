@@ -1,6 +1,6 @@
 {
   "suite": "tt139-systems",
-  "at": "2026-11-07T02:24:06.143Z",
+  "at": "2026-11-12T16:34:04.035Z",
   "results": [
     {
       "suite": "tt139-systems",
@@ -18,7 +18,7 @@
         "PR-07n": "full"
       },
       "pass": true,
-      "ms": 12
+      "ms": 4
     },
     {
       "suite": "tt139-systems",
@@ -189,7 +189,7 @@
         "SC-05": "full"
       },
       "pass": true,
-      "ms": 18
+      "ms": 6
     },
     {
       "suite": "tt139-systems",
@@ -252,7 +252,7 @@
         "RG-01": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-systems",
@@ -396,7 +396,7 @@
         "AX-07": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt139-systems",

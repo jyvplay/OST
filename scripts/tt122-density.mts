@@ -24,7 +24,7 @@ const MEASURE = `(sel) => {
   if (!root) return { error: 'no window' };
   const vis = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
     return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
-  let words = 0, glyphs = 0, controls = 0, emoji = false;
+  let words = 0, glyphs = 0, controls = 0, emoji = false; const marks = [];
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let n; while ((n = w.nextNode())) {
     const p = n.parentElement;
@@ -35,7 +35,8 @@ const MEASURE = `(sel) => {
   root.querySelectorAll('svg').forEach((el) => { if (vis(el)) glyphs++; });
   root.querySelectorAll('button, input, select, textarea').forEach((el) => { if (vis(el)) controls++; });
   root.querySelectorAll('button, label, [role="button"]').forEach((el) => {
-    if (/[\\u{1F300}-\\u{1FAFF}\\u{2190}-\\u{27BF}\\u{FE0F}]/u.test(el.textContent || '')) emoji = true; });
+    const t = (el.textContent || '').trim();
+    if (/[\\u{1F300}-\\u{1FAFF}\\u{2190}-\\u{27BF}\\u{FE0F}]/u.test(t)) { emoji = true; if (t) marks.push(t.slice(0, 24)); } });
   let contrast = [];
   if (sel.includes("w1")) {
     const bgFor = (el) => { let n = el; while (n && n !== document.body) { const b = getComputedStyle(n).backgroundColor; if (b && !/rgba\(0, 0, 0, 0\)|transparent/.test(b)) return b; n = n.parentElement; } return getComputedStyle(document.body).backgroundColor; };
@@ -64,7 +65,7 @@ const MEASURE = `(sel) => {
       }
     });
   }
-  return { words, glyphs, controls, emoji, contrast };
+  return { words, glyphs, controls, emoji, marks: [...new Set(marks)].slice(0, 6), contrast };
 }`;
 
 const browser = await launchChromium();
@@ -86,14 +87,14 @@ for (const m of MODULES) {
     // the same failure the sleep was papering over, now detected honestly.
     await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent?.trim().length ?? 0) > 30, null, { timeout: 8000 }).catch(() => undefined);
     await page.waitForTimeout(200);
-    const r = await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number; emoji: boolean; error?: string };
+    const r = await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number; emoji: boolean; marks?: string[]; error?: string };
     if (!r.error) results.set(m.id, r);
   } catch (e) { console.log(`    !! ${m.id}: ${String(e).split('\n')[0]}`); }
   await page.close();
 }
 await sharedContext.close();
 for (const [id, r] of [...results.entries()].sort((a, b) => b[1].words - a[1].words)) {
-  console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words  ${String(r.glyphs).padStart(3)} marks  ${String(r.controls).padStart(3)} controls${r.emoji ? "  EMOJI-IN-CONTROL" : ""}`);
+  console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words  ${String(r.glyphs).padStart(3)} marks  ${String(r.controls).padStart(3)} controls${r.emoji ? "  EMOJI-IN-CONTROL " + (r.marks ?? []).join(" | ") : ""}`);
 }
 for (const [id, r] of results) if (r.contrast?.length) console.log(`    ~contrast ${id}: ${r.contrast.slice(0, 3).join(" | ")}`);
 console.log(`    measured ${results.size}/${MODULES.length} modules`);
@@ -105,7 +106,7 @@ await test("AX-24: every app measured, none wordier than the ceiling, no emoji m
   // 169-control labelled graph (1,517), and Apps is the module catalogue whose
   // summaries are the content (883). All get recorded bounds, not silence;
   // every other app must fit the 700-word ceiling.
-  const exceptions: Record<string, number> = { spec: 13_000 /* TT124: register grew to 587 rows (+20/turn); the spec window IS the register text */, settings: 1_600, apps: 950 };
+  const exceptions: Record<string, number> = { spec: 13_000 /* TT124: register grew to 587 rows (+20/turn); the spec window IS the register text */, settings: 1_600, apps: 950, monitor: 1_600 /* TT149: Monitor became the evidence console — 28 instrument panels from TT143/TT145 whose words ARE the measurements (measured 1,508 on this build). Same treatment as `spec`: an explicit bound, not silence; growth past 1,600 still fails. The live job/audit tails are already capped at 8 rows each. */ };
   for (const [id, r] of results) {
     const max = exceptions[id] ?? 700;
     assert.ok(r.words <= max, `${id}: ${r.words} visible words exceeds its bound ${max}`);
@@ -122,7 +123,7 @@ await test("AX-24: every app measured, none wordier than the ceiling, no emoji m
     assert.deepEqual(bad, [], `${id}: low-contrast controls — ${bad.slice(0, 4).join(" | ")}`);
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT120 table).
-  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 148, calculator: 132, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 166, photos: 60, backup: 440 /* TT122: BK-10 inventory section */, editor: 62, terminal: 36, monitor: 500 /* TT120: 424 on a fresh DB, 469 after a turn of file ops — Monitor lists live jobs/command log, so its count is session-data dependent (same treatment as Planner task titles) */, messages: 300, contacts: 72 };
+  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 148, calculator: 132, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 166, photos: 60, backup: 470 /* TT149: measured 459 after this turn's trims; TT143/145 added the drill + custody panels, whose disclosures are mandatory (loss report / key custody). Was 440 before those panels. */, editor: 62, terminal: 36, messages: 300, contacts: 72 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

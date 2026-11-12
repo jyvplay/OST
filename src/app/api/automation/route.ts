@@ -1,0 +1,157 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { and, asc, count, desc, eq, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { db } from "@/db";
+import { auditLog, automationRuns, automationTokens } from "@/db/schema";
+import { readJsonObject } from "@/lib/http-json";
+import {
+  hasScope, MAX_QUEUE_DEPTH, parseScopes, parseToken, takeToken, timingSafeEqualHex,
+  validateRequest, vocabulary, type QueuedRun, type RateLimitState, type RunStatus, type Scope,
+} from "@/lib/automation/tokens";
+
+export const dynamic = "force-dynamic";
+
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 60_000;
+
+const sha256 = (value: string) => createHash("sha256").update(value, "utf8").digest("hex");
+
+type TokenRow = typeof automationTokens.$inferSelect;
+type RunRow = typeof automationRuns.$inferSelect;
+
+const toRun = (r: RunRow): QueuedRun => ({
+  id: r.id,
+  tokenId: r.tokenId,
+  actions: r.actions as QueuedRun["actions"],
+  status: r.status as RunStatus,
+  createdAt: r.createdAt.getTime(),
+  finishedAt: r.finishedAt ? r.finishedAt.getTime() : null,
+  result: r.result,
+});
+
+/** Bearer token from either header spelling. The token itself is never logged. */
+function bearer(req: NextRequest): string | null {
+  const auth = req.headers.get("authorization") ?? "";
+  const m = /^Bearer\s+(.+)$/i.exec(auth.trim());
+  if (m) return m[1].trim();
+  const alt = req.headers.get("x-fusion-token");
+  return alt ? alt.trim() : null;
+}
+
+async function verify(req: NextRequest): Promise<
+  | { ok: true; row: TokenRow; scopes: Scope[] }
+  | { ok: false; status: number; error: string }
+> {
+  const raw = bearer(req);
+  if (!raw) return { ok: false, status: 401, error: "missing bearer token" };
+  const parsed = parseToken(raw);
+  if (!parsed) return { ok: false, status: 401, error: "token is not well formed" };
+  const rows = await db.select().from(automationTokens).where(eq(automationTokens.id, parsed.id)).limit(1);
+  const row = rows[0];
+  if (!row) return { ok: false, status: 401, error: "unknown token" };
+  if (row.revokedAt) return { ok: false, status: 401, error: "token was revoked" };
+  if (!timingSafeEqualHex(sha256(parsed.secret), row.secretHash)) return { ok: false, status: 401, error: "secret does not match" };
+  return { ok: true, row, scopes: parseScopes(row.scopes) };
+}
+
+/**
+ * GET has two callers:
+ *   • an external script with a `read` token, asking what it may send;
+ *   • the open shell (no token, same origin) asking what is queued.
+ * The shell path changes nothing and is unreadable cross-origin (no CORS
+ * header), so it needs no token; it is identified by `pending=1`.
+ */
+export async function GET(req: NextRequest) {
+  if (req.nextUrl.searchParams.get("pending") === "1") {
+    const rows = await db.select().from(automationRuns)
+      .where(eq(automationRuns.status, "queued")).orderBy(asc(automationRuns.id)).limit(10);
+    const queued = await db.select({ id: automationRuns.id }).from(automationRuns).where(eq(automationRuns.status, "queued"));
+    return NextResponse.json({ ok: true, runs: rows.map(toRun), depth: queued.length });
+  }
+  const who = await verify(req);
+  if (!who.ok) return NextResponse.json({ ok: false, error: who.error }, { status: who.status });
+  if (!hasScope(who.scopes, "read")) {
+    await db.insert(auditLog).values({ actor: `automation:${who.row.id}`, action: "automation.denied", detail: "read scope required" });
+    return NextResponse.json({ ok: false, error: "this token has no read scope" }, { status: 403 });
+  }
+  const queued = await db.select({ id: automationRuns.id }).from(automationRuns).where(eq(automationRuns.status, "queued"));
+  const recent = await db.select().from(automationRuns)
+    .where(eq(automationRuns.tokenId, who.row.id)).orderBy(desc(automationRuns.id)).limit(5);
+  return NextResponse.json({
+    ok: true, vocabulary: vocabulary(), scopes: who.scopes, queueDepth: queued.length,
+    recent: recent.map((r) => ({ id: r.id, status: r.status, createdAt: r.createdAt.toISOString(), result: r.result })),
+  });
+}
+
+export async function POST(req: NextRequest) {
+  // The body is validated before anything is looked up (the repo-wide rule: an
+  // empty body is a 400, never a 401 or a 404).
+  const body = (await readJsonObject(req)) as Record<string, unknown> | Response;
+  if (body instanceof Response) return body;
+
+  // ---- shell path: claim the queue / report an outcome. No token: this is the
+  // UI telling the server what it actually did, and it cannot enqueue anything.
+  if (typeof body.settleId === "number") {
+    const id = body.settleId;
+    if (!Number.isInteger(id) || id < 1) return NextResponse.json({ ok: false, error: "settleId must be a positive integer" }, { status: 400 });
+    if (typeof body.ok !== "boolean") return NextResponse.json({ ok: false, error: "ok must be true or false" }, { status: 400 });
+    const status = body.ok ? "done" : "failed";
+    const result = (typeof body.result === "string" ? body.result : "").slice(0, 500);
+    // Conditional update serializes competing reports on this row. Keep the
+    // terminal audit and status in the same transaction: an audit failure must
+    // not leave an unaudited terminal outcome.
+    const outcome = await db.transaction(async tx => {
+      const [won] = await tx.update(automationRuns)
+        .set({ status, result, finishedAt: new Date() })
+        .where(and(eq(automationRuns.id, id), eq(automationRuns.status, "queued")))
+        .returning();
+      if (won) {
+        await tx.insert(auditLog).values({ actor: "automation", action: `automation.${status}`, detail: `run ${id}: ${result.slice(0, 200)}` });
+        return { row: won, unchanged: false };
+      }
+      const [row] = await tx.select().from(automationRuns).where(eq(automationRuns.id, id)).limit(1);
+      return { row, unchanged: true };
+    });
+    if (!outcome.row) return NextResponse.json({ ok: false, error: "no such run" }, { status: 404 });
+    return NextResponse.json({ ok: true, ...(outcome.unchanged ? { unchanged: true } : {}), run: toRun(outcome.row) });
+  }
+
+  // ---- external path
+  const who = await verify(req);
+  if (!who.ok) {
+    await db.insert(auditLog).values({ actor: "automation", action: "automation.denied", detail: who.error });
+    return NextResponse.json({ ok: false, error: who.error }, { status: who.status });
+  }
+  if (!hasScope(who.scopes, "run")) {
+    await db.insert(auditLog).values({ actor: `automation:${who.row.id}`, action: "automation.denied", detail: "run scope required" });
+    return NextResponse.json({ ok: false, error: "this token has no run scope" }, { status: 403 });
+  }
+
+  const parsed = validateRequest(body);
+  if (!parsed.ok) return NextResponse.json({ ok: false, errors: parsed.errors }, { status: 400 });
+
+  // Admission is a single transaction. All writers through this route take the
+  // same transaction-scoped lock before counting the global queue; the token
+  // row lock also serializes against revocation. Recheck after acquiring locks.
+  const admission = await db.transaction(async tx => {
+    await tx.execute(sql`select pg_advisory_xact_lock(5198676, 160)`);
+    const [row] = await tx.select().from(automationTokens).where(eq(automationTokens.id, who.row.id)).for("update");
+    if (!row || row.revokedAt || row.secretHash !== who.row.secretHash || !hasScope(parseScopes(row.scopes), "run")) {
+      return { status: 401 as const, error: "token no longer valid" };
+    }
+    const gate = takeToken((row.rateState as RateLimitState | null) ?? null, Date.now(), RATE_LIMIT, RATE_WINDOW_MS);
+    if (!gate.allowed) {
+      await tx.update(automationTokens).set({ rateState: gate.state }).where(eq(automationTokens.id, row.id));
+      await tx.insert(auditLog).values({ actor: `automation:${row.id}`, action: "automation.throttled", detail: `retry in ${gate.retryAfterMs} ms` });
+      return { status: 429 as const, error: "rate limit exceeded", retryAfter: Math.ceil(gate.retryAfterMs / 1000) };
+    }
+    const [{ value: depth }] = await tx.select({ value: count() }).from(automationRuns).where(eq(automationRuns.status, "queued"));
+    if (depth >= MAX_QUEUE_DEPTH) return { status: 503 as const, error: `queue is full (${depth}/${MAX_QUEUE_DEPTH}); the open shell has not drained it` };
+    const [run] = await tx.insert(automationRuns).values({ tokenId: row.id, actions: parsed.request.actions, status: "queued" }).returning();
+    await tx.update(automationTokens).set({ rateState: gate.state, lastUsedAt: new Date() }).where(eq(automationTokens.id, row.id));
+    await tx.insert(auditLog).values({ actor: `automation:${row.id}`, action: "automation.enqueued", detail: `run ${run.id}: ${parsed.request.actions.map(a => a.cmd).join(" ")}` });
+    return { status: 201 as const, id: run.id, remaining: gate.remaining };
+  });
+  if (admission.status !== 201) return NextResponse.json({ ok: false, error: admission.error }, { status: admission.status, ...(admission.status === 429 ? { headers: { "retry-after": String(admission.retryAfter) } } : {}) });
+  return NextResponse.json({ ok: true, id: admission.id, status: "queued", remaining: admission.remaining }, { status: 201 });
+}

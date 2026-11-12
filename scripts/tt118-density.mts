@@ -76,7 +76,7 @@ await test("AX-20: every app measured, none wordier than the ceiling, no emoji m
   // 169-control labelled graph (1,517), and Apps is the module catalogue whose
   // summaries are the content (883). All get recorded bounds, not silence;
   // every other app must fit the 700-word ceiling.
-  const exceptions: Record<string, number> = { spec: 13_000 /* TT124: register grew to 587 rows (+20/turn); the spec window IS the register text */, settings: 1_600, apps: 950 };
+  const exceptions: Record<string, number> = { spec: 13_000 /* TT124: register grew to 587 rows (+20/turn); the spec window IS the register text */, settings: 1_600, apps: 950, monitor: 1_600 /* TT149: Monitor became the evidence console — 28 instrument panels from TT143/TT145 whose words ARE the measurements (measured 1,508 on this build). Same treatment as `spec`: an explicit bound, not silence; growth past 1,600 still fails. The live job/audit tails are already capped at 8 rows each. */ };
   for (const [id, r] of results) {
     const max = exceptions[id] ?? 700;
     assert.ok(r.words <= max, `${id}: ${r.words} visible words exceeds its bound ${max}`);
@@ -90,7 +90,7 @@ await test("AX-20: every app measured, none wordier than the ceiling, no emoji m
   }
   // Tighter bounds, measured this turn on this build (see DESIGN-TT118 table).
   // clock bound 130 in TT118; raised to 145 in TT120 for the WD-04 per-zone status badges (tt120-density asserts the same 145).
-  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 120, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 140, photos: 60 /* TT123: PH-07 No-date view button + gate-DB seeded pictures (list content, session-data treatment) */, backup: 440 /* TT122: BK-10 inventory section */, editor: 160 /* TT122: a recovery draft from gate e2e editing can auto-load (session-data dependent) */, terminal: 20 };
+  const bounds: Record<string, number> = { browser: 40, clock: 160 /* TT123: CK-07 offset labels + By-offset toggle */, planner: 120, calculator: 120, notes: 90 /* TT122: note titles are seeded session data; the audit targets control chrome, not list content (Monitor precedent) */, find: 140, photos: 60 /* TT123: PH-07 No-date view button + gate-DB seeded pictures (list content, session-data treatment) */, backup: 470 /* TT149: measured 459 after this turn's trims; TT143/145 added the drill + custody panels, whose disclosures are mandatory (loss report / key custody). Was 440 before those panels. */, editor: 160 /* TT122: a recovery draft from gate e2e editing can auto-load (session-data dependent) */, terminal: 20 };
   for (const [id, max] of Object.entries(bounds)) {
     const r = results.get(id);
     assert.ok(r, `${id} did not render`);

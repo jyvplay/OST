@@ -32,6 +32,7 @@ import { UiGlyph } from "../AppIcon";
 import { compareNewestPhotoDate, sortPhotos, type PhotoSort } from "@/lib/photo-sort";
 import Thumb from "../Thumb";
 import { readFileBytes, readRecipe, readRecipeForEditing, forgetThumbnail, bytesToB64, type RecipeIdentity } from "@/lib/thumbs/service";
+import { useQuality } from "@/lib/net/use-quality";
 import { PRESETS, isIdentity, isSidecar, outputSize, parseRecipe, photoOfSidecar, renderRecipe, sidecarPath, type PhotoRecipe, type PresetName } from "@/lib/photos/recipe";
 import { privacy } from "@/lib/privacy/session";
 import { isPrivatePath } from "@/lib/privacy/pcrypt";
@@ -160,6 +161,10 @@ export default function PhotosModule({ win }: ModuleProps) {
   const [showPlaying, setShowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [showSecs, setShowSecs] = useState(4);
+  // HW-09 (TT146): the gallery asks for the thumbnail size the network policy
+  // chose, so a 2G phone does not queue 400 256px decodes and a desktop does
+  // not look at 96px mush. The plan is a pure decision; this is the consumer.
+  const netThumb = useQuality("photoThumb");
   const current = items?.find((i) => i.path === open) ?? null;
   // A deep link starts before its list is known. This guarded adjustment is
   // local to this component's render and happens exactly once per session;
@@ -229,7 +234,7 @@ export default function PhotosModule({ win }: ModuleProps) {
                     {/* Reserve the same square before and after thumbnail decode.
                         Otherwise grid rows move while a pointer click is in flight. */}
                     <div style={{ width: "100%", aspectRatio: "1 / 1", pointerEvents: "none" }}>
-                      <Thumb node={it} size="100%" iconSize={40} hasSidecar={sidecars.has(it.path)} fit="contain" radius={8} label={it.name} />
+                      <Thumb node={it} size="100%" iconSize={40} max={netThumb.decision.value} hasSidecar={sidecars.has(it.path)} fit="contain" radius={8} label={it.name} />
                     </div>
                     <span style={{ position: "absolute", top: 8, right: 10, display: "flex", gap: 3, pointerEvents: "none" }}>
                       {r?.favorite ? <Badge tone="warn" title="Favorite"><HeartIcon filled size={11} /></Badge> : null}

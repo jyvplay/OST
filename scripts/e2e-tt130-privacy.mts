@@ -28,8 +28,9 @@ try {
     });
     const page = await context.newPage(); page.setDefaultTimeout(15_000);
     await page.goto(`${BASE}/?amnesia=1`, { waitUntil: "domcontentloaded" });
-    // A working interactive launcher establishes client hydration regardless of
-    // whether the amnesic badge exists on a broken build.
+    // Wait for the shell's actual bootstrap, then require a working launcher;
+    // visibility alone can precede hydration and a click could be lost.
+    await page.locator('[data-shell-ready="true"]').waitFor();
     await page.getByTestId("launcher-button").click();
     await page.getByRole("dialog", { name: "Launcher" }).waitFor();
     const response = await page.evaluate(async (name) => {

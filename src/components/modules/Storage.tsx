@@ -3,7 +3,7 @@ import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { api, fmtBytes, post } from "@/lib/api";
+import { fmtBytes, post } from "@/lib/api";
 import {
   clearBrowserStorage,
   inspectBrowserStorage,
@@ -29,6 +29,9 @@ interface Data {
 export default function StorageModule(_: ModuleProps) {
   const shell = useShell();
   const [d, setD] = useState<Data | null>(null);
+  const [overviewError, setOverviewError] = useState(false);
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const overviewEpoch = useRef(0);
   const [quota, setQuota] = useState<{ usage: number; quota: number } | null>(null);
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [browserLocal, setBrowserLocal] = useState<BrowserBucketReport>({ keys: [], rows: 0, bytes: 0, samples: [] });
@@ -56,13 +59,27 @@ export default function StorageModule(_: ModuleProps) {
     });
   }, []);
 
-  const load = useCallback(() => api<Data>("/api/storage").then(setD).catch(() => undefined)
-    .finally(refreshBrowserStorage), [refreshBrowserStorage]);
+  const load = useCallback(async () => {
+    const epoch = ++overviewEpoch.current;
+    setOverviewLoading(true);
+    try {
+      const response = await fetch("/api/storage", { cache: "no-store" });
+      if (!response.ok) throw new Error("Storage overview request failed");
+      const result = await response.json() as Data & { ok?: boolean };
+      if (!result || result.ok !== true || !Array.isArray(result.categories) || !Array.isArray(result.large) || !Array.isArray(result.duplicates) || !result.trash || !result.versions || !Array.isArray(result.buckets)) throw new Error("Invalid storage overview");
+      if (epoch === overviewEpoch.current) { setD(result); setOverviewError(false); }
+    } catch {
+      if (epoch === overviewEpoch.current) setOverviewError(true);
+    } finally {
+      if (epoch === overviewEpoch.current) { setOverviewLoading(false); refreshBrowserStorage(); }
+    }
+  }, [refreshBrowserStorage]);
 
   useEffect(() => {
     void load();
     navigator.storage?.estimate?.().then((e) => setQuota({ usage: e.usage ?? 0, quota: e.quota ?? 0 })).catch(() => undefined);
     navigator.storage?.persisted?.().then(setPersisted).catch(() => undefined);
+    return () => { overviewEpoch.current++; };
   }, [shell.refreshTick, load]);
 
   const total = d?.categories.reduce((a, c) => a + Number(c.bytes), 0) ?? 0;
@@ -160,7 +177,12 @@ export default function StorageModule(_: ModuleProps) {
 
   return (
     <div className="fs-scroll" data-testid="storage-app" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
+      {overviewError ? <div role="alert" data-testid="storage-overview-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+        <span>{d ? "Storage overview may be out of date." : "Storage overview unavailable."}</span>
+        <Btn variant="ghost" aria-label="Retry storage overview" onClick={() => void load()}>Retry</Btn>
+      </div> : null}
       <Section title="Where the bytes are" right={<Btn variant="ghost" aria-label="Refresh storage overview" onClick={() => void load()}>Refresh</Btn>}>
+        {!d ? <div role="status">{overviewLoading ? "Loading storage overview…" : "No server overview available."}</div> : <>
         <KV k="VFS files (server, Postgres)" v={fmtBytes(total)} />
         <KV k="Trash" v={`${d?.trash.files ?? 0} files · ${fmtBytes(Number(d?.trash.bytes ?? 0))}`} />
         <KV k="Version history" v={`${d?.versions.versions ?? 0} snapshots · ${fmtBytes(Number(d?.versions.bytes ?? 0))}`} />
@@ -177,9 +199,10 @@ export default function StorageModule(_: ModuleProps) {
         <div className="fs-row" style={{ gap: 4, flexWrap: "wrap" }} data-testid="storage-categories">
           {d?.categories.map((c) => <Badge key={c.category}>{c.category}: {c.files} · {fmtBytes(Number(c.bytes))}</Badge>)}
         </div>
+        </>}
       </Section>
 
-      <Section title="Duplicates (by content digest)">
+      {d ? <><Section title="Duplicates (by content digest)">
         {d?.duplicates.length ? (() => { const sum = reclaimSummary(d.duplicates.map((g) => ({ copies: g.copies, reclaimable: Number(g.reclaimable) }))); return <Badge tone="warn" data-testid="storage-reclaim-summary">{sum.groups} duplicate groups · {sum.copies} copies · reclaim {fmtBytes(sum.bytes)}</Badge>; })() : null}
         {d?.duplicates.length ? d.duplicates.map((g) => (
           <div key={g.sha256} className="fs-panel" data-testid="storage-duplicate-group" style={{ padding: 8, display: "grid", gap: 3 }}>
@@ -207,6 +230,7 @@ export default function StorageModule(_: ModuleProps) {
         ))}
       </Section>
 
+      </> : null}
       <Section
         title="Uninstall & data assistant (AP-02)"
         right={

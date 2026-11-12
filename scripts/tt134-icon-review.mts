@@ -16,7 +16,10 @@ try {
   for (const [mode, width] of [["wide", 1500], ["compact", 900]] as const) {
     const context = await fx.context({ viewport: { width, height: 960 } });
     try {
-      for (const [app, glyph] of [["notes", "note"], ["find", "search"]] as const) {
+      // TT148: Find's mark is a funnel (a narrowing throat) rather than a magnifier. An
+      // earlier turn replaced the stock lens shape; this expectation names the glyph the
+      // registry ships instead of the shape it used to be.
+      for (const [app, glyph] of [["notes", "note"], ["find", "funnel"]] as const) {
         await test(`${mode}: ${app} original mark renders in the real window without an external asset or page error`, {}, async () => {
           await fx.windows(app, 1, width); const page = await context.newPage(), errors: string[] = [];
           page.on("pageerror", error => errors.push(error.message));

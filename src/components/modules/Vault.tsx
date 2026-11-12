@@ -1,4 +1,5 @@
 "use client";
+import { OtpCard } from "../tt151-panels";
 import { fz } from "@/lib/uiscale";
 
 import { useEffect, useRef, useState } from "react";
@@ -197,6 +198,7 @@ export default function VaultModule(_: ModuleProps) {
 
   return (
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
+      <OtpCard onCopy={(code) => shell.copy(code, "vault", true)} />
       <div className="fs-row" style={{ gap: 6 }}>
         <Badge tone="ok">unlocked</Badge>
           <Btn variant="ghost" disabled={busy} title="Compares non-empty secrets locally" onClick={async () => { const started = epoch.current; const dig = await Promise.all(items.filter((it) => it.secret.length > 0).map(async (it) => { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(it.secret)); return { id: 0, label: it.title, digest: [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("") }; })); if (started === epoch.current) setAudit(reuseReportText(reuseGroups(dig))); }} data-testid="vault-audit-btn">Audit reuse</Btn>

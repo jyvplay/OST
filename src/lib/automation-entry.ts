@@ -12,9 +12,9 @@
  *   - a request with a step the shell does not have, an argument of the wrong
  *     type, or more than the action budget is refused with the reason — never
  *     partially executed;
- *   - a token (single use, expiring) is required for requests that come from
- *     another origin, which stops a malicious page from POSTing a fire-and-forget
- *     routine to localhost.
+ *   - this local planner can check a single-use, expiring token supplied in a
+ *     pasted request. The pasted origin is not authenticated and this planner
+ *     is not an inbound endpoint or a cross-origin security boundary.
  *
  * Limits: this is a *local* seam. There is no inbound webhook server, no
  * scheduling across restarts unless the shell persists it, and no shell command
@@ -88,8 +88,8 @@ function describeAction(command: string, args: Record<string, unknown>): string 
 }
 
 /**
- * Cross-origin entry tokens. Single-use, expiring, and bound to the routine so a
- * token for "backup" cannot be replayed against "delete".
+ * Local planner tokens, bound to a routine and consumed on successful check.
+ * They are not credentials for the separate server automation API.
  */
 export interface EntryToken { value: string; routineId: string; expiresAt: number; used: boolean }
 
@@ -100,10 +100,12 @@ export function issueToken(routineId: string, now: number, ttlMs = 60_000): Entr
   return { value, routineId, expiresAt: now + Math.max(1000, Math.min(ttlMs, 600_000)), used: false };
 }
 
-export function redeemToken(token: EntryToken | undefined, routineId: string, now: number): { ok: boolean; error: string | null } {
-  if (!token) return { ok: false, error: "a token is required for a request from another origin" };
+export function redeemToken(token: EntryToken | undefined, presented: string | undefined, routineId: string, now: number): { ok: boolean; error: string | null } {
+  if (!token || !presented) return { ok: false, error: "a planner token is required" };
   if (token.used) return { ok: false, error: "that token has already been used" };
   if (token.routineId !== routineId) return { ok: false, error: "the token was issued for a different routine" };
-  if (now > token.expiresAt) return { ok: false, error: "the token has expired" };
+  if (!Number.isFinite(now) || !Number.isFinite(token.expiresAt) || now >= token.expiresAt) return { ok: false, error: "the token has expired" };
+  if (presented !== token.value) return { ok: false, error: "the token does not match" };
+  token.used = true;
   return { ok: true, error: null };
 }

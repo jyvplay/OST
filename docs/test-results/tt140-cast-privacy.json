@@ -1,6 +1,6 @@
 {
   "suite": "tt140-cast-privacy",
-  "at": "2026-11-07T02:23:43.087Z",
+  "at": "2026-11-12T16:34:04.591Z",
   "results": [
     {
       "suite": "tt140-cast-privacy",
@@ -117,7 +117,7 @@
         "SC-06": "full"
       },
       "pass": true,
-      "ms": 1
+      "ms": 0
     },
     {
       "suite": "tt140-cast-privacy",

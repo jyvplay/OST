@@ -1,4 +1,5 @@
 "use client";
+import { routineTriggerDue } from "@/lib/routine-trigger";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { api, patch, post, replayQueue } from "@/lib/api";
@@ -150,18 +151,7 @@ export default function ShellDaemons() {
         let ran = 0;
         for (const rt of r.rows) {
           if (!rt.enabled || rt.trigger === "manual") continue;
-          const last = rt.lastRun ? new Date(rt.lastRun) : null;
-          let due = false;
-          if (rt.trigger === "interval") {
-            const mins = Math.max(1, Number(rt.triggerArg) || 60);
-            due = !last || now.getTime() - last.getTime() >= mins * 60_000;
-          } else if (rt.trigger === "time-of-day") {
-            const [h, m] = rt.triggerArg.split(":").map(Number);
-            const at = new Date(now); at.setHours(h || 0, m || 0, 0, 0);
-            due = now >= at && (!last || last < at);
-          } else if (rt.trigger === "display-connected") {
-            due = displayRose;
-          }
+          const due = routineTriggerDue(rt, now, displayRose);
           if (due) {
             await s.runActions(rt.actions);
             await post("/api/routines", { ranId: rt.id });
@@ -175,6 +165,49 @@ export default function ShellDaemons() {
     const t = window.setInterval(tick, 60_000);
     void tick();
     return () => window.clearInterval(t);
+  }, []);
+
+  /**
+   * AU-03 (TT146): drain the external-automation queue.
+   *
+   * The server cannot press a button in the browser, so an external caller
+   * enqueues an intent and this loop — which runs only while a shell window is
+   * open — executes it through the same `runActions` executor the UI uses, then
+   * reports the outcome back. Three rules make it safe to leave running:
+   *   • one run at a time (a batch that opens six windows at once is not
+   *     something a person can follow, and two in flight can fight over focus),
+   *   • the governor can pause it, exactly like the routine triggers,
+   *   • a failure is reported as `failed`, never retried silently: an automation
+   *     loop that repeats a broken command is the classic denial of service.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    const drain = async () => {
+      const s = ref.current;
+      if (!s.gov.backgroundWork || !navigator.onLine) return;
+      try {
+        const r = await api<{ runs: { id: number; actions: RoutineAction[] }[]; depth: number }>("/api/automation?pending=1");
+        for (const run of r.runs) {
+          if (cancelled) return;
+          let ok = true; let detail = "";
+          try {
+            await s.runActions(run.actions);
+            detail = `executed ${run.actions.length} action(s): ${run.actions.map((a) => a.cmd).join(" ")}`;
+            s.toast(`External automation ran ${run.actions.length} action(s).`, "ok");
+          } catch (e) {
+            ok = false;
+            detail = `failed: ${(e as Error).message}`;
+            s.toast("An external automation request failed.", "warn");
+          }
+          await post("/api/automation", { settleId: run.id, ok, result: detail });
+        }
+      } catch {
+        // Server unreachable: nothing is marked settled, so the queue keeps its intent.
+      }
+    };
+    const t = window.setInterval(drain, 3_000);
+    void drain();
+    return () => { cancelled = true; window.clearInterval(t); };
   }, []);
 
   // SH-14 offline write queue replay

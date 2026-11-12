@@ -38,7 +38,7 @@ export const MODULE_ICONS: Record<string, [PaletteName, GlyphName]> = {
   // magnifier and belongs to the shell's search field, which is a different job.
   recall: ["teal", "record"], files: ["orange", "folder"], editor: ["sky", "pencil"], find: ["teal", "funnel"], terminal: ["slate", "terminal"], ssh: ["lagoon", "terminal"],
   notes: ["sun", "note"], browser: ["blue", "globe"], media: ["coral", "play"], capture: ["coral", "record"],
-  lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"],
+  lens: ["indigo", "camera"], beam: ["teal", "broadcast"], together: ["orange", "people"], messages: ["green", "chat"], mail: ["sky", "chat"],
   vault: ["indigo", "lock"], privacy: ["teal", "shield"], backup: ["sky", "cloud"], alerts: ["sun", "bell"],
 
   imageedit: ["lagoon", "picture"], photos: ["sun", "picture"], vector: ["orange", "pen"], writer: ["blue", "doc"], slides: ["ember", "easel"], pdf: ["coral", "doc"],

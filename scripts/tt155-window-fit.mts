@@ -1,0 +1,36 @@
+import assert from "node:assert/strict";
+import { initialDesktop, reduce } from "../src/lib/windowing/state.ts";
+import { makeHarness } from "./harness.mts";
+const { test, finish } = makeHarness("tt155-window-fit");
+await test("restored oversized axes fit the measured desk while fitting partial-offscreen windows are preserved", {}, () => {
+  let base = reduce(initialDesktop(), { t: "open", id: "w", module: "terminal", title: "Terminal" });
+  const w = base.windows[0];
+  const state = { ...base, viewport: { w: 800, h: 500 }, windows: [{ ...w, x: 20, y: 16, w: 1200, h: 960 }] };
+  const restored = reduce(initialDesktop(), { t: "hydrate", state });
+  assert.deepEqual([restored.windows[0].x, restored.windows[0].y, restored.windows[0].w, restored.windows[0].h], [20, 16, 780, 484]);
+  const onlyTall = { ...state, windows: [{ ...w, x: 100, y: 16, w: 400, h: 960 }] };
+  const one = reduce(initialDesktop(), { t: "hydrate", state: onlyTall });
+  assert.deepEqual([one.windows[0].x, one.windows[0].y, one.windows[0].w, one.windows[0].h], [100, 16, 400, 484]);
+  const neighboring = { ...state, viewport: { w: 1240, h: 840 }, windows: [{ ...w, x: 900, y: 10, w: 1480, h: 860 }] };
+  const neighbor = reduce(initialDesktop(), { t: "hydrate", state: neighboring }).windows[0];
+  assert.deepEqual([neighbor.x, neighbor.y, neighbor.w, neighbor.h], [900, 10, 340, 830], "oversized neighbor must not jump over a left-hand window");
+  const partial = { ...state, windows: [{ ...w, x: 740, y: 400, w: 400, h: 300 }] };
+  const kept = reduce(initialDesktop(), { t: "hydrate", state: partial });
+  assert.deepEqual([kept.windows[0].x, kept.windows[0].y, kept.windows[0].w, kept.windows[0].h], [740, 400, 400, 300]);
+});
+await test("shrinking the desk fits only oversized axes, preserving maximize restore", {}, () => {
+  let s = reduce(initialDesktop(), { t: "viewport", w: 1200, h: 900 });
+  s = reduce(s, { t: "open", id: "w", module: "terminal", title: "Terminal", rect: { x: 20, y: 20, w: 1000, h: 800 } });
+  s = reduce(s, { t: "viewport", w: 700, h: 600 });
+  const w = s.windows[0]; assert.deepEqual([w.x, w.y, w.w, w.h], [20, 20, 680, 580]);
+  s = reduce(s, { t: "toggleMax", id: "w" }); s = reduce(s, { t: "toggleMax", id: "w" });
+  assert.deepEqual([s.windows[0].x, s.windows[0].y, s.windows[0].w, s.windows[0].h], [20, 20, 680, 580]);
+  assert.equal(reduce(s, { t: "viewport", w: 700, h: 600 }), s, "unchanged viewport is referentially identical");
+  let maximized = reduce(initialDesktop(), { t: "viewport", w: 1200, h: 900 });
+  maximized = reduce(maximized, { t: "open", id: "m", module: "terminal", title: "Terminal", rect: { x: 30, y: 20, w: 1000, h: 800 } });
+  maximized = reduce(maximized, { t: "toggleMax", id: "m" });
+  maximized = reduce(maximized, { t: "viewport", w: 700, h: 600 });
+  maximized = reduce(maximized, { t: "toggleMax", id: "m" });
+  assert.deepEqual([maximized.windows[0].x, maximized.windows[0].y, maximized.windows[0].w, maximized.windows[0].h], [30, 20, 670, 580], "restore after display shrink");
+});
+finish();

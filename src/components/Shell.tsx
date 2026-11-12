@@ -20,6 +20,7 @@ import { probeCapabilities, refineCapabilities, type CapabilityReport } from "@/
 import { governor, type GovernorSnapshot } from "@/lib/governor";
 import { memoryPolicy } from "@/lib/policy";
 import { MODULES, moduleById } from "@/lib/registry";
+import { decodeHandoff, FRAGMENT_KEY } from "@/lib/handoff/continue-link";
 import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
 import { privacy } from "@/lib/privacy/session";
 import {
@@ -276,7 +277,10 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
   const clipSeq = useRef(0);
   const copy = useCallback(async (text: string, from: string, sensitive = false) => {
     let wrote = false;
-    try { await navigator.clipboard?.writeText(text); wrote = true; } catch { /* clipboard write needs focus; the in-app history still records it */ }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(text); wrote = true;
+    } catch { /* clipboard write needs focus; the in-app history still records it */ }
     // unique, increasing ids even for two copies in the same millisecond (entries are addressed by `at`)
     const at = Math.max(Date.now(), clipSeq.current + 1); clipSeq.current = at;
     setClips((c) => addClip(c, { text: sensitive ? "•".repeat(Math.min(text.length, 12)) : text, at, sensitive, from }));
@@ -288,7 +292,7 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
         catch { if (clipSeq.current === at) { try { await navigator.clipboard.writeText(""); } catch { /* no focus: nothing more a web page can do */ } } }
       }, SENSITIVE_CLEAR_MS);
     }
-    toast(sensitive ? "Copied (sensitive — not stored, clipboard clears in 30 s)" : "Copied", "ok");
+    toast(wrote ? (sensitive ? "Copied (sensitive — not stored, clipboard clearing attempted in 30 s)" : "Copied") : "System clipboard unavailable; only the in-app history was updated.", wrote ? "ok" : "warn");
   }, [toast]);
   const editClips = useCallback((fn: (c: ClipEntry[]) => ClipEntry[]) => setClips(fn), []);
 
@@ -354,12 +358,62 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
           dispatch({ t: "hydrate", state: { ...initialDesktop(), ...st.row.state, ...measured, revision } });
           // TT75: new window ids continue after the restored ones (the deep link below opens before the next render)
           for (const w of st.row.state.windows) { const n = Number(/^w(\d+)_/.exec(String(w.id))?.[1] ?? 0); if (n > counter.current) counter.current = n; }
+
+        // TT146 (CT-03): a continue-on link carries a whole layout in its
+        // fragment. It is adopted only after the stored desktop has loaded, so
+        // the fragment wins over whatever this device had open — that is what
+        // "continue where I left off on the other machine" means. The fragment
+        // is then dropped from the address bar: leaving it there would re-adopt
+        // the same layout on every reload and silently discard later edits.
+        if (!cancelled && window.location.hash.includes(`${FRAGMENT_KEY}=`)) {
+          const decoded = decodeHandoff(window.location.href, (m) => MODULES.some((x) => x.id === m));
+          if (decoded.ok && decoded.state) {
+            const desk = deskRef.current?.getBoundingClientRect();
+            const measured = desk && desk.width > 0 && desk.height > 0 ? { viewport: { w: Math.round(desk.width), h: Math.round(desk.height) } } : {};
+            const base = Math.max(Number(st.row?.revision) || 0, 1);
+            let z = 10;
+            const windows = decoded.state.windows.map((w) => {
+              counter.current += 1;
+              return {
+                id: `w${counter.current}_${w.module}`,
+                module: w.module,
+                title: w.title,
+                x: w.x, y: w.y, w: w.w, h: w.h,
+                z: z++,
+                minimized: false,
+                maximized: false,
+                workspace: w.workspace,
+                host: "tab" as const,
+                props: w.props,
+              };
+            });
+            const activeWorkspace = windows[0]?.workspace ?? 1;
+            const workspaces = Array.from(new Set([1, ...windows.map((w) => w.workspace)])).sort((a, b) => a - b)
+              .map((id) => ({ id, name: id === 1 ? "Main" : `Workspace ${id}` }));
+            dispatch({
+              t: "hydrate",
+              state: {
+                ...initialDesktop(), ...measured, windows, workspaces, activeWorkspace,
+                focus: windows[decoded.state.focus ?? 0]?.id ?? windows[0].id, nextZ: z + 1, revision: base,
+              },
+            });
+            window.history.replaceState({}, "", window.location.pathname + window.location.search);
+            const left = decoded.ignored.length ? ` ${decoded.ignored.length} item(s) from that link could not be used here.` : "";
+            toast(`Continued from a link: ${windows.length} window(s).${left}`, decoded.ignored.length ? "warn" : "ok");
+          } else if (decoded.reason) {
+            window.history.replaceState({}, "", window.location.pathname + window.location.search);
+            toast(`That continue-on link was not used: ${decoded.reason}.`, "warn");
+          }
+        }
         }
       } catch (err) {
-        toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
+        if (!cancelled) toast(`Offline or server error: ${String((err as Error).message)}. The shell runs read-only.`, "warn");
       }
+      // A superseded boot must not consume a launch URL or dispatch windows.
+      // In Strict Mode its cleanup can run while bootstrap is still in flight.
+      if (cancelled) return;
       loaded.current = true;
-      if (!cancelled) setBooted(true);
+      setBooted(true);
       // TT142: a desktop link that could not be honoured says so, once, instead of
       // silently showing a different desktop than the one the reader asked for.
       if (!cancelled && desktopNotice) toast(desktopNotice, "warn");
@@ -380,7 +434,14 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
           open("browser", { url: shared, title: "Shared link" });
           toast("Opened a shared link from the OS share sheet.", "ok");
         }
-        if (want || shared) window.history.replaceState({}, "", window.location.pathname);
+        if (want || shared) {
+          // A named desktop is part of the location, not a one-shot launch intent.
+          // Keeping it ensures a reload does not silently switch to the shared desktop.
+          const retained = new URLSearchParams();
+          if (params.has("desk")) retained.set("desk", params.get("desk") ?? "");
+          const query = retained.toString();
+          window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : ""));
+        }
       } catch { /* no query parameters is the normal case */ }
     })();
     return () => { cancelled = true; };
@@ -895,6 +956,7 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
         }}>
         {layout === "fusion" ? (
           <TopBar
+            ready={booted}
             onLauncher={() => setLauncher((v) => !v)}
             onPalette={() => setPalette(true)}
             onOverview={() => setOverview((v) => !v)}
