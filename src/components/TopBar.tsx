@@ -12,8 +12,8 @@ import { privacy, type PrivacyStatus } from "@/lib/privacy/session";
  * this bar *is* the OS title bar, so its geometry must come from
  * env(titlebar-area-*) rather than assuming the full viewport width.
  */
-export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onBlackout }: {
-  onLauncher: () => void; onPalette: () => void; onOverview: () => void; onQuick: () => void; onBlackout: () => void;
+export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onBlackout, ready }: {
+  onLauncher: () => void; onPalette: () => void; onOverview: () => void; onQuick: () => void; onBlackout: () => void; ready: boolean;
 }) {
   const shell = useShell();
   const [clock, setClock] = useState(() => new Date());
@@ -51,7 +51,7 @@ export default function TopBar({ onLauncher, onPalette, onOverview, onQuick, onB
         width: wco ? "env(titlebar-area-width, 100%)" : "100%",
       } as React.CSSProperties}
     >
-      <button className="fs-btn" data-variant="primary" onClick={onLauncher} title="Launcher (Meta+A)"
+      <button className="fs-btn" data-variant="primary" onClick={onLauncher} disabled={!ready} title={ready ? "Launcher (Meta+A)" : "Launcher available after startup"}
         data-testid="launcher-button" aria-label="Fusion launcher"
         style={{ minHeight: fz(28), padding: `0 ${fz(8)} 0 ${fz(3)}`, gap: fz(5), borderRadius: 999, fontWeight: 800, letterSpacing: ".01em", background: "linear-gradient(180deg, var(--fs-pill-a, #ffe36e), var(--fs-pill-b, #ffb020))", color: "#14213d", ...( { WebkitAppRegion: "no-drag" } as React.CSSProperties) }}>
         <FusionLogo size={22} label="" /> Fusion

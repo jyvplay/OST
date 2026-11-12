@@ -956,6 +956,7 @@ export default function Shell({ stateId, hostKind, desktopNotice = null, desktop
         }}>
         {layout === "fusion" ? (
           <TopBar
+            ready={booted}
             onLauncher={() => setLauncher((v) => !v)}
             onPalette={() => setPalette(true)}
             onOverview={() => setOverview((v) => !v)}
