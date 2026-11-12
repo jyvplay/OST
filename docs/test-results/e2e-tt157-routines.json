@@ -1,20 +1,20 @@
 {
   "suite": "e2e-tt157-routines",
-  "at": "2026-11-11T21:38:39.862Z",
+  "at": "2026-11-12T16:35:11.067Z",
   "results": [
     {
       "suite": "e2e-tt157-routines",
       "name": "HTTP refuses malformed schedules and preserves valid schedules",
       "covers": {},
       "pass": true,
-      "ms": 77
+      "ms": 50
     },
     {
       "suite": "e2e-tt157-routines",
       "name": "foreground daemon skips malformed legacy rows while a valid row actually runs",
       "covers": {},
       "pass": true,
-      "ms": 4521
+      "ms": 5142
     }
   ]
 }

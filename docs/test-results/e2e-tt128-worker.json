@@ -1,6 +1,6 @@
 {
   "suite": "e2e-tt128-worker",
-  "at": "2026-11-11T21:52:59.862Z",
+  "at": "2026-11-12T16:49:42.580Z",
   "results": [
     {
       "suite": "e2e-tt128-worker",
@@ -9,7 +9,7 @@
         "SH-14": "partial"
       },
       "pass": true,
-      "ms": 3436
+      "ms": 3323
     },
     {
       "suite": "e2e-tt128-worker",
@@ -18,7 +18,7 @@
         "AP-04": "partial"
       },
       "pass": true,
-      "ms": 71
+      "ms": 35
     },
     {
       "suite": "e2e-tt128-worker",
@@ -27,7 +27,7 @@
         "AP-04": "partial"
       },
       "pass": true,
-      "ms": 2244
+      "ms": 2923
     },
     {
       "suite": "e2e-tt128-worker",
@@ -36,7 +36,7 @@
         "SH-14": "partial"
       },
       "pass": true,
-      "ms": 130
+      "ms": 135
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
   "suite": "tt151-time",
-  "at": "2026-11-11T21:37:21.018Z",
+  "at": "2026-11-12T16:33:50.380Z",
   "results": [
     {
       "suite": "tt151-time",
       "name": "CR-01 · the grammar accepts the standard five fields and refuses everything ambiguous",
       "covers": {},
       "pass": true,
-      "ms": 4
+      "ms": 2
     },
     {
       "suite": "tt151-time",
@@ -21,21 +21,21 @@
       "name": "CR-01 · leading stars intersect day fields and a viable weekday rescues an impossible month day",
       "covers": {},
       "pass": true,
-      "ms": 14
+      "ms": 16
     },
     {
       "suite": "tt151-time",
       "name": "CR-02 · next-occurrence search equals a minute-by-minute scan in UTC",
       "covers": {},
       "pass": true,
-      "ms": 21
+      "ms": 20
     },
     {
       "suite": "tt151-time",
       "name": "CR-02 · UTC dense schedules retain strict cursor and midnight boundaries",
       "covers": {},
       "pass": true,
-      "ms": 11
+      "ms": 8
     },
     {
       "suite": "tt151-time",
@@ -49,7 +49,7 @@
       "name": "CR-04 · the human description is derived from the parsed fields, never from the source text",
       "covers": {},
       "pass": true,
-      "ms": 0
+      "ms": 1
     },
     {
       "suite": "tt151-time",
@@ -63,7 +63,7 @@
       "name": "OT-02 · SHA-1 and HMAC-SHA1 match FIPS 180-4 and RFC 2202",
       "covers": {},
       "pass": true,
-      "ms": 43
+      "ms": 31
     },
     {
       "suite": "tt151-time",

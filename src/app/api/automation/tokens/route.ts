@@ -37,13 +37,16 @@ export async function POST(req: NextRequest) {
   const scopes = parseScopes(body.scopes);
   if (!scopes.length) return NextResponse.json({ ok: false, error: "pick at least one scope: run, read" }, { status: 400 });
   const minted = mintToken((n) => new Uint8Array(randomBytes(n)));
-  const [row] = await db.insert(automationTokens).values({
-    id: minted.id,
-    name: name || "Automation token",
-    secretHash: createHash("sha256").update(minted.secret, "utf8").digest("hex"),
-    scopes,
-  }).returning();
-  await db.insert(auditLog).values({ actor: "user", action: "automation.token.created", detail: `${row.id} (${scopes.join(",")})` });
+  const row = await db.transaction(async (tx) => {
+    const [created] = await tx.insert(automationTokens).values({
+      id: minted.id,
+      name: name || "Automation token",
+      secretHash: createHash("sha256").update(minted.secret, "utf8").digest("hex"),
+      scopes,
+    }).returning();
+    await tx.insert(auditLog).values({ actor: "user", action: "automation.token.created", detail: `${created.id} (${scopes.join(",")})` });
+    return created;
+  });
   return NextResponse.json({
     ok: true,
     // The only time this value exists outside the caller's clipboard.
@@ -58,15 +61,16 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id") ?? "";
   if (!/^[0-9a-z]{8}$/.test(id)) return NextResponse.json({ ok: false, error: "id must be an 8-character token id" }, { status: 400 });
-  const rows = await db.select().from(automationTokens).where(eq(automationTokens.id, id)).limit(1);
-  if (!rows[0]) return NextResponse.json({ ok: false, error: "no such token" }, { status: 404 });
-  if (rows[0].revokedAt) {
-    // Idempotent: revoking twice is the same request, not an error, and the
-    // second call must not move the timestamp (that would rewrite history).
-    return NextResponse.json({ ok: true, alreadyRevoked: true });
-  }
-  // Revocation is permanent and keeps the row, so the audit trail still resolves the id.
-  await db.update(automationTokens).set({ revokedAt: new Date(), secretHash: "" }).where(eq(automationTokens.id, id));
-  await db.insert(auditLog).values({ actor: "user", action: "automation.token.revoked", detail: id });
+  const result = await db.transaction(async (tx) => {
+    // Serialize competing revocations on this row, including their audit writes.
+    const [row] = await tx.select().from(automationTokens).where(eq(automationTokens.id, id)).limit(1).for("update");
+    if (!row) return "missing" as const;
+    if (row.revokedAt) return "unchanged" as const;
+    await tx.update(automationTokens).set({ revokedAt: new Date(), secretHash: "" }).where(eq(automationTokens.id, id));
+    await tx.insert(auditLog).values({ actor: "user", action: "automation.token.revoked", detail: id });
+    return "revoked" as const;
+  });
+  if (result === "missing") return NextResponse.json({ ok: false, error: "no such token" }, { status: 404 });
+  if (result === "unchanged") return NextResponse.json({ ok: true, alreadyRevoked: true });
   return NextResponse.json({ ok: true });
 }

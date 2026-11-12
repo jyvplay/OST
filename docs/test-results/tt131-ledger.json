@@ -1,13 +1,13 @@
 {
   "suite": "tt131-ledger",
-  "at": "2026-11-11T21:51:41.077Z",
+  "at": "2026-11-12T16:48:25.452Z",
   "results": [
     {
       "suite": "tt131-ledger",
       "name": "the production ledger is the generated snapshot in the checked-out source",
       "covers": {},
       "pass": true,
-      "ms": 15
+      "ms": 7
     },
     {
       "suite": "tt131-ledger",
@@ -39,7 +39,7 @@
       "name": "saved test results refer only to registered feature codes",
       "covers": {},
       "pass": true,
-      "ms": 25
+      "ms": 21
     }
   ]
 }
