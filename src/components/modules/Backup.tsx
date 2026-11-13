@@ -344,8 +344,8 @@ export default function BackupModule(_: ModuleProps) {
 
       <Section title="Optional recovery key">
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          A recovery-key download can be opened with either its passphrase or its separate key. Anyone with the key can read the backup.
-          Save the key somewhere safe and separate; it is not sent to Fusion or stored in the cloud. Losing both secrets means losing access.
+          Either the passphrase or recovery key opens this download. Anyone with the key can read it.
+          Store the key separately and safely; it is not sent to Fusion or stored in the cloud. Losing both secrets means losing access.
         </div>
         <Btn variant="ghost" disabled={busy || !bundle} onClick={() => {
           try { setRecoveryKey(makeRecoveryKey()); setConfirmKey(""); }
@@ -374,8 +374,8 @@ export default function BackupModule(_: ModuleProps) {
         <input ref={fileInput} type="file" accept="application/json,.json" hidden disabled={busy} aria-label="Choose backup bundle" data-testid="backup-file"
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importFile(f); }} />
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          A preview is required before applying changes. Existing files are versioned before replacement; notes are merged as copies,
-          and identical copies are skipped. Existing folders retain their tags. A changed destination requires a new preview.
+          A preview is required before applying changes. Replaced files are versioned; notes merge as copies, skipping duplicates.
+          Existing folders retain tags. Destination changes require a new preview.
         </div>
         {pending ? <div data-testid="backup-preview" className="fs-panel" style={{ padding: 8, marginTop: 8 }}>
           <strong>Restore preview — nothing changed yet</strong>
@@ -402,9 +402,8 @@ export default function BackupModule(_: ModuleProps) {
           {!healthStorage ? <div>Local status is unavailable or session-only; reminders may not survive closing this tab.</div> : null}
         </div>
         <p className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          Choose a saved backup. The whole bundle is checked, then a sample is restored and read back in temporary PostgreSQL tables and rolled
-          back — live files are not replaced. Plaintext may reach this server's disk; rollback is not erasure. Private-volume unlock, other devices
-          and the saved copy's health are not tested.
+          The whole backup is checked; a sample is restored and read back in temporary PostgreSQL tables, then rolled back. Live files are not replaced.
+          Plaintext may reach this server's disk; rollback is not erasure. Private-volume unlock, other devices and saved-copy health are not tested.
         </p>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" disabled={busy} onClick={() => drillInput.current?.click()}>Choose backup to drill…</Btn>
@@ -417,8 +416,8 @@ export default function BackupModule(_: ModuleProps) {
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void runDrill(f); }} />
         {drillReport ? <div role="status" data-testid="backup-drill-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{drillReport}</div> : null}
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          The reminder shows only while this window is open — no monthly job, no notification. Status stays in this browser without names,
-          contents or secrets, and describes only the selected copy.
+          Reminders appear only in this window: no monthly job or notification. Browser-local status excludes names, contents and secrets,
+          and describes only the selected copy.
         </div>
       </Section>
 
