@@ -86,6 +86,9 @@ export default function BackupModule(_: ModuleProps) {
   const [inventoryLoaded, setInventoryLoaded] = useState(false);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [inventoryError, setInventoryError] = useState(false);
+  const [pruneBusy, setPruneBusy] = useState(false);
+  const [pruneError, setPruneError] = useState(false);
+  const pruneLock = useRef(false);
   const inventoryEpoch = useRef(0);
   const loadSavedBackups = useCallback(async () => {
     const epoch = ++inventoryEpoch.current;
@@ -340,19 +343,38 @@ export default function BackupModule(_: ModuleProps) {
         </div> : null}
       </Section>
 
-      <Section title="Backups saved in Files (/Backups)" right={<Btn variant="ghost" aria-label="Refresh backup inventory" onClick={() => void loadSavedBackups()}>Refresh</Btn>}>
+      <Section title="Backups saved in Files (/Backups)" right={<Btn variant="ghost" disabled={pruneBusy} aria-label="Refresh backup inventory" onClick={() => void loadSavedBackups()}>Refresh</Btn>}>
+        {pruneError ? <div role="alert" data-testid="backup-prune-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+          <span>Prune not confirmed; some copies may have moved to Trash. Check the list before trying again.</span>
+          <Btn variant="ghost" aria-label="Dismiss prune warning" onClick={() => setPruneError(false)}>Dismiss</Btn>
+        </div> : null}
         {inventoryError ? <div role="alert" data-testid="backup-inventory-error" className="fs-row" style={{ gap: 6 }}>
           <span>{inventoryLoaded ? "Backup list may be out of date." : "Backup list unavailable."}</span>
           <Btn variant="ghost" aria-label="Retry backup inventory" onClick={() => void loadSavedBackups()}>Retry</Btn>
         </div> : null}
         <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
-          <Btn variant="ghost" disabled={!inventoryLoaded || inventoryLoading || inventoryError || savedBackups.length < 2} onClick={async () => {
+          <Btn variant="ghost" disabled={pruneBusy || !inventoryLoaded || inventoryLoading || inventoryError || savedBackups.length < 2} onClick={async () => {
+            if (pruneLock.current) return;
             const doomed = prunePlan(savedBackups, 2, new Date());
             if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
-            if (!window.confirm(`Prune ${doomed.length} older backup copies, keeping the 2 newest?`)) return;
-            for (const name of doomed) { const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "rm", path: `/Backups/${name}`, reason: "backup-prune" }) }); if (!r.ok) { setReport("Prune failed — could not delete a copy."); return; } }
-            shell.bumpRefresh(); void loadSavedBackups();
-            setReport(`Pruned ${doomed.length} older backups; kept the 2 newest dated copies.`);
+            pruneLock.current = true;
+            try {
+              if (!window.confirm(`Move ${doomed.length} older backup copies to Trash based on the last list? Files can change during pruning; check the list afterward.`)) return;
+              setPruneBusy(true); setPruneError(false); setReport("");
+              try {
+                for (const name of doomed) {
+                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}` }) });
+                  if (!r.ok || (await r.json() as { ok?: boolean }).ok !== true) throw new Error("unconfirmed trash operation");
+                }
+                setReport(`Pruned ${doomed.length} older backups by moving them to Trash.`);
+              } catch {
+                setPruneError(true);
+              } finally {
+                shell.bumpRefresh();
+                await loadSavedBackups();
+                setPruneBusy(false);
+              }
+            } finally { pruneLock.current = false; }
           }} data-testid="backup-prune">Prune old</Btn>
           <span className="fs-dim" style={{ fontSize: fz(11) }}>keeps 2 newest dated copies; undated files never pruned</span>
         </span>
