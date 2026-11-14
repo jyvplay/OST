@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt172-backup-inventory",
+  "at": "2026-11-14T19:55:31.789Z",
+  "results": [
+    {
+      "suite": "e2e-tt172-backup-inventory",
+      "name": "initial HTTP failure is not an empty backup folder and retry lists real copies",
+      "covers": {},
+      "pass": true,
+      "ms": 2750
+    },
+    {
+      "suite": "e2e-tt172-backup-inventory",
+      "name": "a failed refresh keeps rows visibly stale and disables prune until retry",
+      "covers": {},
+      "pass": true,
+      "ms": 3882
+    },
+    {
+      "suite": "e2e-tt172-backup-inventory",
+      "name": "pending refresh blocks pruning and a late older failure cannot undo newer success",
+      "covers": {},
+      "pass": true,
+      "ms": 2961
+    },
+    {
+      "suite": "e2e-tt172-backup-inventory",
+      "name": "a malformed successful response does not claim an empty folder",
+      "covers": {},
+      "pass": true,
+      "ms": 1814
+    }
+  ]
+}

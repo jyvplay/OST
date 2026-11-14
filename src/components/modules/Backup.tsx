@@ -83,12 +83,30 @@ export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
   const [savedBackups, setSavedBackups] = useState<string[]>([]);
-  const loadSavedBackups = useCallback(() =>
-    fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups"))
-      .then(x => x.json() as Promise<{ nodes?: { name: string; kind: string }[] }>)
-      .then(r => setSavedBackups((r.nodes ?? []).filter(n => n.kind === "file").map(n => n.name)))
-      .catch(() => setSavedBackups([])), []);
-  useEffect(() => { void loadSavedBackups(); }, [loadSavedBackups]);
+  const [inventoryLoaded, setInventoryLoaded] = useState(false);
+  const [inventoryLoading, setInventoryLoading] = useState(true);
+  const [inventoryError, setInventoryError] = useState(false);
+  const inventoryEpoch = useRef(0);
+  const loadSavedBackups = useCallback(async () => {
+    const epoch = ++inventoryEpoch.current;
+    setInventoryLoading(true);
+    try {
+      const response = await fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups"), { cache: "no-store" });
+      if (!response.ok) throw new Error("Inventory request failed");
+      const data: unknown = await response.json();
+      if (!record(data) || data.ok !== true || data.path !== "/Backups" || !Array.isArray(data.nodes) ||
+          !data.nodes.every(n => record(n) && typeof n.name === "string" && (n.kind === "file" || n.kind === "dir"))) throw new Error("Invalid inventory");
+      if (epoch === inventoryEpoch.current) {
+        setSavedBackups(data.nodes.filter(n => n.kind === "file").map(n => n.name as string));
+        setInventoryLoaded(true); setInventoryError(false);
+      }
+    } catch {
+      if (epoch === inventoryEpoch.current) setInventoryError(true);
+    } finally {
+      if (epoch === inventoryEpoch.current) setInventoryLoading(false);
+    }
+  }, []);
+  useEffect(() => { void loadSavedBackups(); return () => { inventoryEpoch.current++; }; }, [loadSavedBackups]);
   const [showContents, setShowContents] = useState(false);
   const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");
@@ -322,9 +340,13 @@ export default function BackupModule(_: ModuleProps) {
         </div> : null}
       </Section>
 
-      <Section title="Backups saved in Files (/Backups)">
+      <Section title="Backups saved in Files (/Backups)" right={<Btn variant="ghost" aria-label="Refresh backup inventory" onClick={() => void loadSavedBackups()}>Refresh</Btn>}>
+        {inventoryError ? <div role="alert" data-testid="backup-inventory-error" className="fs-row" style={{ gap: 6 }}>
+          <span>{inventoryLoaded ? "Backup list may be out of date." : "Backup list unavailable."}</span>
+          <Btn variant="ghost" aria-label="Retry backup inventory" onClick={() => void loadSavedBackups()}>Retry</Btn>
+        </div> : null}
         <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
-          <Btn variant="ghost" disabled={savedBackups.length < 2} onClick={async () => {
+          <Btn variant="ghost" disabled={!inventoryLoaded || inventoryLoading || inventoryError || savedBackups.length < 2} onClick={async () => {
             const doomed = prunePlan(savedBackups, 2, new Date());
             if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
             if (!window.confirm(`Prune ${doomed.length} older backup copies, keeping the 2 newest?`)) return;
@@ -334,12 +356,12 @@ export default function BackupModule(_: ModuleProps) {
           }} data-testid="backup-prune">Prune old</Btn>
           <span className="fs-dim" style={{ fontSize: fz(11) }}>keeps 2 newest dated copies; undated files never pruned</span>
         </span>
-        {savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
+        {inventoryLoaded ? (savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
           <div key={e.name} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }} data-testid="backup-inventory-row">
             <span className="fs-mono">{e.name}</span>
             <Badge tone={e.freshness === "fresh" ? "ok" : e.freshness === "stale" ? "warn" : "default"}>{e.freshness === "unknown" ? "date unknown" : e.freshness}</Badge>
           </div>
-        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>}
+        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>) : inventoryLoading ? <span role="status">Loading backup list…</span> : null}
       </Section>
 
       <Section title="Optional recovery key">
