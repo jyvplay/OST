@@ -83,6 +83,7 @@ export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
   const [savedBackups, setSavedBackups] = useState<string[]>([]);
+  const [backupGuards, setBackupGuards] = useState<Record<string, { id: number; version: number; sha256: string }>>({});
   const [inventoryLoaded, setInventoryLoaded] = useState(false);
   const [inventoryLoading, setInventoryLoading] = useState(true);
   const [inventoryError, setInventoryError] = useState(false);
@@ -100,7 +101,15 @@ export default function BackupModule(_: ModuleProps) {
       if (!record(data) || data.ok !== true || data.path !== "/Backups" || !Array.isArray(data.nodes) ||
           !data.nodes.every(n => record(n) && typeof n.name === "string" && (n.kind === "file" || n.kind === "dir"))) throw new Error("Invalid inventory");
       if (epoch === inventoryEpoch.current) {
-        setSavedBackups(data.nodes.filter(n => n.kind === "file").map(n => n.name as string));
+        const files = data.nodes.filter(n => n.kind === "file");
+        setSavedBackups(files.map(n => n.name as string));
+        const guards: Record<string, { id: number; version: number; sha256: string }> = Object.create(null);
+        for (const n of files) {
+          if (Number.isSafeInteger(n.id) && Number(n.id) > 0 && Number.isSafeInteger(n.version) && Number(n.version) > 0 && typeof n.sha256 === "string" && /^(?:[0-9a-f]{64})?$/.test(n.sha256)) {
+            guards[n.name as string] = { id: Number(n.id), version: Number(n.version), sha256: n.sha256 };
+          }
+        }
+        setBackupGuards(guards);
         setInventoryLoaded(true); setInventoryError(false);
       }
     } catch {
@@ -363,7 +372,9 @@ export default function BackupModule(_: ModuleProps) {
               setPruneBusy(true); setPruneError(false); setReport("");
               try {
                 for (const name of doomed) {
-                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}` }) });
+                  const expectedTrash = backupGuards[name];
+                  if (!expectedTrash) throw new Error("missing Trash target guard");
+                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}`, expectedTrash }) });
                   if (!r.ok || (await r.json() as { ok?: boolean }).ok !== true) throw new Error("unconfirmed trash operation");
                 }
                 setReport(`Pruned ${doomed.length} older backups by moving them to Trash.`);

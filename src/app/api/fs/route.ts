@@ -10,7 +10,7 @@ import { bootstrap } from "@/lib/server/bootstrap";
 import {
   folderSize, getNode, listDir, mkdir, normalize, purgeNode, dropVersions, restoreNode,
   transferNode, trashNode, versionsOf, writeFile, setTags, baseName, parentOf, MAX_BYTES, escapeLike,
-  parseExpectedPhoto, PhotoRecipeConflict,
+  parseExpectedPhoto, PhotoRecipeConflict, TrashTargetConflict,
 } from "@/lib/server/vfs";
 import { deflateRawSync } from "node:zlib";
 import { readArchive, readEntry, writeArchive, extractable, PasswordError, type NameMode } from "@/lib/archive/zip";
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(await transferNode(src, dst, "move"));
       }
       case "trash":
-        return NextResponse.json(await followSidecar(await trashNode(String(body.path)), String(body.path), "trash"));
+        return NextResponse.json(await followSidecar(await trashNode(String(body.path), body.expectedTrash), String(body.path), "trash"));
       case "restore":
         return NextResponse.json(await followSidecar(await restoreNode(String(body.path)), String(body.path), "restore"));
       case "purge":
@@ -359,7 +359,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: `unknown op ${op}` }, { status: 400 });
     }
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof SafeSaveValidationError ? 422 : err instanceof SafeSaveReplaceConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict ? 409 : 400 });
+    return NextResponse.json({ ok: false, error: String((err as Error).message ?? err) }, { status: err instanceof RecallPolicyRefusal ? 403 : err instanceof RecallTokenConflict ? 409 : err instanceof SafeSaveValidationError ? 422 : err instanceof SafeSaveReplaceConflict ? 409 : err instanceof ConditionalWriteConflict || err instanceof PhotoRecipeConflict || err instanceof TrashTargetConflict ? 409 : 400 });
   }
 }
 

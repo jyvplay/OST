@@ -1,0 +1,20 @@
+{
+  "suite": "e2e-tt174-prune-conflict",
+  "at": "2026-11-15T04:26:32.246Z",
+  "results": [
+    {
+      "suite": "e2e-tt174-prune-conflict",
+      "name": "concurrent rewrite after listing cannot move the replacement to Trash",
+      "covers": {},
+      "pass": true,
+      "ms": 1958
+    },
+    {
+      "suite": "e2e-tt174-prune-conflict",
+      "name": "malformed guard is rejected and purge/recreate conflicts with old identity",
+      "covers": {},
+      "pass": true,
+      "ms": 201
+    }
+  ]
+}
