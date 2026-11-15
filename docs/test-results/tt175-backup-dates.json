@@ -1,0 +1,27 @@
+{
+  "suite": "tt175-backup-dates",
+  "at": "2026-11-15T04:32:29.179Z",
+  "results": [
+    {
+      "suite": "tt175-backup-dates",
+      "name": "calendar boundaries agree with Gregorian arithmetic at noon",
+      "covers": {},
+      "pass": true,
+      "ms": 31
+    },
+    {
+      "suite": "tt175-backup-dates",
+      "name": "overflow, malformed input, and DST gap are never prunable",
+      "covers": {},
+      "pass": true,
+      "ms": 2
+    },
+    {
+      "suite": "tt175-backup-dates",
+      "name": "normal generated names preserve local calendar time",
+      "covers": {},
+      "pass": true,
+      "ms": 1
+    }
+  ]
+}

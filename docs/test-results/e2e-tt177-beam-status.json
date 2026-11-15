@@ -1,0 +1,13 @@
+{
+  "suite": "e2e-tt177-beam-status",
+  "at": "2026-11-15T05:35:30.608Z",
+  "results": [
+    {
+      "suite": "e2e-tt177-beam-status",
+      "name": "real availability is scoped to Remote Playback, not all receivers",
+      "covers": {},
+      "pass": true,
+      "ms": 1278
+    }
+  ]
+}

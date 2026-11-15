@@ -90,6 +90,8 @@ export default function BackupModule(_: ModuleProps) {
   const [pruneBusy, setPruneBusy] = useState(false);
   const [pruneError, setPruneError] = useState(false);
   const pruneLock = useRef(false);
+  const saveLock = useRef(false);
+  const [saveBusy, setSaveBusy] = useState(false);
   const inventoryEpoch = useRef(0);
   const loadSavedBackups = useCallback(async () => {
     const epoch = ++inventoryEpoch.current;
@@ -320,13 +322,22 @@ export default function BackupModule(_: ModuleProps) {
           </label>
           <Btn variant="ghost" disabled={busy || !bundle} onClick={() => void download(false)}>Download plain</Btn>
           <Btn variant="ghost" disabled={busy || !bundle || pass.length < 8} onClick={() => void download(true)}>Download encrypted</Btn>
-          <Btn variant="ghost" disabled={busy || !bundle} onClick={async () => {
-            if (!bundle) return;
-            const name = backupFilename(new Date());
-            const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "write", path: `/Backups/${name}`, content: JSON.stringify(bundle), mime: "application/json", reason: "backup-save" }) });
-            if (!r.ok) { setReport("Could not save the bundle into Files — build it again and retry."); return; }
-            setReport(`Saved to /Backups/${name} in Files. It is a plain bundle: encrypt before trusting it to anyone else.`);
-            void loadSavedBackups();
+          <Btn variant="ghost" disabled={busy || saveBusy || !bundle} onClick={async () => {
+            if (!bundle || saveLock.current) return;
+            saveLock.current = true; setSaveBusy(true); setReport("");
+            const name = backupFilename(new Date()), path = `/Backups/${name}`;
+            try {
+              const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "writeIfUnchanged", path, expected: null, content: JSON.stringify(bundle), mime: "application/json" }) });
+              if (r.status === 409) { setReport("Save refused: copy already exists or folder unavailable. Check Files before retrying."); return; }
+              const data: unknown = await r.json();
+              if (!r.ok || !record(data) || data.ok !== true || data.path !== path) throw new Error("unconfirmed save");
+              setReport(`Saved to ${path} in Files. It is a plain bundle: encrypt before trusting it to anyone else.`);
+            } catch {
+              setReport("Save not confirmed; check Files before retrying. A copy may have been created.");
+            } finally {
+              await loadSavedBackups();
+              setSaveBusy(false); saveLock.current = false;
+            }
           }} data-testid="backup-save-files">Save copy to Files</Btn>
         </div>
         <input className="fs-input" type="password" placeholder="bundle passphrase" value={pass}

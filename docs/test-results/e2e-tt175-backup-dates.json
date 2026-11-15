@@ -1,0 +1,20 @@
+{
+  "suite": "e2e-tt175-backup-dates",
+  "at": "2026-11-15T04:33:33.834Z",
+  "results": [
+    {
+      "suite": "e2e-tt175-backup-dates",
+      "name": "impossible date remains unknown and survives real pruning",
+      "covers": {},
+      "pass": true,
+      "ms": 2155
+    },
+    {
+      "suite": "e2e-tt175-backup-dates",
+      "name": "a stale second tab does not repeat a first tab prune",
+      "covers": {},
+      "pass": true,
+      "ms": 7279
+    }
+  ]
+}
