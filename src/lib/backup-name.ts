@@ -8,6 +8,12 @@ export function backupFilename(d: Date): string {
 export function parseBackupDate(name: string): Date | null {
   const m = /^fusion-backup-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})\.json$/.exec(name);
   if (!m) return null;
-  const d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
-  return Number.isNaN(d.getTime()) ? null : d;
+  const [year, month, day, hour, minute] = m.slice(1).map(Number);
+  // Date normalizes overflow (including DST gaps) and its multi-argument
+  // constructor maps years 0–99 to 1900–1999. Never let a normalized date
+  // make an unknown filename eligible for destructive retention decisions.
+  const d = new Date(0);
+  d.setFullYear(year, month - 1, day);
+  d.setHours(hour, minute, 0, 0);
+  return Number.isFinite(d.getTime()) && d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day && d.getHours() === hour && d.getMinutes() === minute ? d : null;
 }
