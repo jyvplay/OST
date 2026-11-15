@@ -1,0 +1,48 @@
+{
+  "suite": "e2e-tt176-backup-save",
+  "at": "2026-11-15T04:52:12.530Z",
+  "results": [
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "same-minute second save never overwrites the existing copy",
+      "covers": {},
+      "pass": true,
+      "ms": 4636
+    },
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "two real tabs racing for one absent name cannot overwrite each other",
+      "covers": {},
+      "pass": true,
+      "ms": 8568
+    },
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "lost response after actual create warns without retrying or overwriting",
+      "covers": {},
+      "pass": true,
+      "ms": 4472
+    },
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "a trashed same-name file is not revived or overwritten",
+      "covers": {},
+      "pass": true,
+      "ms": 4936
+    },
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "duplicate activation during pending create sends only one request",
+      "covers": {},
+      "pass": true,
+      "ms": 4029
+    },
+    {
+      "suite": "e2e-tt176-backup-save",
+      "name": "a malformed success response cannot produce a saved report",
+      "covers": {},
+      "pass": true,
+      "ms": 4155
+    }
+  ]
+}
