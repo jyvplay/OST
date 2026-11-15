@@ -10,6 +10,7 @@ import { Badge, Btn, Section } from "../ui";
 import { elapsedLabel } from "@/lib/elapsed";
 import { sessionListText } from "@/lib/session-list-text";
 import { filterSessions } from "@/lib/session-filter";
+import { remoteAvailabilityLabel } from "@/lib/remote-availability";
 
 interface SessionRow { id: number; targetName: string; transport: string; source: string; state: string; startedAt: string }
 
@@ -157,7 +158,7 @@ export default function BeamModule(_: ModuleProps) {
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <strong style={{ fontSize: fz(13) }}>Beam</strong>
         <Badge tone={remoteAvailable ? "ok" : "warn"}>
-          receivers: {remoteAvailable === null ? "cannot be detected by a web app" : remoteAvailable ? "at least one" : "none reported"}
+          Remote Playback receivers: {remoteAvailabilityLabel(remoteAvailable)}
         </Badge>
         {shell.beam ? <Badge tone="bad">live: {shell.beam.transport} → {shell.beam.target}</Badge> : null}
       </div>
@@ -221,7 +222,7 @@ export default function BeamModule(_: ModuleProps) {
       </Section>
 
       <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.6 }}>
-        Privacy (CA-14 / SC-09): a session cannot run without the indicator in the top bar, unknown targets require
+        Privacy (CA-14 / SC-09): sessions require a top-bar indicator, unknown targets require
         confirmation on first use, and the session stops automatically when the shell is hidden
         (toggle in Settings → beam.autoStopOnHide).
       </div>
