@@ -327,6 +327,12 @@ export default function BackupModule(_: ModuleProps) {
             saveLock.current = true; setSaveBusy(true); setReport("");
             const name = backupFilename(new Date()), path = `/Backups/${name}`;
             try {
+              // A new installation may not have /Backups yet. mkdir refuses a
+              // trashed or non-directory path; the following create remains
+              // independently guarded against a race or existing copy.
+              const folderResponse = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "mkdir", path: "/Backups" }) });
+              const folder: unknown = await folderResponse.json();
+              if (!folderResponse.ok || !record(folder) || folder.ok !== true || folder.path !== "/Backups") throw new Error("unconfirmed backup folder");
               const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "writeIfUnchanged", path, expected: null, content: JSON.stringify(bundle), mime: "application/json" }) });
               if (r.status === 409) { setReport("Save refused: copy already exists or folder unavailable. Check Files before retrying."); return; }
               const data: unknown = await r.json();

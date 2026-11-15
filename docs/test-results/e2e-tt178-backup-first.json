@@ -1,0 +1,34 @@
+{
+  "suite": "e2e-tt178-backup-first",
+  "at": "2026-11-15T22:58:36.882Z",
+  "results": [
+    {
+      "suite": "e2e-tt178-backup-first",
+      "name": "first save creates the absent folder and a guarded copy",
+      "covers": {},
+      "pass": true,
+      "ms": 2415
+    },
+    {
+      "suite": "e2e-tt178-backup-first",
+      "name": "a folder in Trash is not restored or written into by save",
+      "covers": {},
+      "pass": true,
+      "ms": 3298
+    },
+    {
+      "suite": "e2e-tt178-backup-first",
+      "name": "an existing file at the folder path is never changed",
+      "covers": {},
+      "pass": true,
+      "ms": 2304
+    },
+    {
+      "suite": "e2e-tt178-backup-first",
+      "name": "lost folder response stops before any create request",
+      "covers": {},
+      "pass": true,
+      "ms": 2469
+    }
+  ]
+}
