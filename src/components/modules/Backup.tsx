@@ -83,12 +83,42 @@ export default function BackupModule(_: ModuleProps) {
   const shell = useShell();
   const [bundle, setBundle] = useState<BackupBundle | null>(null);
   const [savedBackups, setSavedBackups] = useState<string[]>([]);
-  const loadSavedBackups = useCallback(() =>
-    fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups"))
-      .then(x => x.json() as Promise<{ nodes?: { name: string; kind: string }[] }>)
-      .then(r => setSavedBackups((r.nodes ?? []).filter(n => n.kind === "file").map(n => n.name)))
-      .catch(() => setSavedBackups([])), []);
-  useEffect(() => { void loadSavedBackups(); }, [loadSavedBackups]);
+  const [backupGuards, setBackupGuards] = useState<Record<string, { id: number; version: number; sha256: string }>>({});
+  const [inventoryLoaded, setInventoryLoaded] = useState(false);
+  const [inventoryLoading, setInventoryLoading] = useState(true);
+  const [inventoryError, setInventoryError] = useState(false);
+  const [pruneBusy, setPruneBusy] = useState(false);
+  const [pruneError, setPruneError] = useState(false);
+  const pruneLock = useRef(false);
+  const inventoryEpoch = useRef(0);
+  const loadSavedBackups = useCallback(async () => {
+    const epoch = ++inventoryEpoch.current;
+    setInventoryLoading(true);
+    try {
+      const response = await fetch("/api/fs?op=list&path=" + encodeURIComponent("/Backups"), { cache: "no-store" });
+      if (!response.ok) throw new Error("Inventory request failed");
+      const data: unknown = await response.json();
+      if (!record(data) || data.ok !== true || data.path !== "/Backups" || !Array.isArray(data.nodes) ||
+          !data.nodes.every(n => record(n) && typeof n.name === "string" && (n.kind === "file" || n.kind === "dir"))) throw new Error("Invalid inventory");
+      if (epoch === inventoryEpoch.current) {
+        const files = data.nodes.filter(n => n.kind === "file");
+        setSavedBackups(files.map(n => n.name as string));
+        const guards: Record<string, { id: number; version: number; sha256: string }> = Object.create(null);
+        for (const n of files) {
+          if (Number.isSafeInteger(n.id) && Number(n.id) > 0 && Number.isSafeInteger(n.version) && Number(n.version) > 0 && typeof n.sha256 === "string" && /^(?:[0-9a-f]{64})?$/.test(n.sha256)) {
+            guards[n.name as string] = { id: Number(n.id), version: Number(n.version), sha256: n.sha256 };
+          }
+        }
+        setBackupGuards(guards);
+        setInventoryLoaded(true); setInventoryError(false);
+      }
+    } catch {
+      if (epoch === inventoryEpoch.current) setInventoryError(true);
+    } finally {
+      if (epoch === inventoryEpoch.current) setInventoryLoading(false);
+    }
+  }, []);
+  useEffect(() => { void loadSavedBackups(); return () => { inventoryEpoch.current++; }; }, [loadSavedBackups]);
   const [showContents, setShowContents] = useState(false);
   const [lastBackup, setLastBackup] = useState<number | null>(() => { try { const v = Number(localStorage.getItem(LAST_BACKUP_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } });
   const [report, setReport] = useState("");
@@ -322,30 +352,55 @@ export default function BackupModule(_: ModuleProps) {
         </div> : null}
       </Section>
 
-      <Section title="Backups saved in Files (/Backups)">
+      <Section title="Backups saved in Files (/Backups)" right={<Btn variant="ghost" disabled={pruneBusy} aria-label="Refresh backup inventory" onClick={() => void loadSavedBackups()}>Refresh</Btn>}>
+        {pruneError ? <div role="alert" data-testid="backup-prune-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
+          <span>Prune not confirmed; some copies may have moved to Trash. Check the list before trying again.</span>
+          <Btn variant="ghost" aria-label="Dismiss prune warning" onClick={() => setPruneError(false)}>Dismiss</Btn>
+        </div> : null}
+        {inventoryError ? <div role="alert" data-testid="backup-inventory-error" className="fs-row" style={{ gap: 6 }}>
+          <span>{inventoryLoaded ? "Backup list may be out of date." : "Backup list unavailable."}</span>
+          <Btn variant="ghost" aria-label="Retry backup inventory" onClick={() => void loadSavedBackups()}>Retry</Btn>
+        </div> : null}
         <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
-          <Btn variant="ghost" disabled={savedBackups.length < 2} onClick={async () => {
+          <Btn variant="ghost" disabled={pruneBusy || !inventoryLoaded || inventoryLoading || inventoryError || savedBackups.length < 2} onClick={async () => {
+            if (pruneLock.current) return;
             const doomed = prunePlan(savedBackups, 2, new Date());
             if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
-            if (!window.confirm(`Prune ${doomed.length} older backup copies, keeping the 2 newest?`)) return;
-            for (const name of doomed) { const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "rm", path: `/Backups/${name}`, reason: "backup-prune" }) }); if (!r.ok) { setReport("Prune failed — could not delete a copy."); return; } }
-            shell.bumpRefresh(); void loadSavedBackups();
-            setReport(`Pruned ${doomed.length} older backups; kept the 2 newest dated copies.`);
+            pruneLock.current = true;
+            try {
+              if (!window.confirm(`Move ${doomed.length} older backup copies to Trash based on the last list? Files can change during pruning; check the list afterward.`)) return;
+              setPruneBusy(true); setPruneError(false); setReport("");
+              try {
+                for (const name of doomed) {
+                  const expectedTrash = backupGuards[name];
+                  if (!expectedTrash) throw new Error("missing Trash target guard");
+                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}`, expectedTrash }) });
+                  if (!r.ok || (await r.json() as { ok?: boolean }).ok !== true) throw new Error("unconfirmed trash operation");
+                }
+                setReport(`Pruned ${doomed.length} older backups by moving them to Trash.`);
+              } catch {
+                setPruneError(true);
+              } finally {
+                shell.bumpRefresh();
+                await loadSavedBackups();
+                setPruneBusy(false);
+              }
+            } finally { pruneLock.current = false; }
           }} data-testid="backup-prune">Prune old</Btn>
           <span className="fs-dim" style={{ fontSize: fz(11) }}>keeps 2 newest dated copies; undated files never pruned</span>
         </span>
-        {savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
+        {inventoryLoaded ? (savedBackups.length ? backupInventory(savedBackups, new Date()).map((e) => (
           <div key={e.name} className="fs-row" style={{ justifyContent: "space-between", fontSize: fz(11.5) }} data-testid="backup-inventory-row">
             <span className="fs-mono">{e.name}</span>
             <Badge tone={e.freshness === "fresh" ? "ok" : e.freshness === "stale" ? "warn" : "default"}>{e.freshness === "unknown" ? "date unknown" : e.freshness}</Badge>
           </div>
-        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>}
+        )) : <span className="fs-dim" style={{ fontSize: fz(11.5) }}>None yet — “Save copy to Files” keeps a dated bundle beside your documents.</span>) : inventoryLoading ? <span role="status">Loading backup list…</span> : null}
       </Section>
 
       <Section title="Optional recovery key">
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          A recovery-key download can be opened with either its passphrase or its separate key. Anyone with the key can read the backup.
-          Save the key somewhere safe and separate; it is not sent to Fusion or stored in the cloud. Losing both secrets means losing access.
+          Either the passphrase or recovery key opens this download. Anyone with the key can read it.
+          Store the key separately and safely; it is not sent to Fusion or stored in the cloud. Losing both secrets means losing access.
         </div>
         <Btn variant="ghost" disabled={busy || !bundle} onClick={() => {
           try { setRecoveryKey(makeRecoveryKey()); setConfirmKey(""); }
@@ -374,8 +429,8 @@ export default function BackupModule(_: ModuleProps) {
         <input ref={fileInput} type="file" accept="application/json,.json" hidden disabled={busy} aria-label="Choose backup bundle" data-testid="backup-file"
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void importFile(f); }} />
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          A preview is required before applying changes. Existing files are versioned before replacement; notes are merged as copies,
-          and identical copies are skipped. Existing folders retain their tags. A changed destination requires a new preview.
+          A preview is required before applying changes. Replaced files are versioned; notes merge as copies, skipping duplicates.
+          Existing folders retain tags. Destination changes require a new preview.
         </div>
         {pending ? <div data-testid="backup-preview" className="fs-panel" style={{ padding: 8, marginTop: 8 }}>
           <strong>Restore preview — nothing changed yet</strong>
@@ -402,9 +457,8 @@ export default function BackupModule(_: ModuleProps) {
           {!healthStorage ? <div>Local status is unavailable or session-only; reminders may not survive closing this tab.</div> : null}
         </div>
         <p className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          Choose a saved backup. The whole bundle is checked, then a sample is restored and read back in temporary PostgreSQL tables and rolled
-          back — live files are not replaced. Plaintext may reach this server's disk; rollback is not erasure. Private-volume unlock, other devices
-          and the saved copy's health are not tested.
+          The whole backup is checked; a sample is restored and read back in temporary PostgreSQL tables, then rolled back. Live files are not replaced.
+          Plaintext may reach this server's disk; rollback is not erasure. Private-volume unlock, other devices and saved-copy health are not tested.
         </p>
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" disabled={busy} onClick={() => drillInput.current?.click()}>Choose backup to drill…</Btn>
@@ -417,8 +471,8 @@ export default function BackupModule(_: ModuleProps) {
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void runDrill(f); }} />
         {drillReport ? <div role="status" data-testid="backup-drill-report" className="fs-mono" style={{ fontSize: fz(11.5) }}>{drillReport}</div> : null}
         <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
-          The reminder shows only while this window is open — no monthly job, no notification. Status stays in this browser without names,
-          contents or secrets, and describes only the selected copy.
+          Reminders appear only in this window: no monthly job or notification. Browser-local status excludes names, contents and secrets,
+          and describes only the selected copy.
         </div>
       </Section>
 

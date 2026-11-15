@@ -1,0 +1,20 @@
+{
+  "suite": "e2e-tt171-backup-density",
+  "at": "2026-11-13T00:00:25.245Z",
+  "results": [
+    {
+      "suite": "e2e-tt171-backup-density",
+      "name": "Backup default text stays bounded without hiding safety or primary actions",
+      "covers": {},
+      "pass": true,
+      "ms": 1116
+    },
+    {
+      "suite": "e2e-tt171-backup-density",
+      "name": "real config snapshot remains buildable and safety boundaries remain visible afterwards",
+      "covers": {},
+      "pass": true,
+      "ms": 3080
+    }
+  ]
+}

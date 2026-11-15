@@ -110,6 +110,17 @@ export interface ExpectedPhoto { path: string; id: number; version: number; sha2
 /** null means no recipe existed; undefined retains the legacy unconditional behavior. */
 export type ExpectedRecipe = { id: number; version: number; sha256: string } | null;
 export class PhotoRecipeConflict extends Error {}
+export class TrashTargetConflict extends Error {}
+export interface ExpectedTrash { id: number; version: number; sha256: string }
+
+function parseExpectedTrash(value: unknown): ExpectedTrash | undefined {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid Trash target guard");
+  const x = value as Record<string, unknown>;
+  if (!Number.isSafeInteger(x.id) || Number(x.id) <= 0 || !Number.isSafeInteger(x.version) || Number(x.version) <= 0 ||
+      typeof x.sha256 !== "string" || !/^(?:[0-9a-f]{64})?$/.test(x.sha256)) throw new Error("Invalid Trash target guard");
+  return { id: Number(x.id), version: Number(x.version), sha256: x.sha256 };
+}
 
 export function parseExpectedPhoto(value: unknown, target: string): ExpectedPhoto | undefined {
   if (value === undefined) return undefined; // Legacy callers remain unconditional.
@@ -394,7 +405,8 @@ export async function transferNode(src: string, dst: string, mode: "move" | "cop
 
 /** Reversible tree trash. Descendants keep their own earlier trash group; the
  * search index and journal are changed in the same transaction as the nodes. */
-export async function trashNode(path: string) {
+export async function trashNode(path: string, guard?: unknown) {
+  const expected = parseExpectedTrash(guard);
   const p = normalize(path);
   if (p === "/") throw new Error("Refusing to trash the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
@@ -402,6 +414,7 @@ export async function trashNode(path: string) {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    if (expected && (!node || node.kind !== "file" || node.trashed || node.id !== expected.id || node.version !== expected.version || node.sha256 !== expected.sha256)) throw new TrashTargetConflict("Trash target changed; refresh the list");
     if (!node) throw new Error(`not found: ${p}`);
     if (node.trashed) return; // do not reset the original deletion time/group
     await tx.update(vfsNodes).set({ trashed: true, trashedFrom: p, updatedAt: new Date() })
