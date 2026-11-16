@@ -1,0 +1,27 @@
+{
+  "suite": "e2e-tt181-token-timeout",
+  "at": "2026-11-16T03:43:12.109Z",
+  "results": [
+    {
+      "suite": "e2e-tt181-token-timeout",
+      "name": "lost mint with stalled recovery times out, preserves uncertainty and retries the real list",
+      "covers": {},
+      "pass": true,
+      "ms": 10780
+    },
+    {
+      "suite": "e2e-tt181-token-timeout",
+      "name": "successful mint keeps the one-time secret when its list refresh times out",
+      "covers": {},
+      "pass": true,
+      "ms": 12999
+    },
+    {
+      "suite": "e2e-tt181-token-timeout",
+      "name": "timed-out older listing cannot replace a newer successful mint refresh",
+      "covers": {},
+      "pass": true,
+      "ms": 10902
+    }
+  ]
+}

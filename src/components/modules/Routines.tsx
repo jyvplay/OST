@@ -231,10 +231,13 @@ function AutomationPanel() {
 
   const load = useCallback(async (focusId?: string, focusVersion?: number) => {
     const version = ++requestVersion.current;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
     setListLoading(true);
     try {
-      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens");
-      // An older response must not replace a newer list or its page selection.
+      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens", { signal: controller.signal });
+      // An older or timed-out response must not replace a newer list or its page selection.
+      if (controller.signal.aborted) throw new Error("Token list request timed out. Retry when the connection is available.");
       if (version !== requestVersion.current) return;
       setRows(result.rows);
       setListLoaded(true);
@@ -247,8 +250,10 @@ function AutomationPanel() {
     } catch (e) {
       if (version === requestVersion.current) {
         setListLoading(false);
-        setListError(String((e as Error).message));
+        setListError(controller.signal.aborted ? "Token list request timed out. Retry when the connection is available." : String((e as Error).message));
       }
+    } finally {
+      clearTimeout(timer);
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
