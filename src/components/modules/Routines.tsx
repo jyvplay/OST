@@ -107,7 +107,7 @@ export default function RoutinesModule(_: ModuleProps) {
       <RoutineGuardPanel />
 
       <Section title="Automation entry (AU-03)" icon="keycap">
-        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner only: it does not run requests or authenticate their origin. Server automation tokens are managed below.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner: no requests run or origins authenticated. Manage server tokens below.</div>
         <textarea className="fs-input fs-mono" rows={3} value={reqText} aria-label="Automation request JSON" data-testid="routines-request" onChange={(e) => setReqText(e.target.value)} style={{ resize: "vertical", fontSize: fz(11) }} />
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" data-testid="routines-validate" onClick={() => {
@@ -192,7 +192,7 @@ export default function RoutinesModule(_: ModuleProps) {
           </div>
         ))}
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Triggers run while the shell is open; every run is written to the audit log (Monitor).
+          Triggers run while the shell is open; every run is logged in Monitor.
         </div>
       </Section>
 
@@ -282,14 +282,21 @@ function AutomationPanel() {
           mintLock.current = true; setMinting(true); setErr("");
           let created = false;
           const focusVersion = interactionVersion.current;
+          const controller = new AbortController();
+          let timedOut = false;
+          const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 12000);
           try {
-            const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            let r: { id: string; token: string; example: string };
+            try {
+              r = await api("/api/automation/tokens", { method: "POST", body: JSON.stringify({ name, scopes: wanted }), signal: controller.signal });
+              if (controller.signal.aborted) throw new Error("Creation request timed out.");
+            } finally { clearTimeout(timer); }
             created = true;
             setFresh({ token: r.token, example: r.example });
             if (focusVersion === interactionVersion.current) setQuery("");
             await load(r.id, focusVersion);
           } catch (e) {
-            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${String((e as Error).message)}`);
+            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${timedOut ? "Creation request timed out." : String((e as Error).message)}`);
             await load();
           } finally { if (!created) mintLock.current = false; setMinting(false); }
         }}>Create token</Btn>

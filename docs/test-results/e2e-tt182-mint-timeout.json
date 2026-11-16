@@ -1,0 +1,27 @@
+{
+  "suite": "e2e-tt182-mint-timeout",
+  "at": "2026-11-16T05:04:25.733Z",
+  "results": [
+    {
+      "suite": "e2e-tt182-mint-timeout",
+      "name": "stalled committed mint times out without hiding uncertainty or replacing a secret",
+      "covers": {},
+      "pass": true,
+      "ms": 16759
+    },
+    {
+      "suite": "e2e-tt182-mint-timeout",
+      "name": "mint blocked before delivery times out and a deliberate retry can succeed",
+      "covers": {},
+      "pass": true,
+      "ms": 13890
+    },
+    {
+      "suite": "e2e-tt182-mint-timeout",
+      "name": "concise routine guidance preserves planner and trigger safety boundaries",
+      "covers": {},
+      "pass": true,
+      "ms": 1351
+    }
+  ]
+}

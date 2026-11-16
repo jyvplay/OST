@@ -29,5 +29,5 @@ for (const fixture of fixtures) {
 }
 const python = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
 assert.ok(existsSync(python), `Missing real oracle Python: ${python}`);
-const pythonPackages = JSON.parse(execFileSync(python, ["-c", "import importlib.metadata,json; print(json.dumps({p:importlib.metadata.version(p) for p in ['Pillow','python-docx','openpyxl','python-pptx','pypdf']}))"], { encoding: "utf8" }));
+const pythonPackages = JSON.parse(execFileSync(python, ["-c", "import importlib.metadata,json; import numpy,zxingcpp; print(json.dumps({p:importlib.metadata.version(p) for p in ['Pillow','python-docx','openpyxl','python-pptx','pypdf','numpy','zxing-cpp']}))"], { encoding: "utf8" }));
 console.log(JSON.stringify({ scope: "Read-only prerequisites and identities, not executed app/oracle acceptance", tools, packages, python, pythonPackages, corpus, pinnedCorpusFiles: fixtures.length }, null, 2));
