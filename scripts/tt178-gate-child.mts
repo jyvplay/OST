@@ -11,7 +11,7 @@ await test('real helper preserves success, failure and timeout exit statuses',{}
   const p=spawnSync('bash',[helper,seconds,'bash','-c',command],{encoding:'utf8',timeout:8000});assert.equal(p.status,expected,`${command}: ${p.stderr}`);
  }
 });
-for (const [signal,code,command] of [['SIGTERM',143,'sleep 30 & printf "%s %s\\n" "$$" "$!" > "$1"; wait'],['SIGINT',130,'trap "" TERM; sleep 30 & printf "%s %s\\n" "$$" "$!" > "$1"; wait']] as const) await test(`${signal} stops an actual active process group`,{},async()=>{
+for (const [signal,code,command] of [['SIGTERM',143,'sleep 30 & printf "%s %s\\n" "$$" "$!" > "$1"; wait'],['SIGINT',130,'trap "" TERM; sleep 30 & printf "%s %s\\n" "$$" "$!" > "$1"; wait'],['SIGTERM',143,'trap "exit 0" TERM; bash -c \'trap "" TERM; exec sleep 30\' & printf "%s %s\\n" "$$" "$!" > "$1"; wait']] as const) await test(`${signal} stops an actual active process group (${command.startsWith('trap')?'signal-trapping child':'ordinary child'})`,{},async()=>{
  const dir=mkdtempSync(join(tmpdir(),'tt178-')),file=join(dir,'pids');let p:ReturnType<typeof spawn>|undefined,ids:number[]=[];
  try{
   p=spawn('bash',[helper,'30','bash','-c',command,'_',file],{stdio:'ignore'});

@@ -1,0 +1,13 @@
+{
+  "suite": "tt179-cancel-chromium",
+  "at": "2026-11-15T23:59:21.448Z",
+  "results": [
+    {
+      "suite": "tt179-cancel-chromium",
+      "name": "canceling a running suite terminates its actual detached Chromium",
+      "covers": {},
+      "pass": true,
+      "ms": 4428
+    }
+  ]
+}
