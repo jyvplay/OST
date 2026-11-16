@@ -42,7 +42,7 @@ if [ ! -x "$DIR/venv/bin/python" ]; then
   python3 -m venv "$DIR/venv"
 fi
 "$DIR/venv/bin/pip" install --quiet --upgrade pip
-"$DIR/venv/bin/pip" install --quiet Pillow python-docx openpyxl python-pptx pypdf
+"$DIR/venv/bin/pip" install --quiet Pillow python-docx openpyxl python-pptx pypdf numpy zxing-cpp
 
 echo "== pinned corpus (Apache POI test documents, digest-verified)"
 CORPUS="$DIR/corpus/docx"
@@ -76,7 +76,7 @@ JS
 echo "== verify"
 node -e "const c=require('$DIR/node_modules/@napi-rs/canvas');if(typeof c.Path2D!=='function')throw new Error('canvas unusable');console.log('  @napi-rs/canvas ok')"
 "$DIR/venv/bin/python" - <<'PY'
-import PIL, docx, openpyxl, pptx, pypdf
-print("  Pillow", PIL.__version__)
+import PIL, docx, openpyxl, pptx, pypdf, numpy, zxingcpp
+print("  Pillow", PIL.__version__, "numpy", numpy.__version__, "zxing-cpp import ok")
 PY
 echo "== done: $DIR"

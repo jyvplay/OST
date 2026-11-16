@@ -107,7 +107,7 @@ export default function RoutinesModule(_: ModuleProps) {
       <RoutineGuardPanel />
 
       <Section title="Automation entry (AU-03)" icon="keycap">
-        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner only: it does not run requests or authenticate their origin. Server automation tokens are managed below.</div>
+        <div className="fs-dim" style={{ fontSize: fz(11), lineHeight: 1.5 }}>Local planner: no requests run or origins authenticated. Manage server tokens below.</div>
         <textarea className="fs-input fs-mono" rows={3} value={reqText} aria-label="Automation request JSON" data-testid="routines-request" onChange={(e) => setReqText(e.target.value)} style={{ resize: "vertical", fontSize: fz(11) }} />
         <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
           <Btn variant="primary" data-testid="routines-validate" onClick={() => {
@@ -192,7 +192,7 @@ export default function RoutinesModule(_: ModuleProps) {
           </div>
         ))}
         <div className="fs-dim" style={{ fontSize: fz(11) }}>
-          Triggers run while the shell is open; every run is written to the audit log (Monitor).
+          Triggers run while the shell is open; every run is logged in Monitor.
         </div>
       </Section>
 
@@ -231,10 +231,13 @@ function AutomationPanel() {
 
   const load = useCallback(async (focusId?: string, focusVersion?: number) => {
     const version = ++requestVersion.current;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
     setListLoading(true);
     try {
-      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens");
-      // An older response must not replace a newer list or its page selection.
+      const result = await api<{ rows: AutomationToken[] }>("/api/automation/tokens", { signal: controller.signal });
+      // An older or timed-out response must not replace a newer list or its page selection.
+      if (controller.signal.aborted) throw new Error("Token list request timed out. Retry when the connection is available.");
       if (version !== requestVersion.current) return;
       setRows(result.rows);
       setListLoaded(true);
@@ -247,8 +250,10 @@ function AutomationPanel() {
     } catch (e) {
       if (version === requestVersion.current) {
         setListLoading(false);
-        setListError(String((e as Error).message));
+        setListError(controller.signal.aborted ? "Token list request timed out. Retry when the connection is available." : String((e as Error).message));
       }
+    } finally {
+      clearTimeout(timer);
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
@@ -277,14 +282,21 @@ function AutomationPanel() {
           mintLock.current = true; setMinting(true); setErr("");
           let created = false;
           const focusVersion = interactionVersion.current;
+          const controller = new AbortController();
+          let timedOut = false;
+          const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 12000);
           try {
-            const r = await post<{ id: string; token: string; example: string }>("/api/automation/tokens", { name, scopes: wanted });
+            let r: { id: string; token: string; example: string };
+            try {
+              r = await api("/api/automation/tokens", { method: "POST", body: JSON.stringify({ name, scopes: wanted }), signal: controller.signal });
+              if (controller.signal.aborted) throw new Error("Creation request timed out.");
+            } finally { clearTimeout(timer); }
             created = true;
             setFresh({ token: r.token, example: r.example });
             if (focusVersion === interactionVersion.current) setQuery("");
             await load(r.id, focusVersion);
           } catch (e) {
-            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${String((e as Error).message)}`);
+            setErr(`Creation failed or the response was lost; a token may have been created. Check the token list before retrying. ${timedOut ? "Creation request timed out." : String((e as Error).message)}`);
             await load();
           } finally { if (!created) mintLock.current = false; setMinting(false); }
         }}>Create token</Btn>
@@ -301,6 +313,7 @@ function AutomationPanel() {
         </div>
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
+      {minting && err ? <div role="status" data-testid="automation-mint-refresh" className="fs-dim">Checking the token list before retry is available…</div> : null}
       {Object.entries(revokeErrors).map(([id, message]) => <div key={id} role="alert" data-testid={`automation-revoke-error-${id}`} className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <span>{message}</span>
         <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>
