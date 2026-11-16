@@ -301,6 +301,7 @@ function AutomationPanel() {
         </div>
       ) : null}
       {err ? <Badge tone="bad">{err}</Badge> : null}
+      {minting && err ? <div role="status" data-testid="automation-mint-refresh" className="fs-dim">Checking the token list before retry is available…</div> : null}
       {Object.entries(revokeErrors).map(([id, message]) => <div key={id} role="alert" data-testid={`automation-revoke-error-${id}`} className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <span>{message}</span>
         <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>

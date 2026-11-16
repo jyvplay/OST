@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { Client } from 'pg';
+import { expect } from 'playwright/test';
 import { disposableShell } from './tt132-fixture.mts';
 import { makeHarness } from './harness.mts';
 const fx=await disposableShell(), {test,finish}=makeHarness('e2e-tt166-mint-safety');
@@ -37,8 +38,45 @@ try{
    const res=await route.fetch();assert.equal(res.status(),201);const obj=await res.json() as {id:string};ids.push(obj.id);await route.fulfill({response:res});
   });
    await fx.ready(page,'routines');const btn=page.getByTestId('automation-mint');await btn.click();
-   await page.getByText(/failed to fetch/i).first().waitFor();assert.equal(await btn.isEnabled(),true);assert.equal(await page.getByTestId('automation-token').count(),0);
+   await page.getByText(/failed to fetch/i).first().waitFor();
+   // The warning is rendered before the asynchronous list refresh settles.
+   // Wait for the actual retry-ready state rather than sampling a transient render.
+   await expect(btn).toBeEnabled({timeout:10000});assert.equal(await page.getByTestId('automation-token').count(),0);
    await btn.click();await page.getByTestId('automation-token').waitFor();assert.equal(await btn.isDisabled(),true);
+  }finally{await ctx.close();}
+ });
+ await test('failed mint stays locked and explains the pending list refresh',{},async()=>{
+  await fx.windows('routines');const ctx=await fx.context();let release!:()=>void, captured!:()=>void, initial!:()=>void;
+  const hold=new Promise<void>(r=>release=r), pending=new Promise<void>(r=>captured=r), loaded=new Promise<void>(r=>initial=r);
+  let failed=false, posts=0;
+  try{const page=await ctx.newPage();await page.route('**/api/automation/tokens',async route=>{
+   if(route.request().method()==='POST'){posts++;failed=true;return await route.abort('failed');}
+   if(failed){captured();await hold;}else initial();
+   await route.continue();
+  });
+   await fx.ready(page,'routines');await loaded;const btn=page.getByTestId('automation-mint');await btn.click();await pending;
+   await expect(page.getByTestId('automation-mint-refresh')).toBeVisible();await expect(btn).toBeDisabled();
+   if(process.env.TT180_SCREENSHOT) await page.locator('[data-win-id="w1"]').screenshot({path:process.env.TT180_SCREENSHOT,animations:'disabled'});
+   await btn.evaluate(el=>el.dispatchEvent(new MouseEvent('click',{bubbles:true})));assert.equal(posts,1);
+   assert.equal(await page.getByTestId('automation-token').count(),0);
+   release();await expect(btn).toBeEnabled({timeout:10000});await expect(page.getByTestId('automation-mint-refresh')).toHaveCount(0);
+  }finally{release();await ctx.close();}
+ });
+ await test('failed recovery refresh reports uncertainty and permits an explicit retry',{},async()=>{
+  await fx.windows('routines');const ctx=await fx.context();let failed=false, initial!:()=>void;
+  const loaded=new Promise<void>(r=>initial=r);
+  try{const page=await ctx.newPage();await page.route('**/api/automation/tokens',async route=>{
+   if(route.request().method()==='POST'){
+    if(!failed){failed=true;return await route.abort('failed');}
+    const res=await route.fetch();assert.equal(res.status(),201);const obj=await res.json() as {id:string};ids.push(obj.id);return await route.fulfill({response:res});
+   }
+   if(failed)return await route.abort('failed');
+   initial();await route.continue();
+  });
+   await fx.ready(page,'routines');await loaded;const btn=page.getByTestId('automation-mint');await btn.click();
+   await expect(page.getByTestId('automation-list-error')).toBeVisible();await expect(btn).toBeEnabled({timeout:10000});
+   await expect(page.getByTestId('automation-mint-refresh')).toHaveCount(0);assert.equal(await page.getByTestId('automation-token').count(),0);
+   await btn.click();await expect(page.getByTestId('automation-token')).toBeVisible();await expect(btn).toBeDisabled();
   }finally{await ctx.close();}
  });
  await test('lost mint response warns and refreshes the committed token row',{},async()=>{
