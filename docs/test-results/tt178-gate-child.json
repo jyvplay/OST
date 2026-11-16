@@ -1,0 +1,34 @@
+{
+  "suite": "tt178-gate-child",
+  "at": "2026-11-15T23:00:17.923Z",
+  "results": [
+    {
+      "suite": "tt178-gate-child",
+      "name": "real helper preserves success, failure and timeout exit statuses",
+      "covers": {},
+      "pass": true,
+      "ms": 220
+    },
+    {
+      "suite": "tt178-gate-child",
+      "name": "SIGTERM stops an actual active process group",
+      "covers": {},
+      "pass": true,
+      "ms": 33
+    },
+    {
+      "suite": "tt178-gate-child",
+      "name": "SIGINT stops an actual active process group",
+      "covers": {},
+      "pass": true,
+      "ms": 23
+    },
+    {
+      "suite": "tt178-gate-child",
+      "name": "isolated concurrent helper survives cancellation of its neighbor",
+      "covers": {},
+      "pass": true,
+      "ms": 26
+    }
+  ]
+}
