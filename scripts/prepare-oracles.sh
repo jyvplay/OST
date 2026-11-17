@@ -14,6 +14,7 @@
 # Usage:  bash scripts/prepare-oracles.sh [target-dir]     (default /home/user/tools)
 # Env:    TOOLS_DIR. Network access is required on first run.
 set -euo pipefail
+cd "$(dirname "$0")/.."
 
 DIR="${1:-${TOOLS_DIR:-/home/user/tools}}"
 mkdir -p "$DIR"
@@ -35,14 +36,31 @@ if [ ! -f "$DIR/package.json" ]; then
 }
 JSON
 fi
-( cd "$DIR" && npm install --no-audit --no-fund --silent )
+# An existing package.json can belong to sandbox/browser tooling and need not
+# declare these packages. Install the actual oracle set explicitly without
+# rewriting that manifest; npm retains its declared dependencies.
+( cd "$DIR" && npm install --no-save --no-audit --no-fund --silent \
+  @napi-rs/canvas@1.1.0 @js-temporal/polyfill@0.4.4 ical.js@2.1.0 pdfjs-dist@4.10.38 )
 
 echo "== python oracles -> $DIR/venv"
 if [ ! -x "$DIR/venv/bin/python" ]; then
   python3 -m venv "$DIR/venv"
 fi
 "$DIR/venv/bin/pip" install --quiet --upgrade pip
-"$DIR/venv/bin/pip" install --quiet Pillow python-docx openpyxl python-pptx pypdf numpy zxing-cpp
+"$DIR/venv/bin/pip" install --quiet Pillow pillow-heif python-docx openpyxl python-pptx pypdf numpy zxing-cpp msoffcrypto-tool
+
+echo "== independent AVIF / HEIC fixtures -> /tmp"
+# Write temporary files first: a failed encoder must never leave a partial
+# fixture at the path consumed by browser tests.
+for format in avif heic; do
+  tmp="$(mktemp "/tmp/tt148-${format}.XXXXXX")"
+  if "$DIR/venv/bin/python" "scripts/oracle/${format}_fixture.py" > "$tmp"; then
+    mv "$tmp" "/tmp/tt148-${format}.json"
+  else
+    rm -f "$tmp"
+    exit 1
+  fi
+done
 
 echo "== pinned corpus (Apache POI test documents, digest-verified)"
 CORPUS="$DIR/corpus/docx"
