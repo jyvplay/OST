@@ -197,7 +197,7 @@ export function VolumePanel() {
   const h = volumeHealth(demo, now);
   return (
     <Section icon="bucket" title="Volumes (FM-08)" right={<span style={{ flexShrink: 0 }}><Badge tone="default" data-testid="fm08-tone">example</Badge></span>}>
-      <KV k="origin quota" v={est} />
+      <KV k="origin quota" v={<span role="status" aria-atomic="true" aria-label="Origin storage estimate">{est}</span>} />
       <KV k="example volume" v={`${demo.label} · ${h.status} · ${h.why}`} />
       <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Example only: no device was checked. A page needs a picker or past grant; an unreadable device is not an empty folder.</div>
     </Section>
