@@ -29,5 +29,13 @@ for (const fixture of fixtures) {
 }
 const python = process.env.ORACLE_PY ?? "/home/user/tools/venv/bin/python";
 assert.ok(existsSync(python), `Missing real oracle Python: ${python}`);
-const pythonPackages = JSON.parse(execFileSync(python, ["-c", "import importlib.metadata,json; import numpy,zxingcpp; print(json.dumps({p:importlib.metadata.version(p) for p in ['Pillow','python-docx','openpyxl','python-pptx','pypdf','numpy','zxing-cpp']}))"], { encoding: "utf8" }));
-console.log(JSON.stringify({ scope: "Read-only prerequisites and identities, not executed app/oracle acceptance", tools, packages, python, pythonPackages, corpus, pinnedCorpusFiles: fixtures.length }, null, 2));
+const pythonPackages = JSON.parse(execFileSync(python, ["-c", "import importlib.metadata,json; import numpy,zxingcpp,pillow_heif,msoffcrypto; print(json.dumps({p:importlib.metadata.version(p) for p in ['Pillow','pillow-heif','python-docx','openpyxl','python-pptx','pypdf','numpy','zxing-cpp','msoffcrypto-tool']}))"], { encoding: "utf8" }));
+// The browser suites use generated, real encoded image bytes, not a header stub.
+// Decode both with the independent test-only libraries and check their format
+// and dimensions before starting a long gate. Do not silently skip a fixture.
+for (const format of ["avif", "heic"]) {
+  const path = `/tmp/tt148-${format}.json`;
+  assert.ok(existsSync(path), `Missing real ${format} fixture ${path}; run scripts/prepare-oracles.sh`);
+  execFileSync(python, ["-c", `import base64,io,json,sys; from PIL import Image; import pillow_heif; pillow_heif.register_heif_opener(); f=json.load(open(sys.argv[1])); im=Image.open(io.BytesIO(base64.b64decode(f['bytes'],validate=True))); im.load(); assert im.format==sys.argv[2] and im.size==(f['width'],f['height'])`, path, format === "avif" ? "AVIF" : "HEIF"], { stdio: "pipe" });
+}
+console.log(JSON.stringify({ scope: "Read-only prerequisites and identities, not executed app/oracle acceptance", tools, packages, python, pythonPackages, corpus, pinnedCorpusFiles: fixtures.length, generatedImageFixtures: ["avif", "heic"] }, null, 2));

@@ -159,9 +159,9 @@ export function DropPanel() {
   const out = planOutbound({ name: "report.pdf", mime: "application/pdf", bytes: 204800, canBlob: true, downloadUrl: typeof document !== "undefined", sameOrigin: false });
   const inb = planInbound({ types: ["Files"], fileCount: 2, largestBytes: 2048, textLength: 0, visible: typeof document !== "undefined" && document.visibilityState === "visible", accepts: ["files"] });
   return (
-    <Section icon="export" title="Drag and drop (FM-14)" right={<Badge tone="ok" data-testid="fm14-led">{out.kind}</Badge>}>
-      <Rows pairs={[["drag out", out.sentence], ["drag in", inb.sentence], ["can drag a file out", out.kind === "download" ? "yes" : "no — Download button instead"]]} />
-      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Files arrive as DataTransfer.files; the string types are empty for files by design.</div>
+    <Section icon="export" title="Drag and drop example (FM-14)" right={<span style={{ flexShrink: 0 }}><Badge tone="default" data-testid="fm14-led">example</Badge></span>}>
+      <Rows pairs={[["drag out", `${out.kind}: ${out.sentence}`], ["drag in", inb.sentence], ["can drag a file out", out.kind === "download" ? "yes" : "no — Download button instead"]]} />
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Example only: no actual drag is measured. Files arrive in DataTransfer.files; string types can be empty.</div>
     </Section>
   );
 }
@@ -171,18 +171,29 @@ export function VolumePanel() {
   const [est, setEst] = useState<string>("reading…");
   useEffect(() => {
     let live = true;
-    void navigator.storage?.estimate?.().then((e) => { if (live) setEst(spaceSentence({ usage: e.usage ?? null, quota: e.quota ?? null })); })
-      .catch(() => { if (live) setEst(spaceSentence(null)); });
+    void (async () => {
+      try {
+        const storage = navigator.storage;
+        if (typeof storage?.estimate !== "function") {
+          if (live) setEst(spaceSentence(null));
+          return;
+        }
+        const e = await storage.estimate();
+        if (live) setEst(spaceSentence({ usage: e.usage ?? null, quota: e.quota ?? null }));
+      } catch {
+        if (live) setEst("Storage estimate failed; origin usage and quota are unknown.");
+      }
+    })();
     return () => { live = false; };
   }, []);
   const now = useNow();
   const demo: Volume = { id: "vol-demo", label: "Work USB", kind: "directory", permission: "granted", lastSeenAt: now - 3 * 86400000, entries: 12, lastError: null };
   const h = volumeHealth(demo, now);
   return (
-    <Section icon="bucket" title="Volumes (FM-08)" right={<Badge tone="ok" data-testid="fm08-tone">{h.status}</Badge>}>
+    <Section icon="bucket" title="Volumes (FM-08)" right={<span style={{ flexShrink: 0 }}><Badge tone="default" data-testid="fm08-tone">example</Badge></span>}>
       <KV k="origin quota" v={est} />
-      <KV k="granted volume" v={`${demo.label} · ${h.why}`} />
-      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>A page cannot list volumes: every entry needs a picker or a past grant, and a moved device reads as broken, never as empty.</div>
+      <KV k="example volume" v={`${demo.label} · ${h.status} · ${h.why}`} />
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Example only: no device was checked. A page needs a picker or past grant; an unreadable device is not an empty folder.</div>
     </Section>
   );
 }
@@ -323,9 +334,9 @@ export function TrashPanel() {
   const s = sweep(t, now);
   const back = restore(t, "b", false);
   return (
-    <Section icon="tray" title="Trash policy (FM-11)" right={<Badge tone="ok" data-testid="fm11-tone">{s.remove.length} emptied</Badge>}>
+    <Section icon="tray" title="Trash policy example (FM-11)" right={<span style={{ flexShrink: 0 }}><Badge tone="default" data-testid="fm11-tone">example</Badge></span>}>
       <Rows pairs={[["trash", trashSummary(t, now)], ["sweep", s.sentence], ["restore", back.note]]} />
-      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Nothing is emptied while it is the only copy of its content, whatever its age.</div>
+      <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Example only: no Trash items were changed. This model keeps an only copy regardless of age.</div>
     </Section>
   );
 }

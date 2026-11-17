@@ -134,12 +134,16 @@ await test("FM-02 drag and drop: a row dragged onto the other pane moves it, Ctr
   await write(`${DIR}/drag1.txt`, "drag one"); await write(`${DIR}/drag2.txt`, "drag two");
   const { page, w, close } = await openFiles(DIR);
   try {
+    // dragTo scrolls its target after pressing the source; if they cannot be
+    // visible together that scroll can put a different row under the pointer.
+    // Maximise this test window so the native gesture starts on the intended row.
+    await w.getByRole("button", { name: "Maximise or restore" }).click();
     await w.getByRole("button", { name: "Dual pane" }).click();
     const A = pane(w, "a"), B = pane(w, "b");
     await B.getByRole("button", { name: "Edit path" }).click(); await B.getByLabel("Path").fill(`${DIR}/dst`); await page.keyboard.press("Enter");
     await w.locator(`.fs-files-pane[data-pane="b"][data-cwd="${DIR}/dst"]`).waitFor();
     await page.evaluate(()=>{const w=window as unknown as {tt100DragTrace:unknown[]};w.tt100DragTrace=[];for(const type of ['dragstart','dragover','drop','dragend'])document.addEventListener(type,event=>{const e=event as DragEvent,t=e.target as Element;const sub=document.querySelector('[data-pane=a] [data-path$="/sub"]')?.getBoundingClientRect();w.tt100DragTrace.push({type,target:t.closest('[data-path]')?.getAttribute('data-path'),pane:t.closest('[data-pane]')?.getAttribute('data-pane'),x:e.clientX,y:e.clientY,sub:sub?{y:sub.y,height:sub.height}:null});},true);});
-    await row(A, "drag1.txt").dragTo(B.getByTestId("files-listing"), { targetPosition: { x: 150, y: 250 } });
+    await row(A, "drag1.txt").dragTo(B.getByTestId("files-listing"), { targetPosition: { x: 10, y: 10 } });
     await poll(async () => !!(await stat(`${DIR}/dst/drag1.txt`)) && !(await stat(`${DIR}/drag1.txt`)), "drag moved drag1 into dst");
     // A server acknowledgement is not a stable rendered listing. Read-only native event tracing showed
     // dragTo computing drag2's old coordinates while the preceding move's refresh removed drag1;
@@ -158,14 +162,58 @@ await test("FM-02 drag and drop: a row dragged onto the other pane moves it, Ctr
       el.dispatchEvent(new DragEvent("dragover", init)); el.dispatchEvent(new DragEvent("drop", init));
     }, `${DIR}/a6.txt`);
     await poll(async () => !!(await stat(`${DIR}/dst/a6.txt`)) && !!(await stat(`${DIR}/a6.txt`)), "Ctrl-drag copied a6");
-  } catch(error){writeFileSync('docs/evidence/tt100-native-drag-failure-trace.json',JSON.stringify(await page.evaluate(()=>(window as unknown as {tt100DragTrace:unknown[]}).tt100DragTrace),null,2));await page.screenshot({path:'docs/evidence/tt100-native-drag-failure.png'});throw error;} finally { await close(); }
+  } catch(error){writeFileSync('docs/evidence/tt100-native-drag-failure-trace.json',JSON.stringify((await page.evaluate(()=>(window as unknown as {tt100DragTrace?:unknown[]}).tt100DragTrace)) ?? [],null,2));await page.screenshot({path:'docs/evidence/tt100-native-drag-failure.png'});throw error;} finally { await close(); }
 });
 
 await test("FM-02 stress witness: repeated unselected native drags land in the folder row without a layout-shift race", { "FM-02": "partial" }, async () => {
   const files=Array.from({length:6},(_,i)=>`native-${i}.txt`);for(const name of files)await write(`${DIR}/${name}`,name);
   const {page,w,close}=await openFiles(DIR);
-  try{const A=w.locator(".fs-files-pane").first();for(const name of files){const before=await stat(`${DIR}/${name}`);await row(A,name).dragTo(row(A,"sub"));await poll(async()=>!!(await stat(`${DIR}/sub/${name}`))&&!(await stat(`${DIR}/${name}`)),`native unselected drag ${name}`);ok((await stat(`${DIR}/sub/${name}`))?.sha256===before?.sha256,`byte-identical ${name}`);await row(A,name).waitFor({state:'detached'});await page.keyboard.press('Escape');}}
+  try {
+    await w.getByRole("button", { name: "Maximise or restore" }).click();
+    const A=w.locator(".fs-files-pane").first();
+    await page.evaluate(() => {
+      const trace: {type:string; path:string|null}[] = [];
+      (window as unknown as {tt184DragTrace:typeof trace}).tt184DragTrace = trace;
+      for(const type of ['dragstart','drop']) document.addEventListener(type, event => {
+        trace.push({type, path:(event.target as Element).closest('[data-path]')?.getAttribute('data-path') ?? null});
+      }, true);
+    });
+    for(const [i,name] of files.entries()) {
+      const before=await stat(`${DIR}/${name}`);
+      await row(A,name).dragTo(row(A,"sub"));
+      await poll(async()=>!!(await stat(`${DIR}/sub/${name}`))&&!(await stat(`${DIR}/${name}`)),`native unselected drag ${name}`);
+      ok((await stat(`${DIR}/sub/${name}`))?.sha256===before?.sha256,`byte-identical ${name}`);
+      const trace=await page.evaluate(()=>(window as unknown as {tt184DragTrace:{type:string;path:string|null}[]}).tt184DragTrace);
+      ok(trace[2*i]?.type==='dragstart' && trace[2*i]?.path===`${DIR}/${name}`, `native drag starts on ${name}`);
+      ok(trace[2*i+1]?.type==='drop' && trace[2*i+1]?.path===`${DIR}/sub`, `native drop lands on sub for ${name}`);
+      await row(A,name).waitFor({state:'detached'});await page.keyboard.press('Escape');
+    }
+  }
   finally{await close();}
+});
+
+await test("TT184 native drag cancellation and retry in the ordinary window", { "FM-02": "partial" }, async () => {
+  const dir=`${DIR}/drag-small`; await mkdir(dir); await mkdir(`${dir}/target`); await write(`${dir}/source.txt`, 'drag cancellation witness');
+  const {page,w,close}=await openFiles(dir);
+  try {
+    const source=row(w,'source.txt'), target=row(w,'target');
+    await page.evaluate(() => {
+      (window as unknown as {tt184Start:string[]}).tt184Start=[];
+      document.addEventListener('dragstart', event => {
+        (window as unknown as {tt184Start:string[]}).tt184Start.push((event.target as Element).closest('[data-path]')?.getAttribute('data-path') ?? '');
+      }, true);
+    });
+    const box=await source.boundingBox(); ok(box, 'source has geometry');
+    const x=box!.x+box!.width/2, y=box!.y+box!.height/2;
+    await page.mouse.move(x,y); await page.mouse.down(); await page.mouse.move(x+12,y,{steps:3});
+    await page.waitForFunction(p => (window as unknown as {tt184Start:string[]}).tt184Start?.includes(p), `${dir}/source.txt`);
+    await page.keyboard.press('Escape'); await page.mouse.up();
+    ok(!!(await stat(`${dir}/source.txt`)) && !(await stat(`${dir}/target/source.txt`)), 'cancel leaves server content in place');
+    await source.dragTo(target);
+    await poll(async()=>!!(await stat(`${dir}/target/source.txt`))&&!(await stat(`${dir}/source.txt`)), 'retry after cancel moves the file');
+    const starts=await page.evaluate(()=>(window as unknown as {tt184Start:string[]}).tt184Start);
+    ok(starts.length===2 && starts.every(p=>p===`${dir}/source.txt`), 'both native gestures start on the intended source');
+  } finally { await close(); await api('POST','/api/fs',{op:'purge',path:dir}); }
 });
 
 await test("SH-09 history: double-click in, breadcrumbs, Back / Forward buttons, Alt+← / Alt+→, Backspace, mouse buttons 4 / 5 navigate the pane and never the browser tab; a new navigation clears Forward", { "SH-09": "full", "FM-01": "partial" }, async () => {
