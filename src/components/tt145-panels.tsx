@@ -171,6 +171,10 @@ export function VolumePanel() {
   const [est, setEst] = useState<string>("reading…");
   useEffect(() => {
     let live = true;
+    // This is a UI deadline, not cancellation: a real late result may still arrive.
+    const timer = window.setTimeout(() => {
+      if (live) setEst("Storage estimate is taking too long; origin usage and quota are unknown.");
+    }, 5000);
     void (async () => {
       try {
         const storage = navigator.storage;
@@ -182,9 +186,11 @@ export function VolumePanel() {
         if (live) setEst(spaceSentence({ usage: e.usage ?? null, quota: e.quota ?? null }));
       } catch {
         if (live) setEst("Storage estimate failed; origin usage and quota are unknown.");
+      } finally {
+        window.clearTimeout(timer);
       }
     })();
-    return () => { live = false; };
+    return () => { live = false; window.clearTimeout(timer); };
   }, []);
   const now = useNow();
   const demo: Volume = { id: "vol-demo", label: "Work USB", kind: "directory", permission: "granted", lastSeenAt: now - 3 * 86400000, entries: 12, lastError: null };
