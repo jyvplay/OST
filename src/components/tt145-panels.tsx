@@ -171,6 +171,10 @@ export function VolumePanel() {
   const [est, setEst] = useState<string>("reading…");
   useEffect(() => {
     let live = true;
+    // This is a UI deadline, not cancellation: a real late result may still arrive.
+    const timer = window.setTimeout(() => {
+      if (live) setEst("Storage estimate is taking too long; origin usage and quota are unknown.");
+    }, 5000);
     void (async () => {
       try {
         const storage = navigator.storage;
@@ -182,16 +186,18 @@ export function VolumePanel() {
         if (live) setEst(spaceSentence({ usage: e.usage ?? null, quota: e.quota ?? null }));
       } catch {
         if (live) setEst("Storage estimate failed; origin usage and quota are unknown.");
+      } finally {
+        window.clearTimeout(timer);
       }
     })();
-    return () => { live = false; };
+    return () => { live = false; window.clearTimeout(timer); };
   }, []);
   const now = useNow();
   const demo: Volume = { id: "vol-demo", label: "Work USB", kind: "directory", permission: "granted", lastSeenAt: now - 3 * 86400000, entries: 12, lastError: null };
   const h = volumeHealth(demo, now);
   return (
     <Section icon="bucket" title="Volumes (FM-08)" right={<span style={{ flexShrink: 0 }}><Badge tone="default" data-testid="fm08-tone">example</Badge></span>}>
-      <KV k="origin quota" v={est} />
+      <KV k="origin quota" v={<span role="status" aria-atomic="true" aria-label="Origin storage estimate">{est}</span>} />
       <KV k="example volume" v={`${demo.label} · ${h.status} · ${h.why}`} />
       <div className="fs-dim" style={{ fontSize: fz(10.5) }}>Example only: no device was checked. A page needs a picker or past grant; an unreadable device is not an empty folder.</div>
     </Section>
