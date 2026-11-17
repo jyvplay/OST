@@ -341,14 +341,18 @@ function AutomationPanel() {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
               setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), 12000);
               try {
-                const response = await fetch(`/api/automation/tokens?id=${encodeURIComponent(t.id)}`, { method: "DELETE" });
+                const response = await fetch(`/api/automation/tokens?id=${encodeURIComponent(t.id)}`, { method: "DELETE", signal: controller.signal });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const result = await response.json() as { ok?: boolean };
-                if (result.ok !== true) throw new Error("invalid revocation response");
+                if (controller.signal.aborted || result.ok !== true) throw new Error("invalid or timed-out revocation response");
               } catch {
-                setRevokeErrors(previous => ({ ...previous, [t.id]: `Revocation not confirmed for token ${t.id}. Check its current status before retrying.` }));
+                // Aborting the client does not roll back a request the server received.
+                setRevokeErrors(previous => ({ ...previous, [t.id]: `Revocation not confirmed for token ${t.id}. Check its current status before retrying.${controller.signal.aborted ? " Request timed out." : ""}` }));
               } finally {
+                clearTimeout(timer);
                 await load();
                 revokeLocks.current.delete(t.id); setRevoking(previous => previous.filter(id => id !== t.id));
               }
