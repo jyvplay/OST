@@ -474,7 +474,19 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     const k = e.key;
     const cur = shown.find((n) => n.path === selNow.focus) ?? null;
     const move = (d: number | "home" | "end") => { e.preventDefault(); const s = keySelect(selNow, order, d, { shift: e.shiftKey, ctrl: mod }); setSel(s); focusRow(s.focus); };
-    const perRow = view === "grid" ? Math.max(1, Math.round((listRef.current?.clientWidth ?? 600) / (listRef.current?.querySelector<HTMLElement>('[role="option"]')?.offsetWidth ?? 120))) : 1;
+    // Count the rendered first row, rather than estimating width / item width:
+    // grid gaps and fractional track widths accumulate on very wide windows.
+    let perRow = 1;
+    if (view === "grid" && (k === "ArrowDown" || k === "ArrowUp")) {
+      const items = listRef.current?.querySelectorAll<HTMLElement>('[role="option"][data-path]');
+      if (items?.length) {
+        const top = items[0].getBoundingClientRect().top;
+        perRow = items.length;
+        for (let i = 1; i < items.length; i++) {
+          if (Math.abs(items[i].getBoundingClientRect().top - top) > 1) { perRow = i; break; }
+        }
+      }
+    }
     if (k === "ArrowDown") move(perRow);
     else if (k === "ArrowUp") move(-perRow);
     else if (k === "ArrowRight" && !e.altKey) move(1);
