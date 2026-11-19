@@ -203,6 +203,10 @@ export default function RoutinesModule(_: ModuleProps) {
 
 interface AutomationToken { id: string; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revoked: boolean }
 
+// IDs only, never bearer secrets. A separate key avoids lost updates when two
+// panels revoke different tokens in the same tab. Entries expire with the tab.
+const revokeMarkerKey = (id: string) => `fusion.revoke-uncertain.${id}`;
+
 /**
  * AU-03 external entry points. The token is shown once; the panel never offers
  * to show it again because the server cannot — it stores only a hash.
@@ -222,6 +226,7 @@ function AutomationPanel() {
   // A list read can precede an already-sent revoke's commit. Dismissing the
   // warning does not make a formerly live row authoritative again.
   const [uncertainRevokes, setUncertainRevokes] = useState<string[]>([]);
+  const [markerStorageError, setMarkerStorageError] = useState(false);
   const [revoking, setRevoking] = useState<string[]>([]);
   const revokeLocks = useRef(new Set<string>());
   const [listError, setListError] = useState("");
@@ -242,6 +247,12 @@ function AutomationPanel() {
       // An older or timed-out response must not replace a newer list or its page selection.
       if (controller.signal.aborted) throw new Error("Token list request timed out. Retry when the connection is available.");
       if (version !== requestVersion.current) return;
+      // Read before rendering rows: a reload must not briefly paint a formerly
+      // uncertain token as unqualified live. A live list cannot clear a marker.
+      try {
+        const marked = result.rows.filter(row => sessionStorage.getItem(revokeMarkerKey(row.id)) === "1").map(row => row.id);
+        setUncertainRevokes(previous => Array.from(new Set([...previous, ...marked])));
+      } catch { setMarkerStorageError(true); }
       setRows(result.rows);
       setListLoaded(true);
       setListError("");
@@ -322,6 +333,7 @@ function AutomationPanel() {
         <span>{message}</span>
         <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>
       </div>)}
+      {markerStorageError ? <div role="alert" data-testid="automation-marker-storage-error">Token uncertainty cannot be saved in this tab; reloading may lose it.</div> : null}
       {listError ? <div role="alert" data-testid="automation-list-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <span>{listLoaded ? "Token list may be out of date." : "Token list unavailable."} {listError}</span>
         <Btn variant="ghost" aria-label="Retry token list" disabled={listLoading} onClick={() => void load()}>Retry</Btn>
@@ -345,6 +357,10 @@ function AutomationPanel() {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
               setUncertainRevokes(previous => previous.includes(t.id) ? previous : [...previous, t.id]);
+              // Persist synchronously before sending; a reload can happen while
+              // the DELETE is still in flight, including before its timeout.
+              try { sessionStorage.setItem(revokeMarkerKey(t.id), "1"); }
+              catch { setMarkerStorageError(true); }
               setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
               const controller = new AbortController();
               const timer = setTimeout(() => controller.abort(), 12000);
