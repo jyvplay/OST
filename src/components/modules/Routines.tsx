@@ -224,6 +224,13 @@ function addRevokeMarkers(ids: readonly string[]) {
 }
 const getRevokeMarkers = () => revokeMarkers;
 const getServerRevokeMarkers = () => emptyRevokeMarkers;
+function broadcastRevokeMarkers(channel: BroadcastChannel | null, ids: readonly string[]) {
+  if (!channel) return;
+  for (let i = 0; i < ids.length; i += 100) {
+    try { channel.postMessage({ type: "markers", ids: ids.slice(i, i + 100) }); }
+    catch { return; } // Advisory: other tabs can still be stale.
+  }
+}
 
 /**
  * AU-03 external entry points. The token is shown once; the panel never offers
@@ -271,6 +278,8 @@ function AutomationPanel() {
       try {
         const marked = result.rows.filter(row => sessionStorage.getItem(revokeMarkerKey(row.id)) === "1").map(row => row.id);
         addRevokeMarkers(marked);
+        // A peer may have asked before this list rehydrated our tab's markers.
+        broadcastRevokeMarkers(revokeChannel.current, marked);
       } catch { setMarkerStorageError(true); }
       setRows(result.rows);
       setListLoaded(true);
@@ -302,8 +311,7 @@ function AutomationPanel() {
       const value = event.data as { type?: unknown; ids?: unknown } | null;
       if (!value || typeof value !== "object") return;
       if (value.type === "request") {
-        const ids = getRevokeMarkers();
-        for (let i = 0; i < ids.length; i += 100) send({ type: "markers", ids: ids.slice(i, i + 100) });
+        broadcastRevokeMarkers(channel, getRevokeMarkers());
       } else if (value.type === "markers" && Array.isArray(value.ids) && value.ids.length <= 100) {
         const ids = value.ids.filter((id: unknown): id is string => typeof id === "string" && /^[0-9a-z]{8}$/.test(id));
         addRevokeMarkers(ids);
@@ -312,6 +320,8 @@ function AutomationPanel() {
       }
     };
     send({ type: "request" });
+    // Cover rehydration that completed before this channel was installed.
+    broadcastRevokeMarkers(channel, getRevokeMarkers());
     return () => { if (revokeChannel.current === channel) revokeChannel.current = null; channel.close(); };
   }, []);
 
