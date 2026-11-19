@@ -245,6 +245,7 @@ function AutomationPanel() {
   // warning does not make a formerly live row authoritative again.
   const uncertainRevokes = useSyncExternalStore(subscribeRevokeMarkers, getRevokeMarkers, getServerRevokeMarkers);
   const [markerStorageError, setMarkerStorageError] = useState(false);
+  const revokeChannel = useRef<BroadcastChannel | null>(null);
   const [revoking, setRevoking] = useState<string[]>([]);
   const revokeLocks = useRef(new Set<string>());
   const [listError, setListError] = useState("");
@@ -289,6 +290,30 @@ function AutomationPanel() {
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    // Advisory only: BroadcastChannel is not durable or guaranteed delivery.
+    // A late panel asks currently listening peers for their existing markers.
+    let channel: BroadcastChannel;
+    try { channel = new BroadcastChannel("fusion.revoke-uncertain.v1"); }
+    catch { return; }
+    revokeChannel.current = channel;
+    const send = (message: unknown) => { try { channel.postMessage(message); } catch { /* other tabs may be stale */ } };
+    channel.onmessage = event => {
+      const value = event.data as { type?: unknown; ids?: unknown } | null;
+      if (!value || typeof value !== "object") return;
+      if (value.type === "request") {
+        const ids = getRevokeMarkers();
+        for (let i = 0; i < ids.length; i += 100) send({ type: "markers", ids: ids.slice(i, i + 100) });
+      } else if (value.type === "markers" && Array.isArray(value.ids) && value.ids.length <= 100) {
+        const ids = value.ids.filter((id: unknown): id is string => typeof id === "string" && /^[0-9a-z]{8}$/.test(id));
+        addRevokeMarkers(ids);
+        try { for (const id of ids) sessionStorage.setItem(revokeMarkerKey(id), "1"); }
+        catch { setMarkerStorageError(true); }
+      }
+    };
+    send({ type: "request" });
+    return () => { if (revokeChannel.current === channel) revokeChannel.current = null; channel.close(); };
+  }, []);
 
   const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
   const needle = query.trim().toLowerCase();
@@ -300,7 +325,7 @@ function AutomationPanel() {
   return (
     <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={uncertainLiveCount ? "warn" : listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${uncertainLiveCount ? ` · ${uncertainLiveCount} uncertain` : ""}${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
       <div className="fs-dim" style={{ fontSize: fz(11) }}>
-        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
+        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them. Other tabs may be out of date.
       </div>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <input className="fs-input" style={{ width: fz(160) }} value={name} onChange={(e) => setName(e.target.value)} aria-label="Token name" />
@@ -375,6 +400,7 @@ function AutomationPanel() {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
               addRevokeMarkers([t.id]);
+              try { revokeChannel.current?.postMessage({ type: "markers", ids: [t.id] }); } catch { /* other tabs may be stale */ }
               // Persist synchronously before sending; a reload can happen while
               // the DELETE is still in flight, including before its timeout.
               try { sessionStorage.setItem(revokeMarkerKey(t.id), "1"); }
