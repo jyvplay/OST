@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
@@ -203,6 +203,28 @@ export default function RoutinesModule(_: ModuleProps) {
 
 interface AutomationToken { id: string; name: string; scopes: string[]; createdAt: string; lastUsedAt: string | null; revoked: boolean }
 
+// IDs only, never bearer secrets. A separate key avoids lost updates when two
+// panels revoke different tokens in the same tab. Entries expire with the tab.
+const revokeMarkerKey = (id: string) => `fusion.revoke-uncertain.${id}`;
+
+// All Routines windows in this document share a monotone, ID-only snapshot.
+// Storage extends it across reloads; it is not a cross-tab operation journal.
+const emptyRevokeMarkers: readonly string[] = [];
+let revokeMarkers: readonly string[] = emptyRevokeMarkers;
+const revokeMarkerListeners = new Set<() => void>();
+function subscribeRevokeMarkers(listener: () => void) {
+  revokeMarkerListeners.add(listener);
+  return () => { revokeMarkerListeners.delete(listener); };
+}
+function addRevokeMarkers(ids: readonly string[]) {
+  const next = Array.from(new Set([...revokeMarkers, ...ids]));
+  if (next.length === revokeMarkers.length) return;
+  revokeMarkers = next;
+  for (const listener of revokeMarkerListeners) listener();
+}
+const getRevokeMarkers = () => revokeMarkers;
+const getServerRevokeMarkers = () => emptyRevokeMarkers;
+
 /**
  * AU-03 external entry points. The token is shown once; the panel never offers
  * to show it again because the server cannot — it stores only a hash.
@@ -221,7 +243,9 @@ function AutomationPanel() {
   const [revokeErrors, setRevokeErrors] = useState<Record<string, string>>({});
   // A list read can precede an already-sent revoke's commit. Dismissing the
   // warning does not make a formerly live row authoritative again.
-  const [uncertainRevokes, setUncertainRevokes] = useState<string[]>([]);
+  const uncertainRevokes = useSyncExternalStore(subscribeRevokeMarkers, getRevokeMarkers, getServerRevokeMarkers);
+  const [markerStorageError, setMarkerStorageError] = useState(false);
+  const revokeChannel = useRef<BroadcastChannel | null>(null);
   const [revoking, setRevoking] = useState<string[]>([]);
   const revokeLocks = useRef(new Set<string>());
   const [listError, setListError] = useState("");
@@ -242,6 +266,12 @@ function AutomationPanel() {
       // An older or timed-out response must not replace a newer list or its page selection.
       if (controller.signal.aborted) throw new Error("Token list request timed out. Retry when the connection is available.");
       if (version !== requestVersion.current) return;
+      // Read before rendering rows: a reload must not briefly paint a formerly
+      // uncertain token as unqualified live. A live list cannot clear a marker.
+      try {
+        const marked = result.rows.filter(row => sessionStorage.getItem(revokeMarkerKey(row.id)) === "1").map(row => row.id);
+        addRevokeMarkers(marked);
+      } catch { setMarkerStorageError(true); }
       setRows(result.rows);
       setListLoaded(true);
       setListError("");
@@ -260,6 +290,30 @@ function AutomationPanel() {
     }
   }, []);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    // Advisory only: BroadcastChannel is not durable or guaranteed delivery.
+    // A late panel asks currently listening peers for their existing markers.
+    let channel: BroadcastChannel;
+    try { channel = new BroadcastChannel("fusion.revoke-uncertain.v1"); }
+    catch { return; }
+    revokeChannel.current = channel;
+    const send = (message: unknown) => { try { channel.postMessage(message); } catch { /* other tabs may be stale */ } };
+    channel.onmessage = event => {
+      const value = event.data as { type?: unknown; ids?: unknown } | null;
+      if (!value || typeof value !== "object") return;
+      if (value.type === "request") {
+        const ids = getRevokeMarkers();
+        for (let i = 0; i < ids.length; i += 100) send({ type: "markers", ids: ids.slice(i, i + 100) });
+      } else if (value.type === "markers" && Array.isArray(value.ids) && value.ids.length <= 100) {
+        const ids = value.ids.filter((id: unknown): id is string => typeof id === "string" && /^[0-9a-z]{8}$/.test(id));
+        addRevokeMarkers(ids);
+        try { for (const id of ids) sessionStorage.setItem(revokeMarkerKey(id), "1"); }
+        catch { setMarkerStorageError(true); }
+      }
+    };
+    send({ type: "request" });
+    return () => { if (revokeChannel.current === channel) revokeChannel.current = null; channel.close(); };
+  }, []);
 
   const wanted = [scopes.run ? "run" : null, scopes.read ? "read" : null].filter(Boolean) as string[];
   const needle = query.trim().toLowerCase();
@@ -271,7 +325,7 @@ function AutomationPanel() {
   return (
     <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={uncertainLiveCount ? "warn" : listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${uncertainLiveCount ? ` · ${uncertainLiveCount} uncertain` : ""}${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
       <div className="fs-dim" style={{ fontSize: fz(11) }}>
-        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
+        A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them. Other tabs may be out of date.
       </div>
       <div className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <input className="fs-input" style={{ width: fz(160) }} value={name} onChange={(e) => setName(e.target.value)} aria-label="Token name" />
@@ -322,6 +376,7 @@ function AutomationPanel() {
         <span>{message}</span>
         <Btn variant="ghost" aria-label={`Dismiss revocation warning for ${id}`} onClick={() => setRevokeErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn>
       </div>)}
+      {markerStorageError ? <div role="alert" data-testid="automation-marker-storage-error">Token uncertainty cannot be saved in this tab; reloading may lose it.</div> : null}
       {listError ? <div role="alert" data-testid="automation-list-error" className="fs-row" style={{ gap: 6, flexWrap: "wrap" }}>
         <span>{listLoaded ? "Token list may be out of date." : "Token list unavailable."} {listError}</span>
         <Btn variant="ghost" aria-label="Retry token list" disabled={listLoading} onClick={() => void load()}>Retry</Btn>
@@ -344,7 +399,12 @@ function AutomationPanel() {
             <Btn variant="ghost" disabled={revoking.includes(t.id)} onClick={async () => {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
-              setUncertainRevokes(previous => previous.includes(t.id) ? previous : [...previous, t.id]);
+              addRevokeMarkers([t.id]);
+              try { revokeChannel.current?.postMessage({ type: "markers", ids: [t.id] }); } catch { /* other tabs may be stale */ }
+              // Persist synchronously before sending; a reload can happen while
+              // the DELETE is still in flight, including before its timeout.
+              try { sessionStorage.setItem(revokeMarkerKey(t.id), "1"); }
+              catch { setMarkerStorageError(true); }
               setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
               const controller = new AbortController();
               const timer = setTimeout(() => controller.abort(), 12000);
