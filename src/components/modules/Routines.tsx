@@ -1,7 +1,7 @@
 "use client";
 import { fz } from "@/lib/uiscale";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { api, fmtTime, patch, post, put } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
@@ -207,6 +207,24 @@ interface AutomationToken { id: string; name: string; scopes: string[]; createdA
 // panels revoke different tokens in the same tab. Entries expire with the tab.
 const revokeMarkerKey = (id: string) => `fusion.revoke-uncertain.${id}`;
 
+// All Routines windows in this document share a monotone, ID-only snapshot.
+// Storage extends it across reloads; it is not a cross-tab operation journal.
+const emptyRevokeMarkers: readonly string[] = [];
+let revokeMarkers: readonly string[] = emptyRevokeMarkers;
+const revokeMarkerListeners = new Set<() => void>();
+function subscribeRevokeMarkers(listener: () => void) {
+  revokeMarkerListeners.add(listener);
+  return () => { revokeMarkerListeners.delete(listener); };
+}
+function addRevokeMarkers(ids: readonly string[]) {
+  const next = Array.from(new Set([...revokeMarkers, ...ids]));
+  if (next.length === revokeMarkers.length) return;
+  revokeMarkers = next;
+  for (const listener of revokeMarkerListeners) listener();
+}
+const getRevokeMarkers = () => revokeMarkers;
+const getServerRevokeMarkers = () => emptyRevokeMarkers;
+
 /**
  * AU-03 external entry points. The token is shown once; the panel never offers
  * to show it again because the server cannot — it stores only a hash.
@@ -225,7 +243,7 @@ function AutomationPanel() {
   const [revokeErrors, setRevokeErrors] = useState<Record<string, string>>({});
   // A list read can precede an already-sent revoke's commit. Dismissing the
   // warning does not make a formerly live row authoritative again.
-  const [uncertainRevokes, setUncertainRevokes] = useState<string[]>([]);
+  const uncertainRevokes = useSyncExternalStore(subscribeRevokeMarkers, getRevokeMarkers, getServerRevokeMarkers);
   const [markerStorageError, setMarkerStorageError] = useState(false);
   const [revoking, setRevoking] = useState<string[]>([]);
   const revokeLocks = useRef(new Set<string>());
@@ -251,7 +269,7 @@ function AutomationPanel() {
       // uncertain token as unqualified live. A live list cannot clear a marker.
       try {
         const marked = result.rows.filter(row => sessionStorage.getItem(revokeMarkerKey(row.id)) === "1").map(row => row.id);
-        setUncertainRevokes(previous => Array.from(new Set([...previous, ...marked])));
+        addRevokeMarkers(marked);
       } catch { setMarkerStorageError(true); }
       setRows(result.rows);
       setListLoaded(true);
@@ -356,7 +374,7 @@ function AutomationPanel() {
             <Btn variant="ghost" disabled={revoking.includes(t.id)} onClick={async () => {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
-              setUncertainRevokes(previous => previous.includes(t.id) ? previous : [...previous, t.id]);
+              addRevokeMarkers([t.id]);
               // Persist synchronously before sending; a reload can happen while
               // the DELETE is still in flight, including before its timeout.
               try { sessionStorage.setItem(revokeMarkerKey(t.id), "1"); }
