@@ -219,6 +219,9 @@ function AutomationPanel() {
   const mintLock = useRef(false);
   const [err, setErr] = useState("");
   const [revokeErrors, setRevokeErrors] = useState<Record<string, string>>({});
+  // A list read can precede an already-sent revoke's commit. Dismissing the
+  // warning does not make a formerly live row authoritative again.
+  const [uncertainRevokes, setUncertainRevokes] = useState<string[]>([]);
   const [revoking, setRevoking] = useState<string[]>([]);
   const revokeLocks = useRef(new Set<string>());
   const [listError, setListError] = useState("");
@@ -264,8 +267,9 @@ function AutomationPanel() {
   const pageSize = 8;
   const currentPage = Math.min(page, Math.max(0, Math.ceil(matching.length / pageSize) - 1));
   const visible = matching.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const uncertainLiveCount = rows.filter(r => !r.revoked && uncertainRevokes.includes(r.id)).length;
   return (
-    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
+    <Section title="External entry points (AU-03)" icon="sliders" right={<Badge tone={uncertainLiveCount ? "warn" : listLoaded && !listError && rows.some((r) => !r.revoked) ? "ok" : "default"}>{listLoaded ? `${rows.filter((r) => !r.revoked).length} live${uncertainLiveCount ? ` · ${uncertainLiveCount} uncertain` : ""}${listError ? " · stale" : listLoading ? " · updating" : ""}` : listLoading ? "Loading" : "Unavailable"}</Badge>}>
       <div className="fs-dim" style={{ fontSize: fz(11) }}>
         A script POSTs commands to <span className="fs-mono">/api/automation</span> with a bearer token; this window executes them.
       </div>
@@ -335,11 +339,12 @@ function AutomationPanel() {
           <span style={{ fontSize: fz(11.5), minWidth: 0 }}>
             <span className="fs-mono">{t.id}</span> {t.name} <span className="fs-dim">· {t.scopes.join(", ")}{t.lastUsedAt ? ` · used ${fmtTime(t.lastUsedAt)}` : ""}</span>
           </span>
-          <Badge tone={t.revoked ? "bad" : "ok"}>{t.revoked ? "revoked" : "live"}</Badge>
+          <Badge data-testid="automation-token-state" tone={t.revoked ? "bad" : uncertainRevokes.includes(t.id) ? "warn" : "ok"} title={!t.revoked && uncertainRevokes.includes(t.id) ? "Last seen live; the revocation may still complete." : undefined}>{t.revoked ? "revoked" : uncertainRevokes.includes(t.id) ? <>last seen <span>live</span> · uncertain</> : "live"}</Badge>
           {t.revoked ? null : (
             <Btn variant="ghost" disabled={revoking.includes(t.id)} onClick={async () => {
               if (revokeLocks.current.has(t.id)) return;
               revokeLocks.current.add(t.id); setRevoking(previous => [...previous, t.id]);
+              setUncertainRevokes(previous => previous.includes(t.id) ? previous : [...previous, t.id]);
               setRevokeErrors(previous => { const next = { ...previous }; delete next[t.id]; return next; });
               const controller = new AbortController();
               const timer = setTimeout(() => controller.abort(), 12000);
