@@ -505,6 +505,9 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
           return;
         }
       }
+      // An impossible prefix cannot locate an option. Do not make the next
+      // keystroke wait for the timeout before it can start a new search.
+      typeAhead.current.text = "";
       e.preventDefault();
       return;
     }
