@@ -22,6 +22,14 @@ try {
    await page.keyboard.press('b');await expect(row('beta.txt')).toBeFocused();
    await page.keyboard.press('Control+a');await expect(win.getByTestId('files-selcount')).toContainText('9 selected');
   });
+  await test('pointer and leaving the listing start a fresh search',{},async()=>{
+   await win.getByRole('button',{name:'List',exact:true}).click();
+   await row('alpha.txt').click();await page.keyboard.press('b');await expect(row('beta.txt')).toBeFocused();
+   await row('alpha.txt').click();await page.keyboard.press('c');await expect(row('charlie.txt')).toBeFocused();
+   await page.keyboard.press('Escape');await page.keyboard.press('b');await expect(row('beta.txt')).toBeFocused();
+   const filter=win.getByRole('textbox',{name:'Quick filter'});await filter.focus();await row('alpha.txt').focus();
+   await page.keyboard.press('c');await expect(row('charlie.txt')).toBeFocused();
+  });
   await test('grid and filtered results, no-match and shortcuts remain usable',{},async()=>{
    await win.getByRole('button',{name:'Grid',exact:true}).click();await row('alpha.txt').click();
    await page.keyboard.press('z');await expect(row('alpha.txt')).toBeFocused();
