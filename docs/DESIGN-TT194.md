@@ -1,0 +1,26 @@
+# TT194 — Files list/grid type-ahead
+
+## Claim and boundary
+For a focused rendered Files list/grid option, typing an unmodified printable character moves focus to the next visible name with that prefix, wrapping; rapid distinct characters extend the prefix, and repeating a single character cycles matches. This is focus-only, not selection. Non-text keys reset the 700 ms buffer. The matching set is the current sorted/filtered rendered set. Names and keys are NFC-normalized and locale-lowercased. IME composition and modified keys are not intercepted. Columns deliberately do not participate: their multiple independent lists need their own navigation model. No persistence, server changes, or external implementation code.
+
+W3C's [listbox guidance](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/) recommends type-ahead, especially for longer lists, and permits focus distinct from selection. This implementation is independently written; the guidance is not evidence of screen-reader compatibility.
+
+## Verification and hypotheses
+Admissible evidence here is an actual Chromium 143 production app against a disposable PostgreSQL VFS, inspected DOM focus and aria-selected, plus build and lint. The fixture contains nine real files; it is not a universal claim about all filenames or platforms. H+: for this fixture the key sequences reach matching options while preserving selection and other controls. H−: keys do nothing, select instead of focus, start from a stale focus, disrupt shortcuts, or match outside the filtered set. H∂: composition, timing, locale, column mode and accessibility technology may differ. Baseline: both tests failed on the first `b` (0/2). Initial patch: 1/2; after Escape cleared selection the logical focus was null while DOM focus remained on Bravo. Fix: use the actual focused option as the starting point. Final targeted run: 2/2 (subsequent gate tests include extra composition and modifier checks). Build and changed-file ESLint pass. This verifies the enumerated fixture, not all files or AT.
+
+## Six considered approaches and attackers
+1. No change: existing arrows work, but baseline attacker types b and focus does not move. Rejected.
+2. Filter input only: actual existing filter is testable but changes the result set and needs toolbar focus; attacker wants navigation without filtering. Rejected as substitute.
+3. Select each match: uses selection model, but attacker has multiple selected files and typing would destroy selection. Rejected.
+4. Track index using selection focus: initial patch artifact failed after Escape reset selection while DOM focus remained. Rejected.
+5. Focus-only using actual focused option and bounded prefix buffer: implemented; browser fixture tests list, grid, filter, selection, cycling and shortcuts. Remaining attackers include other locales, IMEs and screen readers.
+6. Global search/input events across all columns: might support committed IME text and columns but would require separate scoped focus semantics; no implementation or verification. Deferred, not presented as equivalent.
+
+## Misleading result shapes to guard against
+A green build without browser input; a handler called without focus moving; focus moving but selection lost; matching hidden entries; matching an unsorted source rather than displayed order; only testing a single match; no wraparound; repeated letters concatenated rather than cycled; stale focus after Escape; stale buffer after filter change; consumed Ctrl+A; consumed Alt navigation; filtering input hijacked; no-match opens a file; a synthetic composition event treated as real IME coverage; screenshot treated as AT verification; single Chromium treated as cross-browser proof; one fixture treated as arbitrary Unicode proof. These are distinct failure or evidence shapes, not claims all have been exhaustively tested. In particular, 'can', 'usually', or a passing narrow example must not be promoted to 'always' or Class A.
+
+## Remaining gaps
+Real IME committed-text matching is not implemented; grapheme clusters and locale-specific case folding, dead keys, accessibility technology, other browsers, mixed bidi names, long lists and virtualized layouts are unverified. Typing a failed multi-character prefix stays buffered until reset/timeout. The 700 ms window is a design choice rather than a measured user preference. Test performance has not been improved or benchmarked in this change. Prior density failures should not be hidden or relaxed.
+
+## Gate results
+Full gate attempt `.cache/gate/20261120T013102Z/run-4763-vaTXZZ` stopped in the pure lane: TT178 SIGINT child still executing at the deadline (4/5); that PID was gone when inspected later. The retry `.cache/gate/20261120T013149Z/run-7014-N4CB8f` passed the pure lane and reached the end, but exited 1: TT134 review repairs expected real GitHub frame denial and got `unknown` (two cases), TT124 Routines 306/300, TT125 Files 375/260 and TT123 Files 375/320. TT194 2/2, TT193 2/2, TT55 Files 15/15 and e2e-a11y 9/9 passed on that retry. The first failure is not erased by the retry; its cause is not established. The network-dependent `unknown` is not evidence of denial. Generated screenshots and result files were restored rather than committed as incidental churn.
