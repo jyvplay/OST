@@ -534,7 +534,13 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     else if (k === "F2" && cur && !showTrash) { e.preventDefault(); void rename(cur); }
     else if (k === "F5" && otherCwd && selNow.paths.length && !showTrash) { e.preventDefault(); void transfer(selNow.paths, otherCwd, "copy"); }
     else if (k === "F6" && otherCwd && selNow.paths.length && !showTrash) { e.preventDefault(); void transfer(selNow.paths, otherCwd, "move"); }
-    else if (k === "Escape" && selNow.paths.length) { e.preventDefault(); setSel(emptySel()); }
+    else if (k === "Escape" && selNow.paths.length) {
+      e.preventDefault();
+      // Clearing selection must not forget the option that still owns DOM
+      // focus: subsequent Space, Enter and arrows operate on that option.
+      const focusedPath = option?.getAttribute("data-path") ?? null;
+      setSel({ paths: [], anchor: null, focus: focusedPath && order.includes(focusedPath) ? focusedPath : null });
+    }
     else if (k === "ContextMenu" || (k === "F10" && e.shiftKey)) {
       e.preventDefault();
       const r = (document.activeElement as HTMLElement | null)?.getBoundingClientRect();
