@@ -27,6 +27,7 @@ import { formatFor } from "@/lib/forge";
 import { fromB64, open, seal, toB64, type Envelope } from "@/lib/crypto";
 import { useShell } from "../shell-context";
 import { guardedButtons, mouseConfigFrom, navActionFor } from "@/lib/input";
+import { BINDINGS, comboFor, matchChord, type Preset } from "@/lib/shortcuts";
 import { Badge, Btn, Empty } from "../ui";
 import { namesList } from "@/lib/names-list";
 import { FileIcon, UiGlyph } from "../AppIcon";
@@ -476,6 +477,11 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     const mod = e.ctrlKey || e.metaKey;
     const k = e.key;
     if (e.nativeEvent.isComposing || k === "Dead" || k === "Process") { typeAhead.current.text = ""; return; }
+    // The shell owns its configured palette chord. Let it bubble without
+    // also toggling the focused item; modified Space with Shift still toggles.
+    const paletteBinding = BINDINGS.find((b) => b.id === "palette");
+    const preset = (shell.settings["shell.shortcutPreset"] ?? "hybrid") as Preset;
+    if (k === " " && paletteBinding && matchChord(e.nativeEvent, comboFor(paletteBinding, preset))) { typeAhead.current.text = ""; return; }
     const option = (e.target as HTMLElement).closest('[role="option"][data-path]');
     if (view !== "column" && option && !mod && !e.altKey && k !== " " && Array.from(k).length === 1) {
       const now = performance.now();
@@ -534,7 +540,13 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     else if (k === "F2" && cur && !showTrash) { e.preventDefault(); void rename(cur); }
     else if (k === "F5" && otherCwd && selNow.paths.length && !showTrash) { e.preventDefault(); void transfer(selNow.paths, otherCwd, "copy"); }
     else if (k === "F6" && otherCwd && selNow.paths.length && !showTrash) { e.preventDefault(); void transfer(selNow.paths, otherCwd, "move"); }
-    else if (k === "Escape" && selNow.paths.length) { e.preventDefault(); setSel(emptySel()); }
+    else if (k === "Escape" && selNow.paths.length) {
+      e.preventDefault();
+      // Clearing selection must not forget the option that still owns DOM
+      // focus: subsequent Space, Enter and arrows operate on that option.
+      const focusedPath = option?.getAttribute("data-path") ?? null;
+      setSel({ paths: [], anchor: null, focus: focusedPath && order.includes(focusedPath) ? focusedPath : null });
+    }
     else if (k === "ContextMenu" || (k === "F10" && e.shiftKey)) {
       e.preventDefault();
       const r = (document.activeElement as HTMLElement | null)?.getBoundingClientRect();
@@ -653,7 +665,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
   const marquee = useMarquee(selNow.paths, (paths) => setSel({ paths, anchor: paths[0] ?? null, focus: paths.at(-1) ?? null }), '[role="option"][data-path]');
 
   const listing = (
-    <div ref={listRef} role="listbox" aria-label={`${showTrash ? "Trash" : deepMode ? `Search results under ${cwd}` : cwd} — Enter opens, Space selects`} aria-multiselectable="true"
+    <div ref={listRef} role="listbox" aria-label={`${showTrash ? "Trash" : deepMode ? `Search results under ${cwd}` : cwd} — Enter opens, Space selects, Control Shift Space toggles`} aria-multiselectable="true"
       style={view === "grid" ? { display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${fz(118)},1fr))`, gap: 6 } : { display: "grid", gap: 1 }}>
       {shown.map(row)}
     </div>
