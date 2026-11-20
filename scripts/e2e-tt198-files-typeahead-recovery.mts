@@ -20,6 +20,13 @@ try {
    await page.keyboard.press('z');await expect(row('bravo.txt')).toBeFocused();await page.keyboard.press('b');await expect(row('briar.txt')).toBeFocused();
    await page.keyboard.press('b');await expect(row('beta.txt')).toBeFocused();
   });
+  await test('an invalid longer prefix does not jump to its last character',{},async()=>{
+   await row('alpha.txt').click();await page.keyboard.press('b');await expect(row('beta.txt')).toBeFocused();
+   // Charlie exists, but bc does not: the failed c must not be retried as c.
+   await page.keyboard.press('c');await expect(row('beta.txt')).toBeFocused();
+   await page.keyboard.press('b');await expect(row('bravo.txt')).toBeFocused();
+   await expect(row('alpha.txt')).toHaveAttribute('aria-selected','true');
+  });
   await test('filtered results remain the match boundary after a miss',{},async()=>{
    const filter=win.getByRole('textbox',{name:'Quick filter'});await filter.fill('br');
    await expect(win.locator('[role="option"][data-path]')).toHaveCount(2);await row('bravo.txt').click();
