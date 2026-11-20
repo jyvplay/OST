@@ -469,9 +469,40 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     if (!path) return;
     listRef.current?.querySelector<HTMLElement>(`[data-path="${CSS.escape(path)}"]`)?.focus();
   };
+  // Type-ahead is local to a pane and its current visible ordering; it moves
+  // focus only, leaving multi-selection untouched. No timer survives unmount.
+  const typeAhead = useRef({ text: "", time: 0, order: "" });
   const onListKey = (e: KeyboardEvent<HTMLDivElement>) => {
     const mod = e.ctrlKey || e.metaKey;
     const k = e.key;
+    if (e.nativeEvent.isComposing || k === "Dead" || k === "Process") { typeAhead.current.text = ""; return; }
+    const option = (e.target as HTMLElement).closest('[role="option"][data-path]');
+    if (view !== "column" && option && !mod && !e.altKey && k !== " " && Array.from(k).length === 1) {
+      const now = performance.now();
+      const signature = JSON.stringify(order);
+      const prev = typeAhead.current;
+      const ch = k.normalize("NFC").toLocaleLowerCase();
+      const recent = prev.order === signature && now - prev.time < 700;
+      const cycle = recent && prev.text === ch;
+      const query = recent && !cycle ? prev.text + ch : ch;
+      typeAhead.current = { text: query, time: now, order: signature };
+      const start = order.indexOf(option.getAttribute("data-path") ?? "");
+      // For a longer prefix, first retain the current match; for a single
+      // character, start after the current row and wrap once.
+      const offset = query.length > ch.length ? 0 : 1;
+      for (let i = 0; i < shown.length; i++) {
+        const index = ((start < 0 ? -offset : start) + offset + i) % shown.length;
+        if (shown[index].name.normalize("NFC").toLocaleLowerCase().startsWith(query)) {
+          e.preventDefault();
+          setSel((s) => ({ ...s, focus: shown[index].path }));
+          focusRow(shown[index].path);
+          return;
+        }
+      }
+      e.preventDefault();
+      return;
+    }
+    typeAhead.current.text = "";
     const cur = shown.find((n) => n.path === selNow.focus) ?? null;
     const move = (d: number | "home" | "end") => { e.preventDefault(); const s = keySelect(selNow, order, d, { shift: e.shiftKey, ctrl: mod }); setSel(s); focusRow(s.focus); };
     // Count the rendered first row, rather than estimating width / item width:
@@ -776,6 +807,8 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
             folder has no rows there is no focusable row inside, so the scroll region itself must be tabbable
             (axe scrollable-region-focusable) */}
         <div {...marquee.handlers} className="fs-scroll" data-testid="files-listing" data-drop={dropOn === "bg" || undefined}
+          onPointerDownCapture={() => { typeAhead.current.text = ""; }}
+          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) typeAhead.current.text = ""; }}
           tabIndex={nothing ? 0 : -1} role={nothing ? "group" : undefined} aria-label={nothing ? "Empty folder" : undefined} onKeyDown={onListKey}
           style={{ flex: 1, minHeight: 0, minWidth: 0, padding: view === "column" ? 0 : 6, outline: dropOn === "bg" ? "2px dashed var(--fs-accent)" : undefined, outlineOffset: -4 }}
           onDragOver={(e) => dragOver(e, "bg")} onDragLeave={(e) => { if (e.currentTarget === e.target) setDropOn(null); }} onDrop={(e) => drop(e, cwd)}
