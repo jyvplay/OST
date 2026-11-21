@@ -7,8 +7,9 @@
 export const LAST_BACKUP_KEY = "fusion.last-backup.v1";
 export const STALE_DAYS = 7;
 
-export function backupAge(lastMs: number | null, now = Date.now()): { state: "never" | "fresh" | "stale"; days: number } {
+export function backupAge(lastMs: number | null, now = Date.now()): { state: "never" | "fresh" | "stale" | "unknown"; days: number } {
   if (lastMs === null || !Number.isFinite(lastMs)) return { state: "never", days: 0 };
+  if (!Number.isFinite(now) || lastMs > now) return { state: "unknown", days: 0 };
   const days = Math.floor((now - lastMs) / 86_400_000);
   return { state: days >= STALE_DAYS ? "stale" : "fresh", days: Math.max(0, days) };
 }
@@ -16,6 +17,7 @@ export function backupAge(lastMs: number | null, now = Date.now()): { state: "ne
 export function freshnessLabel(lastMs: number | null, now = Date.now()): string {
   const a = backupAge(lastMs, now);
   if (a.state === "never") return "No backup built yet in this browser";
+  if (a.state === "unknown") return "Backup time unknown — check the device clock";
   if (a.days === 0) return "Last backup built today";
   return `Last backup built ${a.days} day${a.days === 1 ? "" : "s"} ago${a.state === "stale" ? ` — older than ${STALE_DAYS} days` : ""}`;
 }
