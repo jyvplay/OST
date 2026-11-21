@@ -40,4 +40,17 @@ try {
   await fx.api('POST','/api/fs',{op:'purge',path});owned=false;const {ctx,page,root}=await open();
   try{await page.route('**/api/fs',async route=>{if(route.request().postDataJSON()?.op==='writeIfUnchanged'){owned=true;const real=await route.fetch();assert.equal(real.status(),200);return route.fulfill({status:200,contentType:'application/json',body:'{}'});}return route.continue();});await root.getByTestId('backup-save-files').click();await root.getByTestId('backup-report').getByText(/not confirmed/i).waitFor({timeout:12000});assert.equal((await stat())?.version,1);}finally{await ctx.close();}
  });
+ await test('a stalled inventory refresh does not hold the completed save lock',{},async()=>{
+  await fx.api('POST','/api/fs',{op:'purge',path});owned=false;const {ctx,page,root}=await open();let release!:()=>void,seen!:()=>void;
+  const gate=new Promise<void>(r=>release=r), started=new Promise<void>(r=>seen=r);
+  try{
+   await page.route('**/api/fs?op=list*',async route=>{if(new URL(route.request().url()).searchParams.get('path')==='/Backups'){seen();await gate;}await route.continue().catch(()=>{});});
+   owned=true;await root.getByTestId('backup-save-files').click();
+   await root.getByTestId('backup-report').getByText(/saved to/i).waitFor({timeout:12000});
+   await Promise.race([started,new Promise((_,reject)=>setTimeout(()=>reject(new Error('refresh not started')),12000))]);
+   await page.waitForFunction(()=>!(document.querySelector('[data-testid="backup-save-files"]') as HTMLButtonElement)?.disabled,undefined,{timeout:2000});
+   await root.getByTestId('backup-save-files').click();await root.getByTestId('backup-report').getByText(/already exists|not confirmed/i).waitFor({timeout:12000});
+   assert.equal((await stat())?.version,1);
+  }finally{release();await ctx.close();}
+ });
 } finally {if(owned) await fx.api('POST','/api/fs',{op:'purge',path});await fx.close();finish();}
