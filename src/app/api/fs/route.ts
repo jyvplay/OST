@@ -241,6 +241,8 @@ export async function POST(req: NextRequest) {
       }
       case "trash":
         return NextResponse.json(await followSidecar(await trashNode(String(body.path), body.expectedTrash), String(body.path), "trash"));
+      case "trashBackupGuarded":
+        return NextResponse.json(await trashNode(String(body.path), body.expectedTrash, body.expectedBackupInventory ?? null));
       case "restore":
         return NextResponse.json(await followSidecar(await restoreNode(String(body.path)), String(body.path), "restore"));
       case "purge":

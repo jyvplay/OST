@@ -405,15 +405,40 @@ export async function transferNode(src: string, dst: string, mode: "move" | "cop
 
 /** Reversible tree trash. Descendants keep their own earlier trash group; the
  * search index and journal are changed in the same transaction as the nodes. */
-export async function trashNode(path: string, guard?: unknown) {
+export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown) {
   const expected = parseExpectedTrash(guard);
   const p = normalize(path);
+  // Optional cooperative snapshot guard is scoped to Backup's direct files.
+  // An omitted guard preserves legacy Trash callers; malformed guards fail closed.
+  let inventory: Map<string, ExpectedTrash> | undefined;
+  if (backupInventory !== undefined) {
+    if (parentOf(p) !== "/Backups" || !expected || !Array.isArray(backupInventory) || backupInventory.length > 10000) throw new Error("Invalid backup inventory guard");
+    inventory = new Map();
+    for (const value of backupInventory) {
+      if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid backup inventory guard");
+      const row = value as Record<string, unknown>;
+      if (typeof row.name !== "string" || !row.name || row.name.includes("/") || row.name.includes("\0") || inventory.has(row.name)) throw new Error("Invalid backup inventory guard");
+      const parsed = parseExpectedTrash(row);
+      if (!parsed) throw new Error("Invalid backup inventory guard");
+      inventory.set(row.name, parsed);
+    }
+    const target = inventory.get(baseName(p));
+    if (!target || target.id !== expected.id || target.version !== expected.version || target.sha256 !== expected.sha256) throw new Error("Invalid backup inventory target");
+  }
   if (p === "/") throw new Error("Refusing to trash the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
   await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    if (inventory) {
+      const rows = await tx.select({ name: vfsNodes.name, id: vfsNodes.id, version: vfsNodes.version, sha256: vfsNodes.sha256 }).from(vfsNodes)
+        .where(and(eq(vfsNodes.parent, "/Backups"), eq(vfsNodes.kind, "file"), eq(vfsNodes.trashed, false)));
+      if (rows.length !== inventory.size || rows.some(row => {
+        const before = inventory!.get(row.name);
+        return !before || before.id !== row.id || before.version !== row.version || before.sha256 !== row.sha256;
+      })) throw new TrashTargetConflict("Backup inventory changed; refresh before pruning");
+    }
     if (expected && (!node || node.kind !== "file" || node.trashed || node.id !== expected.id || node.version !== expected.version || node.sha256 !== expected.sha256)) throw new TrashTargetConflict("Trash target changed; refresh the list");
     if (!node) throw new Error(`not found: ${p}`);
     if (node.trashed) return; // do not reset the original deletion time/group

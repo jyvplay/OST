@@ -11,7 +11,7 @@ import { bundleTree } from "@/lib/bundle-tree";
 import { freshnessLabel, LAST_BACKUP_KEY } from "@/lib/backup-freshness";
 import { backupFilename } from "@/lib/backup-name";
 import { backupInventory } from "@/lib/backup-inventory";
-import { prunePlan } from "@/lib/prune-plan";
+import { pruneClockUncertain, prunePlan } from "@/lib/prune-plan";
 import { folderSizes, formatBytes as fmtBundleBytes } from "@/lib/folder-size";
 import { DRILL_HEALTH_KEY, drillHealthState, parseDrillHealth, recordDrill, type DrillAttempt, type DrillHealth } from "@/lib/backup/drill-health";
 import { makeRecoveryKey, openRecoveryBundle, RECOVERY_FORMAT, sealRecoveryBundle } from "@/lib/backup/recovery";
@@ -384,18 +384,30 @@ export default function BackupModule(_: ModuleProps) {
         <span className="fs-row" style={{ gap: 6, marginBottom: 4 }}>
           <Btn variant="ghost" disabled={pruneBusy || !inventoryLoaded || inventoryLoading || inventoryError || savedBackups.length < 2} onClick={async () => {
             if (pruneLock.current) return;
-            const doomed = prunePlan(savedBackups, 2, new Date());
+            const now = new Date();
+            if (pruneClockUncertain(savedBackups, now)) { setReport("Prune refused: a backup date is in the future or the clock is invalid. Check the device clock and backup dates."); return; }
+            const doomed = prunePlan(savedBackups, 2, now);
             if (!doomed.length) { setReport("Nothing to prune — two or fewer dated backup copies."); return; }
             pruneLock.current = true;
             try {
               if (!window.confirm(`Move ${doomed.length} older backup copies to Trash based on the last list? Files can change during pruning; check the list afterward.`)) return;
+              if (pruneClockUncertain(savedBackups, new Date())) { setReport("Prune refused: the clock now makes a listed backup date uncertain. Check before retrying."); return; }
               setPruneBusy(true); setPruneError(false); setReport("");
               try {
+                let expectedInventory = savedBackups.map((name) => {
+                  const guard = backupGuards[name];
+                  if (!guard) throw new Error("missing backup inventory guard");
+                  return { name, ...guard };
+                });
                 for (const name of doomed) {
+                  // The device clock can change while a previous request is in
+                  // flight. Stop the remaining batch rather than reuse its plan.
+                  if (pruneClockUncertain(savedBackups, new Date())) throw new Error("backup clock became uncertain during pruning");
                   const expectedTrash = backupGuards[name];
                   if (!expectedTrash) throw new Error("missing Trash target guard");
-                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}`, expectedTrash }) });
+                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trashBackupGuarded", path: `/Backups/${name}`, expectedTrash, expectedBackupInventory: expectedInventory }) });
                   if (!r.ok || (await r.json() as { ok?: boolean }).ok !== true) throw new Error("unconfirmed trash operation");
+                  expectedInventory = expectedInventory.filter((entry) => entry.name !== name);
                 }
                 setReport(`Pruned ${doomed.length} older backups by moving them to Trash.`);
               } catch {
