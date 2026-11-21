@@ -46,4 +46,11 @@ for(const [label,script] of [['empty','#!/bin/sh\nexit 0\n'],['malformed','#!/bi
  try{const code=await new Promise<number|null>(resolve=>p.once('exit',resolve));assert.equal(code,1,'an unusable process table must not look successful');}
  finally{if(p.exitCode===null)p.kill('SIGKILL');rmSync(dir,{recursive:true,force:true});}
 });
+await test('exited group leader remains unreaped while cleanup is inspected',{},async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'tt210-pin-')),leader=join(dir,'leader'),observation=join(dir,'observation');
+ writeFileSync(join(dir,'ps'),`#!/bin/sh\nif [ -f "$LEADER_FILE" ]; then\n read -r pid < "$LEADER_FILE"\n if [ -r "/proc/$pid/stat" ]; then cat "/proc/$pid/stat" > "$OBSERVATION"; fi\nfi\nexec /usr/bin/ps "$@"\n`);chmodSync(join(dir,'ps'),0o755);
+ const p=spawn('bash',['scripts/gate-child.sh','10','bash','-c','printf "%s\\n" "$PPID" > "$1"; exit 0','_',leader],{stdio:'ignore',env:{...process.env,PATH:`${dir}:${process.env.PATH}`,LEADER_FILE:leader,OBSERVATION:observation}});
+ try{const code=await new Promise<number|null>(resolve=>p.once('exit',resolve));assert.equal(code,0);const pid=Number(readFileSync(leader,'utf8'));const stat=readFileSync(observation,'utf8');assert.equal(Number(stat.match(/^(\d+) /)?.[1]),pid);assert.equal(stat.match(/^\d+ \(.*\) (\S)/)?.[1],'Z','leader must remain an unreaped zombie during group inspection');assert.equal(Number(stat.match(/^\d+ \(.*\) \S \d+ (\d+) /)?.[1]),pid,'the pinned child must still identify its own process group');}
+ finally{if(p.exitCode===null)p.kill('SIGKILL');rmSync(dir,{recursive:true,force:true});}
+});
 finish();
