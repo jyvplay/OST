@@ -395,6 +395,9 @@ export default function BackupModule(_: ModuleProps) {
               setPruneBusy(true); setPruneError(false); setReport("");
               try {
                 for (const name of doomed) {
+                  // The device clock can change while a previous request is in
+                  // flight. Stop the remaining batch rather than reuse its plan.
+                  if (pruneClockUncertain(savedBackups, new Date())) throw new Error("backup clock became uncertain during pruning");
                   const expectedTrash = backupGuards[name];
                   if (!expectedTrash) throw new Error("missing Trash target guard");
                   const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}`, expectedTrash }) });
