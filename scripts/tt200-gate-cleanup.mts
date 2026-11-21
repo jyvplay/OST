@@ -39,4 +39,11 @@ await test('inspection failure never reports successful cleanup',{},async()=>{
   if(existsSync(file))child=Number(readFileSync(file,'utf8').trim());assert.equal(code,1,'unverified cleanup must not look successful');
  }finally{if(child)try{process.kill(child,'SIGKILL')}catch{}rmSync(dir,{recursive:true,force:true});}
 });
+for(const [label,script] of [['empty','#!/bin/sh\nexit 0\n'],['malformed','#!/bin/sh\nprintf "not-a-process-table\\n"\nexit 0\n']] as const) await test(`successful but ${label} inspection is not proof of cleanup`,{},async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'tt201-inspect-'));
+ writeFileSync(join(dir,'ps'),script);chmodSync(join(dir,'ps'),0o755);
+ const p=spawn('bash',['scripts/gate-child.sh','10','bash','-c','exit 0'],{stdio:'ignore',env:{...process.env,PATH:`${dir}:${process.env.PATH}`}});
+ try{const code=await new Promise<number|null>(resolve=>p.once('exit',resolve));assert.equal(code,1,'an unusable process table must not look successful');}
+ finally{if(p.exitCode===null)p.kill('SIGKILL');rmSync(dir,{recursive:true,force:true});}
+});
 finish();
