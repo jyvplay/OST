@@ -37,3 +37,6 @@ After the full run, the post-confirm refusal text was clarified so it does not i
 
 ## TT212 follow-up
 The captured-list clock check is now repeated before each Trash request; `docs/DESIGN-TT212.md` records the real partial-batch attack and its limits. A separate real stale-inventory attack demonstrates that a newly inserted future-dated copy can still be missed.
+
+## TT213 follow-up
+A guarded server operation now compares the captured inventory under the cooperative VFS transaction lock before each Trash. See `docs/DESIGN-TT213.md` for the tested schedule and remaining limits; TT211 and TT212 observations above are historical.

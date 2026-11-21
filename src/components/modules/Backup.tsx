@@ -394,14 +394,20 @@ export default function BackupModule(_: ModuleProps) {
               if (pruneClockUncertain(savedBackups, new Date())) { setReport("Prune refused: the clock now makes a listed backup date uncertain. Check before retrying."); return; }
               setPruneBusy(true); setPruneError(false); setReport("");
               try {
+                let expectedInventory = savedBackups.map((name) => {
+                  const guard = backupGuards[name];
+                  if (!guard) throw new Error("missing backup inventory guard");
+                  return { name, ...guard };
+                });
                 for (const name of doomed) {
                   // The device clock can change while a previous request is in
                   // flight. Stop the remaining batch rather than reuse its plan.
                   if (pruneClockUncertain(savedBackups, new Date())) throw new Error("backup clock became uncertain during pruning");
                   const expectedTrash = backupGuards[name];
                   if (!expectedTrash) throw new Error("missing Trash target guard");
-                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trash", path: `/Backups/${name}`, expectedTrash }) });
+                  const r = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trashBackupGuarded", path: `/Backups/${name}`, expectedTrash, expectedBackupInventory: expectedInventory }) });
                   if (!r.ok || (await r.json() as { ok?: boolean }).ok !== true) throw new Error("unconfirmed trash operation");
+                  expectedInventory = expectedInventory.filter((entry) => entry.name !== name);
                 }
                 setReport(`Pruned ${doomed.length} older backups by moving them to Trash.`);
               } catch {

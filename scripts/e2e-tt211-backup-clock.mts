@@ -13,7 +13,7 @@ try{
   try{
    await page.clock.setFixedTime(new Date('2025-01-03T12:00:00Z'));
    await page.addInitScript(()=>localStorage.setItem('fusion.last-backup.v1',String(Date.parse('2030-01-01T12:00:00Z'))));
-   page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/fs')&&r.postDataJSON()?.op==='trash')trashes++;});
+   page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/api/fs')&&r.postDataJSON()?.op==='trashBackupGuarded')trashes++;});
    await fx.ready(page,'backup');const root=page.locator('[data-win-id="w1"]');
    const future=root.getByTestId('backup-inventory-row').filter({hasText:names[3]});await future.waitFor();assert.match(await future.innerText(),/date unknown/i);
    await page.waitForFunction(()=>/time unknown.*clock/i.test(document.querySelector('[data-testid="backup-freshness"]')?.textContent??''));
@@ -27,7 +27,7 @@ try{
   try{
    await page.clock.setFixedTime(new Date('2025-01-03T12:00:00Z'));page.on('dialog',d=>void d.accept());
    await page.route('**/api/fs',async route=>{
-    if(route.request().method()!=='POST'||route.request().postDataJSON()?.op!=='trash')return route.continue();
+    if(route.request().method()!=='POST'||route.request().postDataJSON()?.op!=='trashBackupGuarded')return route.continue();
     trashes++;if(trashes!==1)return route.continue();
     const response=await route.fetch();assert.equal(response.status(),200);await page.clock.setFixedTime(new Date('2024-01-01T12:00:00Z'));await route.fulfill({response});
    });
