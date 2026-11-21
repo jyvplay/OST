@@ -341,8 +341,11 @@ export default function BackupModule(_: ModuleProps) {
             } catch {
               setReport("Save not confirmed; check Files before retrying. A copy may have been created.");
             } finally {
-              await loadSavedBackups();
+              // Inventory is advisory and can hang independently of the create.
+              // Release only after the create settles, but do not make future
+              // saves depend on a subsequent list request finishing.
               setSaveBusy(false); saveLock.current = false;
+              void loadSavedBackups();
             }
           }} data-testid="backup-save-files">Save copy to Files</Btn>
         </div>
