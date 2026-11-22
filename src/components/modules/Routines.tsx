@@ -2,7 +2,7 @@
 import { fz } from "@/lib/uiscale";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { api, fmtTime, patch, post, put } from "@/lib/api";
+import { api, fmtTime, patch, post } from "@/lib/api";
 import { parseScript, ROUTINE_COMMANDS, type RoutineAction } from "@/lib/routines";
 import { exportRoutines, parseRoutineImport } from "@/lib/routine-io";
 import { useShell, type ModuleProps } from "../shell-context";
@@ -27,6 +27,9 @@ export default function RoutinesModule(_: ModuleProps) {
   const [rows, setRows] = useState<Routine[]>([]);
   const [routineQ, setRoutineQ] = useState("");
   const [presets, setPresets] = useState<Preset[]>([]);
+  const [presetError, setPresetError] = useState("");
+  const [savingPreset, setSavingPreset] = useState(false);
+  const presetLock = useRef(false);
   const [name, setName] = useState("Morning desk");
   const [script, setScript] = useState("closeAll\nopen planner\ntile left\nopen notes\ntile right\ntheme dark");
   const [trigger, setTrigger] = useState("manual");
@@ -55,14 +58,25 @@ export default function RoutinesModule(_: ModuleProps) {
     <div className="fs-scroll" style={{ padding: 10, display: "grid", gap: 10, alignContent: "start", height: "100%" }}>
       <Section title="Workspace presets & sessions (AU-02 / PR-07r)">
         <div className="fs-row" style={{ gap: 6 }}>
-          <Btn variant="primary" onClick={async () => {
-            const n = await askText("Preset name", "focus-layout", { okLabel: "Save preset" });
-            if (!n) return;
-            await put("/api/state", { id: `preset:${n}`, state: shell.state, revision: Date.now() });
-            shell.toast(`Saved preset "${n}" with ${shell.state.windows.length} windows (layout + window props, incl. browser tabs).`, "ok");
-            await load();
+          <Btn variant="primary" disabled={savingPreset} onClick={async () => {
+            if (presetLock.current) return;
+            presetLock.current = true; setSavingPreset(true); setPresetError("");
+            try {
+              const n = await askText("Preset name", "focus-layout", { okLabel: "Save preset" });
+              if (!n) return;
+              const snapshot = shell.state;
+              try {
+                await post("/api/state", { op: "createPreset", name: n, state: snapshot });
+                shell.toast(`Saved preset "${n}" with ${snapshot.windows.length} windows (layout + window props, incl. browser tabs).`, "ok");
+              } catch (e) {
+                const status = (e as { status?: number }).status;
+                setPresetError(status === 409 ? `Preset "${n}" already exists. Choose another name; it was not overwritten.` : `Save not confirmed for "${n}". Check the preset list before retrying; it may have been saved.`);
+              }
+              await load();
+            } finally { presetLock.current = false; setSavingPreset(false); }
           }}>Save current layout</Btn>
         </div>
+        {presetError ? <div role="alert">{presetError}</div> : null}
         {presets.map((p) => (
           <div key={p.id} className="fs-row" style={{ justifyContent: "space-between" }}>
             <span style={{ fontSize: fz(12) }}>{p.name} <span className="fs-dim">· {p.windows} windows · {fmtTime(p.updatedAt)}</span></span>
