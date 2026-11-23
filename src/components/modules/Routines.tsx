@@ -28,6 +28,9 @@ export default function RoutinesModule(_: ModuleProps) {
   const [routineQ, setRoutineQ] = useState("");
   const [presets, setPresets] = useState<Preset[]>([]);
   const [presetError, setPresetError] = useState("");
+  const [presetListError, setPresetListError] = useState("");
+  const [presetListLoaded, setPresetListLoaded] = useState(false);
+  const loadSequence = useRef(0);
   const [savingPreset, setSavingPreset] = useState(false);
   const presetLock = useRef(false);
   const [name, setName] = useState("Morning desk");
@@ -41,10 +44,24 @@ export default function RoutinesModule(_: ModuleProps) {
   const [token, setToken] = useState<{ value: string; routineId: string; expiresAt: number; used: boolean } | null>(null);
   const [err, setErr] = useState("");
 
-  const load = useCallback(() => Promise.all([
-    api<{ rows: Routine[] }>("/api/routines").then(r => setRows(r.rows)),
-    api<{ rows: Preset[] }>("/api/state?list=preset").then(r => setPresets(r.rows)),
-  ]).then(() => undefined).catch(e => setErr(e instanceof Error ? e.message : String(e))), []);
+  const load = useCallback(async () => {
+    // A stalled list read must not keep Save locked indefinitely. Older
+    // refreshes must not overwrite the result of a more recent refresh.
+    const sequence = ++loadSequence.current;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12_000);
+    try {
+      await Promise.all([
+        api<{ rows: Routine[] }>("/api/routines", { signal: controller.signal }).then(r => {
+          if (sequence === loadSequence.current && !controller.signal.aborted) setRows(r.rows);
+        }).catch(e => { if (sequence === loadSequence.current) setErr(e instanceof Error ? e.message : String(e)); }),
+        api<{ rows: Preset[] }>("/api/state?list=preset", { signal: controller.signal }).then(r => {
+          if (!Array.isArray(r?.rows) || r.rows.some(p => !p || typeof p.id !== "string" || typeof p.name !== "string" || typeof p.windows !== "number" || !Number.isFinite(p.windows) || typeof p.updatedAt !== "string")) throw new Error("Invalid preset list");
+          if (sequence === loadSequence.current && !controller.signal.aborted) { setPresets(r.rows); setPresetListLoaded(true); setPresetListError(""); }
+        }).catch(() => { if (sequence === loadSequence.current) setPresetListError("Preset list unavailable or out of date. Refresh before relying on it."); }),
+      ]);
+    } finally { clearTimeout(timer); }
+  }, []);
   useEffect(() => { void load(); }, [shell.refreshTick, load]);
 
   let parsed: RoutineAction[] = [];
@@ -84,6 +101,7 @@ export default function RoutinesModule(_: ModuleProps) {
           }}>Save current layout</Btn>
         </div>
         {presetError ? <div role="alert">{presetError}</div> : null}
+        {presetListError ? <div role="alert">{presetListError} <Btn variant="ghost" onClick={() => void load()}>Refresh presets</Btn></div> : null}
         {presets.map((p) => (
           <div key={p.id} className="fs-row" style={{ justifyContent: "space-between" }}>
             <span style={{ fontSize: fz(12) }}>{p.name} <span className="fs-dim">· {p.windows} windows · {fmtTime(p.updatedAt)}</span></span>
@@ -93,7 +111,7 @@ export default function RoutinesModule(_: ModuleProps) {
             </span>
           </div>
         ))}
-        {presets.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No presets yet.</div> : null}
+        {presetListLoaded && !presetListError && presets.length === 0 ? <div className="fs-dim" style={{ fontSize: fz(11.5) }}>No presets yet.</div> : !presetListLoaded && !presetListError ? <div className="fs-dim" role="status">Loading presets…</div> : null}
       </Section>
 
       <Section title="New routine (AU-01)">
