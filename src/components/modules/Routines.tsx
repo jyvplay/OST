@@ -65,13 +65,20 @@ export default function RoutinesModule(_: ModuleProps) {
               const n = await askText("Preset name", "focus-layout", { okLabel: "Save preset" });
               if (!n) return;
               const snapshot = shell.state;
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), 12_000);
               try {
-                await post("/api/state", { op: "createPreset", name: n, state: snapshot });
-                shell.toast(`Saved preset "${n}" with ${snapshot.windows.length} windows (layout + window props, incl. browser tabs).`, "ok");
-              } catch (e) {
-                const status = (e as { status?: number }).status;
-                setPresetError(status === 409 ? `Preset "${n}" already exists. Choose another name; it was not overwritten.` : `Save not confirmed for "${n}". Check the preset list before retrying; it may have been saved.`);
-              }
+                const response = await fetch("/api/state", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "createPreset", name: n, state: snapshot }), signal: controller.signal });
+                if (response.status === 409 && !controller.signal.aborted) {
+                  setPresetError(`Preset "${n}" already exists. Choose another name; it was not overwritten.`);
+                } else {
+                  const result = await response.json() as { ok?: unknown; revision?: unknown };
+                  if (controller.signal.aborted || !response.ok || result?.ok !== true || result.revision !== 1) throw new Error("Unconfirmed preset creation");
+                  shell.toast(`Saved preset "${n}" with ${snapshot.windows.length} windows (layout + window props, incl. browser tabs).`, "ok");
+                }
+              } catch {
+                setPresetError(`Save not confirmed for "${n}". Check the preset list before retrying; it may have been saved or may still be in progress.`);
+              } finally { clearTimeout(timer); }
               await load();
             } finally { presetLock.current = false; setSavingPreset(false); }
           }}>Save current layout</Btn>
