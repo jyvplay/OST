@@ -12,7 +12,7 @@ try{
   const {ctx,page,root}=await open();try{
    await save(page,root,names[0]);await root.getByText(names[0]).waitFor();
    await page.getByTestId('launcher-button').click();await page.getByRole('dialog',{name:'Launcher'}).getByRole('button',{name:'Notes',exact:true}).click();await page.locator('.fs-window[aria-label="Notes"]').waitFor();
-   await root.locator('.fs-row').filter({hasText:names[0]}).getByRole('button',{name:'Restore'}).click();await page.locator('.fs-window[aria-label="Notes"]').waitFor({state:'detached'});assert.equal(await page.locator('[data-win-id="w1"]').count(),1);
+   await root.locator('.fs-row').filter({hasText:names[0]}).getByRole('button',{name:'Restore',exact:true}).click();await page.locator('.fs-window[aria-label="Notes"]').waitFor({state:'detached'});assert.equal(await page.locator('[data-win-id="w1"]').count(),1);
   }finally{await ctx.close();}
  });
  await test('modal blocks launcher shortcut even with focus moved behind it',{},async()=>{

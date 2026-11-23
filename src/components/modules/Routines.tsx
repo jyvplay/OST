@@ -33,6 +33,9 @@ export default function RoutinesModule(_: ModuleProps) {
   const loadSequence = useRef(0);
   const [savingPreset, setSavingPreset] = useState(false);
   const presetLock = useRef(false);
+  const deleteLocks = useRef(new Set<string>());
+  const [deletingPresets, setDeletingPresets] = useState<string[]>([]);
+  const [presetDeleteErrors, setPresetDeleteErrors] = useState<Record<string, string>>({});
   const [name, setName] = useState("Morning desk");
   const [script, setScript] = useState("closeAll\nopen planner\ntile left\nopen notes\ntile right\ntheme dark");
   const [trigger, setTrigger] = useState("manual");
@@ -102,12 +105,30 @@ export default function RoutinesModule(_: ModuleProps) {
         </div>
         {presetError ? <div role="alert">{presetError}</div> : null}
         {presetListError ? <div role="alert">{presetListError} <Btn variant="ghost" onClick={() => void load()}>Refresh presets</Btn></div> : null}
+        {Object.entries(presetDeleteErrors).map(([id, message]) => <div role="alert" key={id}>{message} <Btn variant="ghost" aria-label={`Dismiss deletion warning for ${id.slice(7)}`} onClick={() => setPresetDeleteErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn></div>)}
         {presets.map((p) => (
           <div key={p.id} className="fs-row" style={{ justifyContent: "space-between" }}>
             <span style={{ fontSize: fz(12) }}>{p.name} <span className="fs-dim">· {p.windows} windows · {fmtTime(p.updatedAt)}</span></span>
             <span className="fs-row" style={{ gap: 4 }}>
               <Btn variant="ghost" onClick={() => void shell.runActions([{ cmd: "preset", arg: p.name }])}>Restore</Btn>
-              <Btn variant="ghost" onClick={async () => { await fetch(`/api/state?id=${encodeURIComponent(p.id)}`, { method: "DELETE" }); await load(); }}>✕</Btn>
+              <Btn variant="ghost" aria-label={`Delete preset ${p.name}`} disabled={deletingPresets.includes(p.id)} onClick={async () => {
+                if (deleteLocks.current.has(p.id)) return;
+                deleteLocks.current.add(p.id); setDeletingPresets(previous => [...previous, p.id]);
+                setPresetDeleteErrors(previous => { const next = { ...previous }; delete next[p.id]; return next; });
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 12_000);
+                try {
+                  const response = await fetch(`/api/state?id=${encodeURIComponent(p.id)}`, { method: "DELETE", signal: controller.signal });
+                  const result = await response.json() as { ok?: unknown };
+                  if (controller.signal.aborted || !response.ok || result?.ok !== true) throw new Error("Unconfirmed deletion");
+                } catch {
+                  setPresetDeleteErrors(previous => ({ ...previous, [p.id]: `Deletion not confirmed for "${p.name}". It may have been deleted or may still be in progress. Check before retrying or replacing a preset with this name.` }));
+                } finally {
+                  clearTimeout(timer);
+                  await load();
+                  deleteLocks.current.delete(p.id); setDeletingPresets(previous => previous.filter(id => id !== p.id));
+                }
+              }}>✕</Btn>
             </span>
           </div>
         ))}
