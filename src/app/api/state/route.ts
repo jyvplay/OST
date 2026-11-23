@@ -30,6 +30,20 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, row: rows[0] ?? null });
 }
 
+// Create-only: the unique key arbitrates concurrent requests without overwriting
+// an existing layout. This intentionally does not change desktop PUT semantics.
+export async function POST(req: NextRequest) {
+  const body = await readJsonObject(req);
+  if (body instanceof Response) return body;
+  if (body.op !== "createPreset" || typeof body.name !== "string" || !body.name.trim() || body.name.length > 200 || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
+    return NextResponse.json({ ok: false, error: "Invalid preset" }, { status: 400 });
+  }
+  const inserted = await db.insert(desktopState).values({ id: `preset:${body.name}`, state: body.state as object, revision: 1 })
+    .onConflictDoNothing({ target: desktopState.id }).returning({ id: desktopState.id });
+  if (!inserted.length) return NextResponse.json({ ok: false, error: "Preset name already exists" }, { status: 409 });
+  return NextResponse.json({ ok: true, revision: 1 });
+}
+
 export async function PUT(req: NextRequest) {
   const body = (await readJsonObject(req)) as ({ id?: string; state?: unknown; revision?: number }) | Response;
   if (body instanceof Response) return body;
