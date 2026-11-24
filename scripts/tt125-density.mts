@@ -4,6 +4,7 @@
  * actuals all landed under them; list content that scales with seeded data
  * uses the session-data treatment, as recorded in DESIGN-TT122). */
 import assert from "node:assert/strict";
+import { waitForDensity } from "./density-readiness.mts";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
@@ -43,8 +44,7 @@ async function visit(module: string, props: Record<string, unknown> = {}) {
   const cur = await api<{ row?: { revision?: number } }>("GET", "/api/state?id=default");
   await api("PUT", "/api/state", { id: "default", revision: Number(cur.row?.revision ?? 1) + 1000, state: { windows: [{ id: "w1", module, title: module, x: 20, y: 16, w: 1440, h: 960, z: 10, workspace: 1, props }], focus: "w1", workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 30 } });
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent ?? "").length > 30, null, { timeout: 8_000 }).catch(() => null);
+  await waitForDensity(page, module);
   await page.waitForTimeout(200);
   return await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number };
 }

@@ -251,6 +251,7 @@ export default function WindowFrame({ win }: { win: WindowState }) {
         e.currentTarget.focus(); setOrbit({ x: r.left, y: r.bottom });
       }}
       data-win-id={win.id}
+      data-module-id={win.module}
       role="dialog"
       aria-label={win.title}
       aria-modal={false}
