@@ -43,9 +43,11 @@ export async function GET(req: NextRequest) {
     const cspRestricted = ancestorPolicies.some(v => v !== "*");
     let verdict: "embeddable" | "deny" | "sameorigin" | "csp-restricted" | "unknown" = "embeddable";
     let reason = "No framing restriction headers were sent.";
-    if (xfo.includes("deny")) { verdict = "deny"; reason = "X-Frame-Options: DENY"; }
+    if (ancestorPolicies.length) {
+      if (cspRestricted) { verdict = "csp-restricted"; reason = `CSP frame-ancestors ${frameAncestors}`; }
+      else reason = "CSP frame-ancestors * permits network origins; X-Frame-Options is superseded in modern browsers.";
+    } else if (xfo.includes("deny")) { verdict = "deny"; reason = "X-Frame-Options: DENY"; }
     else if (xfo.includes("sameorigin")) { verdict = "sameorigin"; reason = "X-Frame-Options: SAMEORIGIN"; }
-    else if (cspRestricted) { verdict = "csp-restricted"; reason = `CSP frame-ancestors ${frameAncestors}`; }
     const host = verdict === "embeddable" ? "S1-window" : "S3-handoff";
     return NextResponse.json({
       ok: true, url: res.finalUrl, status: res.status, verdict, reason, host,

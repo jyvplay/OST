@@ -28,9 +28,11 @@ try {
             });
             const measured = response(); await win.getByLabel("Address", { exact: true }).fill(target); await win.getByLabel("Address", { exact: true }).press("Enter");
             const reply = await measured; assert.equal(reply.status(), 200); const proof = await reply.json();
-            assert.equal(proof.verdict, verdict, "this check depends on the real observed peer/DNS outcome; no fake fallback result");
+            assert.equal(proof.verdict, verdict === "deny" ? "csp-restricted" : "unknown", "this check depends on the real observed peer/DNS outcome; no fake fallback result");
             if (verdict === "deny") {
               assert.equal(proof.headers["x-frame-options"], "deny");
+              assert.equal(proof.headers["frame-ancestors"], "'none'");
+              assert.match(proof.reason, /CSP frame-ancestors/);
               await expect(win.getByText(`${target} refuses to be embedded`, { exact: true })).toBeVisible();
               await expect(win.getByText("X-Frame-Options: DENY", { exact: true }).first()).toBeVisible();
             } else {
