@@ -29,12 +29,23 @@ export async function GET(req: NextRequest) {
     const res = await getPinnedPublic(url.toString(), { maxBytes: 1024 * 1024, timeoutMs: 7000, maxRedirects: 5 });
     const xfo = String(res.headers["x-frame-options"] ?? "").toLowerCase();
     const csp = String(res.headers["content-security-policy"] ?? "");
-    const frameAncestors = /frame-ancestors([^;]*)/i.exec(csp)?.[1]?.trim() ?? "";
+    // Multiple CSP policies are comma-separated and all apply. Within each
+    // policy only its first exact frame-ancestors directive is effective.
+    // This is a conservative advisory, not a full browser CSP evaluator.
+    const ancestorPolicies = csp.split(",").flatMap(policy => {
+      for (const directive of policy.split(";")) {
+        const match = /^\s*frame-ancestors(?:\s+([\s\S]*))?\s*$/i.exec(directive);
+        if (match) return [(match[1] ?? "").trim()];
+      }
+      return [];
+    });
+    const frameAncestors = ancestorPolicies.map(v => v || "(empty)").join("; ");
+    const cspRestricted = ancestorPolicies.some(v => v !== "*");
     let verdict: "embeddable" | "deny" | "sameorigin" | "csp-restricted" | "unknown" = "embeddable";
     let reason = "No framing restriction headers were sent.";
     if (xfo.includes("deny")) { verdict = "deny"; reason = "X-Frame-Options: DENY"; }
     else if (xfo.includes("sameorigin")) { verdict = "sameorigin"; reason = "X-Frame-Options: SAMEORIGIN"; }
-    else if (frameAncestors && !/\*/.test(frameAncestors)) { verdict = "csp-restricted"; reason = `CSP frame-ancestors ${frameAncestors}`; }
+    else if (cspRestricted) { verdict = "csp-restricted"; reason = `CSP frame-ancestors ${frameAncestors}`; }
     const host = verdict === "embeddable" ? "S1-window" : "S3-handoff";
     return NextResponse.json({
       ok: true, url: res.finalUrl, status: res.status, verdict, reason, host,
