@@ -9,25 +9,25 @@ try{
  for(const id of ids)assert.equal(await read(id),null);
  await test('rejected delete is visibly unconfirmed and preserves preset',{},async()=>{
   const {ctx,page,root,row}=await open(0);let requests=0;try{
-   await page.route('**/api/state?id=*',route=>{if(route.request().method()==='DELETE'){requests++;return route.fulfill({status:503,contentType:'application/json',body:'{"error":"unavailable"}'});}return route.continue();});
+   await page.route('**/api/state*',route=>{if(route.request().method()==='POST' && route.request().postDataJSON()?.op==='deletePresetGuarded'){requests++;return route.fulfill({status:503,contentType:'application/json',body:'{"error":"unavailable"}'});}return route.continue();});
    await row.getByText('✕',{exact:true}).click();await root.getByRole('alert').filter({hasText:/deletion not confirmed/i}).waitFor({timeout:7000});assert.equal(requests,1);assert.ok(await read(ids[0]));await root.getByText(names[0]).last().waitFor();
   }finally{await ctx.close();}
  });
  await test('committed delete with lost response is uncertain and not retried',{},async()=>{
   const {ctx,page,root,row}=await open(1);let requests=0;try{
-   await page.route('**/api/state?id=*',async route=>{if(route.request().method()==='DELETE'){requests++;const response=await route.fetch();assert.equal(response.status(),200);return route.abort('failed');}return route.continue();});
+   await page.route('**/api/state*',async route=>{if(route.request().method()==='POST' && route.request().postDataJSON()?.op==='deletePresetGuarded'){requests++;const response=await route.fetch();assert.equal(response.status(),200);return route.abort('failed');}return route.continue();});
    await row.getByText('✕',{exact:true}).click();await root.getByRole('alert').filter({hasText:/deletion not confirmed/i}).waitFor({timeout:7000});assert.equal(requests,1);assert.equal(await read(ids[1]),null);
   }finally{await ctx.close();}
  });
  await test('held committed response times out without a second delete',{},async()=>{
   const {ctx,page,root,row}=await open(2);let requests=0;let release!:()=>void;const held=new Promise<void>(r=>{release=r});try{
-   await page.route('**/api/state?id=*',async route=>{if(route.request().method()==='DELETE'){requests++;const response=await route.fetch();assert.equal(response.status(),200);await held;return route.fulfill({response}).catch(()=>undefined);}return route.continue();});
+   await page.route('**/api/state*',async route=>{if(route.request().method()==='POST' && route.request().postDataJSON()?.op==='deletePresetGuarded'){requests++;const response=await route.fetch();assert.equal(response.status(),200);await held;return route.fulfill({response}).catch(()=>undefined);}return route.continue();});
    const button=row.getByRole('button',{name:`Delete preset ${names[2]}`});await button.evaluate((el:HTMLElement)=>{el.click();el.click();});await root.getByRole('alert').filter({hasText:/deletion not confirmed.*still be in progress/i}).waitFor({timeout:17000});assert.equal(requests,1);assert.equal(await read(ids[2]),null);
   }finally{release();await ctx.close();}
  });
  await test('malformed success does not confirm deletion',{},async()=>{
   const {ctx,page,root,row}=await open(3);try{
-   await page.route('**/api/state?id=*',route=>route.request().method()==='DELETE'?route.fulfill({status:200,contentType:'application/json',body:'{}'}):route.continue());
+   await page.route('**/api/state*',route=>route.request().method()==='POST' && route.request().postDataJSON()?.op==='deletePresetGuarded'?route.fulfill({status:200,contentType:'application/json',body:'{}'}):route.continue());
    await row.getByRole('button',{name:`Delete preset ${names[3]}`}).click();await root.getByRole('alert').filter({hasText:/deletion not confirmed/i}).waitFor();assert.ok(await read(ids[3]));
   }finally{await ctx.close();}
  });

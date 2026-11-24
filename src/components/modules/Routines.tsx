@@ -15,7 +15,7 @@ import { validateRoutineTrigger } from "@/lib/routine-trigger";
 import { RoutineGuardPanel } from "../tt145-panels";
 
 interface Routine { id: number; name: string; trigger: string; triggerArg: string; actions: RoutineAction[]; enabled: boolean; lastRun: string | null }
-interface Preset { id: string; name: string; windows: number; updatedAt: string }
+interface Preset { id: string; name: string; windows: number; updatedAt: string; generation?: string }
 
 /**
  * AU-01 routines, AU-02 workspace presets, PR-07r named sessions.
@@ -106,21 +106,22 @@ export default function RoutinesModule(_: ModuleProps) {
         {presetError ? <div role="alert">{presetError}</div> : null}
         {presetListError ? <div role="alert">{presetListError} <Btn variant="ghost" onClick={() => void load()}>Refresh presets</Btn></div> : null}
         {Object.entries(presetDeleteErrors).map(([id, message]) => <div role="alert" key={id}>{message} <Btn variant="ghost" aria-label={`Dismiss deletion warning for ${id.slice(7)}`} onClick={() => setPresetDeleteErrors(previous => { const next = { ...previous }; delete next[id]; return next; })}>Dismiss</Btn></div>)}
+        {presets.some(p => !p.generation) ? <div role="alert">Preset deletion unavailable: the server does not provide a deletion guard. Update the server before deleting.</div> : null}
         {presets.map((p) => (
           <div key={p.id} className="fs-row" style={{ justifyContent: "space-between" }}>
             <span style={{ fontSize: fz(12) }}>{p.name} <span className="fs-dim">· {p.windows} windows · {fmtTime(p.updatedAt)}</span></span>
             <span className="fs-row" style={{ gap: 4 }}>
               <Btn variant="ghost" onClick={() => void shell.runActions([{ cmd: "preset", arg: p.name }])}>Restore</Btn>
-              <Btn variant="ghost" aria-label={`Delete preset ${p.name}`} disabled={deletingPresets.includes(p.id)} onClick={async () => {
-                if (deleteLocks.current.has(p.id)) return;
+              <Btn variant="ghost" aria-label={`Delete preset ${p.name}`} disabled={!p.generation || deletingPresets.includes(p.id)} onClick={async () => {
+                if (!p.generation || deleteLocks.current.has(p.id)) return;
                 deleteLocks.current.add(p.id); setDeletingPresets(previous => [...previous, p.id]);
                 setPresetDeleteErrors(previous => { const next = { ...previous }; delete next[p.id]; return next; });
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), 12_000);
                 try {
-                  const response = await fetch(`/api/state?id=${encodeURIComponent(p.id)}`, { method: "DELETE", signal: controller.signal });
-                  const result = await response.json() as { ok?: unknown };
-                  if (controller.signal.aborted || !response.ok || result?.ok !== true) throw new Error("Unconfirmed deletion");
+                  const response = await fetch("/api/state", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "deletePresetGuarded", id: p.id, generation: p.generation }), signal: controller.signal });
+                  const result = await response.json() as { ok?: unknown; deleted?: unknown };
+                  if (controller.signal.aborted || !response.ok || result?.ok !== true || result.deleted !== true) throw new Error("Unconfirmed deletion");
                 } catch {
                   setPresetDeleteErrors(previous => ({ ...previous, [p.id]: `Deletion not confirmed for "${p.name}". It may have been deleted or may still be in progress. Check before retrying or replacing a preset with this name.` }));
                 } finally {

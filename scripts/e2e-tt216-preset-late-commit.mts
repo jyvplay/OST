@@ -17,10 +17,10 @@ try {
    // the real server's unique-index insertion to wait. Rollback lets it proceed.
    await db.query('INSERT INTO desktop_state(id,state,revision) VALUES($1,$2::jsonb,1)',[id,JSON.stringify({windows:[]})]);
    let creates=0;page.on('request',r=>{if(r.url().endsWith('/api/state')&&r.method()==='POST')creates++;});
-   const list=page.waitForResponse(r=>r.request().method()==='GET'&&r.url().includes('/api/state?list=preset'), {timeout:22000});
+   const list=page.waitForResponse(r=>r.request().method()==='GET'&&r.url().includes('/api/state?list=preset'), {timeout:22000}).catch(() => null);
    await page.locator('[data-win-id="w1"]').getByRole('button',{name:'Save current layout'}).click();await page.getByTestId('ask-dialog').waitFor();await page.getByTestId('ask-dialog').locator('input').fill(name);await page.getByTestId('ask-ok').click();
-   let waiting=false;for(let i=0;i<50;i++){const r=await db.query("SELECT 1 FROM pg_stat_activity WHERE wait_event_type='Lock' AND query ILIKE '%insert into \"desktop_state\"%'");if(r.rowCount){waiting=true;break;}await new Promise(r=>setTimeout(r,100));}assert.ok(waiting,'real server insert must be blocked before timeout');
-   await page.getByText(/save not confirmed.*still be in progress/i).waitFor({timeout:20000});const result=await list;assert.equal(result.status(),200);assert.equal((await result.json()).rows.some((r:{id:string})=>r.id===id),false);assert.equal(await read(),null);assert.equal(creates,1);
+   let waiting=false;for(let i=0;i<50;i++){await db.query("SELECT pg_stat_clear_snapshot()");const r=await db.query("SELECT 1 FROM pg_stat_activity WHERE wait_event_type='Lock' AND query ILIKE '%insert into \"desktop_state\"%'");if(r.rowCount){waiting=true;break;}await new Promise(r=>setTimeout(r,100));}assert.ok(waiting,'real server insert must be blocked before timeout');
+   await page.getByText(/save not confirmed.*still be in progress/i).waitFor({timeout:20000});const result=await list;assert.ok(result, 'post-timeout list response was not observed');assert.equal(result.status(),200);assert.equal((await result.json()).rows.some((r:{id:string})=>r.id===id),false);assert.equal(await read(),null);assert.equal(creates,1);
    await db.query('ROLLBACK');inTransaction=false;
    await page.waitForFunction(async key=>{const r=await fetch('/api/state?id='+encodeURIComponent(key));return !!(await r.json()).row;},id,{timeout:15000});assert.ok(await read());assert.equal(creates,1);
   } finally {if(inTransaction){await db.query('ROLLBACK');inTransaction=false;}await ctx.close();}
