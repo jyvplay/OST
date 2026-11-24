@@ -41,7 +41,16 @@ export async function POST(req: NextRequest) {
     if (typeof body.id !== "string" || !body.id.startsWith("preset:") || body.id.length <= 7 || typeof body.generation !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.generation)) {
       return NextResponse.json({ ok: false, error: "Invalid preset guard" }, { status: 400 });
     }
-    const removed = await db.delete(desktopState).where(and(eq(desktopState.id, body.id), eq(desktopState.generation, body.generation))).returning({ id: desktopState.id });
+    // Fail closed when the deployment lacks the database-side legacy-writer
+    // guard. Check within the DELETE statement, not in a separate preflight.
+    const guardReady = sql`current_setting('session_replication_role') IN ('origin', 'local') AND EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      WHERE t.tgrelid = 'public.desktop_state'::regclass
+        AND t.tgname = 'ost_desktop_generation_guard'
+        AND NOT t.tgisinternal AND t.tgtype = 23 AND t.tgenabled IN ('O', 'A')
+        AND t.tgfoid = to_regprocedure('public.ost_preset_generation_guard_fn()')
+    )`;
+    const removed = await db.delete(desktopState).where(and(eq(desktopState.id, body.id), eq(desktopState.generation, body.generation), guardReady)).returning({ id: desktopState.id });
     if (!removed.length) return NextResponse.json({ ok: false, error: "Preset changed or is absent" }, { status: 409 });
     return NextResponse.json({ ok: true, deleted: true });
   }

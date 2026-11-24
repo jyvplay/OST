@@ -1,5 +1,7 @@
 # TT218: generation-guarded preset deletion
 
+> Deployment update: TT219 requires both the TT218 and TT219 migrations; see `docs/DESIGN-TT219.md`. The historical TT218-only instructions below are not sufficient for the current server.
+
 ## Model and decision boundary
 
 A preset is a `desktop_state` row identified by `preset:<name>`. The supported new client obtains a generation UUID from the preset list and sends it with a distinct `deletePresetGuarded` POST. Each insert gets a fresh DB-generated UUID and the new server's existing PUT update rotates it. DELETE uses one SQL statement with both ID and generation, and returns 409 if no row matched. At Read Committed, PostgreSQL rechecks a waiting DELETE's predicate on an updated row; the test covers one such execution. An HTTP timeout is still uncertain, not a rollback or proof that the operation did not execute.
