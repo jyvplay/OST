@@ -33,8 +33,9 @@ try {
               assert.equal(proof.headers["x-frame-options"], "deny");
               assert.equal(proof.headers["frame-ancestors"], "'none'");
               assert.match(proof.reason, /CSP frame-ancestors/);
-              await expect(win.getByText(`${target} refuses to be embedded`, { exact: true })).toBeVisible();
-              await expect(win.getByText("X-Frame-Options: DENY", { exact: true }).first()).toBeVisible();
+              await expect(win.getByText("Embedding policy needs review", { exact: true })).toBeVisible();
+              await expect(win.getByText("CSP frame-ancestors 'none'", { exact: false }).first()).toBeVisible();
+              await expect(win.getByRole("button", { name: "Try direct frame", exact: true })).toBeVisible();
             } else {
               assert.equal(proof.status, 0); assert.match(proof.reason, /DNS lookup failed/);
               await expect(win.getByText("Embedding could not be checked", { exact: true })).toBeVisible();

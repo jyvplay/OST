@@ -123,11 +123,13 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
 
   useEffect(() => {
     if (proxyAll) return;
-    const tab = tabs.find(x => x.id === active);
+    const visible = [tabs.find(x => x.id === active), split === "off" ? undefined : tabs.find(x => x.id !== active)];
     // probe only updates state after the asynchronous network response.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (tab && !tab.verdict) void probe(tab);
-  }, [active, tabs, proxyAll, probe]);
+    for (const tab of visible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (tab && !tab.verdict && !tab.asleep) void probe(tab);
+    }
+  }, [active, tabs, proxyAll, probe, split]);
 
   const current = tabs.find((t) => t.id === active) ?? null;
   useEffect(()=>{if(current)onPageChange?.(current.url,current.title);},[current,onPageChange]);
@@ -185,7 +187,10 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
       );
     }
     if (proxyAll && !tab.asleep) return proxied(tab, key);
-    if (tab.verdict && tab.verdict !== "embeddable") {
+    // Do not contact the destination directly until its probe completes or
+    // the user explicitly chooses the direct frame after an advisory.
+    if (!tab.verdict) return <div key={key} role="status" className="fs-dim" style={{ padding: 12 }}>Checking embedding policy…</div>;
+    if (tab.verdict && tab.verdict !== "embeddable" && !(tab.verdict === "csp-restricted" && tab.mode === "iframe")) {
       if (tab.mode === "proxy") return proxied(tab, key);
       if (tab.mode === "reader") return <iframe key={key} src={`/api/webproxy?mode=reader&url=${encodeURIComponent(tab.url)}`} title={tab.title} sandbox="" style={{ width: "100%", height: "100%", border: 0, background: "#fff" }} />;
       if (tab.mode === "snapshot") return <RenderSnapshot key={key} url={tab.url} />;
@@ -194,6 +199,9 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           {tab.verdict === "unknown" ? <div className="fs-panel" role="status" style={{ padding: 10, display: "grid", gap: 5 }}>
             <div className="fs-row" style={{ gap: 6 }}><Badge tone="warn">unverified</Badge><strong style={{ fontSize: fz(12) }}>Embedding could not be checked</strong></div>
             <span className="fs-dim" style={{ fontSize: fz(11.5), overflowWrap: "anywhere" }}>{tab.reason ?? "The probe did not return a framing policy."}</span>
+          </div> : tab.verdict === "csp-restricted" ? <div className="fs-panel" role="status" style={{ padding: 10, display: "grid", gap: 5 }}>
+            <div className="fs-row" style={{ gap: 6 }}><Badge tone="warn">unverified</Badge><strong style={{ fontSize: fz(12) }}>Embedding policy needs review</strong></div>
+            <span className="fs-dim" style={{ fontSize: fz(11.5), overflowWrap: "anywhere" }}>{tab.reason ?? "Framing policy"}</span>
           </div> : <Blocked
             what={`${tab.url} refuses to be embedded`}
             missing={tab.reason ?? "framing policy"}
@@ -206,9 +214,12 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
             <Btn variant="ghost" disabled={renderCapable === false} title={renderCapable === false ? "Server-side rendering is unavailable in this deployment (checked via /api/render?probe=1)" : "A real screenshot of the page, rendered out-of-process on the server. No interaction — you are viewing a picture, not the live page."}
               onClick={() => setTabs((ts) => ts.map((t) => (t.id === tab.id ? { ...t, mode: "snapshot" } : t)))}>Snapshot {renderCapable === null ? "(checking…)" : renderCapable === false ? "(unavailable here)" : ""}</Btn>
             <Btn variant="ghost" onClick={() => void probe(tab)}>Re-probe</Btn>
+            {tab.verdict === "csp-restricted" ? <Btn variant="ghost" title="Connect directly to this site and let the browser enforce its framing policy. The site may see your IP address and the frame may still be blocked." onClick={() => setTabs(ts => ts.map(t => t.id === tab.id ? { ...t, mode: "iframe" } : t))}>Try direct frame</Btn> : null}
           </div>
           {tab.verdict === "unknown" ? <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
             No framing policy was measured. Check the connection and Re-probe, or try an alternative above. Each method can still fail.
+          </div> : tab.verdict === "csp-restricted" ? <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
+            The probe cannot determine whether every ancestor is allowed. A direct attempt connects to the site and may expose your IP address; the browser still enforces the site&apos;s policy and may block it.
           </div> : <div className="fs-dim" style={{ fontSize: fz(11.5), lineHeight: 1.6 }}>
             This is a platform rule, not an app bug: a page that sends
             <span className="fs-mono"> X-Frame-Options: DENY</span> or a restrictive
@@ -244,6 +255,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
           onChange={(e) => setAddress(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") open(address); }} />
         <Btn variant="primary" onClick={() => open(address)}>Go</Btn>
+        {current?.verdict === "csp-restricted" && current.mode === "iframe" && !proxyAll ? <Btn variant="ghost" onClick={() => setTabs(ts => ts.map(t => t.id === current.id ? { ...t, mode: undefined } : t))}>Return to framing options</Btn> : null}
         <Btn variant="ghost" aria-label="Clean link" title="Clean link — remove tracking parameters (utm_*, fbclid, gclid…) from the address; what was removed is reported" onClick={() => { try { const r = cleanUrl(address); setAddress(r.url); setNotice(r.changed ? `Removed: ${r.removed.join(", ")}` : "No tracking parameters found"); } catch (e) { setNotice(String((e as Error).message)); } }}><UiGlyph name="broom" /></Btn>
         {!embeddedRecall?<Btn aria-label="Recall media" title="Recall media" onClick={() => shell.open("recall", {url: current?.url ?? address, pageTitle: current?.title ?? ""})}><UiGlyph name="snapshot"/></Btn>:null}
         {embeddedRecall?<Btn aria-label="Browser tools" title="Browser tools" aria-expanded={tools} onClick={()=>{setTools(v=>!v);setShowPerms(false);setShowRoute(false);}}><UiGlyph name="sliders"/> Tools</Btn>:null}
