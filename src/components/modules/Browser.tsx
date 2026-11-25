@@ -91,7 +91,7 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
     const persist=()=>{
       shell.dispatch({
         t: "setProps", id: win.id,
-        props: { tabs: tabs.map(({ verdict: _v, reason: _r, host: _h, ...rest }) => rest), active, vertical, split, groups: sess.groups, perms: sess.perms, proxyAll },
+        props: { tabs: tabs.map(({ verdict: _v, reason: _r, host: _h, probeEpoch: _e, ...rest }) => rest), active, vertical, split, groups: sess.groups, perms: sess.perms, proxyAll },
       });
     };
     if(embeddedRecall){persist();return;}
@@ -108,17 +108,18 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
   // retained; a failed probe is visible and can be retried explicitly.
   const probing = useRef(new Set<string>());
   const probe = useCallback(async (tab: Tab) => {
-    if (probing.current.has(tab.id)) return;
-    probing.current.add(tab.id);
+    const key = JSON.stringify([tab.id, tab.probeEpoch ?? 0]);
+    if (probing.current.has(key)) return;
+    probing.current.add(key);
     try {
       const r = await api<{ verdict: string; reason: string; host: string; url: string }>(
         `/api/embed-probe?url=${encodeURIComponent(tab.url)}`,
       );
       const title = new URL(r.url).host;
-      setSess(s => ({ ...s, tabs: s.tabs.map(t => t.id === tab.id && t.url === tab.url ? { ...t, verdict: r.verdict, reason: r.reason, host: r.host, url: r.url, title } : t) }));
+      setSess(s => ({ ...s, tabs: s.tabs.map(t => t.id === tab.id && t.url === tab.url && (t.probeEpoch ?? 0) === (tab.probeEpoch ?? 0) ? { ...t, verdict: r.verdict, reason: r.reason, host: r.host, url: r.url, title } : t) }));
     } catch {
-      setSess(s => ({ ...s, tabs: s.tabs.map(t => t.id === tab.id && t.url === tab.url ? { ...t, verdict: "unknown", reason: "probe failed", host: "S3-handoff" } : t) }));
-    } finally { probing.current.delete(tab.id); }
+      setSess(s => ({ ...s, tabs: s.tabs.map(t => t.id === tab.id && t.url === tab.url && (t.probeEpoch ?? 0) === (tab.probeEpoch ?? 0) ? { ...t, verdict: "unknown", reason: "probe failed", host: "S3-handoff" } : t) }));
+    } finally { probing.current.delete(key); }
   }, []);
 
   useEffect(() => {
@@ -175,7 +176,13 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
     <ProxyFrame key={`${key}:${tab.id}:${tab.profile ?? ""}`} tabId={tab.id} url={tab.url} sessions={proxySessions}
       embeddedRecall={embeddedRecall} profile={tab.profile ?? ""} profiles={profileNames} circuitable={route?.mode === "socks5"} via={route && route.mode !== "direct" ? route.label : ""}
       onProfile={(p) => setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, profile: p || undefined } : x)))}
-      onNav={(u, t) => { setTabs((ts) => ts.map((x) => (x.id === tab.id ? { ...x, url: u, title: t || new URL(u).host } : x))); if (tab.id === active) setAddress(u); }} />
+      onNav={(u, t) => {
+        setTabs((ts) => ts.map((x) => x.id !== tab.id ? x : x.url === u
+          ? { ...x, title: t || new URL(u).host }
+          : { ...x, url: u, title: t || new URL(u).host, verdict: undefined, reason: undefined, host: undefined,
+              mode: x.mode === "iframe" ? undefined : x.mode, probeEpoch: (x.probeEpoch ?? 0) + 1 }));
+        if (tab.id === active) setAddress(u);
+      }} />
   );
   const renderFrame = (tab: Tab | null, key: string) => {
     if (!tab) return null;
