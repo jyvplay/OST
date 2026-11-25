@@ -151,7 +151,8 @@ export default function BrowserModule({ win, onPageChange, embeddedRecall=false 
     { label: tab.pinned ? "Unpin tab" : "Pin tab", run: () => setSess(s => togglePin(s, tab.id)) },
     { label: "Duplicate URL in new tab", disabled: tabs.length >= 100, run: () => setSess(s => {
       if (s.tabs.length >= 100 || !s.tabs.some(t => t.id === tab.id)) return s;
-      const copy = { ...makeTab(tab.url), mode: tab.mode, profile: tab.profile };
+      // An advisory direct-frame choice belongs to the original tab, not its duplicate.
+      const copy = { ...makeTab(tab.url), mode: tab.mode === "iframe" ? undefined : tab.mode, profile: tab.profile };
       return { ...s, tabs: [...s.tabs, copy], active: copy.id };
     }) },
     { label: "Sleep tab", disabled: tab.pinned || tab.id === active || tab.id === splitPartner || tab.asleep, run: () => setSess(s => sleepTab(s, tab.id, splitPartner)) },

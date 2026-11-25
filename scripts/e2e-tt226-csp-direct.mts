@@ -30,6 +30,29 @@ try{
    await win.getByRole('button',{name:'Return to framing options',exact:true}).click();await expect(win.getByText('Embedding policy needs review',{exact:true})).toBeVisible();
   }finally{await ctx.close();}
  });
+ await test('duplicate requires its own direct-frame choice',{},async()=>{
+  await fx.windows('browser');const ctx=await fx.context(),page=await ctx.newPage();try{
+   await fx.ready(page,'browser');const win=page.locator('[data-win-id="w1"]');const target='http://127.0.0.1:4043/allowed';
+   await win.getByLabel('Address',{exact:true}).fill(target);await win.getByLabel('Address',{exact:true}).press('Enter');
+   await win.getByRole('button',{name:'Try direct frame',exact:true}).click();await expect(win.frameLocator('iframe').locator('#real-content')).toBeVisible();
+   let duplicateRequests=0;page.on('request',r=>{if(r.url()===target)duplicateRequests++;});
+   await win.locator('[data-orbit-target="Tab: 127.0.0.1:4043"]').click({button:'right'});
+   await page.getByText('Duplicate URL in new tab',{exact:true}).click();
+   await expect(win.getByText('Embedding policy needs review',{exact:true})).toBeVisible({timeout:10000});
+   await expect(win.getByRole('button',{name:'Try direct frame',exact:true})).toBeVisible();assert.equal(duplicateRequests,0,'duplicate did not contact the target directly');
+  }finally{await ctx.close();}
+ });
+ await test('untrusted saved iframe mode cannot authorize a restored tab',{},async()=>{
+  const previous=await fx.api<{row:{revision:number}}>('GET','/api/state?id=default');
+  const target='http://127.0.0.1:4043/allowed';
+  await fx.api('PUT','/api/state',{id:'default',revision:previous.row.revision+1000,state:{windows:[{id:'w1',module:'browser',title:'browser',x:20,y:16,w:1100,h:800,z:10,workspace:1,props:{tabs:[{id:'tab0',url:target,title:'site',group:'',pinned:false,asleep:false,mode:'iframe'}],active:'tab0'}}],focus:'w1',workspaces:[{id:1,name:'Main'}],activeWorkspace:1,nextZ:30}});
+  const ctx=await fx.context(),page=await ctx.newPage();try{
+   let directRequests=0;page.on('request',r=>{if(r.url()===target)directRequests++;});
+   await page.goto(fx.BASE,{waitUntil:'domcontentloaded'});const win=page.locator('[data-win-id="w1"]');
+   await expect(win.getByText('Embedding policy needs review',{exact:true})).toBeVisible();assert.equal(directRequests,0);
+   await win.getByRole('button',{name:'Try direct frame',exact:true}).click();await expect(win.frameLocator('iframe').locator('#real-content')).toBeVisible();assert.ok(directRequests>0);
+  }finally{await ctx.close();}
+ });
  await test('restored split view probes both visible tabs before framing',{},async()=>{
   const previous=await fx.api<{row:{revision:number}}>('GET','/api/state?id=default');
   const urls=['http://127.0.0.1:4043/allowed','http://127.0.0.1:4043/denied'];
