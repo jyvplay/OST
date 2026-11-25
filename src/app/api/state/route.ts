@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, eq, like, sql } from "drizzle-orm";
+import { and, eq, like, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { desktopState } from "@/db/schema";
 import { escapeLike } from "@/lib/server/vfs";
@@ -72,17 +72,19 @@ export async function PUT(req: NextRequest) {
   if (!Number.isInteger(revision) || revision < 0 || revision > 2_147_483_647) {
     return NextResponse.json({ ok: false, error: "revision must be an integer in 0…2147483647" }, { status: 400 });
   }
-  const rows = await db.select().from(desktopState).where(eq(desktopState.id, id)).limit(1);
-  const current = rows[0];
-  if (current && current.revision > revision) {
-    return NextResponse.json({ ok: false, conflict: true, row: current }, { status: 409 });
-  }
-  if (current) {
-    await db.update(desktopState)
-      .set({ state: body.state as object, revision, updatedAt: new Date(), generation: sql`gen_random_uuid()` })
-      .where(eq(desktopState.id, id));
-  } else {
-    await db.insert(desktopState).values({ id, state: body.state as object, revision });
+  // The revision predicate must be checked by the same statement that writes.
+  // An earlier SELECT followed by UPDATE allows a stale writer to wait for a
+  // newer transaction and then overwrite it without rechecking the revision.
+  const written = await db.insert(desktopState).values({ id, state: body.state as object, revision })
+    .onConflictDoUpdate({
+      target: desktopState.id,
+      set: { state: body.state as object, revision, updatedAt: new Date(), generation: sql`gen_random_uuid()` },
+      setWhere: lte(desktopState.revision, revision),
+    }).returning({ id: desktopState.id });
+  if (!written.length) {
+    // This is a later read: another writer may have changed or removed the row.
+    const rows = await db.select().from(desktopState).where(eq(desktopState.id, id)).limit(1);
+    return NextResponse.json({ ok: false, conflict: true, row: rows[0] ?? null }, { status: 409 });
   }
   return NextResponse.json({ ok: true, revision });
 }
