@@ -405,7 +405,7 @@ export async function transferNode(src: string, dst: string, mode: "move" | "cop
 
 /** Reversible tree trash. Descendants keep their own earlier trash group; the
  * search index and journal are changed in the same transaction as the nodes. */
-export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown, duplicatePeer?: unknown) {
+export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown, duplicatePeer?: unknown, duplicateSidecar?: unknown) {
   const expected = parseExpectedTrash(guard);
   const p = normalize(path);
   // Optional cooperative snapshot guard is scoped to Backup's direct files.
@@ -433,8 +433,12 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
     if (typeof value.path !== "string" || !value.path.startsWith("/") || normalize(value.path) !== value.path || value.path === p || !identity || !identity.sha256 || identity.sha256 !== expected.sha256) throw new Error("Invalid duplicate guard");
     peer = { path: value.path, expected: identity };
   }
+  const hasSidecarGuard = duplicateSidecar !== undefined;
+  if (hasSidecarGuard && !peer) throw new Error("Sidecar guard requires duplicate peer");
+  const expectedSidecar = duplicateSidecar === null ? null : parseExpectedTrash(duplicateSidecar);
   if (p === "/") throw new Error("Refusing to trash the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
+  let sidecarFollowed = false;
   await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
@@ -452,6 +456,20 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
       const [retained] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, peer.path)).limit(1).for("update");
       if (!node || sha256(node.content) !== expected!.sha256 || !retained || retained.kind !== "file" || retained.trashed || retained.id !== peer.expected.id || retained.version !== peer.expected.version || retained.sha256 !== peer.expected.sha256 || sha256(retained.content) !== peer.expected.sha256) throw new TrashTargetConflict("Duplicate copies changed; refresh before trashing");
     }
+    let followedSidecar = false;
+    if (hasSidecarGuard && !isSidecar(p)) {
+      const sc = sidecarPath(p);
+      const [recipe] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, sc)).limit(1).for("update");
+      if (expectedSidecar === null ? !!recipe : !recipe || !expectedSidecar || recipe.kind !== "file" || recipe.trashed || recipe.id !== expectedSidecar.id || recipe.version !== expectedSidecar.version || recipe.sha256 !== expectedSidecar.sha256 || sha256(recipe.content) !== expectedSidecar.sha256) throw new TrashTargetConflict("Companion changed; refresh before trashing");
+      if (recipe && peer?.path === sc) throw new TrashTargetConflict("Companion is the retained duplicate; choose another copy");
+      if (recipe) {
+        await tx.update(vfsNodes).set({ trashed: true, trashedFrom: sc, updatedAt: new Date() }).where(eq(vfsNodes.id, recipe.id));
+        await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), eq(indexDocs.ref, sc)));
+        await tx.insert(fileOps).values({ op: "trash", src: sc, state: "COMPLETE", bytes: recipe.size });
+        await tx.insert(auditLog).values({ actor: "user", action: "fs.trash", detail: isPrivateVfsPath(sc) ? "/Private/…" : sc });
+        followedSidecar = true;
+      }
+    }
     if (!node) throw new Error(`not found: ${p}`);
     if (node.trashed) return; // do not reset the original deletion time/group
     await tx.update(vfsNodes).set({ trashed: true, trashedFrom: p, updatedAt: new Date() })
@@ -459,8 +477,9 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
     await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), or(eq(indexDocs.ref, p), like(indexDocs.ref, pattern))));
     await tx.insert(fileOps).values({ op: "trash", src: p, state: "COMPLETE", bytes: node.size });
     await tx.insert(auditLog).values({ actor: "user", action: "fs.trash", detail: isPrivateVfsPath(p) ? "/Private/…" : p });
-  });
-  return { ok: true };
+    return followedSidecar;
+  }).then(value => { sidecarFollowed = Boolean(value); });
+  return { ok: true, ...(sidecarFollowed ? { sidecar: "followed" } : {}) };
 }
 
 /** Restore only nodes that belonged to the selected trash group. Independent

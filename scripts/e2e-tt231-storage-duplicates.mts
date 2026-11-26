@@ -46,7 +46,7 @@ try{
  });
  await test('lost acknowledgement is reported as uncertain after actual commit',{},async()=>{
   await setup();const {ctx,page,group}=await open();try{
-   await page.route('**/api/fs',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.op==='trashDuplicateGuarded'){await route.fetch();await route.abort('failed');}else await route.continue();});
+   await page.route('**/api/fs',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.op==='trashDuplicateWithSidecarGuarded'){await route.fetch();await route.abort('failed');}else await route.continue();});
    await group.locator('div.fs-row').filter({hasText:b}).getByRole('button',{name:'Trash'}).click();
    await page.getByRole('alert').getByText(/may have completed/).waitFor();assert.equal((await active(b)).trashed,true);assert.equal((await active(a)).trashed,false);
   }finally{await ctx.close();await cleanup();}

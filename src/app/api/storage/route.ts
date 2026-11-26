@@ -187,11 +187,14 @@ export async function GET() {
     db.execute(sql`
       select path, size, mime from vfs_nodes where kind='file' and trashed=false order by size desc limit 15`),
     db.execute(sql`
-      select sha256, count(*)::int as copies, max(size)::int as size,
-             (count(*) - 1) * max(size) as reclaimable, array_agg(path order by path) as paths,
-             json_agg(json_build_object('path', path, 'id', id, 'version', version) order by path) as identities
-      from vfs_nodes where kind='file' and trashed=false and sha256 <> '' and size > 0
-      group by sha256 having count(*) > 1 order by reclaimable desc limit 30`),
+      select v.sha256, count(*)::int as copies, max(v.size)::int as size,
+             (count(*) - 1) * max(v.size) as reclaimable, array_agg(v.path order by v.path) as paths,
+             json_agg(json_build_object('path', v.path, 'id', v.id, 'version', v.version, 'sidecar',
+               (select json_build_object('id', sc.id, 'version', sc.version, 'sha256', sc.sha256)
+                from vfs_nodes sc where sc.path = left(v.path, length(v.path)-position('/' in reverse(v.path))+1)
+                  || '.' || right(v.path, position('/' in reverse(v.path))-1) || '.edit.json')) order by v.path) as identities
+      from vfs_nodes v where v.kind='file' and v.trashed=false and v.sha256 <> '' and v.size > 0
+      group by v.sha256 having count(*) > 1 order by reclaimable desc limit 30`),
     db.execute(sql`
       select count(*)::int as files, coalesce(sum(size),0)::bigint as bytes from vfs_nodes where trashed = true and kind='file'`),
     db.execute(sql`
