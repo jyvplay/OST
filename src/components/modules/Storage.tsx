@@ -19,7 +19,7 @@ import { reclaimSummary } from "@/lib/reclaim-summary";
 interface Data {
   categories: { category: string; files: number; bytes: number }[];
   large: { path: string; size: number; mime: string }[];
-  duplicates: { sha256: string; copies: number; size: number; reclaimable: number; paths: string[]; identities?: {path:string;id:number;version:number}[] }[];
+  duplicates: { sha256: string; copies: number; size: number; reclaimable: number; paths: string[]; identities?: {path:string;id:number;version:number;sidecar?: {id:number;version:number;sha256:string} | null}[] }[];
   trash: { files: number; bytes: number };
   versions: { versions: number; bytes: number };
   buckets?: BucketStat[];
@@ -27,7 +27,7 @@ interface Data {
 
 function duplicateIdentity(group: Data["duplicates"][number], path: string) {
   if (!Array.isArray(group.identities) || !/^[0-9a-f]{64}$/.test(group.sha256)) return undefined;
-  return group.identities.find(x => x && x.path === path && Number.isSafeInteger(x.id) && x.id > 0 && Number.isSafeInteger(x.version) && x.version > 0);
+  return group.identities.find(x => x && x.path === path && Number.isSafeInteger(x.id) && x.id > 0 && Number.isSafeInteger(x.version) && x.version > 0 && Object.hasOwn(x, "sidecar") && (x.sidecar === null || (!!x.sidecar && Number.isSafeInteger(x.sidecar.id) && x.sidecar.id > 0 && Number.isSafeInteger(x.sidecar.version) && x.sidecar.version > 0 && typeof x.sidecar.sha256 === "string" && /^(?:[0-9a-f]{64})?$/.test(x.sidecar.sha256))));
 }
 
 /** FM-07: logical VFS usage AND the browser's real origin quota, plus AP-02 per-bucket uninstall assistant. */
@@ -229,7 +229,7 @@ export default function StorageModule(_: ModuleProps) {
                   if (!target || !retained) return;
                   duplicateLocks.current.add(p); setDuplicateBusy(current => [...current, p]); setDuplicateError("");
                   try {
-                    const response = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trashDuplicateGuarded", path: p, expectedTrash: { id: target.id, version: target.version, sha256: g.sha256 }, duplicatePeer: { ...retained, sha256: g.sha256 } }) });
+                    const response = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trashDuplicateWithSidecarGuarded", path: p, expectedSidecar: target.sidecar, expectedTrash: { id: target.id, version: target.version, sha256: g.sha256 }, duplicatePeer: { ...retained, sha256: g.sha256 } }) });
                     const result = await response.json() as { ok?: unknown; sidecar?: string };
                     if (!response.ok || result.ok !== true) throw new Error("not confirmed");
                     if (result.sidecar?.startsWith("not followed")) setDuplicateError(`File moved to Trash, but its companion was not: ${result.sidecar}`);

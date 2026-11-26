@@ -246,6 +246,11 @@ export async function POST(req: NextRequest) {
         if (typeof b.path !== "string" || !Object.hasOwn(b, "expectedTrash") || !Object.hasOwn(b, "duplicatePeer")) return NextResponse.json({ ok: false, error: "Duplicate identities required" }, { status: 400 });
         return NextResponse.json(await followSidecar(await trashNode(b.path, b.expectedTrash, undefined, b.duplicatePeer), b.path, "trash"));
       }
+      case "trashDuplicateWithSidecarGuarded": {
+        const b = body as unknown as Record<string, unknown>;
+        if (typeof b.path !== "string" || !Object.hasOwn(b, "expectedTrash") || !Object.hasOwn(b, "duplicatePeer") || !Object.hasOwn(b, "expectedSidecar") || b.expectedSidecar === undefined) return NextResponse.json({ ok: false, error: "Duplicate and companion identities required" }, { status: 400 });
+        return NextResponse.json(await trashNode(b.path, b.expectedTrash, undefined, b.duplicatePeer, b.expectedSidecar));
+      }
       case "trashBackupGuarded":
         return NextResponse.json(await trashNode(String(body.path), body.expectedTrash, body.expectedBackupInventory ?? null));
       case "restore":
