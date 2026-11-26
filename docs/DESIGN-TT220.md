@@ -1,0 +1,11 @@
+# TT220: density measurement identity
+
+The TT123–125 density scripts previously waited for any window with id `w1`; that id is reused for every fixture. If a prior window survived an unsuccessful state change, the scripts could measure a different module. This is a demonstrated possible false positive, not an established explanation of past density failures.
+
+A real Chromium negative control loaded `spec` and asked the readiness check for `beam`. Before the change, the wrong-window test failed (accepted the spec window); the correct-target case passed. WindowFrame now exposes the actual module as `data-module-id`. The shared check waits for the shell boot flag and matching id and module, and fails on identity timeout. The former best-effort text-length wait and subsequent 200ms settling delay remain: some legitimate modules have very little text, so the text timeout was never a reliable mandatory condition. Existing word caps and visibility measurement were not changed. The negative control and correct target passed 2/2 after the change.
+
+On the accumulated disposable database, TT124 was 22/23 (Routines 387/300), TT125 2/3 (Files 375/260), and TT123 22/23 (Files 375/320), even with the identity check. Thus wrong identity does not explain these reproduced failures. This check does not establish that a module's asynchronous content has finished loading, fixture API writes succeeded, visual quality, or app functionality. An empty or delayed correct module may still be measured after the legacy timeout. It is not a speed improvement, and no runtime comparison or Pareto claim is made.
+
+Deployment and preset safety limits remain in DESIGN-TT219. This work is a narrow test-hardening change, not a Class-A promotion or a visual review of all apps.
+
+Full gate on the production build, exclusive disposable PostgreSQL and Chromium: `.cache/gate/20261124T031141Z/run-526085-qITHkx`, exit 1. TT220 identity 2/2 and accessibility 9/9 passed. TT134 review repairs 6/8 (GitHub framing classified unknown rather than deny); TT124 22/23 (Routines 405/300), TT125 2/3 (Files 375/260), and TT123 22/23 (Files 375/320). The different Routines count from the targeted run reinforces the accumulated-data boundary; no density cap was adjusted. Full gate remains red.

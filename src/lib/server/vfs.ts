@@ -405,7 +405,7 @@ export async function transferNode(src: string, dst: string, mode: "move" | "cop
 
 /** Reversible tree trash. Descendants keep their own earlier trash group; the
  * search index and journal are changed in the same transaction as the nodes. */
-export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown) {
+export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown, duplicatePeer?: unknown) {
   const expected = parseExpectedTrash(guard);
   const p = normalize(path);
   // Optional cooperative snapshot guard is scoped to Backup's direct files.
@@ -425,6 +425,14 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
     const target = inventory.get(baseName(p));
     if (!target || target.id !== expected.id || target.version !== expected.version || target.sha256 !== expected.sha256) throw new Error("Invalid backup inventory target");
   }
+  let peer: { path: string; expected: ExpectedTrash } | undefined;
+  if (duplicatePeer !== undefined) {
+    if (!expected || !duplicatePeer || typeof duplicatePeer !== "object" || Array.isArray(duplicatePeer)) throw new Error("Invalid duplicate guard");
+    const value = duplicatePeer as Record<string, unknown>;
+    const identity = parseExpectedTrash(value);
+    if (typeof value.path !== "string" || !value.path.startsWith("/") || normalize(value.path) !== value.path || value.path === p || !identity || !identity.sha256 || identity.sha256 !== expected.sha256) throw new Error("Invalid duplicate guard");
+    peer = { path: value.path, expected: identity };
+  }
   if (p === "/") throw new Error("Refusing to trash the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
   await safeTransaction(async (tx) => {
@@ -440,6 +448,10 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
       })) throw new TrashTargetConflict("Backup inventory changed; refresh before pruning");
     }
     if (expected && (!node || node.kind !== "file" || node.trashed || node.id !== expected.id || node.version !== expected.version || node.sha256 !== expected.sha256)) throw new TrashTargetConflict("Trash target changed; refresh the list");
+    if (peer) {
+      const [retained] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, peer.path)).limit(1).for("update");
+      if (!node || sha256(node.content) !== expected!.sha256 || !retained || retained.kind !== "file" || retained.trashed || retained.id !== peer.expected.id || retained.version !== peer.expected.version || retained.sha256 !== peer.expected.sha256 || sha256(retained.content) !== peer.expected.sha256) throw new TrashTargetConflict("Duplicate copies changed; refresh before trashing");
+    }
     if (!node) throw new Error(`not found: ${p}`);
     if (node.trashed) return; // do not reset the original deletion time/group
     await tx.update(vfsNodes).set({ trashed: true, trashedFrom: p, updatedAt: new Date() })

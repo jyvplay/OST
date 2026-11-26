@@ -60,6 +60,8 @@ if ! git cat-file -e '2edf69917615249efcc45318308efc93ebe2d65d^{commit}' 2>/dev/
   git fetch --no-tags --depth=1 origin 2edf69917615249efcc45318308efc93ebe2d65d
 fi
 npx drizzle-kit push --dialect postgresql --schema ./src/db/schema.ts --url "$DATABASE_URL" --force >/dev/null
+# Drizzle schema push cannot install the conditional-delete trigger.
+node scripts/sandbox/apply-preset-trigger.mjs
 # Unpack Chromium once so /tmp/al2023/lib (its NSS libs) exists for LD_LIBRARY_PATH.
 AWS_EXECUTION_ENV=AWS_Lambda_nodejs22.x node -e "const m=require('$TOOLS/node_modules/@sparticuz/chromium'); (m.default??m).executablePath().then(p=>console.log('chromium', p))"
 echo "bootstrap ok"

@@ -12,6 +12,8 @@
 export interface Tab {
   id: string; url: string; title: string; group: string; pinned: boolean; asleep: boolean;
   verdict?: string; reason?: string; host?: string; mode?: "iframe" | "proxy" | "reader" | "snapshot";
+  /** In-memory navigation generation; never restored or saved. */
+  probeEpoch?: number;
   /** TT36: named private-proxy profile; tabs with the same name share one cookie jar (absent = this tab only) */
   profile?: string;
 }

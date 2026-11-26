@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { eq, like } from "drizzle-orm";
+import { and, eq, like, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { desktopState } from "@/db/schema";
 import { escapeLike } from "@/lib/server/vfs";
@@ -15,12 +15,12 @@ export async function GET(req: NextRequest) {
   const prefix = req.nextUrl.searchParams.get("list");
   if (prefix) {
     // AU-02 presets / PR-07r sessions are desktop_state rows under a prefix
-    const rows = await db.select({ id: desktopState.id, updatedAt: desktopState.updatedAt, state: desktopState.state })
+    const rows = await db.select({ id: desktopState.id, updatedAt: desktopState.updatedAt, state: desktopState.state, generation: desktopState.generation })
       .from(desktopState).where(like(desktopState.id, `${escapeLike(prefix)}:%`));
     return NextResponse.json({
       ok: true,
       rows: rows.map((r) => ({
-        id: r.id, name: r.id.slice(prefix.length + 1), updatedAt: r.updatedAt,
+        id: r.id, name: r.id.slice(prefix.length + 1), updatedAt: r.updatedAt, generation: r.generation,
         windows: ((r.state as { windows?: unknown[] }).windows ?? []).length,
       })),
     });
@@ -35,6 +35,25 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body = await readJsonObject(req);
   if (body instanceof Response) return body;
+  // Distinct operation: older servers reject it rather than silently ignoring
+  // a precondition and deleting a later incarnation of the same name.
+  if (body.op === "deletePresetGuarded") {
+    if (typeof body.id !== "string" || !body.id.startsWith("preset:") || body.id.length <= 7 || typeof body.generation !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.generation)) {
+      return NextResponse.json({ ok: false, error: "Invalid preset guard" }, { status: 400 });
+    }
+    // Fail closed when the deployment lacks the database-side legacy-writer
+    // guard. Check within the DELETE statement, not in a separate preflight.
+    const guardReady = sql`current_setting('session_replication_role') IN ('origin', 'local') AND EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      WHERE t.tgrelid = 'public.desktop_state'::regclass
+        AND t.tgname = 'ost_desktop_generation_guard'
+        AND NOT t.tgisinternal AND t.tgtype = 23 AND t.tgenabled IN ('O', 'A')
+        AND t.tgfoid = to_regprocedure('public.ost_preset_generation_guard_fn()')
+    )`;
+    const removed = await db.delete(desktopState).where(and(eq(desktopState.id, body.id), eq(desktopState.generation, body.generation), guardReady)).returning({ id: desktopState.id });
+    if (!removed.length) return NextResponse.json({ ok: false, error: "Preset changed or is absent" }, { status: 409 });
+    return NextResponse.json({ ok: true, deleted: true });
+  }
   if (body.op !== "createPreset" || typeof body.name !== "string" || !body.name.trim() || body.name.length > 200 || !body.state || typeof body.state !== "object" || Array.isArray(body.state)) {
     return NextResponse.json({ ok: false, error: "Invalid preset" }, { status: 400 });
   }
@@ -53,17 +72,19 @@ export async function PUT(req: NextRequest) {
   if (!Number.isInteger(revision) || revision < 0 || revision > 2_147_483_647) {
     return NextResponse.json({ ok: false, error: "revision must be an integer in 0…2147483647" }, { status: 400 });
   }
-  const rows = await db.select().from(desktopState).where(eq(desktopState.id, id)).limit(1);
-  const current = rows[0];
-  if (current && current.revision > revision) {
-    return NextResponse.json({ ok: false, conflict: true, row: current }, { status: 409 });
-  }
-  if (current) {
-    await db.update(desktopState)
-      .set({ state: body.state as object, revision, updatedAt: new Date() })
-      .where(eq(desktopState.id, id));
-  } else {
-    await db.insert(desktopState).values({ id, state: body.state as object, revision });
+  // The revision predicate must be checked by the same statement that writes.
+  // An earlier SELECT followed by UPDATE allows a stale writer to wait for a
+  // newer transaction and then overwrite it without rechecking the revision.
+  const written = await db.insert(desktopState).values({ id, state: body.state as object, revision })
+    .onConflictDoUpdate({
+      target: desktopState.id,
+      set: { state: body.state as object, revision, updatedAt: new Date(), generation: sql`gen_random_uuid()` },
+      setWhere: lte(desktopState.revision, revision),
+    }).returning({ id: desktopState.id });
+  if (!written.length) {
+    // This is a later read: another writer may have changed or removed the row.
+    const rows = await db.select().from(desktopState).where(eq(desktopState.id, id)).limit(1);
+    return NextResponse.json({ ok: false, conflict: true, row: rows[0] ?? null }, { status: 409 });
   }
   return NextResponse.json({ ok: true, revision });
 }

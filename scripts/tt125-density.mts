@@ -4,6 +4,9 @@
  * actuals all landed under them; list content that scales with seeded data
  * uses the session-data treatment, as recorded in DESIGN-TT122). */
 import assert from "node:assert/strict";
+import { waitForDensity } from "./density-readiness.mts";
+import { densityBoundFailures } from "./density-bounds.mts";
+import { densityApi } from "./density-api.mts";
 import { launchChromium } from "./browser-launch.mts";
 import { makeHarness } from "./harness.mts";
 
@@ -13,8 +16,7 @@ if (process.env.TT89_DISPOSABLE_DATABASE !== "1" || !process.env.DATABASE_URL ||
 const BASE = process.env.BASE!;
 const { test, finish } = makeHarness("tt125-density");
 async function api<T = Record<string, unknown>>(method: string, path: string, body?: unknown): Promise<T> {
-  const r = await fetch(BASE + path, { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
-  return await r.json() as T;
+  return densityApi<T>(BASE, method, path, body);
 }
 const MEASURE = `(sel) => {
   const root = document.querySelector(sel);
@@ -40,11 +42,13 @@ const page = await context.newPage();
 page.setDefaultTimeout(20_000);
 
 async function visit(module: string, props: Record<string, unknown> = {}) {
+  // Unload the previous desktop before seeding the next one: pagehide can
+  // issue a keepalive save. The state route rejects lower revisions atomically.
+  await page.goto("about:blank");
   const cur = await api<{ row?: { revision?: number } }>("GET", "/api/state?id=default");
   await api("PUT", "/api/state", { id: "default", revision: Number(cur.row?.revision ?? 1) + 1000, state: { windows: [{ id: "w1", module, title: module, x: 20, y: 16, w: 1440, h: 960, z: 10, workspace: 1, props }], focus: "w1", workspaces: [{ id: 1, name: "Main" }], activeWorkspace: 1, nextZ: 30 } });
   await page.goto(BASE, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('[data-win-id="w1"]');
-  await page.waitForFunction(() => (document.querySelector('[data-win-id="w1"]')?.textContent ?? "").length > 30, null, { timeout: 8_000 }).catch(() => null);
+  await waitForDensity(page, module);
   await page.waitForTimeout(200);
   return await page.evaluate(`(${MEASURE})('[data-win-id="w1"]')`) as { words: number; glyphs: number; controls: number };
 }
@@ -54,7 +58,8 @@ async function visit(module: string, props: Record<string, unknown> = {}) {
 // keeps the TT120/TT122 session-data treatment).
 const APPS: [string, number][] = [
   ["editor", 70], ["files", 260], ["pdf", 90], ["writer", 160], ["beam", 320],
-  ["devices", 400], ["vault", 120], ["planner", 160], // task list is session data: e2e leaves one done task behind ["terminal", 48], ["ssh", 80],
+  // Planner tasks are session data: e2e leaves one done task behind.
+  ["devices", 400], ["vault", 120], ["planner", 160], ["terminal", 48], ["ssh", 80],
   ["recall", 200], ["peek", 200], ["whiteboard", 110], ["lens", 170], ["apps", 980],
   ["clipboard", 180], ["together", 120], ["settings", 1650], ["books", 300], ["capture", 320],
 ];
@@ -66,7 +71,7 @@ for (const [id, cap] of APPS) {
   console.log(`    ${id.padEnd(12)} ${String(r.words).padStart(4)} words (cap ${cap})`);
 }
 
-await test("TT125 register: all twenty codes built, register grew past TT124's 587", { "SP-01": "mechanism" }, async () => {
+await test("TT125 register: all twenty codes built, register grew past TT124's 587", { "SP-01": "partial" }, async () => {
   const j = await api<{ rows: { code: string; status: string }[] }>("GET", "/api/features");
   const codes = ["ED-10", "ED-09", "PD-03", "WR-02", "BM-03", "DV-03", "VA-03", "PL-10", "TM-08", "SSH-04", "RC-43", "PK-04", "WB-08", "LN-19", "LN-20", "AP-08", "CB-03", "TG-03", "ST-16", "BK-13"];
   for (const c of codes) {
@@ -77,14 +82,12 @@ await test("TT125 register: all twenty codes built, register grew past TT124's 5
   assert.ok(j.rows.length > 587, `register grew: ${j.rows.length}`);
 });
 
-await test("AX-24 bounds: every touched module within its TT125 cap", { "AX-24": "mechanism" }, () => {
-  for (const [id, cap] of APPS) {
-    const r = results.get(id)!;
-    assert.ok(r.words <= cap, `${id}: ${r.words} words > bound ${cap}`);
-  }
+await test("AX-24 bounds: every touched module within its TT125 cap", { "AX-24": "partial" }, () => {
+  const failures = densityBoundFailures(APPS, results);
+  assert.deepEqual(failures, [], failures.join(" | "));
 });
 
-await test("screenshots: editor stamp toolbar + lens capability row", { "ED-10": "mechanism", "LN-19": "mechanism" }, async () => {
+await test("screenshots: editor stamp toolbar + lens capability row", { "ED-10": "partial", "LN-19": "partial" }, async () => {
   await api("POST", "/api/fs", { op: "write", path: "/Documents/tt125-case.txt", content: "the iPad's usb-c port stays camelCase here\n", reason: "tt125-density" });
   await visit("editor", { path: "/Documents/tt125-case.txt" });
   await page.screenshot({ path: "docs/screens/tt125-editor.png" });

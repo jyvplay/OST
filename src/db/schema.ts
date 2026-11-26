@@ -12,6 +12,7 @@
  */
 import {
   pgTable,
+  uuid,
   serial,
   text,
   integer,
@@ -137,6 +138,7 @@ export const desktopState = pgTable("desktop_state", {
   id: text("id").primaryKey(),
   state: jsonb("state").notNull(),
   revision: integer("revision").notNull().default(1),
+  generation: uuid("generation").notNull().defaultRandom(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
