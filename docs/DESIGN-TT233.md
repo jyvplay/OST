@@ -1,0 +1,45 @@
+# TT233 — no-op primary operations must not follow a companion
+
+## Resources and model
+
+The work used the checked-out app, Node/TypeScript/Next build and ESLint, real local PostgreSQL 19 with an exclusive disposable database, and real headless Chromium 158 with Playwright for prior duplicate-trash regression. HTTP requests in the new no-op suite go to the actual production Next server and database. PostgreSQL documentation was searched; no independent agents, theorem prover, simulator or external expert reviewer was used. A web search is research, not proof of this implementation. The machine had two CPUs; suites sharing the database must be serialized.
+
+Admissible inputs: legacy public VFS trash/restore/purge requests with a canonical path and an optional named photo companion. One app request calls a transaction for its primary, then may call the legacy separate companion transaction. The state is rows, trash flags, index and history in PostgreSQL. A no-op means the primary is already trashed for trash, missing or live for restore, or missing for purge. Unit of correctness is one completed request and companion contents/trash state, not time or byte count. For every such no-op request, if its primary transaction reports no primary transition, the route must not initiate the companion operation. For every ordinary successful legacy primary transition, the existing best-effort companion follow remains available. An error in the primary must not start follow. These quantifiers cover the follow decision, not all concurrent histories or data integrity.
+
+Boundaries: the no-op purge can still remove orphan descendant/history rows under the primary prefix; it now does not initiate companion purge when the primary row was absent. The legacy successful follow remains a **separate transaction**, without a report-time companion identity; another writer can alter the companion between operations, and an independently trashed companion can still be restored after a real primary restore. Old servers, privileged SQL, encrypted Private name mapping, response-loss ambiguity, secure deletion, and a transactional restore/purge redesign are different problems. TT232 guarded duplicate Trash has its own stronger bounded contract; do not substitute this no-op repair for it.
+
+## Hypotheses and evidence threshold
+
+H+: a committed primary-change flag from the transaction can distinguish these no-ops. H−: a response based only on the pre-request path cannot identify a changing companion safely for every interleaving. H∂: which companion should follow depends on atomicity, identity, historical linkage, and old-writer compatibility. Acceptance threshold for the narrow change: reproducible pre-patch counterexample, production compilation, post-patch real-HTTP tests including a patch-specific attack and prior duplicate-trash regression; full gate reported separately. It is not a Class-A or global-completeness threshold.
+
+## Frontier
+
+PostgreSQL's documented `READ COMMITTED` row locks block conflicting updates to rows actually locked; no row lock exists for a row that is absent. Advisory locks protect only writers that participate. Serializable transactions require application-level handling of serialization failures and depend on the transactions that actually use that isolation level; they are not a drop-in proof for mixed legacy writers. See [explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html) and [transaction isolation](https://www.postgresql.org/docs/current/transaction-iso.html). The open interface is a durable atomic relationship between a particular primary transition and companion identity, compatible with existing trash groups, restore, purge, old servers and encrypted names. This patch deliberately does not invent such provenance.
+
+## Mechanisms and attacks
+
+| Candidate and artifact | Established part | Strongest specific attack / cheapest test | Interface and gap |
+|---|---|---|---|
+| Transaction returns committed primary-change flag (implemented in VFS and route) | Baseline four no-op attacks failed; after patch eight real HTTP tests passed. | Companion changes after a real primary transition but before legacy follow; test with a transaction barrier. | Flag proves no-op decision only; race remains local to follow interface. |
+| Unconditional follow (old route, baseline experiment) | Real paired happy path works. | Missing primary plus live companion: baseline deleted companion. | Fails contract locally. |
+| Existence read outside transaction (design) | Can cheaply reject some no-ops. | Change primary after read; two overlapping requests. | TOCTOU, local but needs coordinated mutation. |
+| Never follow (design) | Prevents every extra companion operation. | Trash/restore existing pair and expect both; breaks existing feature. | Conflicts with compatibility requirement. |
+| Atomic primary+companion with report identities (TT232 artifact) | Guarded duplicate Trash has targeted Chromium/PostgreSQL evidence. | Legacy restore or purge; old clients and unlinked independent trash groups. | Generalizing requires provenance and compatibility design, not supplied. |
+| Durable pair/group record (design) | Could identify a pair created by a transaction. | Old groups, independently altered companion, ID reuse and migration failure. | Requires schema, migration, identity and recovery policy; larger open interface. |
+| Global serializable isolation (design) | PostgreSQL can reject serialization anomalies among participating serializable transactions. | Mixed old READ COMMITTED writer; retry/uncertain response. | Does not by itself provide correct pair provenance or universal writer participation. |
+
+## Negative space and test evidence
+
+A successful response, a filename match, a prior screenshot, a build, an HTTP 200, a live primary, a missing primary, a row lock on the primary, an advisory lock ignored by another writer, a check before the transaction, the modal happy path, a test with only paired files, a mocked database, a majority of passing cases, a fresh report, a digest without provenance, a generic confirmation, and a ledger label do not establish this contract. The modal shortcut would accept the usual paired restore/purge case; the tests deliberately construct independently trashed or newly created companions and absent/live primaries. Before patch these four cases failed (2/6 total); after patch the suite passed 8/8 including a rejected stale guard and a direct sidecar with a nested sidecar. TT232 Chromium suite passed 6/6 and TT231 8/8; TT127 conditional writes 3/3; production build and changed route/VFS lint passed. These are finite experiments, not an exhaustive concurrency proof.
+
+The recurring gate now includes the no-op suite, adding coverage rather than asserting speedup. There is no measured Pareto speed improvement. No new Class-A features, all-app visual audit, or defensible percentage of modern-OS parity was established.
+
+## Limited visual review
+
+I inspected the existing committed screenshots `docs/screens/tt157-routines.png`, `tt84-storage-uninstall.png`, and `tt134-polish/notes-wide.png` (they were not newly captured for this turn). The Routines view has dense explanatory prose partly obscured by a Notes window; the Storage destructive confirmation clearly identifies selected categories and asks for DELETE, but its underlying category list is text-heavy. Notes has a relatively clear two-pane layout; its tiny unchecked box is visually conspicuous. These are observations of three historical states, not a review of every app, responsive layout, keyboard use, or the current build. No new logos or graphics were made.
+
+## Full gate and remaining work
+
+The full gate `.cache/gate/20261126T082644Z/run-2437-AJkTDL` exited 1. TT233 passed 8/8 in the gate; TT232 6/6, TT231 8/8, TT128 Photos 11/11 and TT127 Photos 1/1 passed. Failures: TT124 density Routines 306/300, TT125 density Files 375/260, TT123 density Files 375/320; `e2e-layout` dock resting width 59.546875 vs expected 48; `tt134-review-repairs` GitHub framing classified unknown instead of expected csp-restricted in both widths. The latter explicitly depends on a real network result; its cause was not isolated. These failures were not fixed or declared irrelevant. The next high-information safety test is a deterministic transaction barrier showing a changed companion between the successful primary commit and legacy follow, then a design for provenance-bound atomic pair operations and migration of old trash groups.
+
+The app uses a server and PostgreSQL as well as PWA code; this is not proof of a self-contained offline operating system. Browser service workers may be stopped and background work is bounded by browser policies ([MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Offline_and_background_operation)). No current, independently verified cross-app/native-OS inventory exists from which to calculate a meaningful percentage of Class-A parity.
