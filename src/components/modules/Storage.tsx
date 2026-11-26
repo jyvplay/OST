@@ -19,10 +19,15 @@ import { reclaimSummary } from "@/lib/reclaim-summary";
 interface Data {
   categories: { category: string; files: number; bytes: number }[];
   large: { path: string; size: number; mime: string }[];
-  duplicates: { sha256: string; copies: number; size: number; reclaimable: number; paths: string[] }[];
+  duplicates: { sha256: string; copies: number; size: number; reclaimable: number; paths: string[]; identities?: {path:string;id:number;version:number}[] }[];
   trash: { files: number; bytes: number };
   versions: { versions: number; bytes: number };
   buckets?: BucketStat[];
+}
+
+function duplicateIdentity(group: Data["duplicates"][number], path: string) {
+  if (!Array.isArray(group.identities) || !/^[0-9a-f]{64}$/.test(group.sha256)) return undefined;
+  return group.identities.find(x => x && x.path === path && Number.isSafeInteger(x.id) && x.id > 0 && Number.isSafeInteger(x.version) && x.version > 0);
 }
 
 /** FM-07: logical VFS usage AND the browser's real origin quota, plus AP-02 per-bucket uninstall assistant. */
@@ -30,6 +35,9 @@ export default function StorageModule(_: ModuleProps) {
   const shell = useShell();
   const [d, setD] = useState<Data | null>(null);
   const [overviewError, setOverviewError] = useState(false);
+  const [duplicateError, setDuplicateError] = useState("");
+  const [duplicateBusy, setDuplicateBusy] = useState<string[]>([]);
+  const duplicateLocks = useRef(new Set<string>());
   const [overviewLoading, setOverviewLoading] = useState(true);
   const overviewEpoch = useRef(0);
   const [quota, setQuota] = useState<{ usage: number; quota: number } | null>(null);
@@ -203,6 +211,8 @@ export default function StorageModule(_: ModuleProps) {
       </Section>
 
       {d ? <><Section title="Duplicates (by content digest)">
+        {duplicateError ? <div role="alert">{duplicateError} <Btn variant="ghost" onClick={() => setDuplicateError("")}>Dismiss</Btn></div> : null}
+        {d.duplicates.some(g => !g.paths.every(path => duplicateIdentity(g, path))) ? <div role="status">Duplicate Trash unavailable: file identities are missing or invalid. Refresh or update the server.</div> : null}
         {d?.duplicates.length ? (() => { const sum = reclaimSummary(d.duplicates.map((g) => ({ copies: g.copies, reclaimable: Number(g.reclaimable) }))); return <Badge tone="warn" data-testid="storage-reclaim-summary">{sum.groups} duplicate groups · {sum.copies} copies · reclaim {fmtBytes(sum.bytes)}</Badge>; })() : null}
         {d?.duplicates.length ? d.duplicates.map((g) => (
           <div key={g.sha256} className="fs-panel" data-testid="storage-duplicate-group" style={{ padding: 8, display: "grid", gap: 3 }}>
@@ -213,7 +223,20 @@ export default function StorageModule(_: ModuleProps) {
             {g.paths.map((p, i) => (
               <div key={p} className="fs-row" style={{ justifyContent: "space-between" }}>
                 <span className="fs-mono" style={{ fontSize: fz(11) }}>{p}</span>
-                {i > 0 ? <Btn variant="ghost" onClick={async () => { await post("/api/fs", { op: "trash", path: p }); shell.bumpRefresh(); }}>Trash</Btn> : <Badge tone="ok">keep</Badge>}
+                {i > 0 ? <Btn variant="ghost" disabled={duplicateBusy.includes(p) || !duplicateIdentity(g, p) || !duplicateIdentity(g, g.paths[0])} onClick={async () => {
+                  if (duplicateLocks.current.has(p)) return;
+                  const target = duplicateIdentity(g, p), retained = duplicateIdentity(g, g.paths[0]);
+                  if (!target || !retained) return;
+                  duplicateLocks.current.add(p); setDuplicateBusy(current => [...current, p]); setDuplicateError("");
+                  try {
+                    const response = await fetch("/api/fs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ op: "trashDuplicateGuarded", path: p, expectedTrash: { id: target.id, version: target.version, sha256: g.sha256 }, duplicatePeer: { ...retained, sha256: g.sha256 } }) });
+                    const result = await response.json() as { ok?: unknown; sidecar?: string };
+                    if (!response.ok || result.ok !== true) throw new Error("not confirmed");
+                    if (result.sidecar?.startsWith("not followed")) setDuplicateError(`File moved to Trash, but its companion was not: ${result.sidecar}`);
+                    shell.bumpRefresh();
+                  } catch { setDuplicateError(`Trash not confirmed for ${p}. It may have changed or the request may have completed; refresh and check both copies before retrying.`); }
+                  finally { duplicateLocks.current.delete(p); setDuplicateBusy(current => current.filter(path => path !== p)); }
+                }}>Trash</Btn> : <Badge tone="ok">keep</Badge>}
               </div>
             ))}
           </div>

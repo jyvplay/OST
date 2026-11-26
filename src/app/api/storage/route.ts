@@ -188,7 +188,8 @@ export async function GET() {
       select path, size, mime from vfs_nodes where kind='file' and trashed=false order by size desc limit 15`),
     db.execute(sql`
       select sha256, count(*)::int as copies, max(size)::int as size,
-             (count(*) - 1) * max(size) as reclaimable, array_agg(path order by path) as paths
+             (count(*) - 1) * max(size) as reclaimable, array_agg(path order by path) as paths,
+             json_agg(json_build_object('path', path, 'id', id, 'version', version) order by path) as identities
       from vfs_nodes where kind='file' and trashed=false and sha256 <> '' and size > 0
       group by sha256 having count(*) > 1 order by reclaimable desc limit 30`),
     db.execute(sql`
