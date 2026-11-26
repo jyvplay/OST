@@ -438,8 +438,7 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
   const expectedSidecar = duplicateSidecar === null ? null : parseExpectedTrash(duplicateSidecar);
   if (p === "/") throw new Error("Refusing to trash the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
-  let sidecarFollowed = false;
-  await safeTransaction(async (tx) => {
+  const outcome = await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
@@ -471,15 +470,15 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
       }
     }
     if (!node) throw new Error(`not found: ${p}`);
-    if (node.trashed) return; // do not reset the original deletion time/group
+    if (node.trashed) return { changed: false, sidecarFollowed: false }; // do not reset the original deletion time/group
     await tx.update(vfsNodes).set({ trashed: true, trashedFrom: p, updatedAt: new Date() })
       .where(and(eq(vfsNodes.trashed, false), or(eq(vfsNodes.path, p), like(vfsNodes.path, pattern))));
     await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), or(eq(indexDocs.ref, p), like(indexDocs.ref, pattern))));
     await tx.insert(fileOps).values({ op: "trash", src: p, state: "COMPLETE", bytes: node.size });
     await tx.insert(auditLog).values({ actor: "user", action: "fs.trash", detail: isPrivateVfsPath(p) ? "/Private/…" : p });
-    return followedSidecar;
-  }).then(value => { sidecarFollowed = Boolean(value); });
-  return { ok: true, ...(sidecarFollowed ? { sidecar: "followed" } : {}) };
+    return { changed: true, sidecarFollowed: followedSidecar };
+  });
+  return { ok: true, changed: outcome.changed, ...(outcome.sidecarFollowed ? { sidecar: "followed" } : {}) };
 }
 
 /** Restore only nodes that belonged to the selected trash group. Independent
@@ -490,11 +489,11 @@ export async function restoreNode(path: string) {
   const p = normalize(path);
   if (p === "/") throw new Error("Refusing to restore the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
-  await safeTransaction(async (tx) => {
+  const changed = await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
-    if (!node || !node.trashed) return; // idempotent; do not revive other trash groups
+    if (!node || !node.trashed) return false; // idempotent; do not revive other trash groups
     await writableDirectories(tx, parentOf(p), false);
     await tx.execute(sql`
       WITH restored AS (
@@ -513,8 +512,9 @@ export async function restoreNode(path: string) {
     `);
     await tx.insert(fileOps).values({ op: "restore", src: p, state: "COMPLETE", bytes: node.size });
     await tx.insert(auditLog).values({ actor: "user", action: "fs.restore", detail: isPrivateVfsPath(p) ? "/Private/…" : p });
+    return true;
   });
-  return { ok: true };
+  return { ok: true, changed };
 }
 
 export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard?: unknown) {
@@ -526,9 +526,10 @@ export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard
   // Removing current nodes but leaving their versions or descendant search
   // snippets makes "delete permanently" misleading. Keep these row deletions
   // and the audit record atomic; this is not secure erasure of external copies.
-  await safeTransaction(async (tx) => {
+  const changed = await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === cache || cache.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
+    const [primary] = await tx.select({ id: vfsNodes.id }).from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
     if (expectedPhoto) await checkExpectedPhoto(tx, expectedPhoto);
     if (expectedRecipe !== undefined) {
       const [current] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
@@ -542,8 +543,9 @@ export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard
       await tx.delete(indexDocs).where(and(eq(indexDocs.source, "file"), or(eq(indexDocs.ref, p), like(indexDocs.ref, pattern))));
     }
     await tx.insert(auditLog).values({ actor: "user", action: "fs.purge", detail: isPrivateVfsPath(p) ? "/Private/…" : p });
+    return !!primary && expectedRecipe !== null;
   });
-  return { ok: true };
+  return { ok: true, changed };
 }
 
 export async function mkdir(path: string) {

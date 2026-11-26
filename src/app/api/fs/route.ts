@@ -27,7 +27,11 @@ import { sidecarPath, isSidecar } from "@/lib/photos/recipe";
  * after the primary operation; failure is returned and cannot undo the primary.
  * Encrypted Private names cannot be paired by this server without the keys.
  */
-async function followSidecar<T extends object>(res: T, src: string, op: "trash" | "restore" | "purge"): Promise<T & { sidecar?: string }> {
+async function followSidecar<T extends { changed: boolean }>(result: T, src: string, op: "trash" | "restore" | "purge"): Promise<Omit<T, "changed"> & { sidecar?: string }> {
+  // A no-op on the primary must never mutate an independently changed companion.
+  // This does not make the legacy follow-up atomic; it remains a separate transaction.
+  const { changed, ...res } = result;
+  if (!changed) return res;
   const from = normalize(src);
   if (isSidecar(from)) return res;
   const sc = sidecarPath(from);
