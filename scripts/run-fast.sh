@@ -42,7 +42,15 @@ include_oracle=0
 # mechanical (the same markers run-all.sh's environment implies), not a list of
 # names we happen to trust today: a suite edited tomorrow to fetch BASE is
 # refused here until a human re-reads it.
+declare -A suite_seen=() suite_duplicate=()
+FAST_DUPLICATES=""
 for s in $SUITES; do
+  case "$s" in ''|*[!a-zA-Z0-9_-]*) echo "REFUSED $s: invalid suite name" >&2; exit 2;; esac
+  if [ -n "${suite_seen[$s]:-}" ] && [ -z "${suite_duplicate[$s]:-}" ]; then
+    FAST_DUPLICATES="$FAST_DUPLICATES $s"
+    suite_duplicate[$s]=1
+  fi
+  suite_seen[$s]=1
   f="scripts/$s.mts"
   [ -f "$f" ] || { echo "REFUSED $s: no such suite file" >&2; exit 2; }
   # TT142: strip string literals and comments before looking for a real
@@ -64,15 +72,32 @@ for s in $SUITES; do
   fi
 done
 
+# Same-named suites write the same harness receipt. This workspace-wide lock
+# also coordinates overlapping run-fast invocations. Distinct names remain parallel.
+# Advisory flock protects cooperating runners only; different suite names may
+# still share another resource and must be independently reviewed.
+command -v flock >/dev/null 2>&1 || { echo "REFUSED: flock is required to serialize suite receipts" >&2; exit 2; }
+FAST_LOCK_DIR="$(pwd)/.cache/run-fast-locks"
+FAST_LOCK_WAIT_SECONDS="${FAST_LOCK_WAIT_SECONDS:-1200}"
+case "$FAST_LOCK_WAIT_SECONDS" in ''|*[!0-9]*) echo "REFUSED: FAST_LOCK_WAIT_SECONDS must be a nonnegative integer" >&2; exit 2;; esac
+mkdir -p -- "$FAST_LOCK_DIR" || { echo "REFUSED: cannot create runner lock directory" >&2; exit 2; }
+export FAST_LOCK_DIR FAST_DUPLICATES FAST_LOCK_WAIT_SECONDS
+
 run_one() {
   s="$1"
-  local t0 t1
+  local t0 t1 lockfd
+  exec {lockfd}>"$FAST_LOCK_DIR/$s.lock" || { echo "FAILED $s (cannot open receipt lock)"; return 1; }
+  flock -x -w "$FAST_LOCK_WAIT_SECONDS" "$lockfd" || { echo "FAILED $s (cannot acquire receipt lock)"; exec {lockfd}>&-; return 1; }
   t0=$(date +%s%N)
   out=$(timeout 1200 node --use-system-ca --experimental-strip-types --no-warnings --import ./scripts/register-hook.mjs "scripts/$s.mts" 2>&1)
   status=$?
   t1=$(date +%s%N)
   if [ -n "${FAST_LOG_DIR:-}" ]; then
-    printf '%s\n' "$out" >"$FAST_LOG_DIR/$s.log" || { echo "FAILED $s (full log write)"; return; }
+    printf '%s\n' "$out" >"$FAST_LOG_DIR/$s.log" || { echo "FAILED $s (full log write)"; exec {lockfd}>&-; return 1; }
+    # Keep every duplicate's full diagnostics as well as the canonical last log.
+    case " $FAST_DUPLICATES " in
+      *" $s "*) printf '%s\n' "$out" >"$FAST_LOG_DIR/$s.$BASHPID.log" || { echo "FAILED $s (duplicate log write)"; exec {lockfd}>&-; return 1; };;
+    esac
   fi
   if [ "$status" -ne 0 ] || echo "$out" | grep -qE "[1-9][0-9]* failed"; then echo "FAILED $s"; fi
   if ! echo "$out" | grep -qE "[0-9]+ passed, [0-9]+ failed"; then echo "CRASHED $s (no summary line)"; echo "$out" | tail -6; fi
@@ -85,12 +110,16 @@ run_one() {
   fi
   echo "=== $s $(( (t1 - t0) / 1000000 ))ms"
   echo "$out" | grep -E "✗|passed, " | head -20
+  exec {lockfd}>&-
 }
 export -f run_one
 
 results=$(printf '%s\n' $SUITES | xargs -P "$JOBS" -I{} bash -c 'run_one "$@"' _ {})
+worker_status=$?
 echo "$results"
 failed=$(echo "$results" | grep -E "^(FAILED|CRASHED) " || true)
+if [ "$worker_status" -ne 0 ]; then failed="$failed
+FAILED runner worker (xargs exit $worker_status)"; fi
 if [ "$include_oracle" -eq 1 ]; then
   echo "== network-dependent oracle-ai (serial; may fetch its held-out corpus)"
   oracle_result=$(run_one oracle-ai)
