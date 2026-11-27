@@ -1,0 +1,43 @@
+# TT234 — narrow legacy companion-follow race
+
+## Resources and model
+
+This turn used a 2-CPU sandbox, Node/TypeScript and Next production compiler, ESLint, Playwright with real Chromium 143, a real Next HTTP server and an exclusive disposable PostgreSQL 19 database. The test-only blocker is a real PostgreSQL transaction issuing SQL; it is not an emulated database. PostgreSQL documentation was searched. No independent agents, theorem prover, simulator or expert review was used.
+
+Admissible objects: a completed legacy primary Trash, Restore or Purge transaction; the route's subsequently observed named companion row; and a follow-up transaction. The information available to the follow-up is the actual observed row's id, kind, version, stored digest, content and trashed flag. For each such request and each concurrent history, **if those observed fields differ when the row is locked by the follow-up, then that follow-up must not mutate it**, and the HTTP response must not claim a confirmed companion follow. Successful unchanged companion follows must remain available. No-op primaries must still not initiate follow. The unit is one operation and one observed row; lock waits are bounded by test timeout, not asserted to be production time limits. This is not a contract about changes before the route's companion read, files added below a directory companion, all possible row fields, durability of UI warnings, old servers, raw SQL by privileged actors, secure deletion, or an atomic pair. The primary has already committed; refusal is a partial outcome, not rollback of the primary. A missing row may appear after an absence read. A lost commit acknowledgement may also leave companion outcome unknown.
+
+H+: an internal row snapshot checked after `FOR UPDATE` can reject the observed-then-changed case. H−: without atomic pair identity or a shared durable generation, a later path lookup alone cannot reconstruct an earlier state for every history. H∂: results depend on the fields tracked, the time of observation, the lock participants, lost replies and writer versions. Evidence threshold for this narrow repair: deterministic counterexample against prior production build, successful rebuild, patch-specific real database attacks, old no-op and duplicate-trash regressions and UI observation; full gate reported separately. No Class-A or OS-completeness claim follows.
+
+## External frontier
+
+Under PostgreSQL READ COMMITTED, a `SELECT FOR UPDATE` that waits for a conflicting update returns the updated row or no row after the other transaction completes; row locks cover existing rows and protect against concurrent modification only until transaction end. Transaction advisory locks coordinate only participants. Serializable transactions require handling possible serialization failures and apply only under their stated transaction participation assumptions. See [PostgreSQL isolation](https://www.postgresql.org/docs/15/transaction-iso.html) and [explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html). These are properties of PostgreSQL, not a proof that every application writer participates or that this pair is atomic. The open interface is a provenance-bound, atomic or safely conditional primary/companion operation that preserves old trash groups, restore and purge behavior and encrypted-path privacy.
+
+## Evidence and design
+
+`scripts/tt234-companion-follow-race.mts` holds the actual companion row in a separate transaction, updates it, starts the actual server operation, observes a real blocked backend through `pg_blocking_pids`, then commits the competing update. Prior build: **0/3**; trash and restore changed the newly updated companion's state and purge removed it. Patched: **4/4**, adding a content-only change that keeps stored version/digest unchanged. The route now passes the row it actually read to the follow transaction; the latter rechecks the selected fields under the row lock and reports `not followed` on mismatch. This is internal server state, not a client authorization token. Fields outside that snapshot, full directory subtrees, ABA transitions restoring every selected field, and changes before the read remain unprotected. The legacy follow still occurs separately and can fail after the primary commits.
+
+Files now displays a dismissible, pane-local warning for a `not followed` result: primary completed, companion not confirmed. It accumulates warnings during bulk operations. It is not a durable receipt, and clients other than Files may still ignore this field. `scripts/e2e-tt234-companion-warning.mts` exercises the actual keyboard Trash action in real Chromium while a real PostgreSQL writer blocks the follow, verifies the changed companion remains live directly in PostgreSQL, observes the warning, and dismisses it: **1/1**. No response interception was used in this test.
+
+Additional reruns: TT233 8/8, TT232 6/6, TT231 8/8, TT94 12/12, TT95 concurrency 13/13 and forced races 3/3, TT128 Photos 11/11, TT127 Photos 1/1. TT55 Files initially 14/15 because the independent Python executable was not installed; after `scripts/prepare-oracles.sh`, rerun 15/15. Production build, changed route/VFS/FilesPane lint, and `git diff --check` passed. These finite tests do not prove all histories. Two new suites were added to the recurring gate; that increases coverage but no speedup or CPU Pareto improvement was measured. The extra row materialization/content comparison may add cost and has not been benchmarked.
+
+## Mechanism portfolio / adversarial interfaces
+
+| Mechanism and artifact | Demonstrated portion | Specific attack / cheap falsification | Gap |
+|---|---|---|---|
+| Read, then compare under row lock (this patch and real lock test) | selected-field changes after read rejected | modify companion before the read or alter an untracked field | local but fundamental time-of-observation gap |
+| Unguarded second transaction (prior code, baseline 0/3) | ordinary paired path works | update locked companion before follow gets its lock | local TOCTOU counterexample |
+| Same transaction primary and companion (TT232 guarded Trash) | tested duplicate-trash case | legacy restore, purge, independently trashed groups and absent row | integration/provenance gap; not implemented for all operations |
+| Durable pair generation (design) | can identify a prior association if consistently maintained | old unmarked groups, restore/re-trash ABA, migration or old writers | broader schema/migration and writer-compatibility problem |
+| Serializable transactions (design) | documented serial order for participating committed transactions | old READ COMMITTED writer; retries and lost responses | does not establish correct identity or all-writer participation |
+| Never follow (design) | prevents unintended follow mutations | ordinary paired trash/restore | fails required existing behavior |
+| Client confirmation (design) | expresses intent | concurrent post-confirmation change | original stale-state problem remains |
+
+A 200, modal happy path, screenshot, green build, confirmation, filename, byte size, stored digest alone, row id alone, prior report, advisory lock without participation, first transaction commit, absent exception, mocked reply, toast, successful retry, raw register label, majority of tests, and same selected fields before a later unobserved change are not proofs. The modal shortcut fails because an ordinary unchanged companion succeeds while a changed companion should not; the actual held-row test detects that divergence. The strongest next test is a barrier **before** `getNode(sc)` showing a new companion is adopted after the primary commits, followed by an atomic/provenance design that preserves independently trashed groups and reports ambiguity.
+
+## Scope not completed
+
+No ten additional production-ready Class-A features, all-app visual review, new original graphics, all-spec completion, benchmarked Pareto speedup or defensible modern-OS parity percentage was established this turn. The app includes a server and PostgreSQL; a native operating system and browser PWA are not interchangeable deployment or capability claims. No density caps were weakened to make the gate pass.
+
+## Full gate result
+
+Full gate `.cache/gate/20261127T005311Z/run-3654-B4xh2c` exited 1. New lock test passed 4/4 and real-browser warning 1/1 in the gate. TT124 Routines density was 306/300, TT125 Files 375/260, TT123 Files 375/320. `tt134-review-repairs` failed two real GitHub framing checks: actual `unknown`, expected `csp-restricted`; its network/DNS dependency was not diagnosed further. The prior TT233 dock-layout failure did not recur in this gate. No density fix or all-app visual review was completed.

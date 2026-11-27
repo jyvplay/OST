@@ -105,6 +105,7 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
   const [showTrash, setShowTrash] = useState(initialTrash === true);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
+  const [companionWarnings, setCompanionWarnings] = useState<string[]>([]);
   const [menu, setMenu] = useState<{ x: number; y: number; node: FNode | null; query: string; full: boolean } | null>(null);
   const [showHidden, setShowHidden] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -276,14 +277,22 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
     setClip({ mode, paths });
     shell.toast(`${paths.length} item(s) ${mode === "cut" ? "cut" : "copied"} — paste with Ctrl+V or the Paste button`, "info");
   };
-  const trashPaths = (paths: string[]) => run("trash", async () => { for (const p of paths) await post("/api/fs", { op: "trash", path: p }); });
-  const restorePaths = (paths: string[]) => run("restore", async () => { for (const p of paths) await post("/api/fs", { op: "restore", path: p }); });
+  const runWithCompanionNotice = async (op: "trash" | "restore" | "purge", paths: string[]) => {
+    for (const path of paths) {
+      const result = await post<{ sidecar?: unknown }>("/api/fs", { op, path });
+      if (typeof result?.sidecar === "string" && result.sidecar.startsWith("not followed")) {
+        setCompanionWarnings(previous => [...previous, `${op}: ${path} — primary completed, companion not confirmed. Check it before retrying.`]);
+      }
+    }
+  };
+  const trashPaths = (paths: string[]) => run("trash", () => runWithCompanionNotice("trash", paths));
+  const restorePaths = (paths: string[]) => run("restore", () => runWithCompanionNotice("restore", paths));
   const purgePaths = async (paths: string[]) => {
     const ok = await askText(`Permanently delete ${paths.length} item(s)?`, "", {
       okLabel: "Delete permanently", detail: "Removes these Fusion files, saved versions and search entries from the current database. Backups, database logs, replicas and disk remnants may remain; this is not secure erasure. Type delete to confirm.",
       validate: (v) => (v.trim().toLowerCase() === "delete" ? null : "Type delete to confirm."),
     });
-    if (ok !== null) void run("purge", async () => { for (const p of paths) await post("/api/fs", { op: "purge", path: p }); });
+    if (ok !== null) void run("purge", () => runWithCompanionNotice("purge", paths));
   };
   const rename = async (n: FNode) => {
     const name = await askText("Rename", n.name, { okLabel: "Rename", validate: (v) => badName(v) ?? (v !== n.name && nodes.some((x) => x.name === v) ? `“${v}” already exists here.` : null) });
@@ -721,6 +730,10 @@ export default function FilesPane({ paneId, initialPath, initialTrash, active, o
       style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, minWidth: 0, flex: 1, outline: active ? "2px solid color-mix(in srgb, var(--fs-accent) 45%, transparent)" : undefined, outlineOffset: -2 }}
       onFocusCapture={onActivate} onMouseDownCapture={onActivate} onKeyDown={onPaneKey} onMouseUp={onMouseUp} onAuxClick={swallowAux}
       onClick={() => { setMenu(null); setNewOpen(false); }}>
+      {companionWarnings.length ? <div role="alert" data-testid="files-companion-warning" className="fs-panel" style={{ padding: 8, overflowWrap: "anywhere" }}>
+        {companionWarnings.map((warning, i) => <div key={`${i}-${warning}`}>{warning}</div>)}
+        <Btn variant="ghost" onClick={() => setCompanionWarnings([])}>Dismiss warnings</Btn>
+      </div> : null}
       {/* navigation + view row */}
       <div className="fs-row" style={{ padding: 6, gap: 4, borderBottom: "1px solid var(--fs-border)", flexWrap: "wrap" }}>
         <Btn variant="ghost" onClick={back} disabled={!h.back.length} title="Back (Alt+←, Backspace, mouse button 4)" aria-label="Back"><UiGlyph name="back" /></Btn>
