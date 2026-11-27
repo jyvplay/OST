@@ -113,6 +113,15 @@ export class PhotoRecipeConflict extends Error {}
 export class TrashTargetConflict extends Error {}
 export interface ExpectedTrash { id: number; version: number; sha256: string }
 
+/** Internal snapshot of the particular companion observed by the route.
+ * It is not a client-provided permission or a durable association. */
+export type CompanionSnapshot = Pick<typeof vfsNodes.$inferSelect, "id" | "kind" | "version" | "sha256" | "content" | "trashed">;
+function checkCompanionSnapshot(node: typeof vfsNodes.$inferSelect | undefined, expected: CompanionSnapshot | undefined): void {
+  if (expected && (!node || node.id !== expected.id || node.kind !== expected.kind || node.version !== expected.version || node.sha256 !== expected.sha256 || node.content !== expected.content || node.trashed !== expected.trashed)) {
+    throw new TrashTargetConflict("Companion changed after it was observed; refresh before retrying");
+  }
+}
+
 function parseExpectedTrash(value: unknown): ExpectedTrash | undefined {
   if (value === undefined) return undefined;
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid Trash target guard");
@@ -405,7 +414,7 @@ export async function transferNode(src: string, dst: string, mode: "move" | "cop
 
 /** Reversible tree trash. Descendants keep their own earlier trash group; the
  * search index and journal are changed in the same transaction as the nodes. */
-export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown, duplicatePeer?: unknown, duplicateSidecar?: unknown) {
+export async function trashNode(path: string, guard?: unknown, backupInventory?: unknown, duplicatePeer?: unknown, duplicateSidecar?: unknown, followSnapshot?: CompanionSnapshot) {
   const expected = parseExpectedTrash(guard);
   const p = normalize(path);
   // Optional cooperative snapshot guard is scoped to Backup's direct files.
@@ -442,6 +451,7 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    checkCompanionSnapshot(node, followSnapshot);
     if (inventory) {
       const rows = await tx.select({ name: vfsNodes.name, id: vfsNodes.id, version: vfsNodes.version, sha256: vfsNodes.sha256 }).from(vfsNodes)
         .where(and(eq(vfsNodes.parent, "/Backups"), eq(vfsNodes.kind, "file"), eq(vfsNodes.trashed, false)));
@@ -485,7 +495,7 @@ export async function trashNode(path: string, guard?: unknown, backupInventory?:
  * earlier deletions stay in trash. A legacy null group is ambiguous, so only
  * the selected node is restored; descendants can be restored individually.
  * Index rebuild runs in PostgreSQL, without loading all file bodies into JS. */
-export async function restoreNode(path: string) {
+export async function restoreNode(path: string, followSnapshot?: CompanionSnapshot) {
   const p = normalize(path);
   if (p === "/") throw new Error("Refusing to restore the VFS root");
   const pattern = descendantsOf(p), thumbnailRoot = "/System/Cache/thumbs";
@@ -493,6 +503,7 @@ export async function restoreNode(path: string) {
     await lockVfsPurge(tx);
     if (p === thumbnailRoot || thumbnailRoot.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
     const [node] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    checkCompanionSnapshot(node, followSnapshot);
     if (!node || !node.trashed) return false; // idempotent; do not revive other trash groups
     await writableDirectories(tx, parentOf(p), false);
     await tx.execute(sql`
@@ -517,7 +528,7 @@ export async function restoreNode(path: string) {
   return { ok: true, changed };
 }
 
-export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard?: unknown) {
+export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard?: unknown, followSnapshot?: CompanionSnapshot) {
   const expectedPhoto = parseExpectedPhoto(guard, path);
   const expectedRecipe = parseExpectedRecipe(recipeGuard, expectedPhoto);
   const p = normalize(path);
@@ -529,7 +540,8 @@ export async function purgeNode(path: string, guard?: ExpectedPhoto, recipeGuard
   const changed = await safeTransaction(async (tx) => {
     await lockVfsPurge(tx);
     if (p === cache || cache.startsWith(`${p}/`) || isThumbnailCacheEntry(p)) await lockThumbnailCache(tx);
-    const [primary] = await tx.select({ id: vfsNodes.id }).from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    const [primary] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");
+    checkCompanionSnapshot(primary, followSnapshot);
     if (expectedPhoto) await checkExpectedPhoto(tx, expectedPhoto);
     if (expectedRecipe !== undefined) {
       const [current] = await tx.select().from(vfsNodes).where(eq(vfsNodes.path, p)).limit(1).for("update");

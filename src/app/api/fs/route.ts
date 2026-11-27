@@ -38,9 +38,9 @@ async function followSidecar<T extends { changed: boolean }>(result: T, src: str
   try {
     const node = await getNode(sc);
     if (!node) return res;
-    if (op === "trash") await trashNode(sc);
-    else if (op === "restore") await restoreNode(sc);
-    else await purgeNode(sc);
+    if (op === "trash") await trashNode(sc, undefined, undefined, undefined, undefined, node);
+    else if (op === "restore") await restoreNode(sc, node);
+    else await purgeNode(sc, undefined, undefined, node);
     return { ...res, sidecar: "followed" };
   } catch (e) { return { ...res, sidecar: `not followed: ${(e as Error).message}` }; }
 }
