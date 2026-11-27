@@ -115,9 +115,9 @@ export interface ExpectedTrash { id: number; version: number; sha256: string }
 
 /** Internal snapshot of the particular companion observed by the route.
  * It is not a client-provided permission or a durable association. */
-export type CompanionSnapshot = Pick<typeof vfsNodes.$inferSelect, "id" | "kind" | "version" | "sha256" | "content" | "trashed">;
+export type CompanionSnapshot = typeof vfsNodes.$inferSelect;
 function checkCompanionSnapshot(node: typeof vfsNodes.$inferSelect | undefined, expected: CompanionSnapshot | undefined): void {
-  if (expected && (!node || node.id !== expected.id || node.kind !== expected.kind || node.version !== expected.version || node.sha256 !== expected.sha256 || node.content !== expected.content || node.trashed !== expected.trashed)) {
+  if (expected && (!node || node.id !== expected.id || node.path !== expected.path || node.parent !== expected.parent || node.name !== expected.name || node.kind !== expected.kind || node.mime !== expected.mime || node.encoding !== expected.encoding || node.content !== expected.content || node.size !== expected.size || node.sha256 !== expected.sha256 || node.tags !== expected.tags || node.trashed !== expected.trashed || node.trashedFrom !== expected.trashedFrom || node.version !== expected.version || node.createdAt.getTime() !== expected.createdAt.getTime() || node.updatedAt.getTime() !== expected.updatedAt.getTime())) {
     throw new TrashTargetConflict("Companion changed after it was observed; refresh before retrying");
   }
 }
